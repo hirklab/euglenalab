@@ -50,5 +50,3 @@ do
 done
 
 sudo sysctl net.ipv4.ip_forward=1
- \ No newline at end of file
-server setup
