@@ -1,11 +1,9 @@
 #!/bin/bash
 
 # Check deployment.js
-PUBLIC_IP="171.65.102.112"
-LOCAL_IP="192.168.1.100"
-PUBLIC_PORT="3000"
-
-BPU_LIST="1 2 3"
+set -o allexport
+source .env
+set +o allexport
 
 # Reseting the iptable
 sudo iptables --policy INPUT   ACCEPT;
@@ -52,3 +50,5 @@ do
 done
 
 sudo sysctl net.ipv4.ip_forward=1
+ \ No newline at end of file
+server setup

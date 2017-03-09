@@ -1,6 +1,9 @@
 #!/bin/bash
 
 #forever -c "node --max-old-space-size=8192" -o out.log -e err.log  procApp.js
-export GOPATH=/home/mserver/go
-export GOROOT=/opt/go
+
+set -o allexport
+source ../.env
+set +o allexport
+
 forever -l forever.log -c "go run" -e "errors.log" processing.go

@@ -68,8 +68,6 @@ const (
 	BPU_PATH                  = ROOT + "bpuEuglenaData_forMounting/"
 	FINAL_PATH                = ROOT + "finalBpuData/"
 	MINIMUM_JPG_FILES         = 20
-	MONGODB_URI        string = "192.168.1.100"
-	DATABASE                  = "master"
 	COLLECTION                = "bpuexperiments"
 	BPUCOLLECTION             = "bpus"
 	MOVIEEXEC                 = "./tools/euglenamovie"
@@ -77,6 +75,9 @@ const (
 	MOVE_DATA                 = "./tools/movedata.sh"
 	PYTHON_SCRIPT_ROOT        = "../shared/python-scripts/"
 )
+
+var MONGODB_URI        string = os.Getenv("MONGODB_HOST")
+var DATABASE                  = os.Getenv("MONGODB_DATABASE")
 
 type ExpUser struct {
 	Id     bson.ObjectId `bson:"id,omitempty"`
