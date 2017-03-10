@@ -27,18 +27,18 @@ var serverInfo = {
     Identifier: 'C422691AA38F9A86EC02CB7B55D5F542',
     name: 'radiantllama',
     socketClientServerIP: 'biotic.stanford.edu',
-    socketClientServerPort: 8084
+    socketClientServerPort: 4200
 };
 
 var user = {
-    id: '582125878414c9532bafabaa',
+    id: '574885898bf18b9508193e2a',
     name: 'radiantllama',
     groups: ['default']
 };
 
 var session = {
-    id: '582117b8ba3546ad26e4a452',
-    sessionID: 'i4bP9hXwNA3WuH0p6m0TCUIA9Wtz0Ydu',
+    id: '58bf571cc89b99092553fa65',
+    sessionID: 'R-OpYLbT6Kk-GXyEmX1SOOOHDw157mJc',
     socketID: null,
     socketHandle: '/account/joinlabwithdata',
     url: '/account/joinlabwithdata'
