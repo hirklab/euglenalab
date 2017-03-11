@@ -3,7 +3,7 @@
 	url = https://github.com/jacksonliam/mjpg-streamer.git
 [submodule "processing/euglenatracer"]
 	path = processing/euglenatracer
-	url = https://github.com/mdzahidh/euglenatracer.git
+	url = https://github.com/hirklab/euglenatracer.git
 [submodule "processing/euglenamovie"]
 	path = processing/euglenamovie
-	url = https://github.com/mdzahidh/euglenamovie.git
+	url = https://github.com/hirklab/euglenamovie.git
