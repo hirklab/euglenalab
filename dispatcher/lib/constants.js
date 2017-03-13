@@ -6,8 +6,12 @@ let EXPERIMENT_STATUS = {
     CREATED: 'created',
     SUBMITTED:'submited',
     QUEUED:'queued',
-    FINISHED:'servercleared'
+    SERVING:'addingtobpu',
+    FINISHED:'servercleared',
+};
 
+let BPU_STATUS = {
+    READY: 'resetingDone'
 };
 
 let PROFILERS = {
@@ -16,4 +20,8 @@ let PROFILERS = {
     RESPONSE: 'scripterResponse'
 };
 
-export {EXPERIMENT_STATUS, PROFILERS};
+let GROUPS = {
+    PROFILER: 'scripter'
+};
+
+export {EXPERIMENT_STATUS, PROFILERS, GROUPS, BPU_STATUS};

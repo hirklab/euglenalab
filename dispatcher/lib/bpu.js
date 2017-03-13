@@ -5,24 +5,161 @@
 import async from 'async';
 import client from 'socket.io-client';
 import _ from 'lodash';
-import {EXPERIMENT_STATUS, PROFILERS} from './constants';
+import {EXPERIMENT_STATUS, PROFILERS, GROUPS, BPU_STATUS} from './constants';
 
-export function verifyBPUs(bpuList, db, config, logger, startDate, callback) {
-    let workflow = [];
+export function verify(bpu, db, config, logger, startDate, status, callback) {
+    async.waterfall([
+        (callback) => {
+            status='connecting to BPU: '+bpu.doc.name;
+            logger.info(status);
 
-    let keys = Object.keys(bpuList);
+            connect(bpu, config, callback);
+        },
+        (bpu, callback) => {
+            if (!bpu.socket.connected) {
+                bpu.doc.bpuStatus = BPU_STATUS.OFFLINE;
 
-    keys.forEach((key) => {
-        bpuList[key].connected = false;
+                status='BPU: '+bpu.doc.name + ' is offline';
+                logger.error(status);
 
-        workflow.push((callback) => {
-            verify(bpuList[key], db, config, logger, startDate, callback)
-        });
-    });
+                return callback('socket not connected');
+            }
 
-    async.parallel(workflow, (err) => {
+            status='connected to BPU: '+bpu.doc.name + '@'+bpu.socket.id;
+            logger.info(status);
+
+            return callback(null,bpu);
+        },
+        (bpu, callback) => {
+            status='check status for BPU: '+bpu.doc.name;
+            logger.info(status);
+
+            bpu.socket.emit(config.socketRoutes.bpu.getStatus, (status)=>{
+                if (status == null) {
+                    log(logger, bpu, 'failed to fetch status');
+                    return callback('failed to fetch status');
+                }
+
+                return callback(null, status);
+            });
+        },
+        (status, callback) => {
+            bpu.connected = true;
+            bpu.socketTimeouts = 0;
+            bpu.queueTime = 0;
+            bpu.status = status;
+            bpu.doc.bpuStatus = status.bpuStatus;
+
+            return callback(null, bpu);
+        },
+        (bpu, callback) => {
+            // any active experiments?
+            status='checking for running experiments on BPU '+bpu.doc.name;
+            logger.info(status);
+
+            if (bpu.status.exp !== null && bpu.status.exp !== undefined) {
+                let isExperimentPending = (bpu.status.expOverId !== null && bpu.status.expOverId !== undefined);
+
+                bpu.doc.liveBpuExperiment.id = bpu.status.exp._id;
+                bpu.doc.liveBpuExperiment.group_experimentType = bpu.status.exp.group_experimentType;
+                bpu.doc.liveBpuExperiment.bc_timeLeft = bpu.status.expTimeLeft;
+                bpu.doc.liveBpuExperiment.username = bpu.status.exp.user.name;
+                bpu.doc.liveBpuExperiment.sessionID = bpu.status.exp.session.sessionID;
+                bpu.queueTime = bpu.doc.liveBpuExperiment.bc_timeLeft; // current experiment also included in queueTime
+
+                if (bpu.doc.bpuStatus !== config.bpuStatus.running && bpu.doc.bpuStatus !== config.bpuStatus.pendingRun
+                    && bpu.hasOwnProperty('setLEDs')) {
+                    delete bpu.setLEDs;
+                }
+
+                status='experiment in progress on BPU '+bpu.doc.name;
+                logger.info(status);
+            } else {
+                // no experiment in progress
+                bpu.doc.liveBpuExperiment.id = null;
+                bpu.doc.liveBpuExperiment.group_experimentType = 'text';
+                bpu.doc.liveBpuExperiment.bc_timeLeft = 0;
+                bpu.doc.liveBpuExperiment.sessionID = null;
+                bpu.doc.liveBpuExperiment.username = null;
+
+                status='no experiment in progress on BPU '+bpu.doc.name;
+                logger.info(status);
+            }
+
+            return callback(null, bpu);
+        },
+        (bpu, callback) => {
+            status='remove any stalled experiments on BPU '+bpu.doc.name;
+            logger.info(status);
+
+            clear(bpu, db, config, logger, callback);
+        },
+        (bpu, callback) => {
+            if (config.profiling) {
+                status='profiler is ON for BPU '+bpu.doc.name;
+                logger.info(status);
+
+                // create profiler
+                let profiler = [];
+                profiler.push({
+                    name: PROFILERS.POPULATION,
+                    age: startDate.getTime() - bpu.doc.performanceScores.scripterPopulationDate,
+                    msg: 'Population: ' + bpu.doc.performanceScores.scripterPopulation
+                });
+                profiler.push({
+                    name: PROFILERS.ACTIVITY,
+                    age: startDate.getTime() - bpu.doc.performanceScores.scripterActivityDate,
+                    msg: 'Activity: ' + bpu.doc.performanceScores.scripterActivity
+                });
+                profiler.push({
+                    name: PROFILERS.RESPONSE,
+                    age: startDate.getTime() - bpu.doc.performanceScores.scripterResponseDate,
+                    msg: 'Response: ' + bpu.doc.performanceScores.scripterResponse
+                });
+
+                profiler.sort(function (objA, objB) {
+                    return objA.age - objB.age;
+                });
+
+                return callback(null, profiler, bpu);
+            }
+
+            return callback(null);
+        },
+        (profiler, bpu, callback) => {
+            // run profiler experiments
+            if (config.profiling) {
+
+                status='adding profiler experiments for BPU '+bpu.doc.name;
+                logger.info(status);
+
+                // milliseconds
+                let lastProfilingTime = startDate.getTime() - bpu.doc.performanceScores.bc_lastSendDate;
+                let nextProfilingTime = config.profilingInterval - profiler[profiler.length - 1].age;
+
+                if (nextProfilingTime < 0 && lastProfilingTime > config.profilingInterval) {
+
+                    db.submitProfilingExperiment(bpu, {
+                            name: bpu.doc.name
+                        },
+                        {
+                            name: profiler[profiler.length - 1].name,
+                            groups: [GROUPS.PROFILER]
+                        }, function (err, bpu) {
+                            if (err) {
+                                return callback(err);
+                            }
+
+                            return callback(null, bpu);
+                        });
+                }
+            }
+
+            return callback(null);
+        }
+    ], (err) => {
         if (err) {
-            logger.error(err);
+            log(logger, bpu, err);
             return callback(err);
         }
 
@@ -30,8 +167,108 @@ export function verifyBPUs(bpuList, db, config, logger, startDate, callback) {
     });
 }
 
+export function processQueues(queues, bpuList, experiments, newExperiments, logger, startDate, status, callback) {
+    let profilerExperiments = {};
+    let scheduledExperiments = [];
+
+    // divide new experiments into profiler and user experiments
+    while (queues.newExps.length > 0) {
+        status='divide new experiments into profiler and user experiments';
+        logger.info(status);
+
+        let experiment = queues.newExps.shift();
+        updateExperimentQueues(experiment, profilerExperiments, scheduledExperiments, newExperiments, false);
+    }
+
+    // Save queues and check for new experiments and BPU experiments
+    queues.save((err, updatedQueues) =>{
+        while (updatedQueues.newExps.length > 0) {
+            status='divide new experiments into profiler and user experiments again';
+            logger.info(status);
+
+            let experiment = updatedQueues.newExps.shift();
+            updateExperimentQueues(experiment, profilerExperiments, scheduledExperiments, newExperiments, false);
+        }
+
+        // divide BPU experiments into profiler and user experiments
+        Object.keys(updatedQueues._doc).forEach((key) => {
+            if (isQueueForBPU(key)) {
+                while (updatedQueues[key].length > 0) {
+                    let experiment = updatedQueues[key].shift();
+                    updateExperimentQueues(experiment, profilerExperiments, scheduledExperiments, newExperiments, true);
+                }
+            }
+        });
+
+        updatedQueues._lostList = _.filter(updatedQueues._lostList, (experiment) => {
+            // interval from submission less than a day
+            return (startDate.getTime() - experiment.exp_submissionTime) - (24 * 60 * 60 * 1000) < 0;
+        });
+
+        scheduledExperiments.sort((objA, objB)=> {
+            return objA.submissionTime - objB.submissionTime;
+        });
+
+        let initialTime = null;
+
+        if (scheduledExperiments.length > 0) {
+            initialTime = scheduledExperiments[0].submissionTime;
+        }
+
+        // Push Profiler Experiments to Queue
+        Object.keys(profilerExperiments).forEach( (key)=> {
+            let experiment = profilerExperiments[key];
+
+            if (initialTime !== null) {
+                experiment.exp_submissionTime = initialTime;
+            }
+
+            scheduledExperiments.push({
+                id: experiment.id,
+                experiment: experiment,
+                submissionTime: experiment.exp_submissionTime,
+                username: experiment.user.name
+            });
+        });
+
+        scheduledExperiments.sort( (objA, objB)=> {
+            return objA.submissionTime - objB.submissionTime;
+        });
+
+        // verify 1st 10 experiments at a time
+        let verifyExperimentList = [];
+        _.each(_.take(scheduledExperiments, 10), (scheduledExperiment) => {
+            verifyExperimentList.push(verifyExperiment.bind(bpuList, experiments, scheduledExperiment.experiment, logger, startDate,));
+        });
+
+        async.series(verifyExperimentList, (err) =>{
+            if (err) {
+                return callback(err);
+            }
+
+            return callback(null);
+        });
+    });
+}
+
+export function executeExperiment(experiment, bpu, sockets, config, logger, callback) {
+    pushExperimentToBPU(experiment, bpu, sockets, config, logger, (err, session) =>{
+        if (err) {
+            log(logger, bpu, err);
+            return callback(err);
+        }
+
+        bpu.doc.session.id = session.id;
+        bpu.doc.session.sessionID = session.sessionID;
+        bpu.doc.session.socketID = session.socketID;
+
+        return callback(null, bpu);
+    });
+}
+
 function log(logger, bpu, message) {
-    logger('[' + bpu.doc.name + '] ' + message);
+    logger.info('[' + bpu.doc.name + '] ');
+    logger.info(message);
 }
 
 function connect(bpu, config, callback) {
@@ -43,15 +280,15 @@ function connect(bpu, config, callback) {
             reconnection: true
         });
 
-        bpu.socket.on('connect', function () {
-            bpu.setLEDs = function (ledData) {
+        bpu.socket.on('connect',  ()=> {
+            bpu.setLEDs = (ledData)=> {
                 bpu.socket.emit(config.socketRoutes.bpu.setLEDs, ledData);
             };
 
-            return callback(null);
+            return callback(null, bpu);
         });
 
-        bpu.socket.on('disconnect', function () {
+        bpu.socket.on('disconnect',  ()=> {
             disconnect(bpu, () => {
                 bpu.doc.bpuStatus = config.bpuStatus.offline;
             });
@@ -63,7 +300,7 @@ function connect(bpu, config, callback) {
                 return callback('socket reset');
             })
         } else {
-            return callback(null);
+            return callback(null, bpu);
         }
     }
 }
@@ -109,137 +346,8 @@ function clear(bpu, db, config, logger, callback) {
     }
 }
 
-function verify(bpu, db, config, logger, startDate, callback) {
-    async.waterfall([
-        (callback) => {
-            connect(bpu, config, callback);
-        },
-        (callback) => {
-            if (!bpu.socket.connected) {
-                bpu.doc.bpuStatus = config.bpuStatus.offline;
-
-                return callback('socket not connected');
-            }
-            return callback(null);
-        },
-        (callback) => {
-            bpu.socket.emit(config.socketRoutes.bpu.getStatus, callback);//socket get status
-        },
-        (status, callback) => {
-            if (status == null) {
-                log(logger, bpu, 'failed to fetch status');
-                return callback('failed to fetch status');
-            }
-
-            bpu.connected = true;
-            bpu.socketTimeouts = 0;
-            bpu.queueTime = 0;
-            bpu.status = status;
-            bpu.doc.bpuStatus = status.bpuStatus;
-
-            return callback(null, bpu);
-        },
-        (bpu, callback) => {
-            // any active experiments?
-            if (bpu.status.exp !== null && bpu.status.exp !== undefined) {
-                let isExperimentPending = (bpu.status.expOverId !== null && bpu.status.expOverId !== undefined);
-
-                bpu.doc.liveBpuExperiment.id = bpu.status.exp._id;
-                bpu.doc.liveBpuExperiment.group_experimentType = bpu.status.exp.group_experimentType;
-                bpu.doc.liveBpuExperiment.bc_timeLeft = bpu.status.expTimeLeft;
-                bpu.doc.liveBpuExperiment.username = bpu.status.exp.user.name;
-                bpu.doc.liveBpuExperiment.sessionID = bpu.status.exp.session.sessionID;
-                bpu.queueTime = bpu.doc.liveBpuExperiment.bc_timeLeft; // current experiment also included in queueTime
-
-                if (bpu.doc.bpuStatus !== config.bpuStatus.running && bpu.doc.bpuStatus !== config.bpuStatus.pendingRun
-                    && bpu.hasOwnProperty('setLEDs')) {
-                    delete bpu.setLEDs;
-                }
-            } else {
-                // no experiment in progress
-                bpu.doc.liveBpuExperiment.id = null;
-                bpu.doc.liveBpuExperiment.group_experimentType = 'text';
-                bpu.doc.liveBpuExperiment.bc_timeLeft = 0;
-                bpu.doc.liveBpuExperiment.sessionID = null;
-                bpu.doc.liveBpuExperiment.username = null;
-            }
-
-            return callback(null, bpu);
-        },
-        (bpu, callback) => {
-            // remove any stalled experiments
-            clear(bpu, db, config, logger, callback);
-        },
-        (bpu, callback) => {
-            if (config.profiling) {
-                // create profiler
-                let profiler = [];
-                profiler.push({
-                    name: 'scripterPopulation',
-                    age: startDate.getTime() - bpu.doc.performanceScores.scripterPopulationDate,
-                    msg: 'Population: ' + bpu.doc.performanceScores.scripterPopulation
-                });
-                profiler.push({
-                    name: 'scripterActivity',
-                    age: startDate.getTime() - bpu.doc.performanceScores.scripterActivityDate,
-                    msg: 'Activity: ' + bpu.doc.performanceScores.scripterActivity
-                });
-                profiler.push({
-                    name: 'scripterResponse',
-                    age: startDate.getTime() - bpu.doc.performanceScores.scripterResponseDate,
-                    msg: 'Response: ' + bpu.doc.performanceScores.scripterResponse
-                });
-
-                profiler.sort(function (objA, objB) {
-                    return objA.age - objB.age;
-                });
-
-                return callback(null, profiler, bpu);
-            }
-
-            return callback(null);
-        },
-        (profiler, bpu, callback) => {
-            // run profiler experiments
-
-            if (config.profiling) {
-                // milliseconds
-                let lastProfilingTime = startDate.getTime() - bpu.doc.performanceScores.bc_lastSendDate;
-                let nextProfilingTime = config.profilingInterval - profiler[profiler.length - 1].age;
-
-                if (nextProfilingTime < 0 && lastProfilingTime > config.profilingInterval) {
-
-                    db.submitProfilingExperiment(bpu, {
-                            name: bpu.doc.name
-                        },
-                        {
-                            name: profiler[profiler.length - 1].name,
-                            groups: ['scripter']
-                        }, function (err, bpu) {
-                            if (err) {
-                                return callback(err);
-                            }
-
-                            return callback(null, bpu);
-                        });
-                }
-            }
-
-            return callback(null);
-        }
-    ], (err) => {
-        if (err) {
-            log(logger, bpu, err);
-            return callback(err);
-        }
-
-        return callback(null);
-    });
-}
-
-
 function updateQueueTime(bpuList, callback) {
-    let newBPUList = _.mapValues(bpuList, function (bpu) {
+    let newBPUList = _.mapValues(bpuList,  (bpu)=> {
         //Set Queue Time
         if (bpu.queueTime === null || bpu.queueTime === undefined) {
             if (bpu.doc.liveBpuExperiment) {
@@ -292,11 +400,10 @@ function verifyExperiment(bpuList, experiments, bpuExperiment, logger, startDate
 
             // TODO: check this tag part
             //add exptag to experiment
-            experiment.tag = app.newExpTagObj[experiment._id];
+            // experiment.tag = newExperiments[experiment._id];
 
             //Remove expTag from main object
-            delete app.newExpTagObj[experiment._id];
-
+            // delete newExperiments[experiment._id];
 
 
             //reset experiment last resort
@@ -397,159 +504,196 @@ function verifyExperiment(bpuList, experiments, bpuExperiment, logger, startDate
     });//end for BpuExperiment.findById
 }
 
-function verifyExperiments(bpuList, experiments, db, logger, startDate, callback) {
-    let newExperiments = {};
+function updateExperimentQueues(experiment, profilerExperiments, scheduledExperiments, newExperiments, isBPUQueue) {
+    if (_.includes([PROFILERS.POPULATION, PROFILERS.ACTIVITY, PROFILERS.RESPONSE], experiment.user.name)) {
 
-    db.getNewExperiments(app.listExperimentDoc._id, (err, queue) => {
+
+        if (
+            // New Experiments Queue
+        (!isBPUQueue && experiment.exp_wantsBpuName !== null && experiment.exp_wantsBpuName !== undefined) || (
+
+            //BPU Experiments Queue
+            isBPUQueue && experiment.exp_lastResort.bpuName !== null && experiment.exp_lastResort.bpuName !== undefined
+        )) {
+            if (profilerExperiments[experiment.exp_wantsBpuName] === null || profilerExperiments[experiment.exp_wantsBpuName] === undefined) {
+                profilerExperiments[experiment.exp_wantsBpuName] = experiment;
+            } else if (profilerExperiments[experiment.exp_wantsBpuName].submissionTime < experiment.submissionTime) {
+                profilerExperiments[experiment.exp_wantsBpuName] = experiment;
+            }
+        }
+    } else {
+
+        scheduledExperiments.push({
+            id: experiment.id,
+            experiment: experiment,
+            submissionTime: experiment.exp_submissionTime,
+            username: experiment.user.name
+        });
+    }
+
+    return {profilerExperiments, scheduledExperiments, newExperiments};
+}
+
+function isQueueForBPU(key) {
+    return key[0] !== '_' && (key.search('eug') > -1);
+}
+
+function getSession(sessionId, db, callback) {
+    db.models.Session.findById(sessionId, (err, session) => {
         if (err) {
-            logger.error(err);
             return callback(err);
+        } else if (session === null) {
+            return callback('session is missing');
         } else {
-            var profilerExperiments = {};
-            var idSubmissionTimeArray = [];
+            return callback(null, session);
+        }
+    });
+}
 
-            while (queue.newExps.length > 0) {
-                let experiment = queue.newExps.shift();
+function sendExperimentToBpu(experiment, bpu, socket, session, config, db, logger, callback) {
+    async.waterfall([
+        (callback) => {
+            if (socket === null || socket === undefined) {
+                return callback('socket is missing');
+            }
+            return callback(null);
+        },
+        (callback) => {
+            experiment.exp_metaData.magnification = bpu.magnification;
+            logger.log('events to run', experiment.exp_eventsToRun);
 
-                if (_.includes([PROFILERS.POPULATION, PROFILERS.ACTIVITY, PROFILERS.RESPONSE], experiment.user.name)) {
-                    if (experiment.exp_wantsBpuName !== null && experiment.exp_wantsBpuName !== undefined) {
-                        if (profilerExperiments[experiment.exp_wantsBpuName] === null || profilerExperiments[experiment.exp_wantsBpuName] === undefined) {
-                            profilerExperiments[experiment.exp_wantsBpuName] = experiment;
-                        } else if (profilerExperiments[experiment.exp_wantsBpuName].submissionTime < experiment.submissionTime) {
-                            profilerExperiments[experiment.exp_wantsBpuName] = experiment;
-                        }
-                    }
-                } else {
-                    newExperiments[experiment.id] = experiment;
+            bpu.socket.emit(config.socketRoutes.bpu.addExperiment, experiment, config.userConfirmationTimeout, callback);
+        },
+        (callback) => {
+            //Save Exp
+            let updateExperiment = {
+                liveBpu: {
+                    id: bpu._id,
+                    name: bpu.name,
+                    index: bpu.index,
+                    socketId: bpu.soc,
+                },
+                exp_lastResort: experiment.exp_lastResort,
+                bc_startSendTime: experiment.bc_startSendTime,
+                bc_isLiveSendingToLab: true,
+                exp_status: EXPERIMENT_STATUS.SERVING,
+                exp_metaData: experiment.exp_metaData,
+            };
 
-                    idSubmissionTimeArray.push({
-                        id: experiment.id,
-                        subTime: experiment.exp_submissionTime,
-                        username: experiment.user.name
-                    });
-                }
+            db.models.BpuExperiment.findByIdAndUpdate(experiment.id, updateExperiment, {new: true}, callback);
+
+        },
+        (updatedExperiment, callback) => {
+            if (updatedExperiment === null) {
+                logger.error('updated Experiment is null');
+                callback('updated Experiment is null');
             }
 
-            //Save db doc with removed new experiments
-            queue.save(function (err, saveDoc) {
+            return callback(null, updatedExperiment);
+        },
+        (updatedExperiment, callback) => {
+            let updatedSession = {
+                liveBpuExperiment: {
+                    id: updatedExperiment.id,
+                    tag: updatedExperiment.getExperimentTag(),
+                },
+                bc_startSendTime: updatedExperiment.bc_startSendTime,
+                bc_isLiveSendingToLab: true,
+            };
 
-                //Pull New Experiments
-                while (app.listExperimentDoc.newExps.length > 0) {
-                    var experiment = app.listExperimentDoc.newExps.shift();
+            db.models.Session.findByIdAndUpdate(experiment.session.id, updatedSession, {new: true}, callback);
+        },
+        (session, callback) => {
+            if (session === null) {
+                logger.error('session is missing');
+                return callback(err);
+            }
 
-                    if (_.includes([PROFILERS.POPULATION, PROFILERS.ACTIVITY, PROFILERS.RESPONSE], experiment.user.name)) {
-                        if (experiment.exp_lastResort.bpuName !== null && experiment.exp_lastResort.bpuName !== undefined) {
-                            if (profilerExperiments[experiment.exp_wantsBpuName] === null || profilerExperiments[experiment.exp_wantsBpuName] === undefined) {
-                                profilerExperiments[experiment.exp_wantsBpuName] = experiment;
-                            } else if (profilerExperiments[experiment.exp_wantsBpuName].submissionTime < experiment.submissionTime) {
-                                profilerExperiments[experiment.exp_wantsBpuName] = experiment;
-                            }
-                        }
-                    } else {
-                        app.newExpTagObj[experiment.id] = experiment;
-                        idSubmissionTimeArray.push({
-                            id: experiment.id,
-                            subTime: experiment.exp_submissionTime,
-                            username: experiment.user.name
-                        });
-                    }
-                }
+            return callback(null, session);
+        }
+    ], (err, result) => {
+        if (err) {
+            return callback(err);
+        } else {
+            callback(null, result);
+        }
+    });
+}
 
-                //add bpu exps from this doc to expTag Obj
-                Object.keys(app.listExperimentDoc._doc).forEach(function (key) {
-                    if (key[0] !== '_' && (key.search('eug') > -1)) {
-                        while (app.listExperimentDoc[key].length > 0) {
+function activeExperiment(session, sockets, bpu, config, logger, callback) {
+    async.some(sockets, (clientSocket, callback) => {
+        if (clientSocket.connected) {
 
-                            let experiment = app.listExperimentDoc[key].shift();
+            clientSocket.emit('activateLiveUser', session, config.userConfirmationTimeout, (result) => {
+                if (result.err || !result.didConfirm) {
+                    return callback(false);
+                } else {
+                    // app.bpuLedsSetMatch[session.sessionID] = app.bpuLedsSetFuncs[bpu.name];
 
-                            if (_.includes([PROFILERS.POPULATION, PROFILERS.ACTIVITY, PROFILERS.RESPONSE], experiment.user.name) &&
-                                experiment.exp_lastResort.bpuName !== null && experiment.exp_lastResort.bpuName !== undefined) {
-                                if (profilerExperiments[experiment.exp_wantsBpuName] === null || profilerExperiments[experiment.exp_wantsBpuName] === undefined) {
-                                    profilerExperiments[experiment.exp_wantsBpuName] = experiment;
-                                } else if (profilerExperiments[experiment.exp_wantsBpuName].submissionTime < experiment.submissionTime) {
-                                    profilerExperiments[experiment.exp_wantsBpuName] = experiment;
+                    bpu.socket.emit(config.socketRoutes.bpu.runExperiment, (bpuRunResObj) => {
+                        if (bpuRunResObj.err) {
+                            logger.error(err);
+                            return callback(false);
+                        } else {
+                            clientSocket.emit('sendUserToLiveLab', session, (userSendResObj) => {
+                                if (userSendResObj.err) {
+                                    logger.error(err);
+                                    return callback(false);
+                                } else {
+                                    return callback(true);
                                 }
-                            } else {
-                                app.newExpTagObj[experiment.id] = experiment;
-                                idSubmissionTimeArray.push({
-                                    id: experiment.id,
-                                    subTime: experiment.exp_submissionTime,
-                                    username: experiment.user.name
-                                });
-                            }
+                            });
                         }
-                    }
-                });
-
-
-                //check lost list for removal
-                for (var ind = 0; ind < app.listExperimentDoc._lostList.length; ind++) {
-                    if ((startDate.getTime() - app.listExperimentDoc._lostList[ind].exp_submissionTime) - (1 * 24 * 60 * 60 * 1000) > 0) {
-                        app.listExperimentDoc._lostList.splice(ind, 1);
-                        ind--;
-                    }
-                }
-
-                idSubmissionTimeArray.sort(function (objA, objB) {
-                    return objA.subTime - objB.subTime;
-                });
-                
-                var initialTime = null;
-                
-                if (idSubmissionTimeArray.length > 0) {
-                    initialTime = idSubmissionTimeArray[0].subTime;
-                }
-                
-                //Add Scripters and move to front
-                Object.keys(profilerExperiments).forEach(function (key) {
-                    var experiment = profilerExperiments[key];
-                    
-                    if (initialTime !== null) {
-                        experiment.exp_submissionTime = initialTime;
-                    }
-                    
-                    newExperiments[experiment.id] = experiment;
-                    
-                    idSubmissionTimeArray.push({
-                        id: experiment.id,
-                        subTime: experiment.exp_submissionTime,
-                        username: experiment.user.name
                     });
-                });
-
-                //Build Series
-                idSubmissionTimeArray.sort(function (objA, objB) {
-                    return objA.subTime - objB.subTime;
-                });
-                
-                var runSeriesFuncs = [];
-                
-                var Limit = 10;
-                var limiter = 0;
-                
-                for (var jnd = 0; jnd < idSubmissionTimeArray.length; jnd++) {
-                    if (limiter < Limit) {
-                        runSeriesFuncs.push(verifyExperiment.bind(newExperiments[idSubmissionTimeArray[jnd].id]));
-                    } else {
-                        break;
-                    }
-
-                    limiter++;
                 }
-
-                //Run series
-                logger.info('runSeries start checkExpsAndResort on ' + runSeriesFuncs.length);
-                
-                async.series(runSeriesFuncs, function (err) {
-                    logger.trace('runSeries end checkExpsAndResort tags:' + Object.keys(newExperiments).length + ', exps:' + app.keeperExpDocs.length);
-                    if (err) {
-                        logger.error('runSeries end checkExpsAndResort on ' + runSeriesFuncs.length + ' in ' + (new Date() - startDate) + ' err:' + err + '\n');
-                    } else {
-                        logger.info('runSeries end checkExpsAndResort on ' + runSeriesFuncs.length + ' in ' + (new Date() - startDate) + '\n');
-                    }
-                    return callback(null);
-                });
             });
+        }
+        else {
+            return callback(false);
+        }
+
+    }, (confirmed) => {
+        if (!confirmed) {
+            logger.log('********* Nobody Confirmed **********');
+
+            bpu.socket.emit(config.socketRoutes.bpu.reset, !confirmed, session.sessionID, (err) => {
+                return callback(err);
+            });
+        }
+        return callback(null);
+    });
+}
+
+function passiveExperiment(session, socket, config, callback) {
+    socket.emit(config.socketRoutes.bpu.runExperiment, (bpu) => {
+        if (bpu.err) {
+            return callback(bpu.err);
+        }
+    });
+
+    return callback(null, session);
+}
+
+function pushExperimentToBPU(experiment, bpu, sockets, config, logger, callback) {
+    async.series([
+        (callback) => {
+            getSession(experiment.session.id, callback);
+        },
+        (session, callback) => {
+            sendExperimentToBpu(experiment, bpu.doc, bpu.socket, session, callback);
+        },
+        (session, callback) => {
+            if (experiment.group_experimentType === 'live') {
+                activeExperiment(session, sockets, bpu, config, logger, callback);
+            } else {
+                passiveExperiment(session, bpu.socket, config, callback);
+            }
+        }
+    ], (err, session) => {
+        if (err) {
+            return callback(err);
+        } else {
+            callback(null, session);
         }
     });
 }

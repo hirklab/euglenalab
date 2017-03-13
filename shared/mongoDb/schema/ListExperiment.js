@@ -65,6 +65,43 @@ exports = module.exports = function(app, mongoose) {
     });
   };
 
+    _mySchema.statics.getNewExperiments=function(mainCallback) {
+        var funcName='getNewExperiments';
+
+        var thisSchema=this;
+        thisSchema.find({}, {newExps: 1}, function(err, docs) {
+            if(err) {
+                mainCallback(err, null);
+            } else {
+                //Find a Doc
+                var doc=null;
+
+                //Create a new doc
+                if(docs.length===0) {
+                    doc=thisSchema(); //Creates a new list experiment?
+                    doc.save(function(err, saveDoc) {
+                        //Callback
+                        if(typeof mainCallback==='function') mainCallback(err, saveDoc);
+                    });
+
+                    //Remove older docs
+                } else if(docs.length>1) {
+                    docs.sort(function(objA, objB) {return objB._id.getTimestamp()-objA._id.getTimestamp();});
+                    doc=docs[0];
+                    app.db.models.ListExperiment.remove({_id:{$lt:docs[0]._id}}, function(err, info) {
+                        if(typeof mainCallback==='function') mainCallback(null, doc);
+                    });
+
+                    //Use the only Doc
+                } else {
+                    doc=docs[0];
+                    //Callback
+                    if(typeof mainCallback==='function') mainCallback(null, doc);
+                }
+            }
+        });
+    };
+
   //Functions
   //addNewExpTagToList
   _mySchema.statics.addNewExpTagToList=function(expTag, mainCallback) {

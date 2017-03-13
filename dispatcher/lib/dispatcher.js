@@ -9,6 +9,8 @@ import mongoose from 'mongoose';
 import {router} from './router';
 import {Database} from './db';
 import * as utils from './bpu';
+import {EXPERIMENT_STATUS, PROFILERS, GROUPS, BPU_STATUS} from './constants';
+
 
 mongoose.Promise = require('bluebird');
 
@@ -21,6 +23,8 @@ class Dispatcher {
         this.queues = {};
         this.bpuList = [];
         this.experiments = [];
+        this.newExperiments = {};
+        this.queueTimePerBPU = {};
         this.startDate = new Date();
     }
 
@@ -29,14 +33,14 @@ class Dispatcher {
             (callback) => {
                 this._connectDatabase(callback);
             },
-            (config, callback) => {
-                this._startWebServer(config, callback);
+            (callback) => {
+                this._startWebServer(callback);
             },
-            (config, callback) => {
-                this._startSocketServer(config, callback);
+            (callback) => {
+                this._startSocketServer(callback);
             },
-            (config, callback) => {
-                this._getExperimentQueue(config, callback);
+            (callback) => {
+                this._getExperimentQueues(callback);
             },
         ], (err, result) => {
             callback(err, result);
@@ -50,7 +54,11 @@ class Dispatcher {
             }
 
             setTimeout(() => {
-                this._loop();
+                this._loop((err, callback) => {
+                    if (err) {
+                        this.logger.error(err);
+                    }
+                })
             }, this.config.loopTimeout);
         });
     }
@@ -72,11 +80,11 @@ class Dispatcher {
                 return callback(err);
             }
 
-            return callback(null, this.config);
+            return callback(null);
         });
     }
 
-    _startWebServer(config, callback) {
+    _startWebServer(callback) {
         if (router == null) {
             return callback("router load error");
         }
@@ -84,19 +92,19 @@ class Dispatcher {
         this.status = 'starting webserver...';
         this.server.use(router);
 
-        return this.server.listen(config.port, (err) => {
+        return this.server.listen(this.config.port, (err) => {
             if (err) {
                 this.logger.error(err);
                 return callback(err);
             }
 
-            this.logger.info("dispatcher is listening on " + config.port);
-            return callback(null, config);
+            this.logger.info("dispatcher is listening on " + this.config.port);
+            return callback(null);
         });
     }
 
-    _startSocketServer(config, callback) {
-        let socketjs = require('./sockets', this, config, this.logger);
+    _startSocketServer(callback) {
+        let socketjs = require('./sockets', this, this.config, this.logger);
 
         if (socketjs == null) {
             return callback("sockets load error");
@@ -108,13 +116,14 @@ class Dispatcher {
         this.socketServer = socketjs.socketServer;
         this.logger.info("websocket server is ready");
 
-        return callback(null, config);
+        return callback(null);
     }
 
-    _getExperimentQueue(config, callback) {
+    _getExperimentQueues(callback) {
         this.status = 'fetching experiments...';
         this.db.getExperimentQueues((err, queues) => {
             if (err) {
+                this.logger.error(err);
                 return callback(err);
             }
 
@@ -127,6 +136,7 @@ class Dispatcher {
         this.status = 'fetching BPU list...';
         this.db.getBpus((err, bpuList) => {
             if (err) {
+                this.logger.error(err);
                 return callback(err);
             }
 
@@ -150,26 +160,168 @@ class Dispatcher {
         });
     }
 
-    _loop(callback) {
-        // workflow.push(checkExpsAndResort);
-        // workflow.push(sendExpsToBpus);
-        // workflow.push(checkUpdateListExperiment);
-        // workflow.push(updateClientSocketConnections);
+    _verifyBPUs(bpuList, status, callback) {
+        let workflow = [];
 
+        let keys = Object.keys(this.bpuList);
+
+        keys.forEach((key) => {
+            this.bpuList[key].connected = false;
+
+            workflow.push((callback) => {
+                utils.verify(this.bpuList[key], this.db, this.config, this.logger, this.startDate, status, callback)
+            });
+        });
+
+        async.parallel(workflow, (err) => {
+            if (err) {
+                this.logger.error(err);
+                return callback(err);
+            }
+
+            return callback(null);
+        });
+    }
+
+    _verifyExperiments(status, callback) {
+        this.status = 'verifying Experiments...';
+
+        async.waterfall([
+            (callback) => {
+                console.log('new Experiments');
+                this.db.getNewExperiments(callback);
+            },
+            (queues, callback) => {
+                console.log('queues');
+                console.log(queues);
+                utils.processQueues(this.queues, this.bpuList, this.experiments, this.newExperiments, this.logger, this.startDate, status, callback);
+            },
+        ], (err) => {
+            if (err) {
+                this.logger.error(err);
+                return callback(err);
+            }
+
+            return callback(null, this.experiments);
+        });
+    }
+
+    _executeExperiments(callback) {
+        this.experiments.sort((objA, objB) => {
+            return objA.exp_submissionTime - objB.exp_submissionTime;
+        });
+
+        let bpuQueues = _.groupBy(this.experiments, 'exp_lastResort.bpuName');
+
+        let experimentQueue = [];
+        Object.keys(this.bpuList).forEach((key) => {
+            // BPU has experiments to execute?
+            if (bpuQueues[key] && bpuQueues[key].length > 0) {
+                // is BPU ready to run experiment?
+                if (this.bpuList[key].doc.bpuStatus === BPU_STATUS.READY) {
+                    //push 1st experiment in queue for the BPU
+                    experimentQueue.push(utils.executeExperiment.bind(bpuQueues[key][0], this.bpuList[key], this.sockets, this.config, this.logger));
+                } else {
+                    this.experiments.push(bpuQueues[key][0]);
+                }
+            }
+        });
+
+        async.parallel(experimentQueue, (err) => {
+            if (err) {
+                this.logger.error(err);
+                return callback(err);
+            }
+
+            return callback(null, this.experiments);
+        });
+    }
+
+    _updateExperiments(callback) {
+        //Add left over new experiments
+        while (Object.keys(this.newExperiments).length > 0) {
+            let expTag = this.newExperiments[Object.keys(this.newExperiments)[0]];
+            queues.newExps.push(expTag);
+            delete this.newExperiments[Object.keys(this.newExperiments)[0]];
+        }
+
+        //Add sorted pub docs to this listExpDoc
+        while (this.experiments.length > 0) {
+            let expDoc = this.experiments.shift();
+            let newTag = expDoc.getExperimentTag();
+
+            if (newTag.exp_lastResort.bpuName in queues) {
+                queues[newTag.exp_lastResort.bpuName].push(newTag);
+            }
+            else {
+                this.logger.error('BPU Name in experiment ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not preset in app.listExperiment');
+            }
+        }
+
+        //Save to database
+        this.queues.save((err, updatedQueues) => {
+            if(err){
+                this.logger.error(err);
+                return callback(err);
+            }
+            return callback(null);
+        });
+    }
+
+    _updateClients(callback) {
+        if (this.sockets.length > 0) {
+            let bpuDocs = [];
+
+            Object.keys(this.bpuList).forEach((key) => {
+                bpuDocs.push(this.bpuList[key].doc.toJSON());
+            });
+
+            this.sockets.forEach((socket) => {
+                if (socket.connected) {
+                    socket.emit('update', bpuDocs, this.queues.toJSON(), this.config.queueTimePerBPU, callback);
+                }
+            });
+        }
+
+        return callback(null);
+    }
+
+    _loop(callback) {
         async.waterfall([
             (callback) => {
                 this._getBPUs(callback);
             },
             (bpuList, callback) => {
                 this.status = 'verifying BPUs...';
-                utils.verifyBPUs(bpuList, this.db, this.config, this.logger, this.startDate, callback)
+                this.logger.info(this.status);
+
+                this._verifyBPUs(bpuList, this.status, callback);
             },
             (bpuList, callback) => {
                 this.status = 'verifying Experiments...';
+                this.logger.info(this.status);
 
+                this._verifyExperiments(this.status, callback);
+            },
+            (experiments, callback) => {
+                this.status = 'executing Experiments...';
+                this.logger.info(this.status);
+
+                this._executeExperiments(this.status, callback);
+            },
+            (callback) => {
+                this.status = 'updating Experiments...';
+                this.logger.info(this.status);
+
+                this._updateExperiments(this.status, callback)
+            },
+            (callback) => {
+                this.status = 'updating Clients...';
+                this.logger.info(this.status);
+
+                this._updateClients(this.status, callback)
             }
         ], (err, result) => {
-            // app.runParams.runCounter++;
             if (err) {
                 this.logger.error(err);
                 return callback(err);

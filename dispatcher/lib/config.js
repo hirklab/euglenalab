@@ -8,6 +8,7 @@ const dbUrl = mainConfig.adminFlags.getMongoUri();
 const confirmTimeout = 100;
 const loopTimeout = 1000;
 const socketTimeout = 30;
+const userConfirmationTimeout = 15000;
 const profiling = true;
 const profilingInterval = 30*60*1000;
 
@@ -31,9 +32,12 @@ const authenticClients = {
 
 const socketRoutes = {
     bpu: {
-        addExperiment: '/bpu/#addExperiment',
+        ping:'/bpu/#ping',
+        addExperiment: '/bpu/#setExp',
+        runExperiment: '/bpu/#runExp',
         setLEDs: '/bpu/runExp/#ledsSet',
         getStatus: '/bpu/#getStatus',
+        reset:'/bpu/#resetBpu',
     }
 };
 
@@ -45,6 +49,7 @@ const config = {
     profiling:profiling,
     profilingInterval:profilingInterval,
     confirmTimeout: confirmTimeout,
+    userConfirmationTimeout: userConfirmationTimeout,
     loopTimeout: loopTimeout,
     socketTimeout: socketTimeout,
     socketRoutes: socketRoutes,

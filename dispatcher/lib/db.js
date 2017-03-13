@@ -24,11 +24,11 @@ class Database {
 
         this.db.once('open', () => {
             require('./models')(this, mongoose);
-            return callback(null, this.config);
+            return callback(null);
         });
     }
 
-    getExperimentQueues(callback){
+    getExperimentQueues(callback) {
         this.db.models.ListExperiment.getInstanceDocument((err, queues) => {
             if (err) {
                 return callback(err);
@@ -38,13 +38,13 @@ class Database {
         });
     }
 
-    getNewExperiments(id, callback){
-        this.db.models.ListExperiment.findById(id, {newExps: 1}, (err,experiments)=>{
-           if(err){
-               return callback(err);
-           }
+    getNewExperiments(callback) {
+        this.db.models.ListExperiment.getNewExperiments((err, queues) => {
+            if (err) {
+                return callback(err);
+            }
 
-           return callback(null,experiments);
+            return callback(null, queues);
         });
     }
 
@@ -68,9 +68,9 @@ class Database {
         });
     }
 
-    getBPUExperiment(id, callback){
-        this.db.models.BpuExperiment.findById(id, (err, instance)=>{
-            if(err) {
+    getBPUExperiment(id, callback) {
+        this.db.models.BpuExperiment.findById(id, (err, instance) => {
+            if (err) {
                 return callback(err);
             } else {
                 return callback(null, instance);
@@ -78,9 +78,9 @@ class Database {
         });
     }
 
-    updateBPUExperiment(id, updates, callback){
-        this.db.models.BpuExperiment.findByIdAndUpdate(id, updates, (err, saved)=>{
-            if(err) {
+    updateBPUExperiment(id, updates, callback) {
+        this.db.models.BpuExperiment.findByIdAndUpdate(id, updates, (err, saved) => {
+            if (err) {
                 return callback(err);
             } else {
                 return callback(null, saved);
@@ -88,8 +88,8 @@ class Database {
         });
     }
 
-    submitProfilingExperiment(bpu, filters,updates, callback){
-        this.db.models.Bpu.submitTextExpWithUser(filters, updates, (err, tag)=>{
+    submitProfilingExperiment(bpu, filters, updates, callback) {
+        this.db.models.Bpu.submitTextExpWithUser(filters, updates, (err, tag) => {
             if (err) {
                 return callback(err);
             }
