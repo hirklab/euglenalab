@@ -27,7 +27,7 @@ var serverInfo = {
     Identifier: 'C422691AA38F9A86EC02CB7B55D5F542',
     name: 'radiantllama',
     socketClientServerIP: 'biotic.stanford.edu',
-    socketClientServerPort: 4200
+    socketClientServerPort: 8084
 };
 
 var user = {
