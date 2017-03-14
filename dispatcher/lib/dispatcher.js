@@ -19,6 +19,7 @@ class Dispatcher {
         this.server = null;
         this.queues = {};
         this.bpuList = [];
+        this.clients = [];
         this.experiments = [];
         this.newExperiments = {};
         this.queueTimePerBPU = {};
@@ -45,7 +46,7 @@ class Dispatcher {
     }
 
     run() {
-        setInterval(() => {
+        // setInterval(() => {
             this._loop((err, callback) => {
                 if (err) {
                     logger.error(err);
@@ -53,7 +54,7 @@ class Dispatcher {
 
                 //callback();
             })
-        }, this.config.loopTimeout);
+        // }, this.config.loopTimeout);
     }
 
     status() {
@@ -94,7 +95,7 @@ class Dispatcher {
     }
 
     _startSocketServer(callback) {
-        let socketjs = initializeSocketServer(this.server, this.db, this.config, logger);
+        let socketjs = initializeSocketServer(this.server, this.clients, this.db, this.config, callback);
 
         if (socketjs == null) {
             return callback("sockets load error");
@@ -104,8 +105,6 @@ class Dispatcher {
 
         this.sockets = socketjs.sockets;
         this.socketServer = socketjs.socketServer;
-
-        logger.debug("websocket server is ready");
 
         return callback(null);
     }
@@ -268,14 +267,14 @@ class Dispatcher {
     }
 
     _updateClients(callback) {
-        if (this.sockets.length > 0) {
+        if (this.clients.length > 0) {
             let bpuDocs = [];
 
             Object.keys(this.bpuList).forEach((key) => {
                 bpuDocs.push(this.bpuList[key].doc.toJSON());
             });
 
-            this.sockets.forEach((socket) => {
+            this.clients.forEach((socket) => {
                 if (socket.connected) {
 
                     logger.debug('updating connected client...');

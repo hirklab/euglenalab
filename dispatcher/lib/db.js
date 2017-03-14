@@ -89,6 +89,20 @@ class Database {
         });
     }
 
+    getSession(id, callback){
+      this.db.models.Session.findOne({sessionID: id}, {}, callback);
+    }
+
+  saveSession(sessionID,username, groups, callback){
+    let session = this.db.models.Session();
+    session.sessionID = sessionID;
+
+    session.user.name = username;
+    session.user.groups = groups;
+
+    return session.save(callback);
+  }
+
     submitProfilingExperiment(bpu, filters, updates, callback) {
 
         //todo
@@ -108,6 +122,31 @@ class Database {
 
         return callback(null);
     }
+
+    getExperimentJoinQueueDefaults(config){
+      var joinQueueData={
+        user:{
+          id:null,
+          name:null,
+          groups:null,
+        },
+        session:{
+          id:null,
+          sessionID:null,
+          socketID:null,
+        },
+        group_experimentType:null,
+        exp_wantsBpuName:null,
+
+        exp_eventsToRun:[],
+        exp_metaData:{},
+
+        liveUserLabTime:config.experimentSessionMaxTime,
+        zeroLedEvent:{time:0, topValue:0, rightValue:0, bottomValue:0, leftValue:0}
+      };
+      return joinQueueData;
+    }
+
 }
 
 export {Database};

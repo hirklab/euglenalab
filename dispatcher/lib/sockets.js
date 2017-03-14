@@ -1,84 +1,102 @@
 import socketIO from 'socket.io';
-import auth from './auth';
+import {logger} from './logging';
+import {authorize} from './auth';
+import {submitExperiment} from './experiment';
 
-let indexOf = [].indexOf || function (item) {
-        for (let i = 0, l = this.length; i < l; i++) {
-            if (i in this && this[i] === item) return i;
-        }
-        return -1;
-    };
+function initializeSocketServer(server, clients, db, config, callback) {
+  let sockets = {};
 
-function initializeSocketServer(server, db, config, logger) {
-    logger.info('starting websocket server...');
+  let io = socketIO(server);
 
-    let authorize = auth.authorize;
-    let sockets = {};
+  server.listen(config.port, (err) => {
+    if (err) {
+      logger.error(err);
+      return callback(err);
+    }
 
-    let socketServer = socketIO.listen(server);
+    logger.debug("websocket server is ready");
 
-    socketServer.listen(config.port, (err) => {
-        if (err) {
+    logger.info("dispatcher is listening on " + config.port);
+
+    io.on('connection', (socket) => {
+      logger.debug(`[${socket.id}] socket connecting...`);
+
+      clients.push(socket);
+
+      socket.on('setConnection', (auth, callback) => {
+        logger.debug(`[${socket.id}] socket authorizing...`);
+
+        authorize(auth, config, (err) => {
+
+          if (err) {
             logger.error(err);
-            return callback(err);
-        }
 
-        logger.info("dispatcher is listening on " + config.port);
+            socket.disconnect();
+            // socket.close();
 
-        socketServer.on('connection', function (socket) {
-            logger.info('socket connecting...');
-            logger.info('socket #{socket.id} connecting...');
+            return callback(err, null);
+          } else {
 
-            socket.on('authorize', function (auth, callback) {
-                return authorize(auth, config, function (err) {
+            sockets[auth.Identifier] = sockets[auth.Identifier] || {};
+            let ref = socket.id;
 
-                    if (err) {
-                        logger.error(err);
-                        socket.disconnect();
-                        socket.close();
-                        return callback(err, null);
-                    } else {
-                        sockets[auth.identifier] = sockets[auth.identifier] || {};
-                        let ref = socket.id;
+            if (!(ref in sockets[auth.Identifier])) {
+              sockets[auth.Identifier][socket.id] = socket;
+            }
 
-                        if (indexOf.call(sockets[auth.identifier], ref) >= 0) {
-                            sockets[auth.identifier][socket.id] = socket;
-                        }
+            logger.info(`[${socket.id}] socket connected`);
 
-                        logger.info('socket #{socket.id} authenticated');
+            auth.Name = config.authenticClients[auth.Identifier].Name;
+            auth.arePassKeysOpen = config.authenticClients[auth.Identifier].arePassKeysOpen;
+            auth.PassKeys = config.authenticClients[auth.Identifier].PassKeys;
 
-                        socket.on('getJoinQueueDataObj', function (callback) {
-                            //todo
-                            return callback(new Error('not implemented'));
+            callback(null, auth);
 
-                            //return callback(null, db.models.BpuExperiment.getDataObjToJoinQueue());
-                        });
+            socket.on('getJoinQueueDataObj', (auth, callback) => {
+              logger.debug(`[${socket.id}] got experiment queue`);
 
-                        socket.on('getExp', function (experimentId, callback) {
-                            return callback(new Error('not implemented'));
-                        });
-
-                        socket.on('/bpu/runExp/#ledsSet', function (lightData) {
-                            if (app.bpuLedsSetMatch[lightData.sessionID]) {
-                                return app.bpuLedsSetMatch[lightData.sessionID](lightData);
-                            }
-                        });
-
-                        socket.on('/bpuCont/#submitExperimentRequest', function (queue, callback) {
-                            return submitExperiment(app, config, queue, callback);
-                        });
-                        return callback(null, socket.id);
-                    }
-                });
+              return callback(null, db.getExperimentJoinQueueDefaults(config));
             });
 
-            return socket;
-        });
-    });
+            socket.on('getExp', (auth, experimentId, callback) => {
+              logger.debug(`[${socket.id}] sending experiment status`);
 
-    return {
-        sockets: sockets,
-        socketServer: socketServer
-    };
+              return callback(new Error('not implemented'));
+            });
+
+            socket.on('/bpu/runExp/#ledsSet', (lightData) => {
+              if (app.bpuLedsSetMatch[lightData.sessionID]) {
+                logger.debug(`[${socket.id}] set LEDs`);
+
+                return app.bpuLedsSetMatch[lightData.sessionID](lightData);
+              }
+            });
+
+            socket.on('/bpuCont/#submitExperimentRequest', (auth, queue, callback) => {
+              logger.debug(`[${socket.id}] submitting new experiment`);
+
+              return submitExperiment(auth, queue, db, callback);
+            });
+
+            socket.on('disconnect', () => {
+              logger.warn(`[${socket.id}] disconnected`);
+
+              delete sockets[auth.Identifier][socket.id];
+            });
+
+            return callback(null, socket.id);
+          }
+        });
+      });
+
+      return socket;
+    });
+  });
+
+  return {
+    sockets: sockets,
+    io: io
+  };
 }
 
 export {initializeSocketServer};

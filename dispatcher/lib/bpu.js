@@ -19,7 +19,7 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
                 return callback('socket not connected');
             }
 
-            logger.debug(`[${bpu.doc.name}] connected @${bpu.socket.id}`);
+            logger.info(`[${bpu.doc.name}] connected @${bpu.socket.id}`);
             return callback(null, bpu);
         },
         (bpu, callback) => {

@@ -1,23 +1,21 @@
-(function () {
-    var indexOf = [].indexOf || function (item) {
-                for (var i = 0, l = this.length; i < l; i++) {
-                    if (i in this && this[i] === item) return i;
-                }
-                return -1;
-            };
 
-    var authorize = function (auth, config, callback) {
-        var error, ref;
-        if (auth === null || !auth.hasOwnProperty('identifier') || !auth.identifier.length <= 0) {
-            error = new Error('invalid auth');
-        } else if (!(ref = auth.identifier, indexOf.call(config.authenticClients, ref) >= 0)) {
-            error = new Error('incorrect auth');
-        }
-        return callback(null);
-    };
+function authorize (auth, config, callback) {
+  let error= null;
 
-    module.exports = {
-        authorize: authorize
-    };
+  if (auth === null || !auth.hasOwnProperty('Identifier') || auth.Identifier.length <= 0) {
+    error = new Error('missing auth identity');
+    return callback(error);
 
-}).call(this);
+  } else {
+    let ref = auth.Identifier;
+
+    if (!(ref in config.authenticClients)) {
+      error = new Error('incorrect auth');
+      return callback(error);
+    }
+  }
+
+  return callback(null);
+}
+
+export {authorize};
