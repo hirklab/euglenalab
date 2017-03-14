@@ -17,6 +17,12 @@ server/public/**/*.min.js.map
 server/public/**/*.min.css
 
 shared/node_modules/**/*
+controller/node_modules/**/*
+dispatcher/node_modules/**/*
+dispatcher/dist/**/*
+
+db/**/*
+
 bpu/ImageStreamer/mjpg_streamer
 
 bpu/ImageStreamer/raspicam
