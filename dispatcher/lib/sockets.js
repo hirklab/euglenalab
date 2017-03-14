@@ -1,26 +1,36 @@
-(function () {
-    var indexOf = [].indexOf || function (item) {
-            for (var i = 0, l = this.length; i < l; i++) {
-                if (i in this && this[i] === item) return i;
-            }
-            return -1;
-        };
+import socketIO from 'socket.io';
+import auth from './auth';
 
-    module.exports = function (app, config, logger) {
-        var authorize, socketIO, socketServer, sockets;
+let indexOf = [].indexOf || function (item) {
+        for (let i = 0, l = this.length; i < l; i++) {
+            if (i in this && this[i] === item) return i;
+        }
+        return -1;
+    };
 
-        socketIO = require('socket.io');
-        authorize = require('./auth').authorize;
+function initializeSocketServer(server, db, config, logger) {
+    logger.info('starting websocket server...');
 
-        socketServer = socketIO(app);
-        sockets = {};
+    let authorize = auth.authorize;
+    let sockets = {};
+
+    let socketServer = socketIO.listen(server);
+
+    socketServer.listen(config.port, (err) => {
+        if (err) {
+            logger.error(err);
+            return callback(err);
+        }
+
+        logger.info("dispatcher is listening on " + config.port);
 
         socketServer.on('connection', function (socket) {
+            logger.info('socket connecting...');
             logger.info('socket #{socket.id} connecting...');
 
-            return socket.on('authorize', function (auth, callback) {
+            socket.on('authorize', function (auth, callback) {
                 return authorize(auth, config, function (err) {
-                    var ref;
+
                     if (err) {
                         logger.error(err);
                         socket.disconnect();
@@ -28,21 +38,31 @@
                         return callback(err, null);
                     } else {
                         sockets[auth.identifier] = sockets[auth.identifier] || {};
-                        if (!(ref = socket.id, indexOf.call(sockets[auth.identifier], ref) >= 0)) {
+                        let ref = socket.id;
+
+                        if (indexOf.call(sockets[auth.identifier], ref) >= 0) {
                             sockets[auth.identifier][socket.id] = socket;
                         }
+
                         logger.info('socket #{socket.id} authenticated');
+
                         socket.on('getJoinQueueDataObj', function (callback) {
-                            return callback(null, app.db.models.BpuExperiment.getDataObjToJoinQueue());
+                            //todo
+                            return callback(new Error('not implemented'));
+
+                            //return callback(null, db.models.BpuExperiment.getDataObjToJoinQueue());
                         });
+
                         socket.on('getExp', function (experimentId, callback) {
                             return callback(new Error('not implemented'));
                         });
+
                         socket.on('/bpu/runExp/#ledsSet', function (lightData) {
                             if (app.bpuLedsSetMatch[lightData.sessionID]) {
                                 return app.bpuLedsSetMatch[lightData.sessionID](lightData);
                             }
                         });
+
                         socket.on('/bpuCont/#submitExperimentRequest', function (queue, callback) {
                             return submitExperiment(app, config, queue, callback);
                         });
@@ -50,14 +70,18 @@
                     }
                 });
             });
-        });
-        return {
-            sockets: sockets,
-            socketServer: socketServer
-        };
-    };
 
-}).call(this);
+            return socket;
+        });
+    });
+
+    return {
+        sockets: sockets,
+        socketServer: socketServer
+    };
+}
+
+export {initializeSocketServer};
 
 
 // var setupSocketClientServer=function(callback) {

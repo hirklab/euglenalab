@@ -1,17 +1,13 @@
-/**
- * Created by shirish.goyal on 2/26/17.
- */
-
 import async from 'async';
 import client from 'socket.io-client';
 import _ from 'lodash';
 import {EXPERIMENT_STATUS, PROFILERS, GROUPS, BPU_STATUS} from './constants';
+import {logger} from './logging'
 
 export function verify(bpu, db, config, logger, startDate, status, callback) {
     async.waterfall([
         (callback) => {
-            status='connecting to BPU: '+bpu.doc.name;
-            logger.info(status);
+            logger.debug(`[${bpu.doc.name}] connecting...`);
 
             connect(bpu, config, callback);
         },
@@ -19,28 +15,24 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
             if (!bpu.socket.connected) {
                 bpu.doc.bpuStatus = BPU_STATUS.OFFLINE;
 
-                status='BPU: '+bpu.doc.name + ' is offline';
-                logger.error(status);
-
+                logger.error(`[${bpu.doc.name}] offline`);
                 return callback('socket not connected');
             }
 
-            status='connected to BPU: '+bpu.doc.name + '@'+bpu.socket.id;
-            logger.info(status);
-
-            return callback(null,bpu);
+            logger.debug(`[${bpu.doc.name}] connected @${bpu.socket.id}`);
+            return callback(null, bpu);
         },
         (bpu, callback) => {
-            status='check status for BPU: '+bpu.doc.name;
-            logger.info(status);
+            logger.debug(`[${bpu.doc.name}] checking status...`);
 
-            bpu.socket.emit(config.socketRoutes.bpu.getStatus, (status)=>{
-                if (status == null) {
-                    log(logger, bpu, 'failed to fetch status');
+            bpu.socket.emit(config.socketRoutes.bpu.getStatus, (bpuStatus) => {
+                if (bpuStatus == null) {
+                    logger.error(`[${bpu.doc.name}] failed to fetch status`);
                     return callback('failed to fetch status');
                 }
 
-                return callback(null, status);
+                logger.debug(`[${bpu.doc.name}] status: ${bpuStatus.bpuStatus}`);
+                return callback(null, bpuStatus);
             });
         },
         (status, callback) => {
@@ -54,8 +46,7 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
         },
         (bpu, callback) => {
             // any active experiments?
-            status='checking for running experiments on BPU '+bpu.doc.name;
-            logger.info(status);
+            logger.debug(`[${bpu.doc.name}] checking for running experiments`);
 
             if (bpu.status.exp !== null && bpu.status.exp !== undefined) {
                 let isExperimentPending = (bpu.status.expOverId !== null && bpu.status.expOverId !== undefined);
@@ -72,7 +63,7 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
                     delete bpu.setLEDs;
                 }
 
-                status='experiment in progress on BPU '+bpu.doc.name;
+                status = 'experiment in progress on BPU ' + bpu.doc.name;
                 logger.info(status);
             } else {
                 // no experiment in progress
@@ -82,22 +73,19 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
                 bpu.doc.liveBpuExperiment.sessionID = null;
                 bpu.doc.liveBpuExperiment.username = null;
 
-                status='no experiment in progress on BPU '+bpu.doc.name;
-                logger.info(status);
+                logger.debug(`[${bpu.doc.name}] no experiment in progress`);
             }
 
             return callback(null, bpu);
         },
         (bpu, callback) => {
-            status='remove any stalled experiments on BPU '+bpu.doc.name;
-            logger.info(status);
+            logger.debug(`[${bpu.doc.name}] removing any stalled experiments...`);
 
             clear(bpu, db, config, logger, callback);
         },
         (bpu, callback) => {
             if (config.profiling) {
-                status='profiler is ON for BPU '+bpu.doc.name;
-                logger.info(status);
+                logger.debug(`[${bpu.doc.name}] profiler is ON`);
 
                 // create profiler
                 let profiler = [];
@@ -117,21 +105,20 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
                     msg: 'Response: ' + bpu.doc.performanceScores.scripterResponse
                 });
 
-                profiler.sort(function (objA, objB) {
+                profiler.sort((objA, objB) => {
                     return objA.age - objB.age;
                 });
 
                 return callback(null, profiler, bpu);
             }
-
-            return callback(null);
+            else {
+                return callback(null, [], bpu);
+            }
         },
         (profiler, bpu, callback) => {
             // run profiler experiments
             if (config.profiling) {
-
-                status='adding profiler experiments for BPU '+bpu.doc.name;
-                logger.info(status);
+                logger.debug(`[${bpu.doc.name}] adding profiler experiments...`);
 
                 // milliseconds
                 let lastProfilingTime = startDate.getTime() - bpu.doc.performanceScores.bc_lastSendDate;
@@ -145,7 +132,7 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
                         {
                             name: profiler[profiler.length - 1].name,
                             groups: [GROUPS.PROFILER]
-                        }, function (err, bpu) {
+                        }, (err, bpu) => {
                             if (err) {
                                 return callback(err);
                             }
@@ -153,9 +140,9 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
                             return callback(null, bpu);
                         });
                 }
+            }else {
+                return callback(null, bpu);
             }
-
-            return callback(null);
         }
     ], (err) => {
         if (err) {
@@ -168,29 +155,34 @@ export function verify(bpu, db, config, logger, startDate, status, callback) {
 }
 
 export function processQueues(queues, bpuList, experiments, newExperiments, logger, startDate, status, callback) {
+    logger.debug(`processing queues...`);
+
     let profilerExperiments = {};
     let scheduledExperiments = [];
 
     // divide new experiments into profiler and user experiments
     while (queues.newExps.length > 0) {
-        status='divide new experiments into profiler and user experiments';
-        logger.info(status);
+        // logger.debug(`divide new experiments into profiler and user experiments...`);
 
         let experiment = queues.newExps.shift();
         updateExperimentQueues(experiment, profilerExperiments, scheduledExperiments, newExperiments, false);
     }
 
     // Save queues and check for new experiments and BPU experiments
-    queues.save((err, updatedQueues) =>{
+    queues.save((err, updatedQueues) => {
+        if (err) {
+            return callback(err);
+        }
+
         while (updatedQueues.newExps.length > 0) {
-            status='divide new experiments into profiler and user experiments again';
-            logger.info(status);
+            // logger.debug(`divide new experiments into profiler and user experiments again...`);
 
             let experiment = updatedQueues.newExps.shift();
             updateExperimentQueues(experiment, profilerExperiments, scheduledExperiments, newExperiments, false);
         }
 
         // divide BPU experiments into profiler and user experiments
+        // logger.debug(`divide BPU experiments into profiler and user experiments...`);
         Object.keys(updatedQueues._doc).forEach((key) => {
             if (isQueueForBPU(key)) {
                 while (updatedQueues[key].length > 0) {
@@ -200,12 +192,13 @@ export function processQueues(queues, bpuList, experiments, newExperiments, logg
             }
         });
 
+        logger.debug(`removing experiments lost for more than 1 day...`);
         updatedQueues._lostList = _.filter(updatedQueues._lostList, (experiment) => {
             // interval from submission less than a day
             return (startDate.getTime() - experiment.exp_submissionTime) - (24 * 60 * 60 * 1000) < 0;
         });
 
-        scheduledExperiments.sort((objA, objB)=> {
+        scheduledExperiments.sort((objA, objB) => {
             return objA.submissionTime - objB.submissionTime;
         });
 
@@ -216,7 +209,9 @@ export function processQueues(queues, bpuList, experiments, newExperiments, logg
         }
 
         // Push Profiler Experiments to Queue
-        Object.keys(profilerExperiments).forEach( (key)=> {
+        logger.debug(`pushing profiler experiments to queue...`);
+
+        Object.keys(profilerExperiments).forEach((key) => {
             let experiment = profilerExperiments[key];
 
             if (initialTime !== null) {
@@ -231,30 +226,40 @@ export function processQueues(queues, bpuList, experiments, newExperiments, logg
             });
         });
 
-        scheduledExperiments.sort( (objA, objB)=> {
+        scheduledExperiments.sort((objA, objB) => {
             return objA.submissionTime - objB.submissionTime;
         });
 
         // verify 1st 10 experiments at a time
         let verifyExperimentList = [];
-        _.each(_.take(scheduledExperiments, 10), (scheduledExperiment) => {
-            verifyExperimentList.push(verifyExperiment.bind(bpuList, experiments, scheduledExperiment.experiment, logger, startDate,));
+        let chosenExperiments = _.take(scheduledExperiments, 10);
+
+        _.each(chosenExperiments, (scheduledExperiment) => {
+            verifyExperimentList.push((callback) => {
+                verifyExperiment(bpuList, experiments, scheduledExperiment.experiment, logger, startDate, status, callback)
+            });
         });
 
-        async.series(verifyExperimentList, (err) =>{
-            if (err) {
-                return callback(err);
-            }
+        if (verifyExperimentList.length > 0) {
+            logger.debug(`verifying 10 experiments at a time...`);
 
+            async.series(verifyExperimentList, (err) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                return callback(null);
+            });
+        } else {
             return callback(null);
-        });
+        }
     });
 }
 
 export function executeExperiment(experiment, bpu, sockets, config, logger, callback) {
-    pushExperimentToBPU(experiment, bpu, sockets, config, logger, (err, session) =>{
+    pushExperimentToBPU(experiment, bpu, sockets, config, logger, (err, session) => {
         if (err) {
-            log(logger, bpu, err);
+            logger.error(`[${bpu.doc.name}] ${err.message}`);
             return callback(err);
         }
 
@@ -267,8 +272,7 @@ export function executeExperiment(experiment, bpu, sockets, config, logger, call
 }
 
 function log(logger, bpu, message) {
-    logger.info('[' + bpu.doc.name + '] ');
-    logger.info(message);
+    logger.info(`[${bpu.doc.name}] ${message}`);
 }
 
 function connect(bpu, config, callback) {
@@ -280,23 +284,23 @@ function connect(bpu, config, callback) {
             reconnection: true
         });
 
-        bpu.socket.on('connect',  ()=> {
-            bpu.setLEDs = (ledData)=> {
+        bpu.socket.on('connect', () => {
+            bpu.setLEDs = (ledData) => {
                 bpu.socket.emit(config.socketRoutes.bpu.setLEDs, ledData);
             };
 
             return callback(null, bpu);
         });
 
-        bpu.socket.on('disconnect',  ()=> {
+        bpu.socket.on('disconnect', () => {
             disconnect(bpu, () => {
-                bpu.doc.bpuStatus = config.bpuStatus.offline;
+                bpu.doc.bpuStatus = BPU_STATUS.OFFLINE;
             });
         });
     } else {
         if (bpu.socketTimeouts > config.socketTimeout) {
             disconnect(bpu, () => {
-                bpu.doc.bpuStatus = config.bpuStatus.offline;
+                bpu.doc.bpuStatus = BPU_STATUS.OFFLINE;
                 return callback('socket reset');
             })
         } else {
@@ -347,7 +351,7 @@ function clear(bpu, db, config, logger, callback) {
 }
 
 function updateQueueTime(bpuList, callback) {
-    let newBPUList = _.mapValues(bpuList,  (bpu)=> {
+    let newBPUList = _.mapValues(bpuList, (bpu) => {
         //Set Queue Time
         if (bpu.queueTime === null || bpu.queueTime === undefined) {
             if (bpu.doc.liveBpuExperiment) {
@@ -375,9 +379,12 @@ function addQueueTime(bpuList, bpuName, queueTime) {
     return bpuList;
 }
 
-function verifyExperiment(bpuList, experiments, bpuExperiment, logger, startDate, callback) {
+function verifyExperiment(bpuList, experiments, bpuExperiment, logger, startDate, status, callback) {
     // app.logger.trace(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(age:' + (startDate.getTime() - expTag.exp_submissionTime) + ')');
     // app.logger.trace(cnt + ':checkExpAndResort:(user:' + expTag.user.name + ', bpu:' + expTag.exp_wantsBpuName + ')');
+
+    status = 'verifying experiment ' + bpuExperiment.id + ' (' + bpuExperiment.group_experimentType + ')';
+    // logger.info(status);
 
     db.getBPUExperiment(bpuExperiment.id, (err, experiment) => {
         //Failed
@@ -560,7 +567,7 @@ function sendExperimentToBpu(experiment, bpu, socket, session, config, db, logge
         },
         (callback) => {
             experiment.exp_metaData.magnification = bpu.magnification;
-            logger.log('events to run', experiment.exp_eventsToRun);
+            logger.info('events to run', experiment.exp_eventsToRun);
 
             bpu.socket.emit(config.socketRoutes.bpu.addExperiment, experiment, config.userConfirmationTimeout, callback);
         },

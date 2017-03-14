@@ -1,14 +1,9 @@
-import log4js from 'log4js';
-
 import {config} from './lib/config';
 import Dispatcher from './lib/dispatcher';
 import {Dashboard} from './lib/dashboard';
+import {logger} from './lib/logging'
 
-
-let logger = log4js.getLogger(config.name);
-logger.setLevel(config.logLevel);
-
-let dispatcher = new Dispatcher(config, logger);
+let dispatcher = new Dispatcher(config);
 dispatcher.prepare((err, queues) => {
     if (err) {
         logger.error(err);

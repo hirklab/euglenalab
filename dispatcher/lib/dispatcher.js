@@ -1,25 +1,22 @@
-/**
- * Created by shirish.goyal on 2/23/17.
- */
-
-// import * as io from 'socket.io';
+import http from 'http';
 import express from 'express';
 import async from 'async';
 import mongoose from 'mongoose';
+import _ from 'lodash';
+import {EXPERIMENT_STATUS, PROFILERS, GROUPS, BPU_STATUS} from './constants';
 import {router} from './router';
 import {Database} from './db';
 import * as utils from './bpu';
-import {EXPERIMENT_STATUS, PROFILERS, GROUPS, BPU_STATUS} from './constants';
-
+import {initializeSocketServer} from './sockets';
+import {logger} from './logging'
 
 mongoose.Promise = require('bluebird');
 
 class Dispatcher {
-    constructor(config, logger) {
+    constructor(config) {
         this.status = 'initializing...';
         this.config = config;
-        this.logger = logger;
-        this.server = express();
+        this.server = null;
         this.queues = {};
         this.bpuList = [];
         this.experiments = [];
@@ -48,19 +45,15 @@ class Dispatcher {
     }
 
     run() {
-        this._loop((err, callback) => {
-            if (err) {
-                this.logger.error(err);
-            }
+        setInterval(() => {
+            this._loop((err, callback) => {
+                if (err) {
+                    logger.error(err);
+                }
 
-            setTimeout(() => {
-                this._loop((err, callback) => {
-                    if (err) {
-                        this.logger.error(err);
-                    }
-                })
-            }, this.config.loopTimeout);
-        });
+                //callback();
+            })
+        }, this.config.loopTimeout);
     }
 
     status() {
@@ -72,11 +65,12 @@ class Dispatcher {
     }
 
     _connectDatabase(callback) {
-        this.status = 'connecting database...';
-        this.db = new Database(this.config, this.logger);
+        logger.debug('connecting database...');
+
+        this.db = new Database(this.config, logger);
         this.db.connect((err, config) => {
             if (err) {
-                this.logger.error(err);
+                logger.error(err);
                 return callback(err);
             }
 
@@ -89,41 +83,37 @@ class Dispatcher {
             return callback("router load error");
         }
 
-        this.status = 'starting webserver...';
-        this.server.use(router);
+        logger.debug('starting webserver...');
 
-        return this.server.listen(this.config.port, (err) => {
-            if (err) {
-                this.logger.error(err);
-                return callback(err);
-            }
+        let app = express();
+        app.use(router);
 
-            this.logger.info("dispatcher is listening on " + this.config.port);
-            return callback(null);
-        });
+        this.server = http.createServer(app);
+
+        return callback(null);
     }
 
     _startSocketServer(callback) {
-        let socketjs = require('./sockets', this, this.config, this.logger);
+        let socketjs = initializeSocketServer(this.server, this.db, this.config, logger);
 
         if (socketjs == null) {
             return callback("sockets load error");
         }
 
-        this.status = 'starting websocket server...';
+        logger.debug('starting websocket server...');
 
         this.sockets = socketjs.sockets;
         this.socketServer = socketjs.socketServer;
-        this.logger.info("websocket server is ready");
+
+        logger.debug("websocket server is ready");
 
         return callback(null);
     }
 
     _getExperimentQueues(callback) {
-        this.status = 'fetching experiments...';
         this.db.getExperimentQueues((err, queues) => {
             if (err) {
-                this.logger.error(err);
+                logger.error(err);
                 return callback(err);
             }
 
@@ -133,10 +123,9 @@ class Dispatcher {
     }
 
     _getBPUs(callback) {
-        this.status = 'fetching BPU list...';
         this.db.getBpus((err, bpuList) => {
             if (err) {
-                this.logger.error(err);
+                logger.error(err);
                 return callback(err);
             }
 
@@ -156,11 +145,11 @@ class Dispatcher {
 
             });
 
-            return callback(null, this.bpuList);
+            return callback(null);
         });
     }
 
-    _verifyBPUs(bpuList, status, callback) {
+    _verifyBPUs(callback) {
         let workflow = [];
 
         let keys = Object.keys(this.bpuList);
@@ -169,40 +158,41 @@ class Dispatcher {
             this.bpuList[key].connected = false;
 
             workflow.push((callback) => {
-                utils.verify(this.bpuList[key], this.db, this.config, this.logger, this.startDate, status, callback)
+                utils.verify(this.bpuList[key], this.db, this.config, logger, this.startDate, this.status, callback)
             });
         });
 
         async.parallel(workflow, (err) => {
             if (err) {
-                this.logger.error(err);
-                return callback(err);
+                logger.error(err);
+                return callback(null);
             }
 
             return callback(null);
         });
     }
 
-    _verifyExperiments(status, callback) {
-        this.status = 'verifying Experiments...';
+    _processExperiments(queues, callback) {
+        utils.processQueues(queues, this.bpuList, this.experiments, this.newExperiments, logger, this.startDate, this.status, callback);
+    }
 
+    _verifyExperiments(callback) {
         async.waterfall([
             (callback) => {
-                console.log('new Experiments');
+                logger.debug('fetching new experiments...');
                 this.db.getNewExperiments(callback);
             },
             (queues, callback) => {
-                console.log('queues');
-                console.log(queues);
-                utils.processQueues(this.queues, this.bpuList, this.experiments, this.newExperiments, this.logger, this.startDate, status, callback);
-            },
+                logger.debug('processing experiments...');
+                this._processExperiments(queues, callback);
+            }
         ], (err) => {
             if (err) {
-                this.logger.error(err);
+                logger.error(err);
                 return callback(err);
             }
 
-            return callback(null, this.experiments);
+            return callback(null);
         });
     }
 
@@ -220,48 +210,57 @@ class Dispatcher {
                 // is BPU ready to run experiment?
                 if (this.bpuList[key].doc.bpuStatus === BPU_STATUS.READY) {
                     //push 1st experiment in queue for the BPU
-                    experimentQueue.push(utils.executeExperiment.bind(bpuQueues[key][0], this.bpuList[key], this.sockets, this.config, this.logger));
+                    experimentQueue.push(utils.executeExperiment.bind(bpuQueues[key][0], this.bpuList[key], this.sockets, this.config, logger, callback));
                 } else {
                     this.experiments.push(bpuQueues[key][0]);
                 }
             }
         });
 
-        async.parallel(experimentQueue, (err) => {
-            if (err) {
-                this.logger.error(err);
-                return callback(err);
-            }
+        if (experimentQueue.length > 0) {
+            async.parallel(experimentQueue, (err) => {
+                if (err) {
+                    logger.error(err);
+                    return callback(err);
+                }
 
-            return callback(null, this.experiments);
-        });
+                return callback(null);
+            });
+        } else {
+            return callback(null);
+        }
     }
 
     _updateExperiments(callback) {
         //Add left over new experiments
+        logger.debug('adding left over new experiments...');
+
         while (Object.keys(this.newExperiments).length > 0) {
             let expTag = this.newExperiments[Object.keys(this.newExperiments)[0]];
-            queues.newExps.push(expTag);
+            this.queues.newExps.push(expTag);
             delete this.newExperiments[Object.keys(this.newExperiments)[0]];
         }
 
         //Add sorted pub docs to this listExpDoc
+        logger.debug('adding experiments to BPU queues...');
+
         while (this.experiments.length > 0) {
             let expDoc = this.experiments.shift();
             let newTag = expDoc.getExperimentTag();
 
-            if (newTag.exp_lastResort.bpuName in queues) {
-                queues[newTag.exp_lastResort.bpuName].push(newTag);
+            if (newTag.exp_lastResort.bpuName in this.queues) {
+                this.queues[newTag.exp_lastResort.bpuName].push(newTag);
             }
             else {
-                this.logger.error('BPU Name in experiment ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not preset in app.listExperiment');
+                logger.error('BPU Name in experiment ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not preset in app.listExperiment');
             }
         }
 
         //Save to database
+        logger.debug('saving queues to database...');
         this.queues.save((err, updatedQueues) => {
-            if(err){
-                this.logger.error(err);
+            if (err) {
+                logger.error(err);
                 return callback(err);
             }
             return callback(null);
@@ -278,7 +277,9 @@ class Dispatcher {
 
             this.sockets.forEach((socket) => {
                 if (socket.connected) {
-                    socket.emit('update', bpuDocs, this.queues.toJSON(), this.config.queueTimePerBPU, callback);
+
+                    logger.debug('updating connected client...');
+                    //socket.emit('update', bpuDocs, this.queues.toJSON(), this.config.queueTimePerBPU, callback);
                 }
             });
         }
@@ -287,45 +288,51 @@ class Dispatcher {
     }
 
     _loop(callback) {
+        logger.debug('=================================');
+
         async.waterfall([
             (callback) => {
+                logger.debug('fetching BPUs...');
+
                 this._getBPUs(callback);
             },
-            (bpuList, callback) => {
-                this.status = 'verifying BPUs...';
-                this.logger.info(this.status);
+            (callback) => {
+                logger.debug('verifying BPUs...');
 
-                this._verifyBPUs(bpuList, this.status, callback);
-            },
-            (bpuList, callback) => {
-                this.status = 'verifying Experiments...';
-                this.logger.info(this.status);
-
-                this._verifyExperiments(this.status, callback);
-            },
-            (experiments, callback) => {
-                this.status = 'executing Experiments...';
-                this.logger.info(this.status);
-
-                this._executeExperiments(this.status, callback);
+                this._verifyBPUs(callback);
             },
             (callback) => {
-                this.status = 'updating Experiments...';
-                this.logger.info(this.status);
+                logger.debug('verifying Experiments...');
 
-                this._updateExperiments(this.status, callback)
+                this._verifyExperiments(callback);
             },
             (callback) => {
-                this.status = 'updating Clients...';
-                this.logger.info(this.status);
+                logger.debug('executing Experiments...');
 
-                this._updateClients(this.status, callback)
+                this._executeExperiments(callback);
+            },
+            (callback) => {
+                logger.debug('updating Experiments...');
+
+                this._updateExperiments(callback)
+            },
+            (callback) => {
+                logger.debug('updating Clients...');
+
+                this._updateClients(callback)
             }
         ], (err, result) => {
             if (err) {
-                this.logger.error(err);
+                logger.error(err);
                 return callback(err);
             }
+
+            // this._loop((err)=>{
+            //     if (err) {
+            //         logger.error(err);
+            //         // return callback(err);
+            //     }
+            // });
 
             return callback(null);
         });

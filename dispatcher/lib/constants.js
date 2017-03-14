@@ -11,7 +11,8 @@ let EXPERIMENT_STATUS = {
 };
 
 let BPU_STATUS = {
-    READY: 'resetingDone'
+    READY: 'resetingDone',
+    OFFLINE: 'offline'
 };
 
 let PROFILERS = {

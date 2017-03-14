@@ -1,7 +1,7 @@
 import * as mainConfig from './../../../shared/mainConfig.js';
 
 const logLevel = 'DEBUG';
-const name = 'controller';
+const name = 'dispatcher';
 const ip = '0.0.0.0';
 const port = mainConfig.adminFlags.getControllerPort();
 const dbUrl = mainConfig.adminFlags.getMongoUri();
