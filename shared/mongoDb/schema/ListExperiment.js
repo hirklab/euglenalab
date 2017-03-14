@@ -5,6 +5,8 @@ var async=require('async');
 var fs=require('fs');
 
 var _SchemaName='ListExperiment';
+
+//noinspection JSUnresolvedVariable
 exports = module.exports = function(app, mongoose) {
   //Schema Base
   var _mySchema=new mongoose.Schema({
@@ -69,9 +71,10 @@ exports = module.exports = function(app, mongoose) {
         var funcName='getNewExperiments';
 
         var thisSchema=this;
+
         thisSchema.find({}, {newExps: 1}, function(err, docs) {
             if(err) {
-                mainCallback(err, null);
+                return mainCallback(err, null);
             } else {
                 //Find a Doc
                 var doc=null;
@@ -81,7 +84,7 @@ exports = module.exports = function(app, mongoose) {
                     doc=thisSchema(); //Creates a new list experiment?
                     doc.save(function(err, saveDoc) {
                         //Callback
-                        if(typeof mainCallback==='function') mainCallback(err, saveDoc);
+                        return mainCallback(err, saveDoc);
                     });
 
                     //Remove older docs
@@ -89,14 +92,14 @@ exports = module.exports = function(app, mongoose) {
                     docs.sort(function(objA, objB) {return objB._id.getTimestamp()-objA._id.getTimestamp();});
                     doc=docs[0];
                     app.db.models.ListExperiment.remove({_id:{$lt:docs[0]._id}}, function(err, info) {
-                        if(typeof mainCallback==='function') mainCallback(null, doc);
+                        return mainCallback(err, doc);
                     });
 
                     //Use the only Doc
                 } else {
                     doc=docs[0];
                     //Callback
-                    if(typeof mainCallback==='function') mainCallback(null, doc);
+                    return mainCallback(null, doc);
                 }
             }
         });

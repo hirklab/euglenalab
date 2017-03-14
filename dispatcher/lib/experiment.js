@@ -135,20 +135,24 @@ function parseQueueData(data, session, auth, db, callback) {
     else {
       validationObj.errs.push('no session sessionID');
     }
-    
+
     newBpuExp.session.socketID = session.socketID;
     newBpuExp.session.socketHandle = session.socketHandle;
 
   } else {
     validationObj.errs.push('no session');
   }
+
   //Other
-  if (data.group_experimentType) newBpuExp.group_experimentType = data.group_experimentType;
-  else validationObj.errs.push('no group_experimentType');
+  if (data.group_experimentType) {
+    newBpuExp.group_experimentType = data.group_experimentType;
+  }
+  else {
+    validationObj.errs.push('no group_experimentType');
+  }
+
   newBpuExp.exp_wantsBpuName = data.exp_wantsBpuName;
-
   newBpuExp.exp_metaData = data.exp_metaData;
-
   newBpuExp.bc_serverInfo = auth;
 
   //Many Check on events to run
@@ -175,12 +179,13 @@ function parseQueueData(data, session, auth, db, callback) {
 
   validationObj.wasTagged = false;
   validationObj.tagErr = null;
-  if (validationObj.expInfo.isValid && validationObj.errs.length === 0) {
 
+  if (validationObj.expInfo.isValid && validationObj.errs.length === 0) {
     newBpuExp.exp_eventsToRun = data.exp_eventsToRun;
     newBpuExp.exp_eventsRunTime = data.exp_eventsRunTime;
     newBpuExp.tag = newBpuExp.getExperimentTag();
     newBpuExp.exp_submissionTime = new Date().getTime();
+
     newBpuExp.save(function (err, savedExp) {
       if (err) {
         validationObj.saveErr = 'could not save new exp err:' + err;

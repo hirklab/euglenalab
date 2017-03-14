@@ -44,3 +44,37 @@ server/app\.out
 \.env
 
 deployment\.js
+
+lib-cov
+*.DS_Store
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+node_modules
+coverage
+dbdumps
+test-results.xml
+dist
+yarn.lock
+.nyc_output
+temp.js
+tempStripe.js
+
+.env
+
+.vscode
+jsconfig.json
+typings
+.idea/
+
+# test artifacts
+output/
+
+# JetBrains
+*.iml
+
