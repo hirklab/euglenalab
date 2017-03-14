@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "async": "^1.5.2",
+    "base64url": "^2.0.0",
     "log4js": "^1.1.1",
     "mongoose": "^4.8.6",
     "socket.io": "^1.4.6",
