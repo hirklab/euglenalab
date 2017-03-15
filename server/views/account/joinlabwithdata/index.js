@@ -137,7 +137,7 @@ exports.find = function(req, res, next) {
   var getExperimentData=function(callback) {
     req.query.wasDataProcessed = req.query.wasDataProcessed ? req.query.wasDataProcessed : true;
     req.query.isRunOver = req.query.isRunOver ? req.query.isRunOver : true;
-    req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
+    req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 5;
     req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
     req.query.sort = req.query.sort ? req.query.sort : '-_id';
 
