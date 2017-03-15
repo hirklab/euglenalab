@@ -147,6 +147,19 @@ block neck
     .canvas-joystick-on {background-color:#66b2ff;}
     #labTimeLeftLabel {font-size:36px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
 
+    *.unselectable {
+        -moz-user-select: -moz-none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+
+        /*
+          Introduced in IE 10.
+          See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+        */
+        -ms-user-select: none;
+        user-select: none;
+    }
+
 block feet
   script(src='/views/account/livelab/index.min.js?#{cacheBreaker}')
   script(src="/views/account/livelab/Canvas_Joystick.js")
@@ -158,31 +171,31 @@ block body
   //label#debugLabel1(name='debugLabel1') Connected False
   //label#debugLabel2(name='debugLabel2') Set Connection Res?
   //label#debugLabel3(name='debugLabel3') Join Queue Status:None
-  label#labTimeLeftLabel(name=data.timeLeftInLab.jadeName) #{data.lightData.topValue} #{data.timeLeftInLab.value}
+  label#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.lightData.topValue} #{data.timeLeftInLab.value}
   
   if data.divInfo.hasAside
-    div.row.myMainRow(name='myMainRow')
-      div.myMainCol(name='myMainCol')
-        div.myLightSpacer(name='myLightSpacer')
-        div.myTopLight(name='myTopLight') #{data.lightData.topValue}
-        div.myLightSpacer(name='myLightSpacer')
+    div.row.myMainRow.unselectable(name='myMainRow')
+      div.myMainCol.unselectable(name='myMainCol')
+        div.myLightSpacer.unselectable(name='myLightSpacer')
+        div.myTopLight.unselectable(name='myTopLight') #{data.lightData.topValue}
+        div.myLightSpacer.unselectable(name='myLightSpacer')
         //- div.myLeftLight
         //-   span(name='myLeftLight',style='vertical-align:middle') #{data.lightData.leftValue}
-        div.myLeftLight(name='myLeftLight') #{data.lightData.leftValue}
-        div#myImage
-          img#myVideo(src='#{data.mainImageIP}')
-          div#myScalebar(name='myScalebar')
+        div.myLeftLight.unselectable(name='myLeftLight') #{data.lightData.leftValue}
+        div#myImage.unselectable
+          img#myVideo.unselectable(src='#{data.mainImageIP}')
+          div#myScalebar.unselectable(name='myScalebar')
             center
-              div#myScale(name='myScale')
+              div#myScale.unselectable(name='myScale')
                 center
-                  span#myScaleText 100um
-        div#myRightLight(name='myRightLight') #{data.lightData.rightValue}
-        div.myLightSpacer(name='myLightSpacer')
-        div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
-        div.myLightSpacer(name='myLightSpacer')
-      div.col#myAside(name='myAside')
+                  span#myScaleText.unselectable 100um
+        div#myRightLight.unselectable(name='myRightLight') #{data.lightData.rightValue}
+        div.myLightSpacer.unselectable(name='myLightSpacer')
+        div#myBottomLight.unselectable(name='myBottomLight') #{data.lightData.bottomValue}
+        div.myLightSpacer.unselectable(name='myLightSpacer')
+      div.col#myAside.unselectable(name='myAside')
         div#myJoystick.canvas-joystick-off(name='myJoystick')
-        img#myImage2(name='myImage2', src='#{data.sideImageIP}')
+        img#myImage2.unselectable(name='myImage2', src='#{data.sideImageIP}')
   else
     div.row.myMainRow(name='myMainRow')
       div.col.myMainCol(name='myMainCol')
