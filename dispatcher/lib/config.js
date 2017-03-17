@@ -2,7 +2,7 @@ import * as mainConfig from './../../../shared/mainConfig.js';
 
 const logLevel = 'DEBUG';
 const name = 'dispatcher';
-const ip = '0.0.0.0';
+const ip = 'localhost';
 const port = mainConfig.adminFlags.getControllerPort();
 const dbUrl = mainConfig.adminFlags.getMongoUri();
 const confirmTimeout = 100;
@@ -39,7 +39,10 @@ const socketRoutes = {
     setLEDs: '/bpu/runExp/#ledsSet',
     getStatus: '/bpu/#getStatus',
     reset: '/bpu/#resetBpu',
-  }
+  },
+  dispatcher:{
+
+  },
 };
 
 const config = {

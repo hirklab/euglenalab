@@ -2,9 +2,8 @@ import mongoose from 'mongoose';
 import {logger} from './logging'
 
 class Database {
-    constructor(config, logger) {
+    constructor(config) {
         this.config = config;
-        this.logger = logger;
     }
 
     get(key) {
@@ -15,7 +14,7 @@ class Database {
         this.db = mongoose.createConnection(this.config.dbUrl);
         this.db.on('error', (err) => {
             if (err) {
-                this.logger.error(err);
+                logger.error(err);
                 return callback(err);
             }
         });
@@ -37,14 +36,14 @@ class Database {
     }
 
     getNewExperiments(callback) {
-        // this.logger.info('getting new experiments... ');
+        // logger.info('getting new experiments... ');
 
         this.db.models.ListExperiment.getNewExperiments((err, queues) => {
             if (err) {
                 return callback(err);
             }
 
-            // this.logger.info(queues.newExps);
+            // logger.info(queues.newExps);
             return callback(null, queues);
         });
     }
@@ -77,6 +76,18 @@ class Database {
                 return callback(null, instance);
             }
         });
+    }
+
+    getRawBPUExperiment(){
+      return this.db.models.BpuExperiment();
+    }
+
+    validateBPUExperiment(experiment){
+      return this.db.models.BpuExperiment.validate(experiment);
+    }
+
+    addBPUExperimentToQueue(tag, callback){
+      return this.db.models.ListExperiment.addNewExpTagToList(tag, callback);
     }
 
     updateBPUExperiment(id, updates, callback) {
