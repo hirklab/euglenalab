@@ -59,4 +59,9 @@ typings/
 # dotenv environment variables file
 .env
 
+ImageStreamer/**/*.so
+ImageStreamer/**/*.o
+ImageStreamer/**/*.lo
+#ImageStreamer/mjpg_streamer
+#ImageStreamer/raspicam
 
