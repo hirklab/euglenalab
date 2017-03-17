@@ -1,22 +1,23 @@
 var _Handle='/account/joinlabwithdata';  //socketHandle for socket connections for the page
 var socketStrs={
-  setConnection:'/#setConnection',         
-  serverError:'/#serverError',         
-  submitExperimentRequest:'/#submitExperimentRequest',    
-  activateLiveUser:'/#activateLiveUser',                      
-  sendUserToLiveLab:'/#sendUserToLiveLab',      
+  setConnection:'/#setConnection',
+  serverError:'/#serverError',
+  submitExperimentRequest:'/#submitExperimentRequest',
+  activateLiveUser:'/#activateLiveUser',
+  sendUserToLiveLab:'/#sendUserToLiveLab',
+  statusUpdate:'/#update',
 };
 var _joinLabConfirmAlertCalled=false;
 (function() {
   'use strict';
   //parent app
   app = app || {};
-  
-  //This Object 
+
+  //This Object
   var me={};
   me.isInitialized=null;
-  
-  //expose with to parent with app 
+
+  //expose with to parent with app
   app.userSocketClient=me;
 
   //Set connection called from parent client page
@@ -29,9 +30,7 @@ var _joinLabConfirmAlertCalled=false;
         setConnectionCallbackToParent('timed out', null);
       }
     }, 10000);
-    
-    //Primary Connection
-    //Primary Connection
+
     //Primary Connection
     var socket=io.connect();
     //Wait for Set Connection
@@ -78,8 +77,8 @@ var _joinLabConfirmAlertCalled=false;
       clientUpdateObj.bpuLiveFinishTime=0;
       clientUpdateObj.bpuTextTotalRunTime=0;
       clientUpdateObj.bpuTextTotalExps=0;
-     
-      //Go through active bpu exps 
+
+      //Go through active bpu exps
       updateObj.bpuExps.forEach(function(bpuExp) {
         if(bpuExp.liveBpuExperiment.group_experimentType==='live') {
           clientUpdateObj.bpuLiveExp=bpuExp;
@@ -89,8 +88,8 @@ var _joinLabConfirmAlertCalled=false;
           clientUpdateObj.bpuTextTotalExps++;
         }
       });
-      
-      //Go through queue bpu exps 
+
+      //Go through queue bpu exps
       updateObj.queueExpTags.forEach(function(expTag) {
         if(expTag.session.sessionID!==null && expTag.session.sessionID!==undefined) {
           if(expTag.group_experimentType==='live') {
@@ -110,7 +109,7 @@ var _joinLabConfirmAlertCalled=false;
       app.mainView.updateFromServer(clientUpdateObj);
 
     });
-    
+
     //Submit Experiment SocketParent Call to Start Join Queue Sequence
     me.submitExperimentArray=function(joinQueueDataArray, callbackToMain) {
       //Time out
@@ -121,7 +120,7 @@ var _joinLabConfirmAlertCalled=false;
           callbackToMain('timed out in', null);
         }
       }, 5000);
-      //Fix Session Info to each exp request 
+      //Fix Session Info to each exp request
       joinQueueDataArray.forEach(function(obj) {
         if(obj.group_experimentType==='live') {
           var zeroEvt=JSON.parse(JSON.stringify(obj.zeroLedEvent));
@@ -138,7 +137,7 @@ var _joinLabConfirmAlertCalled=false;
         obj.session.socketID=app.mainView.session.get('socketID');
       });
       //Send to webserve
-      socket.emit(socketStrs.submitExperimentRequest, joinQueueDataArray, function(err, validationObjs) { 
+      socket.emit(socketStrs.submitExperimentRequest, joinQueueDataArray, function(err, validationObjs) {
         if(!didCallback) {
           didCallback=true;
           callbackToMain(err, validationObjs);
@@ -163,7 +162,7 @@ var _joinLabConfirmAlert=function(confirmTimeout, callback) {
         callback('timed out', null);
       }
     }, confirmTimeout);
-    //Alert 
+    //Alert
     var confirmTime=Math.round(confirmTimeout/1000);
     if(confirm('Go To Lab.' +new Date()+'\n'+confirmTime+' seconds to confirm.')===true) {
       if(!didCallback) {
