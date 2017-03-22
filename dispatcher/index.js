@@ -1,7 +1,7 @@
-import {config} from './lib/config';
+import config from './lib/config';
 import Dispatcher from './lib/dispatcher';
 import {Dashboard} from './lib/dashboard';
-import {logger} from './lib/logging'
+import logger from './lib/logging'
 
 let dispatcher = new Dispatcher(config);
 dispatcher.prepare((err, queues) => {

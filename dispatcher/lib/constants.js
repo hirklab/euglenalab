@@ -12,11 +12,22 @@ let EXPERIMENT_STATUS = {
 
 let BPU_STATUS = {
   INITIALIZING: 'initializing',
-  IN_PROGRESS: 'running',
   IN_QUEUE: 'pendingRun',
+  IN_PROGRESS: 'running',
   PROCESSING: 'finalizing',
+  PROCESSING_OVER: 'finalizingDone',
   READY: 'resetingDone',
   OFFLINE: 'offline'
+};
+
+let BPU_STATUS_DISPLAY = {
+  'initializing': 'initializing',
+  'pendingRun': 'in queue',
+  'running': 'running',
+  'finalizing': 'processing',
+  'finalizingDone': 'processing over',
+  'resetingDone': 'ready',
+  'offline': 'offline'
 };
 
 let PROFILERS = {
@@ -36,15 +47,16 @@ let ROUTES = {
     GET_QUEUE: 'getJoinQueueDataObj',
     GET_EXPERIMENT: 'getExp',
     SET_LEDS: '/bpu/runExp/#ledsSet',
-    SUBMIT_EXPERIMENT:'/bpuCont/#submitExperimentRequest',
-    GET_STATUS:'update',
-    DISCONNECT:'disconnect'
+    SUBMIT_EXPERIMENT: '/bpuCont/#submitExperimentRequest',
+    GET_STATUS: 'update',
+    DISCONNECT: 'disconnect'
   },
-  DISPATCHER:{
-    CONNECT:'connect',
-    DISCONNECT:'disconnect',
+  DISPATCHER: {
+    CONNECT: 'connect',
+    DISCONNECT: 'disconnect',
+    SUBMIT_EXPERIMENT: '/bpuCont/#submitExperimentRequest',
   },
-  BPU:{
+  BPU: {
     PING: '/bpu/#ping',
     ADD_EXPERIMENT: '/bpu/#setExp',
     RUN_EXPERIMENT: '/bpu/#runExp',
@@ -54,4 +66,11 @@ let ROUTES = {
   }
 };
 
-export {EXPERIMENT_STATUS, PROFILERS, GROUPS, BPU_STATUS, ROUTES};
+export {
+  EXPERIMENT_STATUS,
+  PROFILERS,
+  GROUPS,
+  BPU_STATUS,
+  BPU_STATUS_DISPLAY,
+  ROUTES
+};

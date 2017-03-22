@@ -50,6 +50,7 @@ var _joinLabConfirmAlertCalled=false;
 
     //Activate Live User/Prompt for Join Confirm
     socket.on(socketStrs.activateLiveUser, function(sessDoc, confirmTimeout, callbackToServer) {
+      console.log('checking from user...');
       var resData={didConfirm:false};
       _joinLabConfirmAlert(confirmTimeout, function(err, didConfirm) {
         resData.didConfirm=didConfirm;
@@ -64,8 +65,9 @@ var _joinLabConfirmAlertCalled=false;
     });
     //Update Info
     socket.on('/#update', function(updateObj) {
+      console.log('got an update...');
       var clientUpdateObj={};
-      
+
       //Queue info for UI update
       clientUpdateObj.queueExps=[];
       clientUpdateObj.liveQueueExp=null;

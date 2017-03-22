@@ -10,7 +10,7 @@ const loopTimeout = 1000;
 const socketTimeout = 30;
 const userConfirmationTimeout = 15000;
 const experimentSessionMaxTime = 60 * 1000;
-const profiling = true;
+const profiling = false;
 const profilingInterval = 30 * 60 * 1000;
 
 const authenticClients = {
@@ -31,22 +31,9 @@ const authenticClients = {
   }
 };
 
-const socketRoutes = {
-  bpu: {
-    ping: '/bpu/#ping',
-    addExperiment: '/bpu/#setExp',
-    runExperiment: '/bpu/#runExp',
-    setLEDs: '/bpu/runExp/#ledsSet',
-    getStatus: '/bpu/#getStatus',
-    reset: '/bpu/#resetBpu',
-  },
-  dispatcher:{
-
-  },
-};
-
 const config = {
   name: name,
+  ip: ip,
   port: port,
   logLevel: logLevel,
   dbUrl: dbUrl,
@@ -57,8 +44,7 @@ const config = {
   experimentSessionMaxTime: experimentSessionMaxTime,
   loopTimeout: loopTimeout,
   socketTimeout: socketTimeout,
-  socketRoutes: socketRoutes,
   authenticClients: authenticClients
 };
 
-export {config};
+export default config;

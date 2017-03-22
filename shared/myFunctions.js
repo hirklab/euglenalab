@@ -174,20 +174,24 @@ exports.getSocket=function(appIo, socketID) {
   var returnSocket=null;
 
   var keys=Object.keys(appIo.sockets.connected);
+  console.log('Checking socket ' + socketID);
   console.log('Number of connected socket ids: ' + keys.length);
 
   for(var i=0;i<keys.length;i++) {
     var key=keys[i];
     var sock=appIo.sockets.connected[key];
     if(''+sock.id===''+socketID) {
+      console.log('socket found');
       returnSocket=sock;
       break;
     }
     if(''+sock.id==='/#'+socketID) {
+      console.log('socket found');
       returnSocket=sock;
       break;
     }
     if('/#'+sock.id===''+socketID) {
+      console.log('socket found');
       returnSocket=sock;
       break;
     }

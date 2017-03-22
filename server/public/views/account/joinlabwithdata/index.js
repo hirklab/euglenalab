@@ -240,6 +240,8 @@
           joinQueueData.exp_metaData.tag='live';
           joinQueueData.exp_metaData.description='no description set';
           joinQueueData.exp_metaData.expTypeString='isLive';
+          joinQueueData.exp_metaData.type='live';
+          joinQueueData.exp_metaData.chosenBPU=wantsBpuName;
           //joinQueueData.exp_eventsToRun=fileObj.eventsToRun; fixed on server
           joinQueueDataObjects.push(joinQueueData);
           doSend=true;
@@ -249,6 +251,8 @@
             joinQueueData.group_experimentType='text';
             joinQueueData.exp_eventsToRun=fileObj.eventsToRun;
             joinQueueData.exp_metaData=fileObj.metaData;
+            joinQueueData.exp_metaData.type='batch';
+            joinQueueData.exp_metaData.chosenBPU=wantsBpuName;
             joinQueueDataObjects.push(joinQueueData);
           });
           if(joinQueueDataObjects.length>0) doSend=true;
@@ -265,6 +269,7 @@
             obj.session.socketID=app.mainView.session.get('socketID');
 
             obj.exp_metaData.group_experimentType=obj.group_experimentType;
+
             obj.exp_wantsBpuName=wantsBpuName;
 
             obj.exp_metaData.clientCreationDate=new Date();
