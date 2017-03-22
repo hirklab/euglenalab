@@ -665,6 +665,10 @@ var loop=function() {
         } else {
           app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name]=0;
         }
+
+        if(!bpuObj.isSocketOkay){
+          delete app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name];
+        }
       }
     });
     var checkExpAndResort=function(checkExpCallback) {
@@ -963,7 +967,7 @@ var loop=function() {
       //bpu has exp in queue?
       if(expPerBpu[key]) {
         //can send to bpu
-        if(app.bpuObjects[key].doc.bpuStatus===app.mainConfig.bpuStatusTypes.resetingDone) {
+        if(app.bpuObjects[key].doc.bpuStatus===app.mainConfig.bpuStatusTypes.resetingDone && app.bpuObjects[key].isSocketOkay) {
           runParallelFuncs.push(sendExpToBpu.bind({bpuObj:app.bpuObjects[key], exp:expPerBpu[key]}));
 
         //put back in keeper docs to return to queue
@@ -1016,7 +1020,9 @@ var loop=function() {
     if(app.socketConnections.length>0) {
       var bpuDocs=[];
       Object.keys(app.bpuObjects).forEach(function(key) {
-        bpuDocs.push(app.bpuObjects[key].doc.toJSON());
+        if(app.bpuObjects[key].isSocketOkay) {
+            bpuDocs.push(app.bpuObjects[key].doc.toJSON());
+        }
       });
       app.socketConnections.forEach(function(socket) {
         if(socket.connected) {
