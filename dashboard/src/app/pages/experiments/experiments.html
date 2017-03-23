@@ -1,0 +1,64 @@
+<div class="row">
+    <div class="col-md-12">
+        <div ba-panel ba-panel-title="My Experiments" ba-panel-class="with-scroll">
+            <div class="horizontal-scroll">
+                <table class="table" st-table="vm.displayed" st-safe-src="vm.list" st-pipe="vm.filter">
+                <thead>
+                    <tr class="sortable">
+                        <th class="table-id" st-sort="id">Experiment ID</th>
+                        <th st-sort="bpu">Microscope</th>
+                        <th st-sort="submittedAt">Submission Time</th>
+                        <th st-sort="username">User</th>
+                        <th st-sort="status" st-sort-default="true">Status</th>
+                        <th >Actions</th>
+                    </tr>
+                    <tr>
+                        <th><input st-search="id" placeholder="Search Experiment ID"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="bpu" placeholder="Search microscope"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="submittedAt" placeholder="Search created time"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="username" placeholder="Search user name"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="status" placeholder="Search status"
+                                   class="input-sm form-control search-input" type="search"/>
+                        </th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="experiment in vm.displayed">
+                        <td class="table-id">{{experiment.id}}</td>
+                        <td>{{experiment.bpu}}</td>
+                        <td>{{ experiment.submittedAt}}</td>
+                        <td>{{experiment.username}}</td>
+                        <td>{{experiment.status}}</td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3">
+                        <div class="form-group select-page-size-wrap ">
+                            <label>
+                                <select class="form-control selectpicker show-tick" style="max-width: 80px;" title="Rows on page" selectpicker
+                                        ng-model="vm.pageSize" ng-options="i for i in [5,10,15,20,25]">
+                                </select> <span>rows per page</span>
+                            </label>
+                        </div>
+                    </td>
+                        <td colspan="3" class="text-right">
+                            <div st-pagination="" st-items-by-page="vm.pageSize" st-displayed-pages="5"></div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
