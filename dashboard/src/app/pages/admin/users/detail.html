@@ -1,0 +1,101 @@
+<div class="row">
+    <div class="col-lg-4 col-md-5 col-sm-6 col-xs-12">
+        <div ba-panel ba-panel-title="{{vm.user.username}}" ba-panel-class="">
+            <div class="user-wrapper">
+                <div class="user-main-info">
+                    <dl class="row">
+                        <dt class="col-sm-3">Name</dt>
+                        <dd class="col-sm-9">{{vm.user.username}}</dd>
+
+                        <dt class="col-sm-3">Email</dt>
+                        <dd class="col-sm-9">{{vm.user.email}}</dd>
+
+                        <dt class="col-sm-3">Active</dt>
+                        <dd class="col-sm-9">{{vm.user.isActive}}</dd>
+
+                        <dt class="col-sm-3">Joined on</dt>
+                        <dd class="col-sm-9">{{vm.user.timeCreated|date}}</dd>
+
+                        <dt class="col-sm-3">Roles</dt>
+                        <dd class="col-sm-9">
+                            <span
+                                    ng-repeat="role in vm.user.roles"><a ui-sref="admin.roleDetail({id:role.value})">
+                                {{role.key}}</a>{{$last ? '' : ',
+                                '}}</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Groups</dt>
+                        <dd class="col-sm-9"><span
+                                ng-repeat="group in vm.user.groups"><a ui-sref="admin.groupDetail({id:group.value})">
+                                {{group.key}}</a>{{$last ? '' : ',
+                                '}}</span></dd>
+                    </dl>
+
+                </div>
+                <div class="user-footer">
+
+                </div>
+            </div>
+        </div>
+
+        <!--<div ba-panel ba-panel-title="">-->
+            <!--<div class="row" style="margin-bottom:8px;">-->
+                <!--<div class="col-xs-12">-->
+                    <!--<div class="btn-group" role="group" aria-label="..." >-->
+                        <!--<div class="btn-group" role="group">-->
+                            <!--&lt;!&ndash;<button type="button" class="btn"&ndash;&gt;-->
+                                    <!--&lt;!&ndash;ng-class="{'btn-success':!vm.microscope.isOn, 'btn-danger':vm.microscope.isOn}"&ndash;&gt;-->
+                                    <!--&lt;!&ndash;ng-click="vm.toggleState(!vm.microscope.isOn)">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<i class="ion"&ndash;&gt;-->
+                                   <!--&lt;!&ndash;ng-class="{'ion-android-radio-button-on':!vm.microscope.isOn, 'ion-android-radio-button-off':vm.microscope.isOn}"></i>&ndash;&gt;-->
+                                <!--&lt;!&ndash;{{vm.microscope.isOn?'Disable':'Enable&ndash;&gt;-->
+                                <!--&lt;!&ndash;'}}&ndash;&gt;-->
+                            <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                        <!--</div>-->
+                        <!--&lt;!&ndash;<div class="btn-group" role="group">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<button type="button" class="btn btn-default">Resample</button>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+
+            <!--<div class="row">-->
+                <!--<div class="col-md-6 col-xs-12">-->
+                    <!--<div class="control">-->
+                        <!--<h6>Ambient Light</h6>-->
+                        <!--<slider ng-model="vm.ambientLight" min="1" step="1" max="100" value="vm.ambientLight"></slider>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="col-md-6 col-xs-12">-->
+                    <!--<div class="control">-->
+                        <!--<h6>Back-light</h6>-->
+                        <!--<slider ng-model="vm.backLight" min="1" step="1" max="100" value="vm.backLight"></slider>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+
+
+        <!--</div>-->
+    <!--</div>-->
+    <!--<div class="col-lg-8 col-md-7 col-sm-6 col-xs-12">-->
+
+        <!--<div class="row" ng-if="vm.user">-->
+            <!--<div class="col-xs-12"-->
+                 <!--ba-panel-->
+                 <!--ba-panel-title=""-->
+                 <!--ba-panel-class="with-scroll">-->
+
+            <!--</div>-->
+        <!--</div>-->
+
+        <!--<div class="row" ng-if="vm.user">-->
+            <!--<div class="col-xs-12"-->
+                 <!--ba-panel-->
+                 <!--ba-panel-title="Notes"-->
+                 <!--ba-panel-class="with-scroll">-->
+            <!--</div>-->
+        <!--</div>-->
+
+
+    </div>
+</div>

@@ -1,0 +1,172 @@
+<div class="row">
+    <div class="col-lg-4 col-md-5 col-sm-6 col-xs-12">
+        <div ba-panel ba-panel-title="{{vm.microscope.name}} ({{vm.microscope.magnification}}X)"
+             ba-panel-class="{{vm.microscope.panelClass}}"
+        >
+            <div class="microscope-wrapper">
+                <div class="microscope-main-info">
+                    <i class="fa microscope-video-status"
+                       ng-class="{'fa-play text-success':vm.microscope.snapshot, 'fa-stop text-danger':!vm.microscope.snapshot}"
+                       ng-click="vm.toggle(vm.microscope.snapshot)"></i>
+                    <img ng-src="{{vm.microscope.address}}" style="width:100%">
+                </div>
+                <div class="microscope-footer">
+                    <div class="progress" ng-repeat="stat in vm.microscope.statistics | orderBy: 'name'">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}" aria-valuemin="0"
+                             aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"
+                             ng-class="stat.class">
+                            <span>{{stat.name | uppercase}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div ba-panel ba-panel-title="Controls">
+            <div class="row" style="margin-bottom:8px;">
+                <div class="col-xs-12">
+
+                    <dl class="row">
+                        <dt class="col-sm-9">Status</dt>
+                        <dd class="col-sm-3">
+                            <small>
+                                <uiswitch id="isOn" name="isOn"
+                                          ng-model="vm.microscope.isOn" class="small"
+                                ></uiswitch>
+                            </small>
+                        </dd>
+
+                        <dt class="col-sm-9">Resample for 5 seconds</dt>
+                        <dd class="col-sm-3">
+                            <small>
+                                <uiswitch id="resample" name="resample"
+                                          ng-model="vm.microscope.resample"
+                                          disabled="vm.microscope.resample_disabled"
+                                          class="small"
+                                ></uiswitch>
+                            </small>
+                        </dd>
+
+                        <dt class="col-sm-9">Resample for 10 seconds</dt>
+                        <dd class="col-sm-3">
+                            <small>
+                                <uiswitch id="resample10" name="resample10"
+                                          ng-model="vm.microscope.resample10"
+                                          disabled="vm.microscope.resample10_disabled"
+                                          class="small"
+                                ></uiswitch>
+                            </small>
+                        </dd>
+
+                        <dt class="col-sm-9">Resample for 2 minutes</dt>
+                        <dd class="col-sm-3">
+                            <small>
+                                <uiswitch id="resample120" name="resample120"
+                                          ng-model="vm.microscope.resample120"
+                                          disabled="vm.microscope.resample120_disabled"
+                                          class="small"
+                                ></uiswitch>
+                            </small>
+                        </dd>
+                    </dl>
+
+                    <!--<div class="btn-group" role="group" aria-label="..." >-->
+                    <!--<div class="btn-group" role="group">-->
+                    <!--<button type="button" class="btn"-->
+                    <!--ng-class="{'btn-success':!vm.microscope.isOn, 'btn-danger':vm.microscope.isOn}"-->
+                    <!--ng-click="vm.toggleState(!vm.microscope.isOn)">-->
+                    <!--<i class="ion"-->
+                    <!--ng-class="{'ion-android-radio-button-on':!vm.microscope.isOn, 'ion-android-radio-button-off':vm.microscope.isOn}"></i>-->
+                    <!--{{vm.microscope.isOn?'Disable':'Enable-->
+                    <!--'}}-->
+                    <!--</button>-->
+                    <!--</div>-->
+                    <!--<div class="btn-group" role="group">-->
+                    <!--<button type="button" class="btn btn-default"><i class="ion ion-refresh"></i> Resample</button>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 col-xs-12">
+                    <div class="control">
+                        <h6>Ambient Light</h6>
+                        <slider ng-model="vm.ambientLight" min="1" step="1" max="100" value="vm.ambientLight"></slider>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xs-12">
+                    <div class="control">
+                        <h6>Back-light</h6>
+                        <slider ng-model="vm.backLight" min="1" step="1" max="100" value="vm.backLight"></slider>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="col-lg-8 col-md-7 col-sm-6 col-xs-12">
+        <div class="row">
+            <div class="col-xs-12">
+                <div ba-panel ba-panel-title="Experiment Queue" ba-panel-class="with-scroll">
+                    <live-status class="live-status-chart" experiments-data="{{vm.microscope.queue}}"
+                                 bpu-name="{{vm.microscope.name}}"
+                    ></live-status>
+                    <p class="text-muted" ng-if="vm.microscope.queue.length==0">No experiment in progress</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" ng-if="vm.microscope">
+            <div class="col-xs-12"
+                 ba-panel
+                 ba-panel-title="Health"
+                 ba-panel-class="with-scroll">
+                <health-chart microscope-data="{{vm.microscope}}"></health-chart>
+            </div>
+        </div>
+
+        <div class="row" ng-if="vm.microscope.notes">
+            <div class="col-xs-12"
+                 ba-panel
+                 ba-panel-title="Notes"
+                 ba-panel-class="with-scroll">
+                <div class="task-todo-container" ng-class="{'transparent': transparent}">
+                    <div class="input-group">
+                        <input type="text" value="" class="form-control task-todo" placeholder="Add a new note"
+                               ng-model="vm.message"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button"
+                                    ng-click="vm.addNote(vm.message)"
+                                    ng-disabled="vm.message==''">Add</button>
+                          </span>
+                    </div>
+                    <div class="box-shadow-border"></div>
+                    <ul class="todo-list">
+                        <li ng-repeat="item in vm.microscope.notes | orderBy:'-userCreated.time'" ng-if="!item.deleted">
+                            <!--ng-init="activeItem=false"
+                            ng-class="{checked: isChecked, active: activeItem}"
+                            ng-mouseenter="activeItem=true" ng-mouseleave="activeItem=false"-->
+
+                            <!--<div class="blur-container">-->
+                            <!--<div class="blur-box"></div>-->
+                            <!--</div>-->
+                            <i class="mark" style="background-color: {{::item.color}}"></i>
+                            <div class="custom-input-success">
+                                <!--<input type="checkbox" ng-model="isChecked">-->
+                                <p class="text-muted" style="font-size: 12px;">{{ item.userCreated.name }}: {{ item.data
+                                    }}<span style="float:right;font-size: 10px;margin-right: 20px;">{{ item.when
+                                        }}</span></p>
+                            </div>
+                            <i class="remove-todo ion-ios-close-empty" ng-click="vm.removeNote(item)"></i>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+</div>
