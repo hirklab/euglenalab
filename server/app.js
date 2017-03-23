@@ -9,6 +9,7 @@ var config = require('./config'),
     http = require('http'),
     path = require('path'),
     passport = require('passport'),
+    jwt = require('jsonwebtoken'),
     mongoose = require('mongoose'),
     helmet = require('helmet'),
     fs = require('fs'),
@@ -62,9 +63,15 @@ app.use(session({
   secret: config.cryptoKey,
   store: new mongoStore({ url: config.mongodb.uri })
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+//setup routes for api before csrf middleware
+require('./api')(app, passport);
+
 app.use(csrf({ cookie: { signed: true } }));
+
 helmet(app);
 app.use(helmet.frameguard('allow-from', 'www.golabz.eu'));
 app.use(helmet.frameguard('allow-from', 'graasp.eu'));
