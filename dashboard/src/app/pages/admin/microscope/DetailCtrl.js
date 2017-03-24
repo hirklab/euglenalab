@@ -29,6 +29,7 @@
         AdminMicroscope.detail($stateParams.id).then(function (res) {
             vm.microscope = res.data.results;
             vm.microscope.snapshot = true;
+            vm.microscope.queue = [];
 
             vm.microscope.panelClass = 'microscope bootstrap-panel';
             vm.microscope.panelClass += vm.microscope.isOn ? ' enabled' : ' disabled';
@@ -43,7 +44,7 @@
                 var newValue = {
                     'name': stat.statType,
                     'value': stat.data.inverseTimeWeightedAvg,
-                    'max': stat.statType == 'response' ? 4 : stat.statType == 'population' ? 300 : 500
+                    'max': stat.statType == 'response' ? 4 * (4 / vm.microscope.magnification) : stat.statType == 'population' ? 300 / vm.microscope.magnification : 500
                 };
 
                 newValue['percent'] = newValue['value'] * 100 / newValue['max'];
@@ -66,9 +67,9 @@
             });
 
             vm.initializeSocket(vm.microscope.name, function (err, data) {
-                vm.refresh(vm.microscope.name, function(obj){
-
-                });
+                // vm.refresh(vm.microscope.name, function(obj){
+                //     console.log(obj);
+                // });
             });
         });
 
@@ -151,6 +152,88 @@
                 };
                 socket.on(resStr, resFunc);
                 socket.emit(emitStr, connectionInfo);
+
+                socket.on('update', function (bpuUpdates, queues, timeLeftPerBPU) {
+                    var bpu = _.find(bpuUpdates, function (bpu) {
+                        return bpu._id == vm.microscope.id;
+                    });
+
+                    if (bpu != null) {
+                        vm.microscope.status = AdminMicroscope.BPU_STATUS_DISPLAY[bpu.bpuStatus];
+                        // vm.microscope.allowedGroups = bpu.allowedGroups;
+                        // vm.microscope.processingTimePerExperiment = bpu.bpu_processingTime;
+                        // vm.microscope.performanceScores = bpu.performanceScores;
+
+
+                        // if (bpu.hasOwnProperty('liveBpuExperiment') && bpu.liveBpuExperiment != null && bpu.liveBpuExperiment.hasOwnProperty('id') && bpu.liveBpuExperiment.id != null) {
+                        //     vm.microscope.currentExperiment = bpu.liveBpuExperiment;
+                        //
+                        //     setTimeout(function(){
+                        //         var experimentIndex = _.findIndex(vm.microscope.queue, function (experiment) {
+                        //             return experiment.id = bpu.liveBpuExperiment.id;
+                        //         });
+
+                        // if (experimentIndex < 0) {
+                        //     vm.microscope.queue.push({
+                        //         'index':vm.microscope.queue.length,
+                        //         'id': bpu.liveBpuExperiment.id,
+                        //         'user': bpu.liveBpuExperiment.username,
+                        //         'type': bpu.liveBpuExperiment.group_experimentType,
+                        //         'submittedAt': moment().subtract(bpu.bpu_processingTime / 1000, 'seconds').add(60 - (bpu.liveBpuExperiment.bc_timeLeft / 1000), 'seconds'),
+                        //         'runTime': bpu.liveBpuExperiment.bc_timeLeft / 1000,
+                        //         'status': 'in progress'
+                        //     });
+                        // }
+                        // else {
+                        //         vm.microscope.queue[experimentIndex] = {
+                        //             'id': bpu.liveBpuExperiment.id,
+                        //             'user': bpu.liveBpuExperiment.username,
+                        //             'type': bpu.liveBpuExperiment.group_experimentType,
+                        //             'submittedAt': moment().subtract(bpu.bpu_processingTime / 1000, 'seconds').add(60 - (bpu.liveBpuExperiment.bc_timeLeft / 1000), 'seconds'),
+                        //             'runTime': bpu.bpu_processingTime / 1000,
+                        //             'status': 'in progress'
+                        //         };
+                        //     }
+                        // }, 10000);
+
+
+                        /*
+                         "currentExperiment": {
+                         "id": "58d49efb4e2de22a9f5caf46",
+                         "username": "scripterActivity",
+                         "sessionID": null,
+                         "bc_timeLeft": 3844,
+                         "group_experimentType": "text"
+                         },
+                         * */
+
+                        //
+                        // workflow.outcome.pending = (experiments[req.params.name] || [])
+                        //     .filter(function (experiment) {
+                        //         return experiment.exp_wantsBpuName == req.params.name;
+                        //     })
+                        //     .map(function (experiment) {
+                        //         return {
+                        //             'bpu': req.params.name,
+                        //             'user': experiment.user.name,
+                        //             'type': experiment.group_experimentType,
+                        //             'submittedAt': experiment.exp_submissionTime,
+                        //             'runTime': experiment.exp_eventsRunTime,
+                        //             'status': 'pending'
+                        //         }
+                        //     });
+
+
+                    }
+
+                    vm.queues = queues;
+
+                    if (vm.microscope.name in timeLeftPerBPU) {
+                        vm.microscope.timePending = timeLeftPerBPU[vm.microscope.name]
+                    } else {
+                        vm.microscope.timePending = 0;
+                    }
+                })
             });
         };
 
@@ -186,37 +269,37 @@
             socket.on(resStr, resFunc);
             socket.emit(emitStr, options);
 
-            $timeout(function(){
+            $timeout(function () {
                 vm.microscope.resample = false;
-            },msec);
+            }, msec);
         };
 
-        vm.refresh = function (bpuName, callback) {
-            var foundBpu = function (bpu) {
-                var updateObj = {};
-
-                updateObj.bpuStatus = bpu.bpuInfo.bpuStatus;
-                updateObj.username = bpu.bpuExpInfo.username;
-                updateObj.runTime = bpu.bpuExpInfo.runTime;
-                updateObj.timeLeft = bpu.bpuExpInfo.timeLeft;
-                updateObj.processingTimePerExperiment = bpu.bpuInfo.overheadPerExp;
-
-                callback(updateObj);
-            };
-
-            socket.on('/updateBpus', function (bpusUpdateObj) {
-                console.log(bpusUpdateObj);
-                // var isFound = false;
-                // if (bpusUpdateObj && bpusUpdateObj.bpus && bpusUpdateObj.bpus.forEach) {
-                //     bpusUpdateObj.bpus.forEach(function (bpu) {
-                //         if (!isFound && bpuName === bpu.bpuInfo.name) {
-                //             isFound = true;
-                //             foundBpu(bpu);
-                //         }
-                //     });
-                // }
-            });
-        };
+        // vm.refresh = function (bpuName, callback) {
+        //     var foundBpu = function (bpu) {
+        //         var updateObj = {};
+        //
+        //         updateObj.bpuStatus = bpu.bpuInfo.bpuStatus;
+        //         updateObj.username = bpu.bpuExpInfo.username;
+        //         updateObj.runTime = bpu.bpuExpInfo.runTime;
+        //         updateObj.timeLeft = bpu.bpuExpInfo.timeLeft;
+        //         updateObj.processingTimePerExperiment = bpu.bpuInfo.overheadPerExp;
+        //
+        //         callback(updateObj);
+        //     };
+        //
+        //     socket.on('/updateBpus', function (bpusUpdateObj) {
+        //         console.log(bpusUpdateObj);
+        //         // var isFound = false;
+        //         // if (bpusUpdateObj && bpusUpdateObj.bpus && bpusUpdateObj.bpus.forEach) {
+        //         //     bpusUpdateObj.bpus.forEach(function (bpu) {
+        //         //         if (!isFound && bpuName === bpu.bpuInfo.name) {
+        //         //             isFound = true;
+        //         //             foundBpu(bpu);
+        //         //         }
+        //         //     });
+        //         // }
+        //     });
+        // };
 
 
         // vm.resample = function(options, callback){

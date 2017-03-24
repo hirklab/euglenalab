@@ -8,3 +8,5 @@ db/**/*
 
 .env
 deployment.js
+
+node_modules/**/*

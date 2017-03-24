@@ -681,71 +681,72 @@ exports.bio_unit_health = function (req, res) {
     function getPerformance(username, param, bpu_id, startDate, endDate, scale, cb) {
         var filters = {};
         filters['user.name'] = username;
-        filters['stats.' + param] = {$ne: -1};
-        filters['bpu.id'] = mongoose.Schema.Types.ObjectId(bpu_id);
-        filters['endProcessingDate'] = {$ne: null}; //, $lt:new Date(endDate), $gte:new Date(startDate)};
+        filters['stats.' + username] = {$ne: -1};
+        filters['liveBpu.id'] = mongoose.Types.ObjectId(bpu_id);
+        filters['exp_processingEndTime'] = {$ne: null};//, $lt:new Date(endDate), $gte:new Date(startDate)};
 
         var projections = {};
-        projections[param] = '$stats.' + param;
-        projections['bpu_id'] = '$bpu.id';
-        projections['endProcessingDate'] = 1;
-
+        projections[param] = '$stats.' + username;
+        projections['bpu_id'] = '$liveBpu.id';
+        projections['exp_processingEndTime'] = 1;
 
         req.app.db.models.BpuExperiment.aggregate([{$match: filters}, {$project: projections}]).exec(function (err, results) {
             if (err) {
-                return cb(err, null);
+                cb(err, null);
+            }else {
+
+                var newResult = results.map(function (result) {
+                    var endResult = {};
+                    endResult['datetime'] = new Date(result.exp_processingEndTime);
+                    endResult[param] = result[param] < 0 ? 0 : result[param] * scale;
+
+                    return endResult;
+
+                });
+
+                cb(null, newResult);
             }
-
-            var newResult = results.map(function (result) {
-                // console.log(new Date(result.endProcessingDate));
-
-                var endResult = {};
-                endResult['datetime'] = new Date(result.endProcessingDate);
-                endResult[param] = result[param] < 0 ? 0 : result[param] * scale;
-
-                return endResult;
-
-            });
-
-            cb(null, newResult);
         })
     }
 
-    workflow.on('activity', function () {
+    workflow.on('scripterActivity', function () {
         getPerformance('scripterActivity', 'activity', req.params.id,req.params.start, req.params.end, 1, function (err, results) {
             if (err) {
-                return workflow.emit('exception', err);
-            }
+                workflow.emit('exception', err);
+            }else {
 
-            workflow.outcome.results = workflow.outcome.results || [];
-            workflow.outcome.results.push.apply(workflow.outcome.results, results);
-            workflow.emit('population');
+                workflow.outcome.results = workflow.outcome.results || [];
+                workflow.outcome.results.push.apply(workflow.outcome.results, results);
+                workflow.emit('scripterPopulation');
+            }
         })
     });
 
-    workflow.on('population', function () {
+    workflow.on('scripterPopulation', function () {
         getPerformance('scripterPopulation', 'population', req.params.id, req.params.start, req.params.end,1, function (err, results) {
             if (err) {
-                return workflow.emit('exception', err);
+                workflow.emit('exception', err);
+            }else {
+                workflow.outcome.results = workflow.outcome.results || [];
+                workflow.outcome.results.push.apply(workflow.outcome.results, results);
+                workflow.emit('scripterResponse');
             }
-            workflow.outcome.results = workflow.outcome.results || [];
-            workflow.outcome.results.push.apply(workflow.outcome.results, results);
-            workflow.emit('responseT');
         })
     });
 
-    workflow.on('responseT', function () {
+    workflow.on('scripterResponse', function () {
         getPerformance('scripterResponse', 'response', req.params.id, req.params.start, req.params.end, 50, function (err, results) {
             if (err) {
-                return workflow.emit('exception', err);
+                workflow.emit('exception', err);
+            }else {
+                workflow.outcome.results = workflow.outcome.results || [];
+                workflow.outcome.results.push.apply(workflow.outcome.results, results);
+                workflow.emit('response');
             }
-            workflow.outcome.results = workflow.outcome.results || [];
-            workflow.outcome.results.push.apply(workflow.outcome.results, results);
-            workflow.emit('response');
         })
     });
 
-    workflow.emit('activity');
+    workflow.emit('scripterActivity');
 };
 
 exports.bio_unit_queue = function (req, res) {
@@ -855,6 +856,7 @@ exports.bio_unit_queue = function (req, res) {
                 })
                 .map(function (experiment) {
                     return {
+                        'id':experiment._id,
                         'user': experiment.user.name,
                         'type': experiment.group_experimentType,
                         'submittedAt': experiment.exp_submissionTime,
@@ -869,6 +871,7 @@ exports.bio_unit_queue = function (req, res) {
                 })
                 .map(function (experiment) {
                     return {
+                        'id':experiment._id,
                         'bpu': req.params.name,
                         'user': experiment.user.name,
                         'type': experiment.group_experimentType,
@@ -888,6 +891,8 @@ exports.bio_unit_queue = function (req, res) {
 exports.add_note = function (req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
+    console.log(req.user);
+
     workflow.on('validate', function () {
         if (!req.body.message) {
             workflow.outcome.errors.push('Message is required.');
@@ -898,6 +903,7 @@ exports.add_note = function (req, res) {
     });
 
     workflow.on('addNote', function () {
+
         var noteToAdd = {
             data: req.body.message,
             userCreated: {

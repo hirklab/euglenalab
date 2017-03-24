@@ -36,7 +36,7 @@
                 controllerAs: 'vm',
                 title: 'Microscopes',
                 sidebarMeta: {
-                    order: 100
+                    order: 0
                 }
             })
             .state('admin.microscopeDetail', {

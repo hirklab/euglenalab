@@ -1,6 +1,7 @@
 <div class="row">
     <div class="col-lg-4 col-md-5 col-sm-6 col-xs-12">
-        <div ba-panel ba-panel-title="{{vm.microscope.name}} ({{vm.microscope.magnification}}X)"
+        <div ba-panel
+             ba-panel-title="{{vm.microscope.name}} ({{vm.microscope.magnification}}X)   {{vm.microscope.status}}"
              ba-panel-class="{{vm.microscope.panelClass}}"
         >
             <div class="microscope-wrapper">
@@ -16,9 +17,31 @@
                              aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"
                              ng-class="stat.class">
                             <span>{{stat.name | uppercase}}</span>
+
                         </div>
+                        <!--<span class="pull-right">{{stat.value | number:2}}</span>-->
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="row hide">
+            <div class="col-xs-12">
+                <h4>Profile on {{vm.microscope.performanceScores.activityDate | date}}</h4>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <span class="badge">{{vm.microscope.performanceScores.activity | number:2}}</span>
+                        Activity
+                    </li>
+                    <li class="list-group-item">
+                        <span class="badge"> {{vm.microscope.performanceScores.population|number:2}}</span>
+                        Population
+                    </li>
+                    <li class="list-group-item">
+                        <span class="badge">{{vm.microscope.performanceScores.response|number:2}}</span>
+                        Response
+                    </li>
+                </ul>
             </div>
         </div>
 
@@ -113,10 +136,22 @@
                     <live-status class="live-status-chart" experiments-data="{{vm.microscope.queue}}"
                                  bpu-name="{{vm.microscope.name}}"
                     ></live-status>
-                    <p class="text-muted" ng-if="vm.microscope.queue.length==0">No experiment in progress</p>
+                    <p class="text-muted" ng-if="vm.microscope.queue.length==0" style="margin-left: 55px;">No experiment in progress</p>
                 </div>
             </div>
         </div>
+
+        <!--<div class="row">-->
+            <!--<div class="col-xs-12">-->
+                <!--<pre>{{vm.microscope.currentExperiment | json}}</pre>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <!--<div class="row">-->
+            <!--<div class="col-xs-12">-->
+                <!--<pre>{{vm.microscope.queue | json}}</pre>-->
+            <!--</div>-->
+        <!--</div>-->
 
         <div class="row" ng-if="vm.microscope">
             <div class="col-xs-12"

@@ -243,36 +243,37 @@ var myPrint=function(msg) {if(doPrint) console.log('(public'+'/admin/bpus/detail
 
     },
     initialUpdate:function(updateObj, plotData) {
-      app.mainView.isSocketConnected=updateObj.didPass;
+      console.log(updateObj);
+      app.mainView.isSocketConnected=true;//updateObj.didPass;
       app.headerView.setDateLabel();
-      if(updateObj.err!==null) app.headerView.setErrorLabel(updateObj.err);
-      if(!updateObj.didPass) {
-        //Buttons
-        app.liveView.disableButtons(true);
-        app.graphView.disableButtons(true);
-        //Labels
-        app.headerView.setStatusLabel('Did Not Pass('+
-            'didFindBpu='+updateObj.didFindBpu+', '+
-            'didFindBpuSocket='+updateObj.didFindBpuSocket+', '+
-            'didGetBpuStatus='+updateObj.didFindBpuSocket+')');
-      } else {
+      // if(updateObj.err!==null) app.headerView.setErrorLabel(updateObj.err);
+      // if(!updateObj.didPass) {
+      //   //Buttons
+      //   app.liveView.disableButtons(true);
+      //   app.graphView.disableButtons(true);
+      //   //Labels
+      //   app.headerView.setStatusLabel('Did Not Pass('+
+      //       'didFindBpu='+updateObj.didFindBpu+', '+
+      //       'didFindBpuSocket='+updateObj.didFindBpuSocket+', '+
+      //       'didGetBpuStatus='+updateObj.didFindBpuSocket+')');
+      // } else {
         //Buttons 
-        var bpuStatus=updateObj.bpuStatus.bpuStatus;
-        if(bpuStatus==='bpuNull') app.liveView.disableButtons(false);
-        else app.liveView.disableButtons(true);
-        app.graphView.disableButtons(false);
-        //Labels 
-        app.headerView.setStatusLabel(''+
-            'bpuStatus='+bpuStatus+', '+
-            'username='+updateObj.bpuStatus.username+', '+
-            'runTime='+updateObj.bpuStatus.timeLeft+', '+
-            'timeLeft='+updateObj.bpuStatus.timeLeft+', '+
-            'processingTime='+updateObj.bpuStatus.processingTimePerExperiment+'');
-      }
+        // var bpuStatus=updateObj.bpuStatus.bpuStatus;
+        // if(bpuStatus==='bpuNull') app.liveView.disableButtons(false);
+        // else app.liveView.disableButtons(true);
+        // app.graphView.disableButtons(false);
+        // //Labels
+        // app.headerView.setStatusLabel(''+
+        //     'bpuStatus='+bpuStatus+', '+
+        //     'username='+updateObj.bpuStatus.username+', '+
+        //     'runTime='+updateObj.bpuStatus.timeLeft+', '+
+        //     'timeLeft='+updateObj.bpuStatus.timeLeft+', '+
+        //     'processingTime='+updateObj.bpuStatus.processingTimePerExperiment+'');
+      // }
       //Update Graph Labels
-      plotData.forEach(function(graphPlotData) {
-        app.graphView.updateLabelsWithGraphRefresh(graphPlotData);
-      });
+      // plotData.forEach(function(graphPlotData) {
+      //   app.graphView.updateLabelsWithGraphRefresh(graphPlotData);
+      // });
     },
     initialize: function() {
       app.mainView = this;
@@ -291,37 +292,41 @@ var myPrint=function(msg) {if(doPrint) console.log('(public'+'/admin/bpus/detail
           bpuName:app.mainView.model.get('name'),
           bpuIndex:app.mainView.model.get('index'),
           localAddr:app.mainView.model.get('localAddr'),
-          timeoutInterval:10000,
+          timeoutInterval:20000,
       };
       app.socketClient.setConnection(app.mainView.socketOptions, function(err, bpuUpdate) {
-        //Check if graph data exists and attempt to make it from the hardcoded known scipter array
-        var HardCodedKnownScripters=['activity', 'population', 'response'];
-        if(app.mainView.model.get('avgStatsData').length<HardCodedKnownScripters.length) {
-          var refreshDatas=[];
-          var next=function() {
-            if(HardCodedKnownScripters.length>0) {
-              var type=HardCodedKnownScripters.shift();
-              var options={
-                bpuName:app.mainView.socketOptions.bpuName,
-                scriptType:type,
-                filter:{count:1, type:'all'},
-              };  
-              app.graphView.refreshData(options, function(err, dat) {
-                if(err) {
-                  myPrint('Init Error app.graphView.refreshData err:'+err);
-                }
-                next();
-              });
-            } else {
-              app.mainView.initialUpdate(bpuUpdate, app.mainView.model.get('plotData'));
-              app.socketClient.startUpdateBpus(app.mainView.updateBpusCallback);
-            }
-          };
-          next();
-        } else {
-          app.mainView.initialUpdate(bpuUpdate, app.mainView.model.get('plotData'));
-          app.socketClient.startUpdateBpus(app.mainView.updateBpusCallback);
-        }
+          if(err){
+              console.log(err);
+          }else {
+              //Check if graph data exists and attempt to make it from the hardcoded known scipter array
+              var HardCodedKnownScripters = ['activity', 'population', 'response'];
+              if (app.mainView.model.get('avgStatsData').length < HardCodedKnownScripters.length) {
+                  var refreshDatas = [];
+                  var next = function () {
+                      if (HardCodedKnownScripters.length > 0) {
+                          var type = HardCodedKnownScripters.shift();
+                          var options = {
+                              bpuName: app.mainView.socketOptions.bpuName,
+                              scriptType: type,
+                              filter: {count: 1, type: 'all'},
+                          };
+                          app.graphView.refreshData(options, function (err, dat) {
+                              if (err) {
+                                  myPrint('Init Error app.graphView.refreshData err:' + err);
+                              }
+                              next();
+                          });
+                      } else {
+                          app.mainView.initialUpdate(bpuUpdate, app.mainView.model.get('plotData'));
+                          app.socketClient.startUpdateBpus(app.mainView.updateBpusCallback);
+                      }
+                  };
+                  next();
+              } else {
+                  app.mainView.initialUpdate(bpuUpdate, app.mainView.model.get('plotData'));
+                  app.socketClient.startUpdateBpus(app.mainView.updateBpusCallback);
+              }
+          }
       });
     }
   });

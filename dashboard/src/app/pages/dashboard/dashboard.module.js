@@ -10,17 +10,17 @@
 
     /** @ngInject */
     function routeConfig($stateProvider) {
-        $stateProvider
-            .state('dashboard', {
-                url: '/dashboard',
-                templateUrl: 'app/pages/dashboard/dashboard.html',
-                title: 'Dashboard',
-                sidebarMeta: {
-                    icon: 'ion-android-home',
-                    order: 0,
-                },
-                authenticate: true
-            });
+        // $stateProvider
+        //     .state('dashboard', {
+        //         url: '/dashboard',
+        //         templateUrl: 'app/pages/dashboard/dashboard.html',
+        //         title: 'Dashboard',
+        //         sidebarMeta: {
+        //             icon: 'ion-android-home',
+        //             order: 0,
+        //         },
+        //         authenticate: true
+        //     });
     }
 
 })();

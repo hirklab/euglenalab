@@ -19,6 +19,15 @@
             queue: queue,
             addNote: addNote,
             removeNote: removeNote,
+            BPU_STATUS_DISPLAY: {
+                'initializing': 'initializing',
+                'pendingRun': 'in queue',
+                'running': 'running',
+                'finalizing': 'processing',
+                'finalizingDone': 'processing over',
+                'resetingDone': 'ready',
+                'offline': 'offline'
+            },
             thresholds: {
                 'activity': [
                     {
@@ -86,7 +95,7 @@
         }
 
         function health(id, startDate, endDate) {
-            return $http.get('/api/bio-units/' + id + '/health/?start='+startDate+"&end="+endDate);
+            return $http.get('/api/bio-units/' + id + '/health/?start=' + startDate + "&end=" + endDate);
         }
 
         function queue(name) {
@@ -105,7 +114,7 @@
 
         function removeNote(id, message) {
             return $http({
-                url: '/api/bio-units/' + id + '/notes/'+message._id,
+                url: '/api/bio-units/' + id + '/notes/' + message._id,
                 method: 'DELETE'
             });
         }

@@ -13,31 +13,25 @@
         var layoutColors = baConfig.colors;
         var node = $element.children()[0];
 
-        var endDate = moment().subtract(1, 'year').toISOString();
-        var startDate = moment().subtract(2, 'year').toISOString();
-
-        console.log(startDate);
-        console.log(endDate);
+        var endDate = moment().toISOString();
+        var startDate = moment().subtract(1, 'month').toISOString();
 
         $scope.$watch('microscopeData', function (value) {
             if (value != undefined && value.length > 0) {
                 var microscope = JSON.parse(value);
                 AdminMicroscope.health(microscope.id, startDate, endDate).then(function (response) {
-                    // console.log(response.data);
-
                     createHealthChart(node, response.data.results);
                 });
             }
         }, true);
 
         function createHealthChart(node, data) {
-            // console.log(data);
 
             var chart = AmCharts.makeChart(node, {
                 "type": "serial",
                 "theme": "none",
                 "color": layoutColors.default,
-                "dataDateFormat": "YYYY-MM-DD",
+                "dataDateFormat": "YYYY-MM-DD HH:mm:ss",
                 "precision": 2,
                 "valueAxes": [{
                     color: layoutColors.default,
@@ -63,7 +57,7 @@
                     "title": "Activity",
                     "valueField": "activity",
                     "clustered": false,
-                    "columnWidth": 0.3,
+                    "columnWidth": 1,
                     "lineColorField": layoutColors.danger,
                     "legendValueText": "[[value]]",
                     "balloonText": "[[title]]<br/><b style='font-size: 130%'>[[value]]</b>"
@@ -79,7 +73,7 @@
                     "title": "Population",
                     "valueField": "population",
                     "clustered": false,
-                    "columnWidth": 0.3,
+                    "columnWidth": 1,
                     "lineColorField": layoutColors.success,
                     "legendValueText": "[[value]]",
                     "balloonText": "[[title]]<br/><b style='font-size: 130%'>[[value]]</b>"
@@ -94,7 +88,7 @@
                     "type": "smoothedLine",
                     "title": "Response",
                     "valueField": "response",
-                    "columnWidth": 0.3,
+                    "columnWidth": 1,
                     "lineColorField": layoutColors.warning,
                     "legendValueText": "[[value]]",
                     "balloonText": "[[title]]<br/><b style='font-size: 130%'>[[value]]</b>"
@@ -130,6 +124,7 @@
                     "color": layoutColors.default,
                     "gridColor": layoutColors.default,
                     "parseDates": true,
+                    "minPeriod": "hh",
                     "dashLength": 1,
                     "minorGridEnabled": true
                 },

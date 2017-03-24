@@ -33,7 +33,7 @@
       if (!$rootScope.$pageFinishedLoading) {
         $rootScope.$pageFinishedLoading = true;
       }
-    }, 2000);
+    }, 1000);
 
     $rootScope.$baSidebarService = baSidebarService;
 
@@ -52,7 +52,7 @@
             //check if login page and already logged in
             if ((toState.name == 'auth.login' || toState.name == 'auth.register' ) && Auth.isAuthenticated()) {
               event.preventDefault();
-              $state.go('admin');
+              $state.go('admin.microscopeList');
             }
           }
         });

@@ -37,15 +37,15 @@
             experimentsData.forEach(function (experiment) {
                 data["segments"].push({
                     "start": moment(experiment.submittedAt).format('YYYY-MM-DD HH:mm:ss'),
-                    "end": moment(experiment.submittedAt).add(60, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
-                    "duration":60,
+                    "end": moment(experiment.submittedAt).add(experiment.runTime, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
+                    "duration":experiment.runTime,
                     "color": experiment.type == 'live' ? layoutColors.primary : layoutColors.warning,
                     "task": lodash.toLower(experiment.user)
                 });
 
             });
 
-            console.log(data);
+            // console.log(data);
 
             // var data = [
             //     {

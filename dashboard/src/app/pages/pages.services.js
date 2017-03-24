@@ -6,7 +6,7 @@
     angular
         .module('BlurAdmin.pages.services', [])
         .factory('socket', function ($rootScope, $location) {
-            var socket = io.connect($location.host() +':5200');
+            var socket = io.connect('localhost:5200');
 
             return {
                 on: function (eventName, callback) {

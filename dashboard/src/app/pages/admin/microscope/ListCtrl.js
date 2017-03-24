@@ -9,7 +9,7 @@
         .controller('AdminMicroscopeListCtrl', AdminMicroscopeListCtrl);
 
     /** @ngInject */
-    function AdminMicroscopeListCtrl($scope, $http, $timeout, $element, AdminMicroscope) {
+    function AdminMicroscopeListCtrl($scope, $http, $timeout, $element, lodash, AdminMicroscope) {
 
         var vm = this;
 
@@ -26,8 +26,12 @@
             return '';
         };
 
+        vm.ordering = function (microscope) {
+            return parseFloat(microscope.name.replace(/,(?=\d)/g, "").match(/-?\.?\d.*/g));
+        };
+
         AdminMicroscope.list().then(function (res) {
-            vm.microscopes = res.data.results
+            var microscopes = res.data.results
                 .filter(function (microscope) {
                     return microscope.name != 'fake';
                 })
@@ -36,9 +40,9 @@
 
                     microscope.panelClass += microscope.isOn ? ' enabled' : ' disabled';
 
-                    if(microscope.isOn) {
-                        microscope.address = 'http://'+microscope.publicAddr.ip + ':'+ microscope.publicAddr.webcamPort + '?action=snapshot';
-                    }else {
+                    if (microscope.isOn) {
+                        microscope.address = 'http://' + microscope.publicAddr.ip + ':' + microscope.publicAddr.webcamPort + '?action=snapshot';
+                    } else {
                         microscope.address = '/assets/img/bpu-disabled.jpg'
                     }
 
@@ -46,7 +50,7 @@
                         var newValue = {
                             'name': stat.statType,
                             'value': stat.data.inverseTimeWeightedAvg,
-                            'max': stat.statType == 'response' ? 4 : stat.statType == 'population' ? 300 : 500
+                            'max': stat.statType == 'response' ? 4 * (4 / microscope.magnification) : stat.statType == 'population' ? 300 /(microscope.magnification) : 500
                         };
 
                         newValue['percent'] = newValue['value'] * 100 / newValue['max'];
@@ -61,6 +65,10 @@
 
                     return microscope;
                 });
+
+            var microscopeByStatus = lodash.groupBy(microscopes, 'isOn');
+            vm.activeMicroscopes = microscopeByStatus[true];
+            vm.inactiveMicroscopes = microscopeByStatus[false];
         });
     }
 })();
