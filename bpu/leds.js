@@ -41,92 +41,15 @@ var _init=function(options, callback) {
       rpi.softPwmWrite(pin,  value);
     };
 
-//   board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {
-//     board.ledSet(options.LedPins.Top, topValue);
-//     board.ledSet(options.LedPins.Right, rightValue);
-//      board.ledSet(options.LedPins.Bottom, bottomValue);
-//      board.ledSet(options.LedPins.Left, leftValue);
-//    };
-
-//**********************
-//***Light Control*** 
-//**********************
-//Modules
-var rpi =require("wiring-pi");
-rpi.wiringPiSPISetup(0,10000000);
-var rst_buf = new Buffer ([0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00]);
-rpi.wiringPiSPIDataRW(0,rst_buf);
-
-//var board = {};
-
-//**********************
-//***Base LEDs*** 
-//********************** 
-    board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {   
-      topValue = Math.round(( topValue / 100.0 ) * 255.0);
-      rightValue = Math.round(( rightValue / 100.0 ) * 255.0);
-      bottomValue = Math.round(( bottomValue / 100.0 ) * 255.0);
-      leftValue = Math.round(( leftValue / 100.0 ) * 255.0);
-      var buf = new Buffer ([0x11,leftValue,0x11,bottomValue,0x11,rightValue,0x11,topValue]); 
-      rpi.wiringPiSPIDataRW(0,buf);
-    };
-//**********************
-//***Diffuser Light*** 
-//********************** 
-    board.diffuserSet=function(diffuserValue) { 
-      diffuserValue = Math.round(( diffuserValue / 100.0 ) * 255.0);
-      var buf = new Buffer ([0x00,0x00,0x00,0x00,0x00,0x00,0x12,diffuserValue]); 
-      rpi.wiringPiSPIDataRW(0,buf);
+    board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {
+      board.ledSet(options.LedPins.Top, topValue);
+      board.ledSet(options.LedPins.Right, rightValue);
+      board.ledSet(options.LedPins.Bottom, bottomValue);
+      board.ledSet(options.LedPins.Left, leftValue);
     };
 
-//**********************
-//***Back Light*** 
-//********************** 
-    board.backlightSet=function(backlightValue) {
-      backlightValue = Math.round(( backlightValue / 100.0 ) * 255.0);  
-      var buf = new Buffer ([0x00,0x00,0x00,0x00,0x12,backlightValue,0x00,0x00]); 
-      rpi.wiringPiSPIDataRW(0,buf);
-    };  
-//**********************
-//***Culture Light*** 
-//**********************
-    board.culturelightSet=function(culturelightValue) {
-      culturelightValue = Math.round(( culturelightValue / 100.0 ) * 255.0);
-      var buf = new Buffer ([0x00,0x00,0x12,culturelightValue,0x00,0x00,0x00,0x00]); 
-      rpi.wiringPiSPIDataRW(0,buf);
-    };
-//**********************
-//***Ambient Light*** 
-//**********************
-     board.ambientlightSet=function(ambientlightValue) {
-      ambientlightValue = Math.round(( ambientlightValue / 100.0 ) * 255.0);
-      var buf = new Buffer ([0x12,ambientlightValue,0x00,0x00,0x00,0x00,0x00,0x00]); 
-      rpi.wiringPiSPIDataRW(0,buf);
-    }; 
-//*****************************************************
-//*** READ Channel 1 LOW and HIGH bytes ***
-//*****************************************************
-
-//Command register: cmd=1 clear=0 word=0 block=0 addr=0xE (DATA1LOW) 
-result = rpi.wiringPiI2CWrite(fd,0x8E);
-if(result == -1) {console.log (Error);}
-
-result = rpi.wiringPiI2CRead(fd);
-if(result == -1) {console.log (Error);}
-else {var ch1=result;}
-
-//Command register: cmd=1 clear=0 word=0 block=0 addr=0xF (DATA1HIGH) 
-result = rpi.wiringPiI2CWrite(fd,0x8F);
-if(result == -1) {console.log(Error);}
-
-result = rpi.wiringPiI2CRead(fd);
-if(result == -1) {console.log(Error);}
-else {ch1 = 256*result + ch1; console.log(ch1);}
-	
-//**************************************	
-//Valve
-//**************************************
-	board.valveToggle=function() {
+    //Valve
+    board.valveToggle=function() {
       if(_valveState=='valveClosed') {board.valveOpen(); return _valveState;
       } else {board.valveClose(); return _valveState;}
     };
