@@ -42,3 +42,13 @@ server/public/vendor/
 server/app\.err
 
 server/app\.out
+
+dashboard/.tmp/*
+dashboard/bower_components/*
+dashboard/node_modules/*
+dashboard/docs/*
+dashboard/release/*
+dashboard/src/.DS_Store
+
+.env
+deployment.js
