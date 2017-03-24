@@ -1,0 +1,12 @@
+
+\.idea/
+
+*.pyc
+*.log
+
+.tmp/*
+node_modules/*
+bower_components/*
+docs/*
+release/*
+src/.DS_Store
