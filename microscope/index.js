@@ -1,28 +1,18 @@
-const mqtt = require('mqtt');
+import env from 'dotenv';
+import logger from './lib/logging';
+import Microscope from './lib/microscope';
+import {
+	STATES,
+	QOS,
+	MESSAGE,
+	EVENTS,
+	PUBLICATIONS,
+	SUBSCRIPTIONS,
+	UNIQUE_ID
+} from './lib/constants';
 
-const UNIQUE_ID = 'HASHED_RANDOM_HARDWARE_ID';
+env.config();
 
-const STATES = {
-	CONNECTED: 'connected',
-	OFFLINE: 'offline',
-};
+const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL;
 
-const CHANNELS = {
-	'CONNECTED': 'microscope/${UNIQUE_ID}/connected'
-};
-
-const client = mqtt.connect('mqtt://localhost:8083', {
-	will: {
-		topic: CHANNELS.CONNECTED,
-		payload: 'false'
-	}
-});
-
-client.on('connect', () => {
-	console.log('connected');
-	client.publish(CHANNELS.CONNECTED, 'true')
-})
-
-client.on('message', (topic, message) => {
-	console.log('received message %s %s', topic, message)
-})
+let microscope = new Microscope(MQTT_BROKER_URL, UNIQUE_ID);
