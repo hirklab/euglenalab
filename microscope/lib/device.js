@@ -46,8 +46,21 @@ class Device {
 	}
 
 	isValid(value) {
-		//todo 
-		return true;
+		let isValid = false;
+
+		switch (this.type) {
+			case STATE:
+				isValid = _.includes(_.values(this.states), value)
+				break;
+			case NUMERIC:
+				isValid = (value >= min) && (value <= max);
+				break;
+			default:
+				isValid = true;
+				break;
+		}
+
+		return isValid;
 	}
 
 	setValue(value) {
