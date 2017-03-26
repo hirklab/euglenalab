@@ -1,5 +1,6 @@
 import mqtt from 'mqtt';
 import logger from './logging';
+import Board from './board';
 import {
 	STATES,
 	QOS,
@@ -17,6 +18,8 @@ class Microscope {
 
 		this.state = {};
 		this.state.hid = hid;
+
+		this.board = new Board();
 
 		let options = {
 			clientId: hid,
@@ -44,7 +47,7 @@ class Microscope {
 
 		this.client.on(EVENTS.CONNECT, (connack) => {
 			logger.info(`** connected ${this.url} **`);
-			this.state.connected = 'true';
+			this.state.connected = 1;
 
 			if (!connack.sessionPresent) {
 				this.client.subscribe(SUBSCRIPTIONS.INBOX, {
@@ -60,8 +63,16 @@ class Microscope {
 		});
 	}
 
+	// get connected() {
+	// 	return this.state.connected;
+	// }
+
+	// set connected(value) {
+	// 	this.state.connected = value;
+	// }
+
 	connect() {
-		this.state.connected = 'true';
+		this.state.connected = 1;
 		this.sendMessage(MESSAGE.CONNECTED, this.state);
 	}
 
@@ -93,13 +104,13 @@ class Microscope {
 	}
 
 	disconnect() {
-		this.state.connected = 'false';
+		this.state.connected = 0;
 		// this.client.sendMessage(MESSAGE.DISCONNECTED, this.state);
 		this.client.disconnect();
 	}
 
 	died() {
-		this.state.connected = 'false';
+		this.state.connected = 0;
 
 		let newMessage = {};
 		newMessage.type = MESSAGE.DISCONNECTED;
