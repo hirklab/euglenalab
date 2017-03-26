@@ -63,8 +63,9 @@ typings/
 ImageStreamer/**/*.so
 ImageStreamer/**/*.o
 ImageStreamer/**/*.lo
+ImageStreamer/images/**/*
 
-#bpu/ImageStreamer/mjpg_streamer
-#bpu/ImageStreamer/raspicam
+#ImageStreamer/mjpg_streamer
+#ImageStreamer/raspicam
 
 
