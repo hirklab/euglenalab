@@ -1,56 +1,72 @@
 var path = require('path');
-var nodePath=process.env.NODE_PATH;
-var nodePath='node_modules'
+var nodePath = process.env.NODE_PATH;
+var nodePath = 'node_modules'
 module.exports = function(grunt) {
-  
+
   var env = grunt.option('env') || process.env.GRUNT_ENV || 'development';
   var compress = (env == 'production');
-  
-  grunt.initConfig({      
+
+  grunt.initConfig({
     pkg: grunt.file.readJSON('./package.json'),
     copy: {
       vendor: {
-        files: [
-          {
-            expand: true, cwd: nodePath+'/bootstrap/',
-            src: ['js/**', 'less/**'], dest: 'public/vendor/bootstrap/'
+        files: [{
+            expand: true,
+            cwd: nodePath + '/bootstrap/',
+            src: ['js/**', 'less/**'],
+            dest: 'public/vendor/bootstrap/'
           },
           // For glyphicons
           {
-            expand: true, cwd: nodePath+'/bootstrap/',
-            src: ['fonts/**'], dest: 'public/'
-          },
-          {
-            expand: true, cwd: nodePath+'/backbone/',
-            src: ['backbone.js'], dest: 'public/vendor/backbone/'
-          },
-          {
-            expand: true, cwd: nodePath+'/font-awesome/',
-            src: ['fonts/**', 'less/**'], dest: 'public/vendor/font-awesome/'
-          },
-          {
-            expand: true, cwd: nodePath+'/html5shiv/dist/',
-            src: ['html5shiv.js'], dest: 'public/vendor/html5shiv/'
-          },
-          {
-            expand: true, cwd: nodePath+'/jquery/dist/',
-            src: ['jquery.js'], dest: 'public/vendor/jquery/'
-          },
-          {
-            expand: true, cwd: nodePath+'/jquery.cookie/',
-            src: ['jquery.cookie.js'], dest: 'public/vendor/jquery.cookie/'
-          },
-          {
-            expand: true, cwd: nodePath+'/moment/',
-            src: ['moment.js'], dest: 'public/vendor/momentjs/'
-          },
-          {
-            expand: true, cwd: nodePath+'/respond.js/src/',
-            src: ['respond.js'], dest: 'public/vendor/respond/'
-          },
-          {
-            expand: true, cwd: nodePath+'/underscore/',
-            src: ['underscore.js'], dest: 'public/vendor/underscore/'
+            expand: true,
+            cwd: nodePath + '/bootstrap/',
+            src: ['fonts/**'],
+            dest: 'public/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/bootstrap-rating/',
+            src: ['bootstrap-rating.min.js', 'bootstrap-rating.css'],
+            dest: 'public/vendor/bootstrap-rating/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/backbone/',
+            src: ['backbone.js'],
+            dest: 'public/vendor/backbone/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/font-awesome/',
+            src: ['fonts/**', 'less/**'],
+            dest: 'public/vendor/font-awesome/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/html5shiv/dist/',
+            src: ['html5shiv.js'],
+            dest: 'public/vendor/html5shiv/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/jquery/dist/',
+            src: ['jquery.js'],
+            dest: 'public/vendor/jquery/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/jquery.cookie/',
+            src: ['jquery.cookie.js'],
+            dest: 'public/vendor/jquery.cookie/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/moment/',
+            src: ['moment.js'],
+            dest: 'public/vendor/momentjs/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/respond.js/src/',
+            src: ['respond.js'],
+            dest: 'public/vendor/respond/'
+          }, {
+            expand: true,
+            cwd: nodePath + '/underscore/',
+            src: ['underscore.js'],
+            dest: 'public/vendor/underscore/'
           }
         ]
       }
@@ -68,7 +84,7 @@ module.exports = function(grunt) {
         script: 'app.js',
         options: {
           ignore: [
-            nodePath+'**',
+            nodePath + '**',
             'public/**'
           ],
           ext: 'js'
@@ -77,23 +93,23 @@ module.exports = function(grunt) {
     },
     watch: {
       clientJS: {
-         files: [
+        files: [
           'public/layouts/**/*.js', '!public/layouts/**/*.min.js',
           'public/views/**/*.js', '!public/views/**/*.min.js'
-         ],
-         tasks: ['newer:uglify', 'newer:jshint:client']
+        ],
+        tasks: ['newer:uglify', 'newer:jshint:client']
       },
       serverJS: {
-         files: ['views/**/*.js'],
-         tasks: ['newer:jshint:server']
+        files: ['views/**/*.js'],
+        tasks: ['newer:jshint:server']
       },
       clientLess: {
-         files: [
+        files: [
           'public/layouts/**/*.less',
           'public/views/**/*.less',
           'public/less/**/*.less'
-         ],
-         tasks: ['newer:less']
+        ],
+        tasks: ['newer:less']
       },
       layoutLess: {
         files: [
@@ -129,8 +145,10 @@ module.exports = function(grunt) {
             'public/vendor/bootstrap/js/scrollspy.js',
             'public/vendor/bootstrap/js/tab.js',
             'public/vendor/bootstrap/js/transition.js',
+            'public/vendor/bootstrap-rating/bootstrap-rating.min.js',
             'public/vendor/momentjs/moment.js',
-            'public/layouts/core.js'
+            'public/layouts/core.js',
+            'public/layouts/rating.js',
           ],
           'public/layouts/ie-sucks.min.js': [
             'public/vendor/html5shiv/html5shiv.js',
@@ -230,18 +248,17 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-newer');
 
   var defaultTasks = ['copy:vendor', 'uglify', 'newer:less', 'concurrent'];
-  var buildTasks = ['copy:vendor','uglify', 'less'];
+  var buildTasks = ['copy:vendor', 'uglify', 'less'];
 
-  if(compress) {
-    defaultTasks.splice(0,0,'newer:uglify');
-    buildTasks.splice(0,0,'uglify');
+  if (compress) {
+    defaultTasks.splice(0, 0, 'newer:uglify');
+    buildTasks.splice(0, 0, 'uglify');
     console.log('Activating Production');
-  }
-  else{
+  } else {
     console.log('Activating Development');
   }
 
-  grunt.registerTask('default',defaultTasks);
+  grunt.registerTask('default', defaultTasks);
   grunt.registerTask('build', buildTasks);
   grunt.registerTask('lint', ['jshint']);
 };

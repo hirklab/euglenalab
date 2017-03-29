@@ -7,11 +7,6 @@ block head
 
 block neck
   style.
-    #debugLabel {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
-    #debugLabel0 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
-    #debugLabel1 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
-    #debugLabel2 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
-    #debugLabel3 {font-size:18px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px; display:none;}
     .myMainRow {
       background-color:#ffffff;
       margin-top:1%;
@@ -145,17 +140,12 @@ block neck
 
     .canvas-joystick-off {background-color:#A0A0A0;}
     .canvas-joystick-on {background-color:#66b2ff;}
-    #labTimeLeftLabel {font-size:36px; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
 
+  
     *.unselectable {
         -moz-user-select: -moz-none;
         -khtml-user-select: none;
         -webkit-user-select: none;
-
-        /*
-          Introduced in IE 10.
-          See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
-        */
         -ms-user-select: none;
         user-select: none;
     }
@@ -166,36 +156,55 @@ block feet
   script(src='/views/account/livelab/socket-client.js')
 
 block body
-  //label#debugLabel(name='debugLabel') Last Bpu Update:Never seconds ago
-  //label#debugLabel0(name='debugLabel0') Last Ping:Never seconds ago
-  //label#debugLabel1(name='debugLabel1') Connected False
-  //label#debugLabel2(name='debugLabel2') Set Connection Res?
-  //label#debugLabel3(name='debugLabel3') Join Queue Status:None
-  label#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.lightData.topValue} #{data.timeLeftInLab.value}
+  h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.lightData.topValue} #{data.timeLeftInLab.value}
   
   if data.divInfo.hasAside
-    div.row.myMainRow.unselectable(name='myMainRow')
-      div.myMainCol.unselectable(name='myMainCol')
-        div.myLightSpacer.unselectable(name='myLightSpacer')
-        div.myTopLight.unselectable(name='myTopLight') #{data.lightData.topValue}
-        div.myLightSpacer.unselectable(name='myLightSpacer')
-        //- div.myLeftLight
-        //-   span(name='myLeftLight',style='vertical-align:middle') #{data.lightData.leftValue}
-        div.myLeftLight.unselectable(name='myLeftLight') #{data.lightData.leftValue}
-        div#myImage.unselectable
-          img#myVideo.unselectable(src='#{data.mainImageIP}')
-          div#myScalebar.unselectable(name='myScalebar')
-            center
-              div#myScale.unselectable(name='myScale')
-                center
-                  span#myScaleText.unselectable 100um
-        div#myRightLight.unselectable(name='myRightLight') #{data.lightData.rightValue}
-        div.myLightSpacer.unselectable(name='myLightSpacer')
-        div#myBottomLight.unselectable(name='myBottomLight') #{data.lightData.bottomValue}
-        div.myLightSpacer.unselectable(name='myLightSpacer')
-      div.col#myAside.unselectable(name='myAside')
-        div#myJoystick.canvas-joystick-off(name='myJoystick')
-        img#myImage2.unselectable(name='myImage2', src='#{data.sideImageIP}')
+    div.row
+      div.col.myMainRow.unselectable(name='myMainRow')
+        div.myMainCol.unselectable(name='myMainCol')
+          div.myLightSpacer.unselectable(name='myLightSpacer')
+          div.myTopLight.unselectable(name='myTopLight') #{data.lightData.topValue}
+          div.myLightSpacer.unselectable(name='myLightSpacer')
+          //- div.myLeftLight
+          //-   span(name='myLeftLight',style='vertical-align:middle') #{data.lightData.leftValue}
+          div.myLeftLight.unselectable(name='myLeftLight') #{data.lightData.leftValue}
+          div#myImage.unselectable
+            img#myVideo.unselectable(src='#{data.mainImageIP}')
+            div#myScalebar.unselectable(name='myScalebar')
+              center
+                div#myScale.unselectable(name='myScale')
+                  center
+                    span#myScaleText.unselectable 100um
+          div#myRightLight.unselectable(name='myRightLight') #{data.lightData.rightValue}
+          div.myLightSpacer.unselectable(name='myLightSpacer')
+          div#myBottomLight.unselectable(name='myBottomLight') #{data.lightData.bottomValue}
+          div.myLightSpacer.unselectable(name='myLightSpacer')
+        div.col#myAside.unselectable(name='myAside')
+          div#myJoystick.canvas-joystick-off(name='myJoystick')
+          img#myImage2.unselectable(name='myImage2', src='#{data.sideImageIP}')
+      div.unselectable.hide
+        div(style="margin:0 0 0 10px;float:right")
+          h4 Send us your feeback
+          .form-group
+            label Do you see euglena moving?
+            div
+              .radio-inline
+                input(type="radio",name="data.survey.euglena_moving",value="yes")
+                | Yes
+              .radio-inline(style="margin-left:20px")
+                input(type="radio",name="data.survey.euglena_moving",value="no")
+                | No
+          .form-group
+            label Rate your experience
+            div
+              input.form-control.rating(type="hidden", value="${data.survey.rating}")
+          .form-group
+            label Notes
+            textarea.form-control(rows="5",value="data.survey.notes",style="width:220px")
+          .form-group
+            button.btn.btn-primary(type="submit",value="submit") Submit
+
+
   else
     div.row.myMainRow(name='myMainRow')
       div.col.myMainCol(name='myMainCol')
