@@ -75,7 +75,7 @@ app.use((err, req, res, next) => {
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-  const err = new APIError('API not found', httpStatus.NOT_FOUND);
+  const err = new APIError('route not found', httpStatus.NOT_FOUND);
   return next(err);
 });
 
@@ -89,7 +89,9 @@ if (config.logging.winston) {
 // error handler, send stacktrace only during development
 app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
   res.status(err.status).json({
-    message: err.isPublic ? err.message : httpStatus[err.status],
+    code: err.status,
+    status: httpStatus[err.status],
+    message: err.message,
     stack: config.logging.stacktrace ? err.stack : {}
   })
 );

@@ -1,0 +1,19 @@
+<div class="row microscopes">
+
+  <ba-card *ngFor="let microscope of microscopes"
+           class="microscope-item-container col-xlg-3 col-lg-3 col-md-6 col-sm-12 col-xs-12"
+            title="{{microscope.name}}">
+
+    <div class="microscope-item">
+      <div class="microscope" [attr.data-rel]="microscope.color" data-percent="60">
+        <span class="percent"></span>
+      </div>
+      <div class="description">
+        <div>{{ microscope.description }}</div>
+        <div class="description-stats">{{ microscope.stats }}</div>
+      </div>
+      <i class="microscope-icon ion-{{ microscope.icon }}"></i>
+    </div>
+
+  </ba-card>
+</div>

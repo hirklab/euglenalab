@@ -13,7 +13,6 @@ class ApiError extends Error {
 		this.isPublic = isPublic;
 		this.isOperational = true; // This is required since bluebird 4 doesn't append it anymore.
 		Error.captureStackTrace(this, this.constructor.name);
-
 	}
 }
 
