@@ -33,7 +33,11 @@ bower_components
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
+<<<<<<< Updated upstream
 dist/
+=======
+dist/**/*
+>>>>>>> Stashed changes
 
 # Dependency directories
 node_modules/
