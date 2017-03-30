@@ -2,7 +2,7 @@ import {Component, ViewEncapsulation} from "@angular/core";
 import {FormGroup, AbstractControl, FormBuilder, Validators} from "@angular/forms";
 import {Router} from "@angular/router";
 import "rxjs/add/operator/toPromise";
-import {AuthService} from "../auth.service";
+import {AuthService} from "../../../services/auth.service";
 import {GlobalState} from '../../../global.state';
 
 @Component({
@@ -50,7 +50,7 @@ export class Login {
     }
   }
 
-  public authenticated(data) {
+  public authenticated(data: Object) {
     this.auth.authenticate(data);
     this.isAuthenticated = true;
     this.state.notifyDataChanged('isAuthenticated', this.isAuthenticated);

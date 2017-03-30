@@ -8,13 +8,13 @@ import {AuthGuard} from '../authGuard';
 // export function loadChildren(path) { return System.import(path); };
 
 export const routes: Routes = [
- { 
+ {
    path: 'login',
-   // canDeactivate: [AuthGuard], 
+   // canDeactivate: [AuthGuard],
    loadChildren: 'app/pages/auth/login/login.module#LoginModule'
  },
   { path: 'register', loadChildren: 'app/pages/auth/register/register.module#RegisterModule' },
-  
+
   {
 
     path: 'pages',
@@ -22,7 +22,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-     
       { path: 'dashboard', loadChildren: 'app/pages/dashboard/dashboard.module#DashboardModule' },
       { path: 'about', loadChildren: 'app/pages/about/about.module#AboutModule'},
       { path: 'simulation', loadChildren: 'app/pages/simulation/simulation.module#SimulationModule'},

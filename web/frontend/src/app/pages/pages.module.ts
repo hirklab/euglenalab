@@ -5,7 +5,7 @@ import { routing }       from './pages.routing';
 import { NgaModule } from '../theme/nga.module';
 
 import { Pages } from './pages.component';
-import { AuthService } from './auth/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @NgModule({
   imports: [CommonModule, NgaModule, routing],

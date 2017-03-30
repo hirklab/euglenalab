@@ -2,11 +2,11 @@ import {Injectable} from "@angular/core";
 import {Http, Headers, RequestOptionsArgs, Request, Response, ConnectionBackend, RequestOptions} from "@angular/http";
 import {Observable} from 'rxjs/Observable';
 
-import {Cookie} from 'ng2-cookies/ng2-cookies';
+import {AuthService} from './services/auth.service';
 
 @Injectable()
 export class HttpClient extends Http {
-  constructor(protected _backend: ConnectionBackend, protected _defaultOptions: RequestOptions) {
+  constructor(protected _backend: ConnectionBackend, protected _defaultOptions: RequestOptions, private auth:AuthService) {
     super(_backend, _defaultOptions);
   }
 
@@ -14,13 +14,13 @@ export class HttpClient extends Http {
     if (!options) {
       options = new RequestOptions({});
     }
-    if (Cookie.get("token")) {
+    if (this.auth.isAuthenticated()) {
 
       if (!options.headers) {
         options.headers = new Headers();
       }
 
-      let token = Cookie.get("token");
+      let token = this.auth.getToken();
       options.headers.set("Authorization", `JWT ${token}`);
     }
     return options;

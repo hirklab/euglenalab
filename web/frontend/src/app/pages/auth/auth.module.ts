@@ -5,7 +5,7 @@ import { NgaModule } from '../../theme/nga.module';
 
 import { routing }       from './auth.routing';
 import { Auth } from './auth.component';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../services/auth.service';
 import { Login } from './login/login.component';
 import { Register } from './register/register.component';
 

@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {GlobalState} from "../../../global.state";
 import {Router} from "@angular/router";
-import {AuthService} from "../../../pages/auth/auth.service";
+import {AuthService} from "../../../services/auth.service";
 import "style-loader!./baPageTop.scss";
 
 @Component({
