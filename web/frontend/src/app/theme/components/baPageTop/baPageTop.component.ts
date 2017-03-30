@@ -2,6 +2,7 @@ import {Component} from "@angular/core";
 import {GlobalState} from "../../../global.state";
 import {Router} from "@angular/router";
 import {AuthService} from "../../../services/auth.service";
+
 import "style-loader!./baPageTop.scss";
 
 @Component({
@@ -20,14 +21,13 @@ export class BaPageTop {
     this.router = router;
     this.auth=auth;
     this.user = this.auth.getUser()||{username:'Anonymous'};
+    this.isAuthenticated = this.auth.isAuthenticated();
 
     this._state.subscribe('menu.isCollapsed', (isCollapsed) => {
       this.isMenuCollapsed = isCollapsed;
     });
 
     this._state.subscribe('isAuthenticated', (isAuthenticated) => {
-      this.isAuthenticated = isAuthenticated;
-
       if(!isAuthenticated){
         this.auth.unauthenticate();
         this.router.navigate(['login']);

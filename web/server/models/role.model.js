@@ -49,6 +49,16 @@ RoleSchema.plugin(plugins.timestamps, {
 
 RoleSchema.plugin(plugins.pagination, {});
 
+let autoPopulate = function(next) {
+  this
+    .populate('permissions')
+  next();
+};
+
+RoleSchema
+  .pre('findOne', autoPopulate)
+  .pre('findById', autoPopulate)
+  .pre('find', autoPopulate);
 
 /**
  * Add your
