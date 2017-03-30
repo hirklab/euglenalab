@@ -182,8 +182,7 @@ function login(req, res, next) {
       });
     })
     .catch(function(error) {
-      console.log(error);
-      const err = new APIError(error.message, httpStatus.BAD_REQUEST);
+      const err = new APIError('Invalid authentication credentials', httpStatus.BAD_REQUEST);
       return next(err);
     });
 }

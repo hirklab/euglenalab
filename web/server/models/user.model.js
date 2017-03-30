@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto-promise';
 import httpStatus from 'http-status';
 import plugins from './plugins/index';
+import APIError from '../helpers/api.error';
 
 /**
  * User Schema
@@ -226,7 +227,7 @@ UserSchema.statics = {
         if (user) {
           return user;
         }
-        const err = httpStatus.NOT_FOUND;
+        const err = new APIError('Invalid user', httpStatus.NOT_FOUND);
         return Promise.reject(err);
       });
   },
@@ -240,7 +241,7 @@ UserSchema.statics = {
         if (user) {
           return user;
         }
-        const err = httpStatus.NOT_FOUND;
+        const err = new APIError('Invalid user', httpStatus.NOT_FOUND);
         return Promise.reject(err);
       });
   },

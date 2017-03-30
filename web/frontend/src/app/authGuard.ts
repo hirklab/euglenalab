@@ -20,4 +20,13 @@ export class AuthGuard implements CanActivate {
       return false;
     }
   }
+
+  // canDeactivate() {
+  //   if (this.isAuthenticated()) {
+  //     this.router.navigate(['pages/dashboard']);
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 }

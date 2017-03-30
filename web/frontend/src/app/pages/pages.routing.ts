@@ -8,8 +8,12 @@ import {AuthGuard} from '../authGuard';
 // export function loadChildren(path) { return System.import(path); };
 
 export const routes: Routes = [
- { path: 'login', loadChildren: 'app/pages/auth/login/login.module#LoginModule'},
-      { path: 'register', loadChildren: 'app/pages/auth/register/register.module#RegisterModule' },
+ { 
+   path: 'login',
+   // canDeactivate: [AuthGuard], 
+   loadChildren: 'app/pages/auth/login/login.module#LoginModule'
+ },
+  { path: 'register', loadChildren: 'app/pages/auth/register/register.module#RegisterModule' },
   
   {
 

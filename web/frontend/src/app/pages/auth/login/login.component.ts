@@ -69,7 +69,7 @@ export class Login {
           },
           error => {
             let data = error.json();
-            this.error=data.status;
+            this.error=data.message;
           },
           () => {
             // console.log('finished');
