@@ -3,7 +3,7 @@ import {Http, Headers} from '@angular/http';
 
 import { Cookie } from 'ng2-cookies/ng2-cookies';
 
-import {BaThemeConfigProvider} from '../../theme';
+import {BaThemeConfigProvider} from '../theme';
 
 
 @Injectable()
