@@ -20,14 +20,19 @@ export class Login {
   public password: AbstractControl;
   public isAuthenticated: boolean = false;
   public submitted: boolean = false;
-  public errors: Object = {};
-  public account: Object = {};
+  public error: String = "";
 
   constructor(fb: FormBuilder, auth: AuthService, router: Router, private state:GlobalState) {
     this.router = router;
     this.auth = auth;
+
     this.state.subscribe('isAuthenticated', (isAuthenticated) => {
       this.isAuthenticated = isAuthenticated;
+
+      if(this.isAuthenticated){
+        this.router.navigate(['pages/dashboard']);
+      }
+
     });
 
     this.form = fb.group({
@@ -39,7 +44,14 @@ export class Login {
     this.password = this.form.controls['password'];
   }
 
-  public authenticated() {
+  ngOnInit() {
+        if(this.auth.isAuthenticated()){
+        this.router.navigate(['pages/dashboard']);
+    }
+  }
+
+  public authenticated(data) {
+    this.auth.authenticate(data);
     this.isAuthenticated = true;
     this.state.notifyDataChanged('isAuthenticated', this.isAuthenticated);
     return false;
@@ -53,16 +65,14 @@ export class Login {
         .subscribe(
           response => {
             let data = response.json();
-            console.log(data);
-
-            this.auth.authenticate(data);
-            this.router.navigate(['pages/dashboard']);
+            this.authenticated(data);
           },
           error => {
-            console.log(error);
+            let data = error.json();
+            this.error=data.status;
           },
           () => {
-            console.log('finished');
+            // console.log('finished');
           }
         );
 

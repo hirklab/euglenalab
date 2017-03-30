@@ -90,9 +90,9 @@ if (config.logging.winston) {
 app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
   res.status(err.status).json({
     code: err.status,
-    status: httpStatus[err.status],
     message: err.message,
-    stack: config.logging.stacktrace ? err.stack : {}
+    status: httpStatus[err.status],
+    // stack: config.logging.stacktrace ? err.stack : {}
   })
 );
 

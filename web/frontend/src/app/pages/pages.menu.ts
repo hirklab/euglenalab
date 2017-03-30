@@ -14,18 +14,18 @@ export const PAGES_MENU = [
           }
         }
       },
-      {
-        path: 'simulation',
-        data: {
-          menu: {
-            title: 'Simulation',
-            icon: 'ion-cube',
-            selected: false,
-            expanded: false,
-            order: 0
-          }
-        }
-      },
+      // {
+      //   path: 'simulation',
+      //   data: {
+      //     menu: {
+      //       title: 'Simulation',
+      //       icon: 'ion-cube',
+      //       selected: false,
+      //       expanded: false,
+      //       order: 0
+      //     }
+      //   }
+      // },
       {
         path: 'admin',
         data: {

@@ -19,8 +19,7 @@ export class BaPageTop {
   constructor(private _state: GlobalState, router: Router, auth:AuthService) {
     this.router = router;
     this.auth=auth;
-    this.user = this.auth.getUser();
-        console.log(this.user);
+    this.user = this.auth.getUser()||{username:'Anonymous'};
 
     this._state.subscribe('menu.isCollapsed', (isCollapsed) => {
       this.isMenuCollapsed = isCollapsed;
@@ -34,7 +33,6 @@ export class BaPageTop {
         this.router.navigate(['login']);
       }else{
         this.user = this.auth.getUser();
-        console.log(this.user);
       }
     });
   }
