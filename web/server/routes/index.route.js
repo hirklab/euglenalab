@@ -3,6 +3,9 @@ import express from 'express';
 import throttle from '../../config/throttle';
 import userRoutes from './user.route';
 import authRoutes from './auth.route';
+import roleRoutes from './role.route';
+import permissionRoutes from './permission.route';
+import groupRoutes from './group.route';
 
 
 const router = express.Router(); // eslint-disable-line new-cap
@@ -27,6 +30,9 @@ router.get('/api', (req, res) =>
 
 router.use('/api/auth', throttle, authRoutes);
 router.use('/api/users', userRoutes);
+router.use('/api/roles', roleRoutes);
+router.use('/api/permissions', permissionRoutes);
+router.use('/api/groups', groupRoutes);
 
 
 export default router;

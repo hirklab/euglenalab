@@ -1,4 +1,4 @@
-import Role from '../models/role.model';
+import Permission from '../models/permission.model';
 
 
 function load(req, res, next, id) {
@@ -9,7 +9,6 @@ function load(req, res, next, id) {
     })
     .catch(e => next(e));
 }
-
 
 
 function get(req, res) {

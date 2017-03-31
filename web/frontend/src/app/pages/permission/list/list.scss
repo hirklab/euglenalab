@@ -1,8 +1,9 @@
 @import "../../../theme/sass/conf/conf";
 
-role-list{
+permission-list{
+
 .ng2-smart-table-container table.ng2-smart-table {
-  & > tbody > tr > td{
+ & > tbody > tr > td{
     padding:0 1rem;
   }
 
@@ -66,5 +67,4 @@ nav.ng2-smart-pagination-nav {
 .card > .card-body {
     padding: 0px 0px;
     }
-
     }

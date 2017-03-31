@@ -1,11 +1,12 @@
 @import "../../../theme/sass/conf/conf";
 
-role-list{
+user-list{
+
 .ng2-smart-table-container table.ng2-smart-table {
-  & > tbody > tr > td{
+ & > tbody > tr > td{
     padding:0 1rem;
   }
-
+  
   th, td {
     border: 1px solid $border-light !important;
     line-height: 35px;

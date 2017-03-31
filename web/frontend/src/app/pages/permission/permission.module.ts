@@ -4,12 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { NgaModule } from '../../theme/nga.module';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 
-import { routing }       from './role.routing';
+import { routing }       from './permission.routing';
 
-import { Role } from './role.component';
-import { RoleList } from './list/list.component';
-import { RoleService } from '../../services/role.service';
-import { RoleDataService } from './list/data.service';
+import { Permission } from './permission.component';
+import { PermissionList } from './list/list.component';
+import { PermissionService } from '../../services/permission.service';
 
 @NgModule({
   imports: [
@@ -20,12 +19,11 @@ import { RoleDataService } from './list/data.service';
     Ng2SmartTableModule,
   ],
   declarations: [
-    Role,
-    RoleList,    
+    Permission,
+    PermissionList,    
   ],
   providers: [
-  RoleService,
-  RoleDataService
+  PermissionService
   ]
 })
-export class RoleModule {}
+export class PermissionModule {}

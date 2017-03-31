@@ -8,7 +8,9 @@ import { Pages } from './pages.component';
 
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
+import { GroupService } from '../services/group.service';
 import { RoleService } from '../services/role.service';
+import { PermissionService } from '../services/permission.service';
 
 @NgModule({
   imports: [CommonModule, NgaModule, routing],
@@ -16,7 +18,9 @@ import { RoleService } from '../services/role.service';
   providers: [
     AuthService,
     UserService,
-    RoleService
+    GroupService,
+    RoleService,
+    PermissionService
   ]
 })
 export class PagesModule {

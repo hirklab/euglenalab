@@ -16,6 +16,11 @@ const PermissionSchema = new mongoose.Schema({
     unique: true
   },
 
+  description: {
+    type: String,
+    default: ''
+  },
+
   search: [String]
 
 });

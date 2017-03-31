@@ -1,16 +1,15 @@
 import { Component } from '@angular/core';
 
-import { RoleService } from '../../../services/role.service';
-import { RoleDataService } from './roleData.service';
+import { UserService } from '../../../services/user.service';
 import { LocalDataSource } from 'ng2-smart-table';
 
 import 'style-loader!./list.scss';
 
 @Component({
-  selector: 'role-master',
-  templateUrl: './roleMaster.html',
+  selector: 'user-list',
+  templateUrl: './list.html',
 })
-export class RoleMaster {
+export class UserList {
 
   query: string = '';
 
@@ -31,10 +30,10 @@ export class RoleMaster {
       confirmDelete: true
     },
     columns: {
-      id: {
-        title: 'ID',
-        type: 'number'
-      },
+      // id: {
+      //   title: 'ID',
+      //   type: 'number'
+      // },
       name: {
         title: 'Name',
         type: 'string'
@@ -42,25 +41,14 @@ export class RoleMaster {
       description: {
         title: 'Description',
         type: 'string'
-      },
-      isActive: {
-        title: 'Is Active ?',
-        filter: {
-          type: 'checkbox',
-          config: {
-            true: true,
-            false: false,
-            resetText: 'clear',
-          },
-        },
-      },
+      }
     }
   };
 
   source: LocalDataSource = new LocalDataSource();
 
-  constructor(protected service: RoleDataService) {
-    this.service.getData().then((data) => {
+  constructor(protected service: UserService) {
+    this.service.getAll().subscribe((data) => {
       this.source.load(data);
     });
   }

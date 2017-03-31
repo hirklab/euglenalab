@@ -4,12 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { NgaModule } from '../../theme/nga.module';
 import { Ng2SmartTableModule } from 'ng2-smart-table';
 
-import { routing }       from './role.routing';
+import { routing }       from './group.routing';
 
-import { Role } from './role.component';
-import { RoleList } from './list/list.component';
-import { RoleService } from '../../services/role.service';
-import { RoleDataService } from './list/data.service';
+import { Group } from './group.component';
+import { GroupList } from './list/list.component';
+import { GroupService } from '../../services/group.service';
 
 @NgModule({
   imports: [
@@ -20,12 +19,11 @@ import { RoleDataService } from './list/data.service';
     Ng2SmartTableModule,
   ],
   declarations: [
-    Role,
-    RoleList,    
+    Group,
+    GroupList,    
   ],
   providers: [
-  RoleService,
-  RoleDataService
+  GroupService
   ]
 })
-export class RoleModule {}
+export class GroupModule {}
