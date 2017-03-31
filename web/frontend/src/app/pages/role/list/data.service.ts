@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable} from "@angular/core";
 
 @Injectable()
 export class RoleDataService {
@@ -7,19 +7,19 @@ export class RoleDataService {
     {
       id: 1,
       name: 'Admin',
-      description:'Can perform all actions on the platform',
+      description: 'Can perform all actions on the platform',
       isActive: true
     },
     {
       id: 2,
       name: 'Teacher',
-      description:'Can manage students and their experiments',
+      description: 'Can manage students and their experiments',
       isActive: true
     },
     {
       id: 3,
       name: 'Student',
-      description:'Can manage their own experiments',
+      description: 'Can manage their own experiments',
       isActive: true
     },
   ];

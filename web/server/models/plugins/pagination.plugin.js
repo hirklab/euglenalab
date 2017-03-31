@@ -1,65 +1,126 @@
 'use strict';
 
-function paginationPlugin(schema, schemaOptions) {
+// import mongoose from 'mongoose';
+//
+// mongoose.Query.prototype.paginate = function paginate (page, limit, cb) {
+//   page = parseInt(page, 10) || 1;
+//   limit = parseInt(limit, 10) || 10;
+//
+//   var query = this;
+//   var model = this.model;
+//
+//   var skipFrom = (page * limit) - limit;
+//
+//   query = query.skip(skipFrom).limit(limit);
+//
+//   if(cb) {
+//     query.exec(function(err, docs) {
+//       if(err) {
+//         cb(err, null, null);
+//       } else {
+//         model.count(query._conditions, function(err, total) {
+//           if(err) {
+//             cb(err, null, null);
+//           } else {
+//             cb(null, docs, total);
+//           }
+//         });
+//       }
+//     });
+//   } else {
+//     return this;
+//   }
+// };
+//
 
-  schema.static('pagination', function(criteria, options, callback) {
-    var self = this;
-    var callback = options && typeof options === 'function' ? options : callback;
 
-    var o = buildOptions(options, schemaOptions);
-    o.sort = o.convertSort(o.sort, schema);
-    criteria = o.criteriaWrapper(o.convertCriteria(criteria, schema));
+//
+function paginate(query, options, callback) {
+  query = query || {};
+  options = Object.assign({}, options);
 
-    var promise = new Promise(function(resolve, reject) {
-      let resultFn = (err, count, docs) => {
-        let result = { total: count, limit: o.limit || count, page: o.page, data: docs };
+  let select = options.select;
+  let sort = options.sort;
+  let populate = options.populate;
+  let lean = options.lean || false;
+  let leanWithId = options.leanWithId ? options.leanWithId : true;
+  let limit = options.limit ? options.limit : 10;
+  let page, offset, skip, promises;
 
-        if(err) {
-          callback && callback(err);
-          return reject(err);
-        }
+  if (options.offset) {
+    offset = options.offset;
+    skip = offset;
+  } else if (options.page) {
+    page = options.page;
+    skip = (page - 1) * limit;
+  } else {
+    page = 1;
+    offset = 0;
+    skip = offset;
+  }
 
-        callback && callback(null, result);
-        return resolve(result);
-      };
+  if (limit) {
+    let docsQuery = this.find(query)
+      .select(select)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .lean(lean);
 
-      self.where(criteria).count().exec().then(function(count) {
-        if(count <= 0) { return resultFn(null, count, []); }
-
-        let query = self.find(criteria).select(o.select).populate(o.populate).lean(o.lean).skip(o.skip);
-        if(o.sort) { query.sort(o.sort); }
-        if(o.limit && o.limit > 0) { query.limit(o.limit); }
-
-        query.exec().then(function(docs) {
-          return resultFn(null, count, docs);
-        });
-      }, function(err) {
-        resultFn(err);
+    if (populate) {
+      [].concat(populate).forEach((item) => {
+        docsQuery.populate(item);
       });
-    });
+    }
+
+    promises = {
+      docs: docsQuery.exec(),
+      count: this.count(query).exec()
+    };
+
+    if (lean && leanWithId) {
+      promises.docs = promises.docs.then((docs) => {
+        docs.forEach((doc) => {
+          doc.id = String(doc._id);
+        });
+        return docs;
+      });
+    }
+  }
+
+  promises = Object.keys(promises).map((x) => promises[x]);
+
+  return Promise.all(promises).then((data) => {
+    let result = {
+      docs: data.docs,
+      total: data.count,
+      limit: limit
+    };
+
+    if (offset !== undefined) {
+      result.offset = offset;
+    }
+
+    if (page !== undefined) {
+      result.page = page;
+      result.pages = Math.ceil(data.count / limit) || 1;
+    }
+
+    if (typeof callback === 'function') {
+      return callback(null, result);
+    }
+
+    let promise = new Promise();
+    promise.resolve(result);
 
     return promise;
   });
 }
 
-function buildOptions(options, schemaOptions) {
-  var o = Object.assign({}, options || {}, schemaOptions || {});
-
-  // Basic options
-  o.limit = o.limit && typeof o.limit === 'function' ? o.limit(o.maxLimit) : ((o.limit && o.maxLimit && o.limit > o.maxLimit) || !o.limit ? o.maxLimit : o.limit);
-  o.page = o.page || 1;
-  o.skip = (o.page - 1) * (o.limit || 0);
-  o.lean = o.lean !== undefined ? o.lean : true; // Plain object, more peformance
-  o.select = o.select && typeof o.select === 'function' ? o.select() : o.select;
-  o.populate = o.populate && typeof o.populate === 'function' ? o.populate() : (o.populate || '');
-
-  // Advanced options
-  var convert = (converter) => { return converter && typeof converter === 'function' ? converter : function (value, schema) { return value; }; };
-  o.convertSort = convert(o.convertSort);
-  o.convertCriteria = convert(o.convertCriteria);
-  o.criteriaWrapper = o.criteriaWrapper && typeof o.criteriaWrapper === 'function' ? o.criteriaWrapper : function (criteria) { return criteria; };
-
-  return o;
+function pagination(schema, options) {
+  schema.statics.paginate = paginate;
+  schema.statics.getAll = paginate;
 }
 
-export default paginationPlugin;
+export default pagination;
+

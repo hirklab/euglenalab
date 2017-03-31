@@ -1,10 +1,7 @@
-import { Component } from '@angular/core';
-
-import { RoleService } from '../../../services/role.service';
-import { RoleDataService } from './data.service';
-import { LocalDataSource } from 'ng2-smart-table';
-
-import 'style-loader!./list.scss';
+import {Component} from "@angular/core";
+import {RoleService} from "../../../services/role.service";
+import {LocalDataSource} from "ng2-smart-table";
+import "style-loader!./list.scss";
 
 @Component({
   selector: 'role-list',
@@ -15,7 +12,7 @@ export class RoleList {
   query: string = '';
 
   settings = {
-    mode:'external',
+    mode: 'external',
     add: {
       addButtonContent: '<i class="ion-ios-plus-outline"></i>',
       createButtonContent: '<i class="ion-checkmark"></i>',
@@ -59,8 +56,8 @@ export class RoleList {
 
   source: LocalDataSource = new LocalDataSource();
 
-  constructor(protected service: RoleDataService) {
-    this.service.getData().then((data) => {
+  constructor(protected service: RoleService) {
+    this.service.getAll().subscribe((data) => {
       this.source.load(data);
     });
   }

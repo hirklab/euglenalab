@@ -1,15 +1,13 @@
-import { NgModule }      from '@angular/core';
-import { CommonModule }  from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { NgaModule } from '../../theme/nga.module';
-import { Ng2SmartTableModule } from 'ng2-smart-table';
-
-import { routing }       from './role.routing';
-
-import { Role } from './role.component';
-import { RoleList } from './list/list.component';
-import { RoleService } from '../../services/role.service';
-import { RoleDataService } from './list/data.service';
+import {NgModule} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {NgaModule} from "../../theme/nga.module";
+import {Ng2SmartTableModule} from "ng2-smart-table";
+import {routing} from "./role.routing";
+import {Role} from "./role.component";
+import {RoleList} from "./list/list.component";
+import {RoleService} from "../../services/role.service";
+import {RoleDataService} from "./list/data.service";
 
 @NgModule({
   imports: [
@@ -21,11 +19,12 @@ import { RoleDataService } from './list/data.service';
   ],
   declarations: [
     Role,
-    RoleList,    
+    RoleList,
   ],
   providers: [
-  RoleService,
-  RoleDataService
+    RoleService,
+    RoleDataService
   ]
 })
-export class RoleModule {}
+export class RoleModule {
+}

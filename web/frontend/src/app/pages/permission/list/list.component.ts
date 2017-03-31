@@ -1,9 +1,8 @@
-import { Component } from '@angular/core';
+import {Component} from "@angular/core";
+import {PermissionService} from "../../../services/permission.service";
+import {LocalDataSource} from "ng2-smart-table";
 
-import { PermissionService } from '../../../services/permission.service';
-import { LocalDataSource } from 'ng2-smart-table';
-
-import 'style-loader!./list.scss';
+import "style-loader!./list.scss";
 
 @Component({
   selector: 'permission-list',
@@ -14,7 +13,7 @@ export class PermissionList {
   query: string = '';
 
   settings = {
-    mode:'external',
+    mode: 'external',
     add: {
       addButtonContent: '<i class="ion-ios-plus-outline"></i>',
       createButtonContent: '<i class="ion-checkmark"></i>',

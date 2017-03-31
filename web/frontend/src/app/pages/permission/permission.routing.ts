@@ -1,7 +1,6 @@
-import { Routes, RouterModule }  from '@angular/router';
-
-import { Permission } from './permission.component';
-import { PermissionList } from './list/list.component';
+import {Routes, RouterModule} from "@angular/router";
+import {Permission} from "./permission.component";
+import {PermissionList} from "./list/list.component";
 
 // noinspection TypeScriptValidateTypes
 const routes: Routes = [
@@ -9,8 +8,8 @@ const routes: Routes = [
     path: '',
     component: Permission,
     children: [
-    {path: '', component: PermissionList},
-    // {path: '/:id',  component: RoleMaster }
+      {path: '', component: PermissionList},
+      // {path: '/:id',  component: RoleMaster }
     ]
   }
 ];

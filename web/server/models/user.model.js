@@ -130,12 +130,10 @@ UserSchema
  */
 UserSchema.method({
   hasRole(roleName) {
-    console.log(this.roles);
     return _.includes(this.roles, roleName);
   },
 
   hasGroup(groupName) {
-    console.log(this.groups);
     return _.includes(this.groups, groupName);
   },
 

@@ -1,4 +1,4 @@
-import Role from '../models/role.model';
+import Role from "../models/role.model";
 
 
 function load(req, res, next, id) {
@@ -10,12 +10,9 @@ function load(req, res, next, id) {
     .catch(e => next(e));
 }
 
-
-
 function get(req, res) {
   return res.json(req.Role);
 }
-
 
 function create(req, res, next) {
   const Role = new Role({
@@ -28,7 +25,6 @@ function create(req, res, next) {
     .catch(e => next(e));
 }
 
-
 function update(req, res, next) {
   const Role = req.Role;
   Role.Rolename = req.body.Rolename;
@@ -39,16 +35,16 @@ function update(req, res, next) {
     .catch(e => next(e));
 }
 
-
 function list(req, res, next) {
   const {
-    limit = 50, skip = 0
+    page = 1, limit = 50, skip = 0
   } = req.query;
-  Role.list({
-      limit,
-      skip
-    })
-    .then(Roles => res.json(Roles))
+
+  Role.getAll({}, {
+    limit,
+    skip
+  })
+    .then(instances => console.log(instances))
     .catch(e => next(e));
 }
 
