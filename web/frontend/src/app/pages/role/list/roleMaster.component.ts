@@ -15,6 +15,7 @@ export class RoleMaster {
   query: string = '';
 
   settings = {
+    mode:'external',
     add: {
       addButtonContent: '<i class="ion-ios-plus-outline"></i>',
       createButtonContent: '<i class="ion-checkmark"></i>',
@@ -44,7 +45,14 @@ export class RoleMaster {
       },
       isActive: {
         title: 'Is Active ?',
-        type: 'boolean'
+        filter: {
+          type: 'checkbox',
+          config: {
+            true: true,
+            false: false,
+            resetText: 'clear',
+          },
+        },
       },
     }
   };

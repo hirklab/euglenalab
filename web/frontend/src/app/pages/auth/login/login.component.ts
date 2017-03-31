@@ -5,11 +5,11 @@ import "rxjs/add/operator/toPromise";
 import {AuthService} from "../../../services/auth.service";
 import {GlobalState} from '../../../global.state';
 
+import "style-loader!./login.scss";
+
 @Component({
   selector: 'login',
-  encapsulation: ViewEncapsulation.None,
-  styles: [require('./login.scss')],
-  template: require('./login.html'),
+  templateUrl: './login.html',
   providers: [AuthService]
 })
 export class Login {

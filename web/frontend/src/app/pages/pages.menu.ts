@@ -14,18 +14,18 @@ export const PAGES_MENU = [
           }
         }
       },
-      // {
-      //   path: 'simulation',
-      //   data: {
-      //     menu: {
-      //       title: 'Simulation',
-      //       icon: 'ion-cube',
-      //       selected: false,
-      //       expanded: false,
-      //       order: 0
-      //     }
-      //   }
-      // },
+      {
+        path: 'simulation',
+        data: {
+          menu: {
+            title: 'Simulation',
+            icon: 'ion-cube',
+            selected: false,
+            expanded: false,
+            order: 0
+          }
+        }
+      },
       {
         path: 'admin',
         data: {
@@ -220,36 +220,36 @@ export const PAGES_MENU = [
       //     }
       //   ]
       // },
-      {
-        path: 'tables',
-        data: {
-          menu: {
-            title: 'Tables',
-            icon: 'ion-grid',
-            selected: false,
-            expanded: false,
-            order: 500,
-          }
-        },
-        children: [
-          {
-            path: 'basictables',
-            data: {
-              menu: {
-                title: 'Basic Tables',
-              }
-            }
-          },
-          {
-            path: 'smarttables',
-            data: {
-              menu: {
-                title: 'Smart Tables',
-              }
-            }
-          }
-        ]
-      },
+      // {
+      //   path: 'tables',
+      //   data: {
+      //     menu: {
+      //       title: 'Tables',
+      //       icon: 'ion-grid',
+      //       selected: false,
+      //       expanded: false,
+      //       order: 500,
+      //     }
+      //   },
+      //   children: [
+      //     {
+      //       path: 'basictables',
+      //       data: {
+      //         menu: {
+      //           title: 'Basic Tables',
+      //         }
+      //       }
+      //     },
+      //     {
+      //       path: 'smarttables',
+      //       data: {
+      //         menu: {
+      //           title: 'Smart Tables',
+      //         }
+      //       }
+      //     }
+      //   ]
+      // },
       // {
       //   path: 'maps',
       //   data: {
