@@ -118,7 +118,7 @@ ExperimentSchema.index({
 ExperimentSchema.plugin(plugins.timestamps, {
   index: true
 });
-ExperimentSchema.plugin(plugins.pagination, {});
+ExperimentSchema.plugin(plugins.listFilter, {});
 
 
 /**
@@ -143,17 +143,7 @@ ExperimentSchema.statics = {
    * @param {ObjectId} id - The objectId of instance.
    * @returns {Promise<Experiment, APIError>}
    */
-  get(id) {
-    return this.findById(id)
-      .exec()
-      .then((instance) => {
-        if (instance) {
-          return instance;
-        }
-        const err = httpStatus.NOT_FOUND;
-        return Promise.reject(err);
-      });
-  },
+
 
   /**
    * Get instance
@@ -178,23 +168,6 @@ ExperimentSchema.statics = {
         return Promise.reject(err);
       });
   },
-
-  /**
-   * List instances in descending order of 'createdAt' timestamp.
-   * @param {number} page - page number.
-   * @param {number} limit - max. number of instances to be returned.
-   * @returns {Promise<Experiment[]>}
-   */
-  getAll({
-    page = 1,
-    limit = 25
-  } = {}) {
-    return this.paginate({}, {
-        page: page,
-        limit: limit
-      })
-      .exec();
-  }
 };
 
 /**

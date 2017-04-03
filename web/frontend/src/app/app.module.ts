@@ -1,7 +1,7 @@
 import {NgModule, ApplicationRef} from "@angular/core";
 import {BrowserModule} from "@angular/platform-browser";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {HttpModule, RequestOptions} from "@angular/http";
+import {HttpModule, RequestOptions, Http, XHRBackend} from "@angular/http";
 import {RouterModule} from "@angular/router";
 import {removeNgStyles, createNewHosts, createInputTransfer} from "@angularclass/hmr";
 /*
@@ -15,16 +15,13 @@ import {AppState, InternalStateType} from "./app.service";
 import {GlobalState} from "./global.state";
 import {NgaModule} from "./theme/nga.module";
 import {PagesModule} from "./pages/pages.module";
-import {AuthorizedRequestOptions} from "./httpIntercepts";
 import {AuthGuard} from "./authGuard";
+import {HttpClient} from './httpClient';
 
-// import {HttpClient} from './httpClient';
 
-
-// function httpClientFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions): Http {
-//   return new HttpClient(xhrBackend, requestOptions);
-// }
-
+function httpClientFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions): Http {
+  return new HttpClient(xhrBackend, requestOptions);
+}
 
 // Application wide providers
 const APP_PROVIDERS = [
@@ -59,9 +56,8 @@ export type StoreType = {
   providers: [ // expose our Services and Providers into Angular's dependency injection
     ENV_PROVIDERS,
     APP_PROVIDERS,
-    {provide: RequestOptions, useClass: AuthorizedRequestOptions},
+    { provide: HttpClient, useFactory: httpClientFactory, deps: [XHRBackend, RequestOptions]},
     AuthGuard,
-    // { provide: Http, useFactory: httpClientFactory, deps: [XHRBackend, RequestOptions]}
   ]
 })
 

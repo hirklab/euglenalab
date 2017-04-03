@@ -7,7 +7,6 @@ import {routing} from "./role.routing";
 import {Role} from "./role.component";
 import {RoleList} from "./list/list.component";
 import {RoleService} from "../../services/role.service";
-import {RoleDataService} from "./list/data.service";
 
 @NgModule({
   imports: [
@@ -22,8 +21,7 @@ import {RoleDataService} from "./list/data.service";
     RoleList,
   ],
   providers: [
-    RoleService,
-    RoleDataService
+    RoleService
   ]
 })
 export class RoleModule {

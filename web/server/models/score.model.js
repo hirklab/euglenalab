@@ -44,7 +44,7 @@ ScoreSchema.index({
 ScoreSchema.plugin(plugins.timestamps, {
   index: true
 });
-ScoreSchema.plugin(plugins.pagination, {});
+// ScoreSchema.plugin(plugins.pagination, {});
 
 
 /**

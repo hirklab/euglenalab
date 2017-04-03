@@ -102,7 +102,7 @@ UserSchema.plugin(plugins.timestamps, {
   index: true
 });
 
-UserSchema.plugin(plugins.pagination, {});
+UserSchema.plugin(plugins.rest, {});
 
 
 let autoPopulate = function(next) {
@@ -150,7 +150,7 @@ UserSchema.method({
 /**
  * Statics
  */
-UserSchema.statics = {
+UserSchema.statics = Object.assign(UserSchema.statics, {
 
   encryptPassword(password) {
     return bcrypt.genSalt(10)
@@ -194,22 +194,22 @@ UserSchema.statics = {
       });
   },
 
-  /**
-   * Get user
-   * @param {ObjectId} id - The objectId of user.
-   * @returns {Promise<User, APIError>}
-   */
-  get(id) {
-    return this.findById(id)
-      .exec()
-      .then((user) => {
-        if (user) {
-          return user;
-        }
-        const err = httpStatus.NOT_FOUND;
-        return Promise.reject(err);
-      });
-  },
+  // /**
+  //  * Get user
+  //  * @param {ObjectId} id - The objectId of user.
+  //  * @returns {Promise<User, APIError>}
+  //  */
+  // get(id) {
+  //   return this.findById(id)
+  //     .exec()
+  //     .then((user) => {
+  //       if (user) {
+  //         return user;
+  //       }
+  //       const err = httpStatus.NOT_FOUND;
+  //       return Promise.reject(err);
+  //     });
+  // },
 
   /**
    * Get user
@@ -272,23 +272,18 @@ UserSchema.statics = {
       });
   },
 
-  /**
-   * List users in descending order of 'createdAt' timestamp.
-   * @param {number} page - page number.
-   * @param {number} limit - max. number of users to be returned.
-   * @returns {Promise<User[]>}
-   */
-  getAll({
-    page = 1,
-    limit = 25
-  } = {}) {
-    return this.paginate({}, {
-        page: page,
-        limit: limit
-      })
-      .exec();
-  }
-};
+  // getAll(query, options) {
+  //   return this.find().paginate()
+  //     .exec()
+  //     .then((users) => {
+  //       if (users) {
+  //         return users;
+  //       } else {
+  //         return false;
+  //       }
+  //     });
+  // }
+});
 
 /**
  * @typedef User

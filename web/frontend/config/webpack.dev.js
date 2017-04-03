@@ -1,7 +1,9 @@
 const helpers = require('./helpers');
 const path = require('path');
 const webpackMerge = require('webpack-merge'); // used to merge webpack configs
-const webpackMergeDll = webpackMerge.strategy({plugins: 'replace'});
+const webpackMergeDll = webpackMerge.strategy({
+  plugins: 'replace'
+});
 const commonConfig = require('./webpack.common.js'); // the settings that are common to prod and dev
 
 /**
@@ -19,7 +21,9 @@ const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 3001;
 const HMR = helpers.hasProcessFlag('hot');
-const METADATA = webpackMerge(commonConfig({env: ENV}).metadata, {
+const METADATA = webpackMerge(commonConfig({
+  env: ENV
+}).metadata, {
   host: HOST,
   port: PORT,
   ENV: ENV,
@@ -33,8 +37,39 @@ const DllBundlesPlugin = require('webpack-dll-bundles-plugin').DllBundlesPlugin;
  *
  * See: http://webpack.github.io/docs/configuration.html#cli
  */
-module.exports = function (options) {
-  return webpackMerge(commonConfig({env: ENV}), {
+module.exports = function(options) {
+  return webpackMerge(commonConfig({
+    env: ENV
+  }), {
+
+    /**
+     * Webpack Development Server configuration
+     * Description: The webpack-dev-server is a little node.js Express server.
+     * The server emits information about the compilation state to the client,
+     * which reacts to those events.
+     *
+     * See: https://webpack.github.io/docs/webpack-dev-server.html
+     */
+    devServer: {
+      port: METADATA.port,
+      host: METADATA.host,
+      historyApiFallback: {
+        index: '/index.html'
+      },
+      watchOptions: {
+        aggregateTimeout: 300,
+        poll: 1000
+      },
+      proxy: [{
+        path: '/api/**',
+        target: process.env.WEBSERVER_URL || 'http://biolab.local/',
+        changeOrigin: true,
+        secure: false,
+        // pathRewrite: {
+        //   '^/': ''
+        // }
+      }]
+    },
 
     /**
      * Developer tool to enhance debugging
@@ -110,12 +145,10 @@ module.exports = function (options) {
       new DllBundlesPlugin({
         bundles: {
           polyfills: [
-            'core-js',
-            {
+            'core-js', {
               name: 'zone.js',
               path: 'zone.js/dist/zone.js'
-            },
-            {
+            }, {
               name: 'zone.js',
               path: 'zone.js/dist/long-stack-trace-zone.js'
             },
@@ -134,7 +167,9 @@ module.exports = function (options) {
           ]
         },
         dllDir: helpers.root('dll'),
-        webpackConfig: webpackMergeDll(commonConfig({env: ENV}), {
+        webpackConfig: webpackMergeDll(commonConfig({
+          env: ENV
+        }), {
           devtool: 'cheap-module-source-map',
           plugins: []
         })
@@ -148,10 +183,11 @@ module.exports = function (options) {
        *
        * See: https://github.com/SimenB/add-asset-html-webpack-plugin
        */
-      new AddAssetHtmlPlugin([
-        { filepath: helpers.root(`dll/${DllBundlesPlugin.resolveFile('polyfills')}`) },
-        { filepath: helpers.root(`dll/${DllBundlesPlugin.resolveFile('vendor')}`) }
-      ]),
+      new AddAssetHtmlPlugin([{
+        filepath: helpers.root(`dll/${DllBundlesPlugin.resolveFile('polyfills')}`)
+      }, {
+        filepath: helpers.root(`dll/${DllBundlesPlugin.resolveFile('vendor')}`)
+      }]),
 
       /**
        * Plugin: NamedModulesPlugin (experimental)
@@ -188,35 +224,6 @@ module.exports = function (options) {
         }
       })
     ],
-
-    /**
-     * Webpack Development Server configuration
-     * Description: The webpack-dev-server is a little node.js Express server.
-     * The server emits information about the compilation state to the client,
-     * which reacts to those events.
-     *
-     * See: https://webpack.github.io/docs/webpack-dev-server.html
-     */
-    devServer: {
-      port: METADATA.port,
-      host: METADATA.host,
-      historyApiFallback: {
-        index: '/index.html'
-      },
-      watchOptions: {
-        aggregateTimeout: 300,
-        poll: 1000
-      },
-      proxy: [{
-        path: '/api/**',
-        target: process.env.WEBSERVER_URL || 'http://biolab.local/',
-        changeOrigin: true,
-        secure: false,
-        // pathRewrite: {
-        //   '^/': ''
-        // }
-      }]
-    },
 
     /*
      * Include polyfills or mocks for various node stuff

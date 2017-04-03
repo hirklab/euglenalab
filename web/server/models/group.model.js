@@ -57,7 +57,7 @@ GroupSchema.plugin(plugins.timestamps, {
   index: true
 });
 
-GroupSchema.plugin(plugins.pagination, {});
+// GroupSchema.plugin(plugins.pagination, {});
 
 
 /**
@@ -66,17 +66,17 @@ GroupSchema.plugin(plugins.pagination, {});
  * - validations
  * - virtuals
  */
-let autoPopulate = function(next) {
-  this
-    .populate('microscopes')
-    .populate('users')
-  next();
-};
+// let autoPopulate = function(next) {
+//   this
+//     .populate('microscopes')
+//     .populate('users')
+//   next();
+// };
 
-GroupSchema
-  .pre('findOne', autoPopulate)
-  .pre('findById', autoPopulate)
-  .pre('find', autoPopulate);
+// GroupSchema
+//   .pre('findOne', autoPopulate)
+//   .pre('findById', autoPopulate)
+//   .pre('find', autoPopulate);
 /**
  * Methods
  */

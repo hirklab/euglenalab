@@ -37,7 +37,7 @@ ActivitySchema.index({
 ActivitySchema.plugin(plugins.timestamps, {
   index: true
 });
-ActivitySchema.plugin(plugins.pagination, {});
+ActivitySchema.plugin(plugins.listFilter, {});
 
 
 /**
@@ -97,23 +97,6 @@ ActivitySchema.statics = {
         return Promise.reject(err);
       });
   },
-
-  /**
-   * List instances in descending order of 'createdAt' timestamp.
-   * @param {number} page - page number.
-   * @param {number} limit - max. number of instances to be returned.
-   * @returns {Promise<Activity[]>}
-   */
-  getAll({
-    page = 1,
-    limit = 25
-  } = {}) {
-    return this.paginate({}, {
-        page: page,
-        limit: limit
-      })
-      .exec();
-  }
 };
 
 /**

@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions, Response } from '@angular/http';
+
+import {HttpClient} from '../httpClient';
 import {BaThemeConfigProvider} from '../theme';
+
 
 @Injectable()
 export class UserService {
-  constructor(private config: BaThemeConfigProvider, private http: Http) { }
+  constructor(private config: BaThemeConfigProvider, private http: HttpClient) { }
 
   getAll() {
     return this.http.get(`/api/users`).map((response: Response) => response.json());

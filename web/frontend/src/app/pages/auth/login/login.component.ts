@@ -75,26 +75,6 @@ export class Login {
             // console.log('finished');
           }
         );
-
-      // this.auth.login({'username': values['email'], 'password': values['password']})
-      //   .toPromise()
-      //   .then((response) => {
-      //     let data = response.json();
-      //     console.log(data);
-      //     this.auth.authenticate(data);
-      //     this.router.navigate(['pages/dashboard']);
-      //   })
-      //   .catch((error) => {
-      //     console.log(error);
-      //     // forEach(response.data.errors, function (errors, field_name) {
-      //     //   //Field level errors
-      //     //   let field = this.form.controls[field_name];
-      //     //   field.$setValidity('backend', false);
-      //     //   field.$dirty = true;
-      //     //   this.errors[field_name] = errors.join(', ');
-      //     // });
-      //
-      //   });
     }
   }
 

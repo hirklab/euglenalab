@@ -1,8 +1,8 @@
 import express from 'express';
 
 import throttle from '../../config/throttle';
-import userRoutes from './user.route';
 import authRoutes from './auth.route';
+import userRoutes from './user.route';
 import roleRoutes from './role.route';
 import permissionRoutes from './permission.route';
 import groupRoutes from './group.route';
@@ -28,7 +28,7 @@ router.get('/api', (req, res) =>
 	})
 );
 
-router.use('/api/auth', throttle, authRoutes);
+router.use('/api/auth', authRoutes);
 router.use('/api/users', userRoutes);
 router.use('/api/roles', roleRoutes);
 router.use('/api/permissions', permissionRoutes);

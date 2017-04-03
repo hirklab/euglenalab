@@ -1,6 +1,9 @@
 import timestamps from './timestamps.plugin';
-import pagination from './pagination.plugin';
+import rest from './rest.plugin';
+import listFilter from './listFilter.plugin';
 
 export default {
-  timestamps, pagination
+	timestamps,
+	rest,
+	listFilter
 }

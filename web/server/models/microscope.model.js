@@ -119,7 +119,7 @@ MicroscopeSchema.index({
 MicroscopeSchema.plugin(plugins.timestamps, {
   index: true
 });
-MicroscopeSchema.plugin(plugins.pagination, {});
+// MicroscopeSchema.plugin(plugins.pagination, {});
 
 
 /**

@@ -15,6 +15,10 @@ export class UserList {
 
   settings = {
     mode:'external',
+    pager:{
+      display:true,
+      perPage:20
+    },
     add: {
       addButtonContent: '<i class="ion-ios-plus-outline"></i>',
       createButtonContent: '<i class="ion-checkmark"></i>',
@@ -38,10 +42,39 @@ export class UserList {
         title: 'Name',
         type: 'string'
       },
-      description: {
-        title: 'Description',
+      username: {
+        title: 'Username',
         type: 'string'
-      }
+      },
+      email: {
+        title: 'Email',
+        type: 'string'
+      },
+      isActive: {
+        title: 'Is Active ?',
+        filter: {
+          type: 'checkbox',
+          config: {
+            true: true,
+            false: false,
+            resetText: 'clear',
+          },
+        },
+        // valuePrepareFunction:(cell, row)=>{
+        //   return cell;
+        // }
+      },
+      isVerified: {
+        title: 'Is Verified ?',
+        filter: {
+          type: 'checkbox',
+          config: {
+            true: true,
+            false: false,
+            resetText: 'clear',
+          },
+        },
+      },
     }
   };
 
@@ -49,11 +82,12 @@ export class UserList {
 
   constructor(protected service: UserService) {
     this.service.getAll().subscribe((data) => {
-      this.source.load(data);
+      this.source.load(data.docs);
+      this.source.setPaging(data.page, data.limit);
     });
   }
 
-  onDeleteConfirm(event): void {
+  deleteConfirm(event): void {
     if (window.confirm('Are you sure you want to delete?')) {
       event.confirm.resolve();
     } else {

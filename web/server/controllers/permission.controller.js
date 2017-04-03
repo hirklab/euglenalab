@@ -1,61 +1,69 @@
 import Permission from '../models/permission.model';
 
+function list(req, res, next) {
+  Permission.getAll(req.query)
+    .then(data => res.json(data))
+    .catch(e => next(e));
+}
 
+function create(req, res, next) {
+  let search = [req.body.name];
+
+  if(req.body.description){
+    search.push(req.body.description);
+  }
+
+  const permission = new Permission({
+    name: req.body.name,
+    description: req.body.description,
+    search:search
+  });
+
+  permission.save()
+    .then(savedPermission => res.json(savedPermission))
+    .catch(e => next(e));
+}
+
+/**
+ * Load permission and append to req.
+ */
 function load(req, res, next, id) {
-  Role.get(id)
-    .then((Role) => {
-      req.Role = Role; // eslint-disable-line no-param-reassign
+  Permission.get(id)
+    .then((permission) => {
+      req._permission = permission; // eslint-disable-line no-param-reassign
       return next();
     })
     .catch(e => next(e));
 }
 
-
 function get(req, res) {
-  return res.json(req.Role);
+  const permission = req._permission;
+  return res.json(permission);
 }
-
-
-function create(req, res, next) {
-  const Role = new Role({
-    name: req.body.name,
-    isActive: req.body.isActive
-  });
-
-  Role.save()
-    .then(savedRole => res.json(savedRole))
-    .catch(e => next(e));
-}
-
 
 function update(req, res, next) {
-  const Role = req.Role;
-  Role.Rolename = req.body.Rolename;
-  Role.mobileNumber = req.body.mobileNumber;
+  const permission = req._permission;
 
-  Role.save()
-    .then(savedRole => res.json(savedRole))
+  let search = [req.body.name];
+
+  if(req.body.description){
+    search.push(req.body.description);
+  }
+
+  permission.name = req.body.name;
+  permission.description = req.body.description;
+  permission.search = search;
+
+  permission.save()
+    .then(savedPermission => res.json(savedPermission))
     .catch(e => next(e));
 }
-
-
-function list(req, res, next) {
-  const {
-    limit = 50, skip = 0
-  } = req.query;
-  Role.list({
-      limit,
-      skip
-    })
-    .then(Roles => res.json(Roles))
-    .catch(e => next(e));
-}
-
 
 function remove(req, res, next) {
-  const Role = req.Role;
-  Role.remove()
-    .then(deletedRole => res.json(deletedRole))
+  const permission = req._permission;
+
+  permission.remove()
+    .then(deletedPermission => res.json(deletedPermission))
     .catch(e => next(e));
 }
 

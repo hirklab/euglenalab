@@ -1,9 +1,6 @@
 import express from 'express';
 import validate from 'express-validation';
-import expressJwt from 'express-jwt';
-import passport from 'passport';
 
-import config from '../../config/env';
 import ensureAuthenticated from './utils';
 import validation from '../validation/auth';
 import AuthCtrl from '../controllers/auth.controller';

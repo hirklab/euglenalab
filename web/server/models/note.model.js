@@ -36,7 +36,7 @@ NoteSchema.index({
 NoteSchema.plugin(plugins.timestamps, {
   index: true
 });
-NoteSchema.plugin(plugins.pagination, {});
+// NoteSchema.plugin(plugins.pagination, {});
 
 
 /**
