@@ -5,11 +5,11 @@ import { ModuleWithProviders } from '@angular/core';
 
 import {AuthGuard} from '../authGuard';
 
-// export function loadChildren(path) { return System.import(path); };
-
 export const routes: Routes = [
    {path: 'login', loadChildren: 'app/pages/auth/login/login.module#LoginModule'},
    {path: 'register', loadChildren: 'app/pages/auth/register/register.module#RegisterModule' },
+   // {path: 'forgot', loadChildren: 'app/pages/auth/register/register.module#RegisterModule' },
+   // {path: 'reset', loadChildren: 'app/pages/auth/register/register.module#RegisterModule' },
   {
     path: 'pages',
     component: Pages,
@@ -18,6 +18,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadChildren: 'app/pages/dashboard/dashboard.module#DashboardModule' },
       { path: 'simulation', loadChildren: 'app/pages/simulation/simulation.module#SimulationModule'},
+      { path: 'microscopes', loadChildren: 'app/pages/microscope/microscope.module#MicroscopeModule'},
       { path: 'groups', loadChildren: 'app/pages/group/group.module#GroupModule'},
       { path: 'users', loadChildren: 'app/pages/user/user.module#UserModule'},
       { path: 'roles', loadChildren: 'app/pages/role/role.module#RoleModule'},

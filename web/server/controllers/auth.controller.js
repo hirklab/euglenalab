@@ -17,8 +17,8 @@ function register(req, res, next) {
     email: req.body.email.toLowerCase()
   };
 
-  let DEFAULT_GROUP = 'Default';
-  let DEFAULT_ROLE = 'Default';
+  let DEFAULT_GROUP = 'default';
+  let DEFAULT_ROLE = 'default';
 
   return Promise.resolve(data)
     .then(() => {
@@ -42,7 +42,7 @@ function register(req, res, next) {
       if (hashedPassword) {
         data.hash = hashedPassword;
 
-        return models.Group.findByName(DEFAULT_GROUP); // 
+        return models.Group.findByName(DEFAULT_GROUP); //
       } else {
         const err = new APIError('Invalid password', httpStatus.BAD_REQUEST);
         return Promise.reject(err);

@@ -7,7 +7,7 @@ export const PAGES_MENU = [
         data: {
           menu: {
             title: 'Dashboard',
-            icon: 'ion-ios-world',
+            icon: 'ion-ios-keypad-outline',
             selected: false,
             expanded: false,
             order: 0
@@ -19,10 +19,30 @@ export const PAGES_MENU = [
         data: {
           menu: {
             title: 'Simulation',
-            icon: 'ion-ios-flask',
+            icon: 'ion-ios-analytics-outline',
             selected: false,
             expanded: false,
             order: 0
+          }
+        }
+      },
+      {
+        path: 'experiments',
+        data: {
+          menu: {
+            title: 'Experiments',
+            icon: 'ion-ios-list-outline',
+            order: 5
+          }
+        }
+      },
+      {
+        path: 'microscopes',
+        data: {
+          menu: {
+            title: 'Microscopes',
+            icon: 'ion-ios-search',
+            order: 5
           }
         }
       },
@@ -31,7 +51,7 @@ export const PAGES_MENU = [
             data: {
               menu: {
                 title: 'Groups',
-                icon: 'ion-ios-people',
+                icon: 'ion-ios-people-outline',
                 order: 6
               }
             }
@@ -41,18 +61,18 @@ export const PAGES_MENU = [
             data: {
               menu: {
                 title: 'Users',
-                icon: 'ion-ios-person',
+                icon: 'ion-ios-person-outline',
                 order: 7
               }
             }
           },
-      
+
        {
             path: 'roles',
             data: {
               menu: {
                 title: 'Roles',
-                icon: 'ion-ios-color-filter',
+                icon: 'ion-ios-color-filter-outline',
                 order: 8
               }
             }
@@ -62,7 +82,7 @@ export const PAGES_MENU = [
             data: {
               menu: {
                 title: 'Permissions',
-                icon: 'ion-lock-combination',
+                icon: 'ion-ios-locked-outline',
                 order: 9
               }
             }
@@ -72,7 +92,7 @@ export const PAGES_MENU = [
         data: {
           menu: {
             title: 'About Us',
-            icon: 'ion-ios-information',
+            icon: 'ion-ios-chatbubble-outline',
             selected: false,
             expanded: false,
             order: 10

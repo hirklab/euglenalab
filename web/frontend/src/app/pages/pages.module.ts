@@ -7,6 +7,8 @@ import { NgaModule } from '../theme/nga.module';
 import { Pages } from './pages.component';
 
 import { AuthService } from '../services/auth.service';
+import { ExperimentService } from '../services/experiment.service';
+import { MicroscopeService } from '../services/microscope.service';
 import { UserService } from '../services/user.service';
 import { GroupService } from '../services/group.service';
 import { RoleService } from '../services/role.service';
@@ -17,6 +19,8 @@ import { PermissionService } from '../services/permission.service';
   declarations: [Pages],
   providers: [
     AuthService,
+    ExperimentService,
+    MicroscopeService,
     UserService,
     GroupService,
     RoleService,

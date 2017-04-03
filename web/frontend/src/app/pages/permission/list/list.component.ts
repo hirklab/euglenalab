@@ -17,7 +17,9 @@ export class PermissionList {
       display:true,
       perPage:20
     },
-    // hideSubHeader:true,
+    actions:{
+      delete:false
+    },
     add: {
       addButtonContent: '<i class="ion-ios-plus-outline"></i>',
       createButtonContent: '<i class="ion-checkmark"></i>',

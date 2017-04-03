@@ -61,7 +61,6 @@ const MicroscopeSchema = new mongoose.Schema({
       default: 100
     },
   },
-
   ambientLight: { // use percentage
     value: {
       type: Number,
@@ -106,6 +105,7 @@ const MicroscopeSchema = new mongoose.Schema({
       default: ''
     },
   }
+
 });
 
 /**
@@ -119,7 +119,7 @@ MicroscopeSchema.index({
 MicroscopeSchema.plugin(plugins.timestamps, {
   index: true
 });
-// MicroscopeSchema.plugin(plugins.pagination, {});
+MicroscopeSchema.plugin(plugins.rest, {});
 
 
 /**
@@ -137,30 +137,7 @@ MicroscopeSchema.method({});
 /**
  * Statics
  */
-MicroscopeSchema.statics = {
-
-  /**
-   * Get instance
-   * @param {ObjectId} id - The objectId of instance.
-   * @returns {Promise<Microscope, httpStatus>}
-   */
-  get(id) {
-    return this.findById(id)
-      .exec()
-      .then((instance) => {
-        if (instance) {
-          return instance;
-        }
-        const err = httpStatus.NOT_FOUND;
-        return Promise.reject(err);
-      });
-  },
-
-  /**
-   * Get instance
-   * @param {String} identification - unique id for Microscope
-   * @returns {Promise<Microscope, httpStatus>}
-   */
+MicroscopeSchema.statics = Object.assign(MicroscopeSchema.statics,{
   getByIdentification(identification) {
     return this.findOne({
         identification: identification
@@ -174,24 +151,7 @@ MicroscopeSchema.statics = {
         return Promise.reject(err);
       });
   },
-
-  /**
-   * List instances in descending order of 'createdAt' timestamp.
-   * @param {number} page - page number.
-   * @param {number} limit - max. number of instances to be returned.
-   * @returns {Promise<Microscope[]>}
-   */
-  getAll({
-    page = 1,
-    limit = 25
-  } = {}) {
-    return this.paginate({}, {
-        page: page,
-        limit: limit
-      })
-      .exec();
-  }
-};
+});
 
 /**
  * @typedef Microscope

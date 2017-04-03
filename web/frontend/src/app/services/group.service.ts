@@ -1,13 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Http, Headers, RequestOptions, Response, URLSearchParams } from '@angular/http';
 import {BaThemeConfigProvider} from '../theme';
+import {HttpClient} from '../httpClient';
 
 @Injectable()
 export class GroupService {
-  constructor(private config: BaThemeConfigProvider, private http: Http) { }
+  constructor(private config: BaThemeConfigProvider, private http: HttpClient) { }
 
-  getAll() {
-    return this.http.get(`/api/groups`).map((response: Response) => response.json());
+  getAll(options?:any) {
+    let params: URLSearchParams = new URLSearchParams();
+    for(let key in options){
+      params.set(key.toString(), options[key]);
+    }
+    return this.http.get(`/api/groups`, {search:params}).map((response: Response) => response.json());
   }
 
   getById(id: String) {
@@ -19,7 +24,7 @@ export class GroupService {
   }
 
   update(group: any) {
-    return this.http.put('/api/groups/' + group.id, group).map((response: Response) => response.json());
+    return this.http.put('/api/groups/' + group._id, group).map((response: Response) => response.json());
   }
 
   remove(id: String) {

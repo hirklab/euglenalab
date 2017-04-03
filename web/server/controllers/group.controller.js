@@ -1,60 +1,74 @@
-import Group from '../models/group.model';
+import Group from "../models/group.model";
 
+function list(req, res, next) {
+  Group.getAll(req.query)
+    .then(data => res.json(data))
+    .catch(e => next(e));
+}
 
+function create(req, res, next) {
+  let search = [req.body.name];
+
+  if (req.body.description) {
+    search.push(req.body.description);
+  }
+
+  let group = new Group({
+    name: req.body.name,
+    description: req.body.description,
+    search: search
+  });
+
+  if (req.body.users) {
+    group['users'] = req.body.users;
+  }
+
+  group.save()
+    .then(savedGroup => res.json(savedGroup))
+    .catch(e => next(e));
+}
+
+/**
+ * Load group and append to req.
+ */
 function load(req, res, next, id) {
   Group.get(id)
-    .then((Group) => {
-      req.Group = Group; // eslint-disable-line no-param-reassign
+    .then((group) => {
+      req._group = group; // eslint-disable-line no-param-reassign
       return next();
     })
     .catch(e => next(e));
 }
 
-
 function get(req, res) {
-  return res.json(req.Group);
+  const group = req._group;
+  return res.json(group);
 }
-
-
-function create(req, res, next) {
-  const Group = new Group({
-    name: req.body.name,
-    isActive: req.body.isActive
-  });
-
-  Group.save()
-    .then(savedGroup => res.json(savedGroup))
-    .catch(e => next(e));
-}
-
 
 function update(req, res, next) {
-  const Group = req.Group;
-  Group.Groupname = req.body.Groupname;
-  Group.mobileNumber = req.body.mobileNumber;
+  const group = req._group;
 
-  Group.save()
+  let search = [req.body.name];
+
+  if (req.body.description) {
+    search.push(req.body.description);
+  }
+
+  group.name = req.body.name;
+  group.description = req.body.description;
+  group.search = search;
+
+  if (req.body.users) {
+    group['users'] = req.body.users;
+  }
+  group.save()
     .then(savedGroup => res.json(savedGroup))
     .catch(e => next(e));
 }
 
-
-function list(req, res, next) {
-  const {
-    limit = 50, skip = 0
-  } = req.query;
-  Group.list({
-      limit,
-      skip
-    })
-    .then(Groups => res.json(Groups))
-    .catch(e => next(e));
-}
-
-
 function remove(req, res, next) {
-  const Group = req.Group;
-  Group.remove()
+  const group = req._group;
+  group.remove()
     .then(deletedGroup => res.json(deletedGroup))
     .catch(e => next(e));
 }

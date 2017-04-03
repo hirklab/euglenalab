@@ -1,7 +1,6 @@
 @import "../../../theme/sass/conf/conf";
 
-group-list {
-
+role-list {
   .ng2-smart-table-container table.ng2-smart-table {
     & > tbody > tr > td {
       padding: 0 1rem;
@@ -67,4 +66,5 @@ group-list {
   .card > .card-body {
     padding: 0px 0px;
   }
+
 }

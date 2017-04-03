@@ -1,0 +1,49 @@
+<div class="widgets">
+
+  <div class="row">
+    <ba-card title="" baCardClass="with-scroll">
+      <ng2-smart-table
+        [settings]="settings"
+        [source]="source"
+        (create)="onCreate($event)"
+        (createConfirm)="onCreateConfirm($event)"
+        (edit)="onEdit($event)"
+        (editConfirm)="onEditConfirm($event)"
+        (userRowSelect)="onView($event)"
+        (deleteConfirm)="onDeleteConfirm($event)"
+      ></ng2-smart-table>
+    </ba-card>
+
+    <ba-card title="Details" baCardClass="with-scroll" [hidden]="!(mode==modes.VIEW)">
+      <div class="col-xs-12">
+        <h3>Name</h3>
+        <p>{{selected?.name}}</p>
+
+        <h3>Identity:</h3>
+        <p>{{selected?.identification}}</p>
+      </div>
+    </ba-card>
+
+    <ba-card title="Details" baCardClass="with-scroll" [hidden]="(!(mode==modes.CREATE||mode==modes.UPDATE))">
+      <div class="col-xs-12">
+
+        <form (ngSubmit)="onSubmit(selected)" class="form-horizontal" novalidate>
+          <div class="form-group">
+            <label for="input01">Name</label>
+            <input type="text" name="name" class="form-control" id="input01" placeholder=""
+                   [(ngModel)]="selected.name">
+          </div>
+          <div class="form-group">
+            <label for="input02">Identity</label>
+            <input type="text" name="identification" class="form-control" id="input02" placeholder=""
+                   [(ngModel)]="selected.identification">
+          </div>
+        
+          <button class="btn btn-primary" value="submit" type="submit" style="float:left; margin-bottom: 15px">Submit</button>
+
+        </form>
+
+      </div>
+    </ba-card>
+  </div>
+</div>

@@ -118,7 +118,7 @@ ExperimentSchema.index({
 ExperimentSchema.plugin(plugins.timestamps, {
   index: true
 });
-ExperimentSchema.plugin(plugins.listFilter, {});
+ExperimentSchema.plugin(plugins.rest, {});
 
 
 /**
@@ -136,22 +136,7 @@ ExperimentSchema.method({});
 /**
  * Statics
  */
-ExperimentSchema.statics = {
-
-  /**
-   * Get instance
-   * @param {ObjectId} id - The objectId of instance.
-   * @returns {Promise<Experiment, APIError>}
-   */
-
-
-  /**
-   * Get instance
-   * @param {String} bpuId - id of BPU instances are linked to
-   * @param {number} page - page number.
-   * @param {number} limit - max. number of instances to be returned.
-   * @returns {Promise<Experiment, APIError>}
-   */
+ExperimentSchema.statics= Object.assign(ExperimentSchema.statics,{
   getByBPU(bpuId, page = 1, limit = 25) {
     return this.paginate({
         bpuId: mongoose.Schema.ObjectId(bpuId)
@@ -168,7 +153,7 @@ ExperimentSchema.statics = {
         return Promise.reject(err);
       });
   },
-};
+});
 
 /**
  * @typedef Experiment
