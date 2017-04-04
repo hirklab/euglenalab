@@ -130,7 +130,7 @@ block body
           th Microscope
           th.stretch Type
           th Status
-          th.hide Rating
+          th Rating
           th
       tbody#results-rows
 
@@ -140,8 +140,8 @@ block body
     td <%= exp_lastResort.bpuName %>
     td <%= exp_metaData.tag %>
     td <%= exp_status %>
-    td.hide
-      input.rating(type="hidden", value="<%= exp_rating %>", disabled=exp_rating>0)
+    td
+      input.rating(type="hidden", value="<%= survey.rating %>", disabled)
     td
       input.btn.btn-primary.btn-sm.btn-details(type='button', value='View', style='margin-right:5px;')
       input.btn.btn-default.btn-sm.btn-download-tar(name='downloadTar', type='button', value='Download')

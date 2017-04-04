@@ -108,11 +108,13 @@
                 this.model.attributes.exp_rating = 0;
             }
             this.$el.html(this.template(this.model.attributes));
+
             this.$('input.rating').rating({
                 filled: 'fa fa-star',
                 filledSelected: 'fa fa-star',
                 empty: 'fa fa-star-o'
             });
+
             return this;
         }
     });

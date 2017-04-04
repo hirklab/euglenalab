@@ -182,29 +182,6 @@ block body
         div.col#myAside.unselectable(name='myAside')
           div#myJoystick.canvas-joystick-off(name='myJoystick')
           img#myImage2.unselectable(name='myImage2', src='#{data.sideImageIP}')
-      div.unselectable.hide
-        div(style="margin:0 0 0 10px;float:right")
-          h4 Send us your feeback
-          .form-group
-            label Do you see euglena moving?
-            div
-              .radio-inline
-                input(type="radio",name="data.survey.euglena_moving",value="yes")
-                | Yes
-              .radio-inline(style="margin-left:20px")
-                input(type="radio",name="data.survey.euglena_moving",value="no")
-                | No
-          .form-group
-            label Rate your experience
-            div
-              input.form-control.rating(type="hidden", value="${data.survey.rating}")
-          .form-group
-            label Notes
-            textarea.form-control(rows="5",value="data.survey.notes",style="width:220px")
-          .form-group
-            button.btn.btn-primary(type="submit",value="submit") Submit
-
-
   else
     div.row.myMainRow(name='myMainRow')
       div.col.myMainCol(name='myMainCol')
@@ -222,6 +199,27 @@ block body
         div.myLightSpacer(name='myLightSpacer')
         div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
         div.myLightSpacer(name='myLightSpacer')
+
+  
+  div.modal.fade(role="dialog")
+
+  script(type='text/template',id="tmpl-survey")
+    div.modal-dialog(role="document")
+      div.modal-content
+        div.modal-header
+            h4.modal-title Send us your feedback
+        div.modal-body
+          .form-group
+              label Rate your experience
+              div
+                  input.form-control.rating(type="hidden",name="rating")
+          .form-group
+              label Note for support team
+              textarea.form-control(rows="5",style="width:520px", name="notes")
+        div.modal-footer
+          button.btn.btn-primary#btn-submit(type="submit",value="submit") Submit  
+          button.btn.btn-default#btn-close(type="button",value="close", data-dismiss="modal") Close  
+    
 
   script(type='text/lab', id='data-user') !{data.user}
   script(type='text/lab', id='data-bpu') !{data.bpu}

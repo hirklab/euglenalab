@@ -83,7 +83,7 @@ var socketStrs = {
 
       //console.log(clientUpdateObj.bpuLiveExp, me.ledsSetEventCounter); 
       if (clientUpdateObj.bpuLiveExp === null) {
-        app.mainView.kickUser(null, 'update');
+        // app.mainView.kickUser(null, 'update');
       } else {
         app.mainView.setTimeLeftInLabLabel(clientUpdateObj.bpuLiveFinishTime, 0, true);
       }
