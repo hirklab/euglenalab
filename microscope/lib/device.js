@@ -1,6 +1,11 @@
 import rpi from 'wiring-pi';
 import net from 'net';
 import logger from './logging';
+import {
+	TYPE,
+	MODE,
+	IO
+} from './boardConfig';
 
 class Device {
 	constructor(device) {
@@ -11,17 +16,18 @@ class Device {
 		this.mode = device.mode;
 		this.io = device.io;
 		this.type = device.type;
+		this.options = device.options;
 
 		this.configure();
 	}
 
 	configure() {
 		switch (this.type) {
-			case STATE:
+			case TYPE.STATE:
 				this.states = this.options.states;
 				this.default = this.options.default;
 				break;
-			case NUMERIC:
+			case TYPE.NUMERIC:
 				this.min = this.options.min;
 				this.max = this.options.max;
 				this.default = this.options.default;
@@ -49,10 +55,10 @@ class Device {
 		let isValid = false;
 
 		switch (this.type) {
-			case STATE:
+			case TYPE.STATE:
 				isValid = _.includes(_.values(this.states), value)
 				break;
-			case NUMERIC:
+			case TYPE.NUMERIC:
 				isValid = (value >= min) && (value <= max);
 				break;
 			default:
@@ -64,7 +70,7 @@ class Device {
 	}
 
 	setValue(value) {
-		switch (mode) {
+		switch (this.mode) {
 			case MODE.DIGITAL:
 				rpi.digitalWrite(this.pin, value);
 				this.value = value;

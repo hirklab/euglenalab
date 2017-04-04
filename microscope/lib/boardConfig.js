@@ -1,6 +1,6 @@
 import rpi from 'wiring-pi';
 
-const MODE = {
+export const MODE = {
 	ANALOG: 0,
 	DIGITAL: 1,
 	SOFTPWM: 2,
@@ -8,7 +8,7 @@ const MODE = {
 	SOCKET: 4
 };
 
-const IO = {
+export const IO = {
 	INPUT: rpi.INPUT,
 	OUTPUT: rpi.OUTPUT,
 	// todo 
@@ -16,7 +16,7 @@ const IO = {
 	BOTH: 2
 };
 
-const TYPE = {
+export const TYPE = {
 	STATE: 0,
 	NUMERIC: 1,
 };
@@ -76,7 +76,7 @@ let BoardConfig = {
 	}, {
 		name: 'diffuser',
 		pin: 10,
-		mode: MODE.DIGITAL,
+		mode: MODE.SOFTPWM,
 		type: TYPE.NUMERIC,
 		io: IO.OUTPUT,
 		options: {
@@ -105,7 +105,7 @@ let BoardConfig = {
 			states: {
 				ON: 'start',
 				OFF: 'stop'
-			}
+			},
 			default: 'stop'
 		}
 	}]

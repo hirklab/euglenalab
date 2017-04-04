@@ -7,13 +7,13 @@ import BoardConfig from './boardConfig';
 class Board {
 	constructor() {
 		this.state = {};
-		this.devices = [];
+		this.devices = {};
 		this.configure();
 	}
 
 	configure() {
 		_.each(BoardConfig.devices, (device) => {
-			this.devices.push(new Device(device));
+			this.devices[device.name] = new Device(device);
 		});
 	}
 
@@ -22,19 +22,21 @@ class Board {
 	}
 
 	setDevice(deviceName, value) {
-		let device = _.find(this.devices, (device) => {
-			return device.name == deviceName;
-		});
+		if (deviceName in this.devices) {
+			let device = this.devices[deviceName];
 
-		if (device && device.isValid(value)) {
-			device.setValue(value);
+			if (device && device.isValid(value)) {
+				device.setValue(value);
+			}
 		}
 	}
 
 	getDevice(deviceName) {
-		return _.find(this.devices, (device) => {
-			return device.name == deviceName;
-		})
+		if (deviceName in this.devices) {
+			return this.devices[deviceName];
+		}
+
+		return null;
 	}
 }
 
