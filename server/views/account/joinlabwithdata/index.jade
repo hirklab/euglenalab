@@ -130,7 +130,7 @@ block body
           th Microscope
           th.stretch Type
           th Status
-          th Rating
+          //- th Rating
           th
       tbody#results-rows
 
@@ -140,7 +140,7 @@ block body
     td <%= exp_lastResort.bpuName %>
     td <%= exp_metaData.tag %>
     td <%= exp_status %>
-    td
+    //- td
       input.rating(type="hidden", value="<%= survey.rating %>", disabled)
     td
       input.btn.btn-primary.btn-sm.btn-details(type='button', value='View', style='margin-right:5px;')
