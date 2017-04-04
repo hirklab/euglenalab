@@ -5,8 +5,11 @@
 *.log
 
 db/**/*
+node_modules/**/*
 
 .env
 deployment.js
 
-node_modules/**/*
+manager/
+microscope/
+web/

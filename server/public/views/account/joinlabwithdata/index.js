@@ -1,5 +1,5 @@
 /* global app:true */
-(function () {
+(function() {
     'use strict';
 
     app = app || {};
@@ -11,7 +11,7 @@
         idAttribute: '_id',
         url: '/account/joinlabwithdata/'
     });
-//user bpu experimentType tarFilename tarFileLocation startRunTime textExpFilename
+    //user bpu experimentType tarFilename tarFileLocation startRunTime textExpFilename
     app.Record = Backbone.Model.extend({
         idAttribute: '_id',
         defaults: {
@@ -24,17 +24,17 @@
                 myServerMediaLocation: '',
             },
         },
-        urlDownload: function () {
+        urlDownload: function() {
             return '/account/joinlabwithdata/download/' + (this.isNew() ? '' : this.id + '/');
         },
-        url: function () {
+        url: function() {
             return '/account/joinlabwithdata/' + (this.isNew() ? '' : this.id + '/');
         }
     });
     app.RecordCollection = Backbone.Collection.extend({
         model: app.Record,
         url: '/account/joinlabwithdata/',
-        parse: function (results) {
+        parse: function(results) {
             app.pagingView.model.set({
                 pages: results.pages,
                 items: results.items
@@ -63,17 +63,19 @@
     app.ResultsView = Backbone.View.extend({
         el: '#results-table',
         template: _.template($('#tmpl-results-table').html()),
-        initialize: function () {
+        initialize: function() {
 
             this.collection = new app.RecordCollection(app.mainView.results.data);
             this.listenTo(this.collection, 'reset', this.render);
             this.render();
         },
-        render: function () {
+        render: function() {
             this.$el.html(this.template());
             var frag = document.createDocumentFragment();
-            this.collection.each(function (record) {
-                var view = new app.ResultsRowView({model: record});
+            this.collection.each(function(record) {
+                var view = new app.ResultsRowView({
+                    model: record
+                });
                 frag.appendChild(view.render().el);
             }, this);
             $('#results-rows').append(frag);
@@ -91,18 +93,28 @@
             'click .btn-details': 'viewDetails',
             'click .btn-download-tar': 'downloadTar',
         },
-        downloadTar: function () {
+        downloadTar: function() {
             location.href = this.model.urlDownload();
         },
-        viewDetails: function () {
+        viewDetails: function() {
             location.href = this.model.url();
         },
-        render: function () {
+        render: function() {
             if (this.model.attributes.exp_submissionTime !== null) {
                 var date = new Date(this.model.attributes.exp_submissionTime);
                 this.model.attributes.exp_submissionTime = date.toString();
             }
+            if (this.model.attributes.exp_rating == null) {
+                this.model.attributes.exp_rating = 0;
+            }
             this.$el.html(this.template(this.model.attributes));
+
+            this.$('input.rating').rating({
+                filled: 'fa fa-star',
+                filledSelected: 'fa fa-star',
+                empty: 'fa fa-star-o'
+            });
+
             return this;
         }
     });
@@ -115,12 +127,12 @@
             'keypress input[type="text"]': 'filterOnEnter',
             'change select': 'filter'
         },
-        initialize: function () {
+        initialize: function() {
             this.model = new app.Filter(app.mainView.results.filters);
             this.listenTo(this.model, 'change', this.render);
             this.render();
         },
-        render: function () {
+        render: function() {
             this.$el.html(this.template(this.model.attributes));
             for (var key in this.model.attributes) {
                 if (this.model.attributes.hasOwnProperty(key)) {
@@ -128,18 +140,20 @@
                 }
             }
         },
-        preventSubmit: function (event) {
+        preventSubmit: function(event) {
             event.preventDefault();
         },
-        filterOnEnter: function (event) {
+        filterOnEnter: function(event) {
             if (event.keyCode !== 13) {
                 return;
             }
             this.filter();
         },
-        filter: function () {
+        filter: function() {
             var query = $('#filters form').serialize();
-            Backbone.history.navigate('q/' + query, {trigger: true});
+            Backbone.history.navigate('q/' + query, {
+                trigger: true
+            });
         }
     });
 
@@ -149,12 +163,15 @@
         events: {
             'click .btn-page': 'goToPage'
         },
-        initialize: function () {
-            this.model = new app.Paging({pages: app.mainView.results.pages, items: app.mainView.results.items});
+        initialize: function() {
+            this.model = new app.Paging({
+                pages: app.mainView.results.pages,
+                items: app.mainView.results.items
+            });
             this.listenTo(this.model, 'change', this.render);
             this.render();
         },
-        render: function () {
+        render: function() {
             if (this.model.get('pages').total > 1) {
                 this.$el.html(this.template(this.model.attributes));
 
@@ -165,14 +182,15 @@
                 if (!this.model.get('pages').hasNext) {
                     this.$el.find('.btn-next').attr('disabled', 'disabled');
                 }
-            }
-            else {
+            } else {
                 this.$el.empty();
             }
         },
-        goToPage: function (event) {
+        goToPage: function(event) {
             var query = $('#filters form').serialize() + '&page=' + $(event.target).data('page');
-            Backbone.history.navigate('q/' + query, {trigger: true});
+            Backbone.history.navigate('q/' + query, {
+                trigger: true
+            });
             $('body').scrollTop(0);
         }
     });
@@ -182,18 +200,23 @@
             '': 'default',
             'q/:params': 'query'
         },
-        initialize: function () {
+        initialize: function() {
             app.mainView = new app.MainView();
         },
-        default: function () {
+        default: function() {
             if (!app.firstLoad) {
-                app.resultsView.collection.fetch({reset: true});
+                app.resultsView.collection.fetch({
+                    reset: true
+                });
             }
 
             app.firstLoad = false;
         },
-        query: function (params) {
-            app.resultsView.collection.fetch({data: params, reset: true});
+        query: function(params) {
+            app.resultsView.collection.fetch({
+                data: params,
+                reset: true
+            });
             app.firstLoad = false;
         }
     });
@@ -208,10 +231,10 @@
         bpuIndicies: [],
 
         //General Functions
-        roundMsToMins: function (ms) {
+        roundMsToMins: function(ms) {
             return Math.floor(ms / 60000);
         },
-        roundMsToSeconds: function (ms) {
+        roundMsToSeconds: function(ms) {
             return Math.round(ms / 1000);
         },
         //Experiment Info Object/hold loaded text files
@@ -225,7 +248,7 @@
             queueTextFiles: 0,
         },
         //Only Path to start join Queue Seq, called from one location in each, BpuImage, LiveJoin, TextSubmit
-        submitExperimentFromViews: function (type, wantsBpuName) {
+        submitExperimentFromViews: function(type, wantsBpuName) {
             //Disable UI
             app.mainView.disableUI('app.mainView.submitExperimentFromViews');
             console.log('1. submitExperimentFromViews', 'true?:' + app.userSocketClient.isInitialized, 'false?:' + app.mainView.userExpInfo.isSubmitting);
@@ -242,7 +265,7 @@
                     joinQueueData.exp_metaData.machine = app.clientInfo;
                     joinQueueData.exp_metaData.type = 'live';
                     joinQueueData.exp_metaData.chosenBPU = wantsBpuName;
-                    joinQueueData.exp_metaData.selection = (wantsBpuName==null)?'auto':'user';
+                    joinQueueData.exp_metaData.selection = (wantsBpuName == null) ? 'auto' : 'user';
                     joinQueueData.exp_metaData.tag = 'live';
                     joinQueueData.exp_metaData.description = 'no description set';
                     joinQueueData.exp_metaData.expTypeString = 'isLive';
@@ -250,7 +273,7 @@
                     joinQueueDataObjects.push(joinQueueData);
                     doSend = true;
                 } else if (type === 'text') {
-                    app.mainView.userExpInfo.loadedTextFiles.forEach(function (fileObj) {
+                    app.mainView.userExpInfo.loadedTextFiles.forEach(function(fileObj) {
                         var joinQueueData = JSON.parse(JSON.stringify(app.mainView.joinQueueDataObj));
                         joinQueueData.group_experimentType = 'text';
                         joinQueueData.exp_eventsToRun = fileObj.eventsToRun;
@@ -258,14 +281,14 @@
                         joinQueueData.exp_metaData.machine = app.clientInfo;
                         joinQueueData.exp_metaData.type = 'batch';
                         joinQueueData.exp_metaData.chosenBPU = wantsBpuName;
-                        joinQueueData.exp_metaData.selection = (wantsBpuName==null)?'auto':'user';
+                        joinQueueData.exp_metaData.selection = (wantsBpuName == null) ? 'auto' : 'user';
                         joinQueueDataObjects.push(joinQueueData);
                     });
                     if (joinQueueDataObjects.length > 0) doSend = true;
                 }
                 if (doSend) {
                     //Add common data to all
-                    joinQueueDataObjects.forEach(function (obj) {
+                    joinQueueDataObjects.forEach(function(obj) {
                         obj.user.id = app.mainView.user.get('_id');
                         obj.user.name = app.mainView.user.get('username');
                         obj.user.groups = app.mainView.user.get('groups');
@@ -282,21 +305,21 @@
                     });
                     //Start Sequence
                     console.log('2. submitExperimentFromViews', 'submittingToSocketClient');
-                    app.userSocketClient.submitExperimentArray(joinQueueDataObjects, function (err, validationObjs) {
+                    app.userSocketClient.submitExperimentArray(joinQueueDataObjects, function(err, validationObjs) {
                         console.log('3. submitExperimentFromViews', 'submittingToSocketClient replied');
                         if (err) {
                             console.log('4e1. submitExperimentFromViews', 'submittingToSocketClient replied with err:' + err);
                             if (validationObjs && validationObjs.forEach) {
                                 var cnt = 0;
-                                validationObjs.forEach(function (validationObj) {
+                                validationObjs.forEach(function(validationObj) {
                                     cnt++;
                                     var dCnt = 0;
-                                    validationObj.errs.forEach(function (err) {
+                                    validationObj.errs.forEach(function(err) {
                                         console.log('4e1a-' + cnt + ', ' + dCnt + '. submitExperimentFromViews err:', err);
                                     });
                                 });
                             }
-                            setTimeout(function () {
+                            setTimeout(function() {
                                 console.log('5. reset. submitExperimentFromViews', 'app.mainView.userExpInfo.isSubmitting is now false again');
                                 app.mainView.userExpInfo.isSubmitting = false;
                             }, 2500);
@@ -304,18 +327,18 @@
                             if (validationObjs && validationObjs.forEach) {
                                 console.log('4. submitExperimentFromViews', 'submittingToSocketClient replied with validationObjs:' + validationObjs.length);
                                 var cnt = 0;
-                                validationObjs.forEach(function (validationObj) {
+                                validationObjs.forEach(function(validationObj) {
                                     console.log(validationObj);
                                     cnt++;
                                     console.log('4-' + cnt + '. submitExperimentFromViews', validationObj.expInfo.exp_eventsRunTime, validationObj.expInfo.isValid);
                                 });
-                                setTimeout(function () {
+                                setTimeout(function() {
                                     console.log('5. reset. submitExperimentFromViews', 'app.mainView.userExpInfo.isSubmitting is now false again');
                                     app.mainView.userExpInfo.isSubmitting = false;
                                 }, 2500);
                             } else {
                                 console.log('4e2. submitExperimentFromViews', 'submittingToSocketClient replied with validationObjs:' + 'dne');
-                                setTimeout(function () {
+                                setTimeout(function() {
                                     console.log('5. reset. submitExperimentFromViews', 'app.mainView.userExpInfo.isSubmitting is now false again');
                                     app.mainView.userExpInfo.isSubmitting = false;
                                 }, 2500);
@@ -327,21 +350,21 @@
         },
 
         //Disable All Buttons
-        disableUI: function (caller) {
+        disableUI: function(caller) {
             app.liveJoinView.disableJoinLiveNextButton(true, caller + '+' + 'app.mainView.disableUI');
             app.textSubmitView.disableSubmitTextNextButton(true, caller + '+' + 'app.mainView.disableUI');
             app.bpuImageView.disableAll(true, caller + '+' + 'app.mainView.disableUI');
         },
 
         //Update UI from Join Queue Sequence - should over ride bpu update
-        updateJoinQueueSequence: function (msg) {
+        updateJoinQueueSequence: function(msg) {
             //Live
             app.liveJoinView.setJoinLiveNextLabel(new Date().toLocaleString() + ': ' + 'Submitting Exp(s) status: ' + msg);
             //Text
             app.textSubmitView.setSubmitTextNextLabel('Text Submit: ' + 'Submitting Exp(s) status: ' + msg);
         },
         //Update UI from bpu socket updates
-        updateFromServer: function (updateObj) {
+        updateFromServer: function(updateObj) {
             app.mainView.setHeaderLabel('Updated:' + new Date());
 
             var queueTextRunTime = 0;
@@ -350,7 +373,7 @@
             //Update BpuView with updateObj.bpuPackage
             //Update BpuView with updateObj.bpuPackage
 
-            var isFailed = function (status) {
+            var isFailed = function(status) {
                 if ((status.indexOf('Failed') >= 0) || (status === 'offline')) {
                     return true;
                 }
@@ -358,7 +381,7 @@
             }
 
             if (updateObj.bpusPackage && updateObj.bpusPackage.forEach && updateObj.bpusPackage.length > 0) {
-                updateObj.bpusPackage.forEach(function (bpuPack) {
+                updateObj.bpusPackage.forEach(function(bpuPack) {
                     if (isFailed(bpuPack.bpuStatus)) {
                         //Title
                         app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name + ' (N/A)');
@@ -366,8 +389,7 @@
                         app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left: N/A');
                         //Status
                         app.bpuImageView.setStatusLabel(bpuPack.index, 'Status:' + bpuPack.bpuStatus);
-                    }
-                    else if (bpuPack.liveBpuExperiment) {
+                    } else if (bpuPack.liveBpuExperiment) {
                         //Title
                         var userPart = '(Available)'
                         if (bpuPack.liveBpuExperiment.username !== null) {
@@ -380,8 +402,7 @@
                         var secondsLeft = Math.round(bpuPack.liveBpuExperiment.bc_timeLeft / 1000);
                         if (secondsLeft >= 0) {
                             app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:' + secondsLeft + ' seconds');
-                        }
-                        else {
+                        } else {
                             app.bpuImageView.setUserLabel(bpuPack.index, 'Processing (hang on)');
                         }
                         //Status
@@ -396,7 +417,7 @@
                     }
                 });
             } else {
-                app.mainView.bpus.forEach(function (bpu) {
+                app.mainView.bpus.forEach(function(bpu) {
                     //Title
                     app.bpuImageView.setTitleLabel(bpu.index, 'eug' + bpu.index + ', User:' + 'None');
                     //User
@@ -431,8 +452,7 @@
                     liveMsg = 'Waiting for microscope ' + updateObj.liveQueueExp.exp_lastResort.bpuName + '.  ';
                     if (liveSecondsWaitTime < 0) {
                         liveMsg += 'Processing... (hang on)';
-                    }
-                    else {
+                    } else {
                         liveMsg += 'Wait time is ' + liveSecondsWaitTime + ' seconds.';
                     }
                     isLiveDisabled = true;
@@ -462,8 +482,7 @@
                     var textSecondsWaitTime = Math.round(textWaitTime / 1000);
                     if (textSecondsWaitTime >= 0) {
                         textMsg += 'Wait time is ' + textSecondsWaitTime + ' seconds.';
-                    }
-                    else {
+                    } else {
                         textMsg += 'Processing... (hang on)';
                     }
                 }
@@ -489,19 +508,19 @@
                 app.textSubmitView.disableSubmitTextNextButton(isTextDisabled, 'app.mainView.server update');
 
                 //Set text/live join button for bpu view
-                app.mainView.bpus.forEach(function (bpu) {
+                app.mainView.bpus.forEach(function(bpu) {
                     app.bpuImageView.disableLiveButton(bpu.index, isLiveDisabled, 'app.mainView.server update');
                     app.bpuImageView.disableTextButton(bpu.index, isTextDisabled, 'app.mainView.server update');
                 });
             }
         }, //end of update ui function
         //Join Label Update
-        setHeaderLabel: function (msg) {
+        setHeaderLabel: function(msg) {
             var elem = app.mainView.$el.find('[name="' + 'headerLabel' + '"]')[0];
             if (elem) elem.innerHTML = msg;
         },
         //Init Displays and Socket
-        initialize: function () {
+        initialize: function() {
             app.mainView = this;
             app.mainView.results = JSON.parse($('#data-results').html());
             app.mainView.user = new app.User(JSON.parse(unescape($('#data-user').html())));
@@ -516,7 +535,7 @@
             app.resultsView = new app.ResultsView();
             app.filterView = new app.FilterView();
             app.pagingView = new app.PagingView();
-            app.userSocketClient.setConnection(function (err) {
+            app.userSocketClient.setConnection(function(err) {
                 if (err) {
                     app.userSocketClient.isInitialized = false;
                     app.liveJoinView.setJoinLiveNextLabel('Connection Error:' + err + '.  Refresh Browser.');
@@ -528,11 +547,11 @@
         },
     });
     //Start
-    $(document).ready(function () {
+    $(document).ready(function() {
         app.firstLoad = true;
 
         $.getJSON('//ipinfo.io/json', function(data) {
-            app.clientInfo=data;
+            app.clientInfo = data;
         });
 
         app.router = new app.Router();

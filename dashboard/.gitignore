@@ -55,3 +55,15 @@ docs/
 /src/.DS_Store
 /release
 /bower_components
+
+\.idea/
+
+*.pyc
+*.log
+
+.tmp/*
+node_modules/*
+bower_components/*
+docs/*
+release/*
+src/.DS_Store

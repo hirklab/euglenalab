@@ -12,9 +12,9 @@ html
     div.navbar.navbar-inverse.navbar-fixed-top
       div.container
         div.navbar-header
-          a.navbar-brand(href='/admin/')
+          a.navbar-brand(href='/account/')
             img.navbar-logo(src='/media/logo-symbol-64x64.png')
-            span.navbar-brand-label #{projectName}
+            span.navbar-brand-label(style="padding-left: 40px;") #{projectName}
           button.navbar-toggle.collapsed(data-toggle='collapse', data-target='.my-navbar-collapse')
             span.icon-bar
             span.icon-bar
@@ -37,7 +37,9 @@ html
                 li: a(href='/admin/administrators/') Administrators
                 li: a(href='/admin/admin-groups/') Admin Groups
                 li: a(href='/admin/bpus/') Bpus
-          form.navbar-form.pull-right#_search
+            li
+              a.nav.navbar-nav(href='/account/') Experiments
+            form.navbar-form.pull-right#_search
 
     div.page
       div.container

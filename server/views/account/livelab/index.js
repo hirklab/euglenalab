@@ -1,145 +1,160 @@
 'use strict';
-var async=require('async');
+var async = require('async');
 exports.init = function(req, res, next) {
-  var outcome={};
+  var outcome = {};
 
-  outcome.session=null;
-  var getSessionData=function(callback) {
-    if(req.sessionID===null || req.sessionID===undefined) {
+  outcome.session = null;
+  var getSessionData = function(callback) {
+    if (req.sessionID === null || req.sessionID === undefined) {
       return callback('not authorized. no sessionid');
     } else {
-      req.app.db.models.Session.findOne({sessionID:req.sessionID}, {}, function(err, session) {
-        if(err) {
-          return callback('getSessionData err:'+err);
-        } else if(session===null || session===undefined) {
+      req.app.db.models.Session.findOne({
+        sessionID: req.sessionID
+      }, {}, function(err, session) {
+        if (err) {
+          return callback('getSessionData err:' + err);
+        } else if (session === null || session === undefined) {
           return callback('getSessionData session is dne');
         } else {
-          outcome.sess=session;
+          outcome.sess = session;
           return callback(null);
         }
       });
     }
   };
 
-  outcome.user=null;
-  var getUserData=function(callback) {
+  outcome.user = null;
+  var getUserData = function(callback) {
     req.app.db.models.User.findById(outcome.sess.user.id, {}, function(err, userDoc) {
-      if(err) {
-        return callback('getUser err:'+err);
-      } else if(userDoc===null) {
-        return callback('getUser err:'+'userDoc===null');
+      if (err) {
+        return callback('getUser err:' + err);
+      } else if (userDoc === null) {
+        return callback('getUser err:' + 'userDoc===null');
       } else {
-        outcome.user=userDoc;
+        outcome.user = userDoc;
         return callback(null);
       }
     });
   };
-  outcome.exp=null;
-  outcome.setLedsObj=null;
-  var getExperimentData=function(callback) {
+  outcome.exp = null;
+  outcome.setLedsObj = null;
+  var getExperimentData = function(callback) {
     req.app.db.models.BpuExperiment.findById(outcome.sess.liveBpuExperiment.id, {}, function(err, bpuExpDoc) {
-      if(err) {
-        return callback('getBpuExperiment err:'+err);
-      } else if(bpuExpDoc===null) {
-        return callback('getBpuExperiment err:'+'bpuExpDoc===null');
+      if (err) {
+        return callback('getBpuExperiment err:' + err);
+      } else if (bpuExpDoc === null) {
+        return callback('getBpuExperiment err:' + 'bpuExpDoc===null');
       } else {
-        outcome.exp=bpuExpDoc;
-        outcome.setLedsObj=outcome.exp.getDataObjToSetLeds();
+        outcome.exp = bpuExpDoc;
+        outcome.setLedsObj = outcome.exp.getDataObjToSetLeds();
         return callback(null);
       }
     });
   };
-  outcome.bpu=null;
-  outcome.webStreamUrl=null;
-  outcome.sideStreamUrl=null;
+  outcome.bpu = null;
+  outcome.webStreamUrl = null;
+  outcome.sideStreamUrl = null;
 
-  var getLengthScale100um = function (zoom){
+  var getLengthScale100um = function(zoom) {
     // in percentage with respect to 640
     return Math.round((((30.0 * zoom) / 4.0) * 100.0) / 640.0);
   }
-  var getBpuData=function(callback) {
+  var getBpuData = function(callback) {
     req.app.db.models.Bpu.findById(outcome.exp.liveBpu.id, {}, function(err, bpuDoc) {
-      if(err) {
-        return callback('getBpu err:'+err);
-      } else if(bpuDoc===null) {
-        return callback('getBpu err:'+'bpuDoc===null');
+      if (err) {
+        return callback('getBpu err:' + err);
+      } else if (bpuDoc === null) {
+        return callback('getBpu err:' + 'bpuDoc===null');
       } else {
-        outcome.bpu=bpuDoc;
-        if (bpuDoc.magnification !== null){
-          outcome.lengthScale100um = getLengthScale100um( bpuDoc.magnification );
-        }
-        else{
+        outcome.bpu = bpuDoc;
+        if (bpuDoc.magnification !== null) {
+          outcome.lengthScale100um = getLengthScale100um(bpuDoc.magnification);
+        } else {
           outcome.lengthScale100um = 'Unknown'
         }
 
-        outcome.webStreamUrl=bpuDoc.getWebStreamUrl();
-        outcome.sideStreamUrl=bpuDoc.getSideStreamUrl();
+        outcome.webStreamUrl = bpuDoc.getWebStreamUrl();
+        outcome.sideStreamUrl = bpuDoc.getSideStreamUrl();
         return callback(null);
       }
     });
   };
-  var setupDiv=function(callback) {
+  var setupDiv = function(callback) {
     _setupDiv(outcome.user.username, function(err, divInfo, renderJade) {
-      if(err) {
-        return callback('setupDiv err:'+err);
+      if (err) {
+        return callback('setupDiv err:' + err);
       } else {
-        outcome.divInfo=divInfo;
-        outcome.renderJade=renderJade;
+        outcome.divInfo = divInfo;
+        outcome.renderJade = renderJade;
         return callback(null);
       }
     });
   };
-  var seriesFuncs=[];
+  var seriesFuncs = [];
   seriesFuncs.push(getSessionData);
   seriesFuncs.push(getUserData);
   seriesFuncs.push(getExperimentData);
   seriesFuncs.push(getBpuData);
   seriesFuncs.push(setupDiv);
   async.series(seriesFuncs, function(err) {
-    if(err) {
+    if (err) {
       return next(err);
     } else {
-      var startingAlpha=0.0;
-            res.render(outcome.renderJade, {
+      var startingAlpha = 0.0;
+      res.render(outcome.renderJade, {
         data: {
-          user:escape(JSON.stringify(outcome.user)),
-          bpu:escape(JSON.stringify(outcome.bpu)),
-          lengthScale100um:escape(JSON.stringify(outcome.lengthScale100um))+'%',
-          bpuExp:escape(JSON.stringify(outcome.exp)),
+          user: escape(JSON.stringify(outcome.user)),
+          bpu: escape(JSON.stringify(outcome.bpu)),
+          lengthScale100um: escape(JSON.stringify(outcome.lengthScale100um)) + '%',
+          bpuExp: escape(JSON.stringify(outcome.exp)),
           session: escape(JSON.stringify(outcome.sess)),
-          divInfo:outcome.divInfo,
-          lightData:{
-            topValue:0, rightValue:0, bottomValue:0, leftValue:0,
-            topLightAlpha:startingAlpha, rightLightAlpha:startingAlpha, bottomLightAlpha:startingAlpha, leftLightAlpha:startingAlpha
+          divInfo: outcome.divInfo,
+          lightData: {
+            topValue: 0,
+            rightValue: 0,
+            bottomValue: 0,
+            leftValue: 0,
+            topLightAlpha: startingAlpha,
+            rightLightAlpha: startingAlpha,
+            bottomLightAlpha: startingAlpha,
+            leftLightAlpha: startingAlpha
           },
-          timeLeftInLab:{jadeName:'timeLeftInLab', value:'Lab Time Remaining:'+'Calculating...'},
-          bpuName:outcome.bpu.name,
-          mainImageIP:outcome.webStreamUrl,
-          sideImageIP:outcome.sideStreamUrl,
-          setLedsObj:escape(JSON.stringify(outcome.setLedsObj)),
+          timeLeftInLab: {
+            jadeName: 'timeLeftInLab',
+            value: 'Lab Time Remaining:' + 'Calculating...'
+          },
+          bpuName: outcome.bpu.name,
+          mainImageIP: outcome.webStreamUrl,
+          sideImageIP: outcome.sideStreamUrl,
+          setLedsObj: escape(JSON.stringify(outcome.setLedsObj)),
+          survey: {
+            rating: 0,
+            // euglena_moving: null,
+            notes: null
+          }
         },
       });
     }
   });
 };
-var _getStatusOfBpu=function(app, bpuDoc, timeout, callback) {
-  var foundSocket=null;
-  for(var ind=0;ind<app.bpusConnected.length;ind++) {
-    if(app.bpusConnected[ind].bpuDoc.name===bpuDoc.name) {
-      foundSocket=app.bpusConnected[ind].socket;
+var _getStatusOfBpu = function(app, bpuDoc, timeout, callback) {
+  var foundSocket = null;
+  for (var ind = 0; ind < app.bpusConnected.length; ind++) {
+    if (app.bpusConnected[ind].bpuDoc.name === bpuDoc.name) {
+      foundSocket = app.bpusConnected[ind].socket;
     }
   }
-  if(foundSocket!==null) {
-    var didCallback=false;
+  if (foundSocket !== null) {
+    var didCallback = false;
     setTimeout(function() {
-      if(!didCallback) {
-        didCallback=true;
+      if (!didCallback) {
+        didCallback = true;
         callback('timed out', null);
       }
     }, timeout);
     foundSocket.emit(app.mainConfig.socketStrs.bpu_getStatus, function(err, resObj) {
-      if(!didCallback) {
-        didCallback=true;
+      if (!didCallback) {
+        didCallback = true;
         callback(err, resObj);
       }
     });
@@ -149,62 +164,61 @@ var _getStatusOfBpu=function(app, bpuDoc, timeout, callback) {
 };
 
 var _setupDiv = function(username, callback) {
-  var renderJade='account/livelab/index';
-  var divInfo={
-    mainRowWidth:'75%',
-    mainRowHeight:'480px',
+  var renderJade = 'account/livelab/index';
+  var divInfo = {
+    mainRowWidth: '75%',
+    mainRowHeight: '480px',
 
-    mainColWidth:'75%',
-    mainColHeight:'100%',
+    mainColWidth: '75%',
+    mainColHeight: '100%',
 
-    lightLong:'90%',
-    lightShort:'5%',
+    lightLong: '90%',
+    lightShort: '5%',
 
-    imageWidth:'90%',
-    imageHeight:'90%',
+    imageWidth: '90%',
+    imageHeight: '90%',
 
-    hasAside:true,
+    hasAside: true,
 
-    asideColWidth:'25%',
-    asideColHeight:'100%',
+    asideColWidth: '25%',
+    asideColHeight: '100%',
 
-    sideImageWidth:'100%',
-    sideImageHeight:'50%',
+    sideImageWidth: '100%',
+    sideImageHeight: '50%',
 
-    joystickWidth:'100%',
-    joystickHeight:'50%',
+    joystickWidth: '100%',
+    joystickHeight: '50%',
   };
-  if(username==='dirk_joystick') {
-    renderJade='account/livelab/indexMuseum';
-    divInfo={
+  if (username === 'dirk_joystick') {
+    renderJade = 'account/livelab/indexMuseum';
+    divInfo = {
 
-      mainRowWidth:'100%',
-      mainRowHeight:'100%',
+      mainRowWidth: '100%',
+      mainRowHeight: '100%',
 
-      mainColWidth:'100%',
-      mainColHeight:'100%',
+      mainColWidth: '100%',
+      mainColHeight: '100%',
 
-      lightLong:'94%',
-      lightShort:'3%',
+      lightLong: '94%',
+      lightShort: '3%',
 
-      imageWidth:'94%',
-      imageHeight:'94%',
+      imageWidth: '94%',
+      imageHeight: '94%',
 
-      hasAside:false,
+      hasAside: false,
 
-      asideColWidth:'25%',
-      asideColHeight:'100%',
+      asideColWidth: '25%',
+      asideColHeight: '100%',
 
-      sideImageWidth:'100%',
-      sideImageHeight:'50%',
+      sideImageWidth: '100%',
+      sideImageHeight: '50%',
 
-      joystickWidth:'100%',
-      joystickHeight:'50%',
+      joystickWidth: '100%',
+      joystickHeight: '50%',
     };
   }
-  if(!divInfo.hasAside) {
-    divInfo.mainColWidth='100%';
+  if (!divInfo.hasAside) {
+    divInfo.mainColWidth = '100%';
   }
   callback(null, divInfo, renderJade);
 };
-
