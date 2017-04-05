@@ -16,3 +16,4 @@ env.config();
 const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL;
 
 let microscope = new Microscope(MQTT_BROKER_URL, UNIQUE_ID);
+microscope.connect();

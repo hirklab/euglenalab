@@ -15,14 +15,23 @@ import {
 class Microscope {
 	constructor(url, hid) {
 		this.url = url;
+		this.hid = hid;
 
 		this.state = {};
 		this.state.hid = hid;
+		this.state.status = STATES.CONNECTING;
 
 		this.board = new Board();
+	}
 
+	status() {
+		return this.state;
+	}
+
+	//===== MQTT SEND EVENTS =================
+	connect() {
 		let options = {
-			clientId: hid,
+			clientId: this.hid,
 			protocol: "mqtt",
 			protocolId: "MQTT",
 			protocolVersion: 4,
@@ -43,38 +52,62 @@ class Microscope {
 			},
 		};
 
-		this.client = mqtt.connect(url, options);
+		this.client = mqtt.connect(this.url, options);
 
 		this.client.on(EVENTS.CONNECT, (connack) => {
 			logger.info(`** connected ${this.url} **`);
-			this.state.connected = 1;
 
 			if (!connack.sessionPresent) {
 				this.client.subscribe(SUBSCRIPTIONS.INBOX, {
 					qos: QOS.ATMOST_ONCE
 				});
 
-
 				this.client.on(EVENTS.MESSAGE, this.handleMessage);
 				this.client.on(EVENTS.ERROR, this.handleError);
 			}
 
-			this.connect();
+			this.state.connected = 1;
+			this.state.status = STATES.IDLE;
+
+			// update manager
+			this.sendMessage(MESSAGE.CONNECTED, this.status());
 		});
 	}
 
-	// get connected() {
-	// 	return this.state.connected;
-	// }
+	//===== MQTT RESPOND EVENTS ==============
+	onConnected(payload) {
 
-	// set connected(value) {
-	// 	this.state.connected = value;
-	// }
-
-	connect() {
-		this.state.connected = 1;
-		this.sendMessage(MESSAGE.CONNECTED, this.state);
 	}
+
+	onStatus(payload) {
+		this.sendMessage(MESSAGE.CONNECTED, this.status());
+	}
+
+	onExperimentSet(payload) {
+
+	}
+
+	onExperimentRun(payload) {
+
+	}
+
+	onStimulus(payload) {
+
+	}
+
+	onExperimentClear(payload) {
+
+	}
+
+	onMaintenance(payload) {
+
+	}
+
+	onDisconnected(payload) {
+
+	}
+
+	//=========================================
 
 	handleMessage(topic, messageString) {
 		let message = JSON.parse(messageString);
@@ -83,6 +116,44 @@ class Microscope {
 
 		logger.debug(`>> ${topic}: ${type}`);
 		logger.debug(`${payload}`);
+
+		switch (type) {
+			case MESSAGE.CONNECTED:
+				this.onConnected(payload);
+				break;
+
+			case MESSAGE.STATUS:
+				this.onStatus(payload);
+				break;
+
+			case MESSAGE.EXPERIMENT_SET:
+				this.onExperimentSet(payload);
+				break;
+
+			case MESSAGE.EXPERIMENT_RUN:
+				this.onExperimentRun(payload);
+				break;
+
+			case MESSAGE.STIMULUS:
+				this.onStimulus(payload);
+				break;
+
+			case MESSAGE.EXPERIMENT_CLEAR:
+				this.onExperimentClear(payload);
+				break;
+
+			case MESSAGE.MAINTENANCE:
+				this.onMaintenance(payload);
+				break;
+
+			case MESSAGE.DISCONNECTED:
+				this.onDisconnected(payload);
+				break;
+
+			default:
+				logger.warn(`message type not handled`);
+				break;
+		}
 	}
 
 	handleError(err) {
@@ -99,18 +170,17 @@ class Microscope {
 		});
 	}
 
-	status() {
-		return this.state;
-	}
-
 	disconnect() {
 		this.state.connected = 0;
 		// this.client.sendMessage(MESSAGE.DISCONNECTED, this.state);
 		this.client.disconnect();
+
+		this.onDisconnected();
 	}
 
 	died() {
 		this.state.connected = 0;
+		this.onDisconnected();
 
 		let newMessage = {};
 		newMessage.type = MESSAGE.DISCONNECTED;

@@ -1,4 +1,4 @@
-import rpi from 'wiring-pi';
+import env from 'dotenv';
 import net from 'net';
 import logger from './logging';
 import {
@@ -6,6 +6,12 @@ import {
 	MODE,
 	IO
 } from './boardConfig';
+
+env.config();
+const MACHINE = process.env.MACHINE;
+
+const rpi = require(MACHINE == 'raspberrypi' ? 'wiring-pi' : './raspberrypi');
+
 
 class Device {
 	constructor(device) {
@@ -81,23 +87,29 @@ class Device {
 				this.value = value;
 				break;
 			case MODE.SOCKET:
-				(() => {
+				if (MACHINE == 'raspberrypi') {
+					let self = this;
 					let client = new net.Socket();
+
 					client.connect(this.pin, 'localhost', () => {
 						client.write(value);
-						this.value = value;
+						self.value = value;
 					});
+
 					client.on('error', (err) => {
-						logger.error(err);
+						logger.error(`${this.name}: ${err}`);
 					});
-				})();
+				} else {
+					rpi.socketWrite(this.pin, value);
+					this.value = value;
+				}
 				break;
 			default:
 				this.value = value;
 				break;
 		}
 
-		console.log(this.value);
+		console.log(`${this.name}: ${value}`);
 	}
 
 	getValue() {

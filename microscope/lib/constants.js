@@ -1,5 +1,13 @@
+import env from 'dotenv';
+env.config();
+
+const UNIQUE_ID = process.env.UNIQUE_ID || 'DEVICE_MISSING_UNIQUE_ID';
+
 const STATES = {
-	CONNECTED: 'connected',
+	CONNECTING: 'connecting',
+	IDLE: 'idle',
+	RUNNING: 'running',
+	MAINTENANCE: 'maintenance',
 	OFFLINE: 'offline',
 };
 
@@ -18,18 +26,22 @@ const EVENTS = {
 	MESSAGE: 'message',
 	PACKET_SEND: 'packetsend',
 	PACKET_RECEIVE: 'packetreceive'
-}
+};
 
 const MESSAGE = {
 	CONNECTED: 'connected',
+	STATUS: 'status',
+	EXPERIMENT_SET: 'experimentSet',
+	EXPERIMENT_RUN: 'experimentRun',
+	STIMULUS: 'stimulus',
+	EXPERIMENT_CLEAR: 'experimentClear',
+	MAINTENANCE: 'maintenance',
 	DISCONNECTED: 'disconnected',
-}
-
-const UNIQUE_ID = 'HASHED_RANDOM_HARDWARE_ID';
+};
 
 const PUBLICATIONS = {
 	'SENT': `microscopes/${UNIQUE_ID}/sent`
-}
+};
 
 const SUBSCRIPTIONS = {
 	'INBOX': `microscopes/${UNIQUE_ID}/inbox`,

@@ -1,5 +1,3 @@
-import rpi from 'wiring-pi';
-
 export const MODE = {
 	ANALOG: 0,
 	DIGITAL: 1,
@@ -9,11 +7,10 @@ export const MODE = {
 };
 
 export const IO = {
-	INPUT: rpi.INPUT,
-	OUTPUT: rpi.OUTPUT,
-	// todo 
-	// check what should be this value in rpi
-	BOTH: 2
+	INPUT: 0,
+	OUTPUT: 1,
+	PWM_OUTPUT: 2,
+	SOFT_PWM_OUTPUT: 4
 };
 
 export const TYPE = {
@@ -32,13 +29,13 @@ let BoardConfig = {
 	devices: [{
 		name: 'topLED',
 		pin: 24,
-		mode: MODE.SOFTPWM,
+		mode: MODE.DIGITAL,
 		type: TYPE.NUMERIC,
 		io: IO.OUTPUT,
 		options: {
 			min: 0,
-			max: 100,
-			default: 1
+			max: 1,
+			default: 100
 		}
 	}, {
 		name: 'rightLED',
@@ -49,7 +46,7 @@ let BoardConfig = {
 		options: {
 			min: 0,
 			max: 100,
-			default: 1
+			default: 100
 		}
 	}, {
 		name: 'bottomLED',
@@ -60,7 +57,7 @@ let BoardConfig = {
 		options: {
 			min: 0,
 			max: 100,
-			default: 1
+			default: 100
 		}
 	}, {
 		name: 'leftLED',
@@ -71,7 +68,7 @@ let BoardConfig = {
 		options: {
 			min: 0,
 			max: 100,
-			default: 1
+			default: 100
 		}
 	}, {
 		name: 'diffuser',
