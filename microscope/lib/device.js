@@ -60,10 +60,10 @@ class Device {
 
 		switch (this.type) {
 			case TYPE.STATE:
-				isValid = _.includes(_.values(this.states), value)
+				isValid = _.includes(_.values(this.states), value);
 				break;
 			case TYPE.NUMERIC:
-				isValid = (value >= min) && (value <= max);
+				isValid = (value >= this.min) && (value <= this.max);
 				break;
 			default:
 				isValid = true;

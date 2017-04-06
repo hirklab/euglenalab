@@ -29,12 +29,12 @@ let BoardConfig = {
 	devices: [{
 		name: 'topLED',
 		pin: 24,
-		mode: MODE.DIGITAL,
+		mode: MODE.SOFTPWM,
 		type: TYPE.NUMERIC,
 		io: IO.OUTPUT,
 		options: {
 			min: 0,
-			max: 1,
+			max: 100,
 			default: 0
 		}
 	}, {
