@@ -35,7 +35,7 @@ let BoardConfig = {
 		options: {
 			min: 0,
 			max: 1,
-			default: 100
+			default: 0
 		}
 	}, {
 		name: 'rightLED',
@@ -46,7 +46,7 @@ let BoardConfig = {
 		options: {
 			min: 0,
 			max: 100,
-			default: 100
+			default: 0
 		}
 	}, {
 		name: 'bottomLED',
@@ -57,7 +57,7 @@ let BoardConfig = {
 		options: {
 			min: 0,
 			max: 100,
-			default: 100
+			default: 0
 		}
 	}, {
 		name: 'leftLED',
@@ -68,18 +68,18 @@ let BoardConfig = {
 		options: {
 			min: 0,
 			max: 100,
-			default: 100
+			default: 0
 		}
 	}, {
 		name: 'diffuser',
 		pin: 10,
-		mode: MODE.SOFTPWM,
+		mode: MODE.DIGITAL,
 		type: TYPE.NUMERIC,
 		io: IO.OUTPUT,
 		options: {
 			min: 0,
-			max: 100,
-			default: 75
+			max: 1,
+			default: 1
 		}
 	}, {
 		name: 'valve',

@@ -23,8 +23,6 @@ class Device {
 		this.io = device.io;
 		this.type = device.type;
 		this.options = device.options;
-
-		this.configure();
 	}
 
 	configure() {

@@ -22,6 +22,7 @@ class Microscope {
 		this.state.status = STATES.CONNECTING;
 
 		this.board = new Board();
+		this.board.configure();
 	}
 
 	status() {
@@ -66,8 +67,7 @@ class Microscope {
 				this.client.on(EVENTS.ERROR, this.handleError);
 			}
 
-			this.state.connected = 1;
-			this.state.status = STATES.IDLE;
+			this.onConnected();
 
 			// update manager
 			this.sendMessage(MESSAGE.CONNECTED, this.status());
@@ -76,7 +76,13 @@ class Microscope {
 
 	//===== MQTT RESPOND EVENTS ==============
 	onConnected(payload) {
+		this.state.connected = 1;
 
+		// do not change state if it was not connecting already
+		// it might be some erroneous state that needs some cleanup before it is ready
+		if (this.state.status == STATES.CONNECTING) {
+			this.state.status = STATES.IDLE;
+		}
 	}
 
 	onStatus(payload) {
@@ -84,10 +90,16 @@ class Microscope {
 	}
 
 	onExperimentSet(payload) {
+		//reset board
+		this.board.configure();
 
 	}
 
 	onExperimentRun(payload) {
+		//reset board
+		this.board.configure();
+
+
 
 	}
 
@@ -96,7 +108,8 @@ class Microscope {
 	}
 
 	onExperimentClear(payload) {
-
+		//reset board
+		this.board.configure();
 	}
 
 	onMaintenance(payload) {

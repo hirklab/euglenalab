@@ -8,12 +8,12 @@ class Board {
 	constructor() {
 		this.state = {};
 		this.devices = {};
-		this.configure();
 	}
 
 	configure() {
 		_.each(BoardConfig.devices, (device) => {
 			this.devices[device.name] = new Device(device);
+			this.devices[device.name].configure();
 		});
 	}
 
