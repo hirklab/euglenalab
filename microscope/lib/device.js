@@ -23,22 +23,23 @@ class Device {
 		this.io = device.io;
 		this.type = device.type;
 		this.options = device.options;
+		this.value=null;
 	}
 
 	configure() {
-		switch (this.type) {
-			case TYPE.STATE:
-				this.states = this.options.states;
-				this.default = this.options.default;
-				break;
-			case TYPE.NUMERIC:
-				this.min = this.options.min;
-				this.max = this.options.max;
-				this.default = this.options.default;
-				break;
-			default:
-				this.default = null;
-		}
+		// switch (this.type) {
+		// 	case TYPE.STATE:
+		// 		this.states = this.options.states;
+		// 		this.default = this.options.default;
+		// 		break;
+		// 	case TYPE.NUMERIC:
+		// 		// this.min = this.options.min;
+		// 		// this.max = this.options.max;
+		// 		this.default = this.options.default;
+		// 		break;
+		// 	default:
+		// 		this.default = null;
+		// }
 
 		if (this.pin < 40) {
 			rpi.pinMode(this.pin, this.io);
@@ -46,13 +47,13 @@ class Device {
 
 		switch (this.mode) {
 			case MODE.SOFTPWM:
-				rpi.softPwmCreate(this.pin, this.min, this.max);
+				rpi.softPwmCreate(this.pin, this.options.min, this.options.max);
 				break;
 			default:
 				break;
 		}
 
-		this.setValue(this.default);
+		this.setValue(this.options.default);
 	}
 
 	isValid(value) {
@@ -60,10 +61,10 @@ class Device {
 
 		switch (this.type) {
 			case TYPE.STATE:
-				isValid = _.includes(_.values(this.states), value);
+				isValid = _.includes(_.values(this.options.states), value);
 				break;
 			case TYPE.NUMERIC:
-				isValid = (value >= this.min) && (value <= this.max);
+				isValid = (value >= this.options.min) && (value <= this.options.max);
 				break;
 			default:
 				isValid = true;
@@ -78,11 +79,13 @@ class Device {
 			case MODE.DIGITAL:
 				rpi.digitalWrite(this.pin, value);
 				this.value = value;
+                console.log(`${this.name}: ${value}`);
 				break;
 
 			case MODE.SOFTPWM:
 				rpi.softPwmWrite(this.pin, value);
 				this.value = value;
+                console.log(`${this.name}: ${value}`);
 				break;
 			case MODE.SOCKET:
 				if (MACHINE == 'raspberrypi') {
@@ -92,6 +95,7 @@ class Device {
 					client.connect(this.pin, 'localhost', () => {
 						client.write(value);
 						self.value = value;
+                        console.log(`${this.name}: ${value}`);
 					});
 
 					client.on('error', (err) => {
@@ -100,14 +104,14 @@ class Device {
 				} else {
 					rpi.socketWrite(this.pin, value);
 					this.value = value;
+                    console.log(`${this.name}: ${value}`);
 				}
 				break;
 			default:
 				this.value = value;
+                console.log(`${this.name}: ${value}`);
 				break;
 		}
-
-		console.log(`${this.name}: ${value}`);
 	}
 
 	getValue() {
