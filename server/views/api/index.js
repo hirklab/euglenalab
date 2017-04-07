@@ -17,13 +17,13 @@ exports.register = function (req, res) {
     workflow.on('validate', function () {
         if (!req.body.username) {
             workflow.outcome.errfor.username = 'required';
-        }else if (!/^[a-zA-Z0-9\-\_]+$/.test(req.body.username)) {
+        } else if (!/^[a-zA-Z0-9\-\_]+$/.test(req.body.username)) {
             workflow.outcome.errfor.username = 'only use letters, numbers, \'-\', \'_\'';
         }
 
         if (!req.body.email) {
             workflow.outcome.errfor.email = 'required';
-		} else if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(req.body.email)) {
+        } else if (!/^[a-zA-Z0-9\-\_\.\+]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z0-9\-\_]+$/.test(req.body.email)) {
             workflow.outcome.errfor.email = 'invalid email format';
         }
 
@@ -243,11 +243,11 @@ exports.login = function (req, res) {
             isVerified: false
         };
 
-		req.app.db.models.Session.findOneAndUpdate({
-			sessionID: req.sessionID
-		}, sessUpdate, {
-			new: true
-		}, function(err, doc) {
+        req.app.db.models.Session.findOneAndUpdate({
+            sessionID: req.sessionID
+        }, sessUpdate, {
+            new: true
+        }, function (err, doc) {
             if (err) {
                 workflow.outcome.errfor.session = err;
             } else if (doc === null || doc === undefined) {
@@ -1062,9 +1062,9 @@ exports.find = function (req, res) {
     var getBpus = function (callback) {
         var query = req.app.db.models.Bpu.find({
             isOn: true,
-			allowedGroups: {
-				$in: outcome.user.groups
-			},
+            allowedGroups: {
+                $in: outcome.user.groups
+            },
         });
         query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
         query.exec(function (err, docs) {
@@ -1181,9 +1181,11 @@ exports.find = function (req, res) {
         if (err) {
             return next(err);
         } else {
-			//console.log(outcome.data);
-			res.render('account/joinlabwithdata/index', {
-				data: outcome.data
+            //console.log(outcome.data);
+            res.render('account/joinlabwithdata/index', {
+                data: outcome.data
+            });
+        }
     });
 };
 
