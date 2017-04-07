@@ -292,6 +292,65 @@
                         obj.user.id = app.mainView.user.get('_id');
                         obj.user.name = app.mainView.user.get('username');
                         obj.user.groups = app.mainView.user.get('groups');
+    //General Functions
+    roundMsToMins:function(ms) {
+      return Math.floor(ms/60000);
+    },
+
+    roundMsToSeconds:function(ms) {
+      return Math.round(ms/1000);
+    },
+
+    //Experiment Info Object/hold loaded text files
+    userExpInfo:{
+      isSubmitting:false,
+      MaxTextFileLoad:10,
+      MaxTextTime:10*60*1000,
+      loadedTextRunTime:0,
+      loadedTextFiles:[],
+      queueTextRunTime:0,
+      queueTextFiles:0,
+    },
+
+    //Only Path to start join Queue Seq, called from one location in each, BpuImage, LiveJoin, TextSubmit
+    submitExperimentFromViews:function(type, wantsBpuName) {
+      //Disable UI
+      app.mainView.disableUI('app.mainView.submitExperimentFromViews');
+
+      console.log('1. submitExperimentFromViews', 'true?:'+app.userSocketClient.isInitialized, 'false?:'+app.mainView.userExpInfo.isSubmitting);
+
+      if(app.userSocketClient.isInitialized && !app.mainView.userExpInfo.isSubmitting) {
+        app.mainView.userExpInfo.isSubmitting=true;
+        var joinQueueDataObjects=[];
+        var isLive=false;
+        var doSend=false;
+        if(type==='live') {
+          isLive=true;
+          var joinQueueData=JSON.parse(JSON.stringify(app.mainView.joinQueueDataObj));
+          joinQueueData.group_experimentType='live';
+          joinQueueData.exp_metaData={};
+          joinQueueData.exp_metaData.tag='live';
+          joinQueueData.exp_metaData.description='no description set';
+          joinQueueData.exp_metaData.expTypeString='isLive';
+          //joinQueueData.exp_eventsToRun=fileObj.eventsToRun; fixed on server
+          joinQueueDataObjects.push(joinQueueData);
+          doSend=true;
+        } else if(type==='text') {
+          app.mainView.userExpInfo.loadedTextFiles.forEach(function(fileObj) {
+            var joinQueueData=JSON.parse(JSON.stringify(app.mainView.joinQueueDataObj));
+            joinQueueData.group_experimentType='text';
+            joinQueueData.exp_eventsToRun=fileObj.eventsToRun;
+            joinQueueData.exp_metaData=fileObj.metaData;
+            joinQueueDataObjects.push(joinQueueData);
+          });
+          if(joinQueueDataObjects.length>0) doSend=true;
+        }
+        if(doSend) {
+          //Add common data to all
+          joinQueueDataObjects.forEach(function(obj) {
+            obj.user.id=app.mainView.user.get('_id');
+            obj.user.name=app.mainView.user.get('username');
+            obj.user.groups=app.mainView.user.get('groups');
 
                         obj.session.id = app.mainView.session.get('id');
                         obj.session.sessionID = app.mainView.session.get('sessionID');

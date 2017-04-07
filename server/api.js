@@ -44,7 +44,7 @@ exports = module.exports = function (app, passport) {
     app.get('/api/groups/', passport.authenticate('jwt', {session: false}), ensureAdmin, require('./views/api/index').listGroups);
     app.get('/api/groups/:id', passport.authenticate('jwt', {session: false}), ensureAdmin, require('./views/api/index').detailGroups);
 
-    app.get('/api/bio-units/', passport.authenticate('jwt', {session: false}), ensureAdmin, require('./views/api/index').get_bio_units);
+    //app.get('/api/bio-units/', passport.authenticate('jwt', {session: false}), ensureAdmin, require('./views/api/index').get_bio_units);
     app.get('/api/bio-units/:id/', passport.authenticate('jwt', {session: false}), ensureAdmin, require('./views/api/index').bio_unit_detail);
     app.get('/api/bio-units/:id/health/', passport.authenticate('jwt', {session: false}), ensureAdmin, require('./views/api/index').bio_unit_health);
     app.get('/api/bio-units/:name/queue/', passport.authenticate('jwt', {session: false}), ensureAdmin, require('./views/api/index').bio_unit_queue);
@@ -60,10 +60,11 @@ exports = module.exports = function (app, passport) {
         require('./views/api/index').remove_note
     );
 
-
     app.get('/api/experiments/', passport.authenticate('jwt', {session: false}), require('./views/api/index').listExperiments);
     // app.post('/api/experiments/', passport.authenticate('jwt', {session: false}),
     // require('./views/api/index').create_experiment);
     app.get('/api/experiments/:id/status/', passport.authenticate('jwt', {session: false}), require('./views/api/index').get_experiment_status);
     app.get('/api/experiments/:id/', passport.authenticate('jwt', {session: false}), require('./views/api/index').get_experiment_detail);
+    app.get('/api/bio-units/', passport.authenticate('jwt', {session: false}), require('./views/api/index').get_bio_units);
+    // app.post('/api/experiment/', passport.authenticate('jwt', {session: false}), require('./views/api/index').create_experiment);
 };

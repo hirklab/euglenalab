@@ -24,7 +24,7 @@ cmake \
     -D WITH_OPENCL=OFF \
     -D WITH_CUDA=OFF \
     -D INSTALL_C_EXAMPLES=OFF \
-	  -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
     -D BUILD_SHARED_LIBS=ON \
     -D CMAKE_BUILD_TYPE=RELEASE ../euglenatracer/opencv/
 

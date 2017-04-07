@@ -92,27 +92,27 @@ exports.find = function(req, res, next) {
 
         //Make Jade Object for each bpu
         outcome.bpus.forEach(function(bpu) {
-          var bpuJadeObj = {};
-          bpuJadeObj.name = bpu.name;
-          bpuJadeObj.index = bpu.index;
+          var bpuJadeObj={};
+          bpuJadeObj.name=bpu.name;
+          bpuJadeObj.index=bpu.index;
 
-          bpuJadeObj.titleLabelJadeName = 'BpuTitleLabel' + bpu.index;
-          bpuJadeObj.titleLabel = bpu.name + ', User:None';
+          bpuJadeObj.titleLabelJadeName='BpuTitleLabel'+bpu.index;
+          bpuJadeObj.titleLabel=bpu.name+', User:None';
 
-          bpuJadeObj.userLabelJadeName = 'BpuUserLabel' + bpu.index;
-          bpuJadeObj.userLabel = 'Time Left:0 seconds';
+          bpuJadeObj.userLabelJadeName='BpuUserLabel'+bpu.index;
+          bpuJadeObj.userLabel='Time Left:0 seconds';
 
-          bpuJadeObj.statusLabelJadeName = 'BpuStatusLabel' + bpu.index;
-          bpuJadeObj.statusLabel = 'Status:' + 'Unknown';
+          bpuJadeObj.statusLabelJadeName='BpuStatusLabel'+bpu.index;
+          bpuJadeObj.statusLabel='Status:'+'Unknown';
 
-          bpuJadeObj.timeLabelJadeName = 'BpuTimeLabel' + bpu.index;
-          bpuJadeObj.timeLabel = 'Time:? sec';
+          bpuJadeObj.timeLabelJadeName='BpuTimeLabel'+bpu.index;
+          bpuJadeObj.timeLabel='Time:? sec';
 
-          bpuJadeObj.joinLiveJadeName = 'bpuJoinLiveButton' + bpu.index; //do not change used in client
+          bpuJadeObj.joinLiveJadeName='bpuJoinLiveButton'+bpu.index;   //do not change used in client
 
-          bpuJadeObj.submitTextJadeName = 'bpuSubmitTextButton' + bpu.index; //do not change used in client
+          bpuJadeObj.submitTextJadeName='bpuSubmitTextButton'+bpu.index;//do not change used in client
 
-          bpuJadeObj.imageSrc = bpu.getWebSnapShotUrl();
+          bpuJadeObj.imageSrc=bpu.getWebSnapShotUrl();
 
           outcome.bpuJadeObjects.push(bpuJadeObj);
         });
@@ -121,19 +121,19 @@ exports.find = function(req, res, next) {
     });
   };
 
-  outcome.bpuWithExp = null;
-  outcome.liveBpuExperiment = null;
-  var checkBpusAgainstLiveSessionExperiment = function(callback) {
-    for (var ind = 0; ind < outcome.bpus.length; ind++) {
-      var bpu = outcome.bpus[ind];
-      if (outcome.session.liveBpuExperiment && outcome.session.liveBpuExperiment.id && bpu.liveBpuExperiment && bpu.liveBpuExperiment.id) {
-        if (outcome.session.liveBpuExperiment.id === bpu.liveBpuExperiment.id) {
-          outcome.bpuWithExp = bpu;
+  outcome.bpuWithExp=null;
+  outcome.liveBpuExperiment=null;
+  var checkBpusAgainstLiveSessionExperiment=function(callback) {
+    for(var ind=0;ind<outcome.bpus.length;ind++) {
+      var bpu=outcome.bpus[ind];
+      if(outcome.session.liveBpuExperiment && outcome.session.liveBpuExperiment.id && bpu.liveBpuExperiment && bpu.liveBpuExperiment.id) {
+        if(outcome.session.liveBpuExperiment.id===bpu.liveBpuExperiment.id) {
+          outcome.bpuWithExp=bpu;
           break;
         }
       }
     }
-    if (outcome.bpuWithExp) {
+    if(outcome.bpuWithExp) {
       return callback('send to lab');
     } else {
       return callback(null);
@@ -158,7 +158,7 @@ exports.find = function(req, res, next) {
       sort: req.query.sort
     }, function(err, results) {
       if (err) {
-        return next(err);
+        return callback(err);
       }
       outcome.results = results;
       outcome.results.filters = req.query;
@@ -207,7 +207,7 @@ var _createXLSXFile = function(userExp, expId, trackIdStr, res, cb) {
   temp.mkdir('trackdata', function(err, path) {
     if (err) {
       console.log('Failed to create temporary mkdir');
-      return cb('Failed to ceate temporary mkdir');
+      return cb('Failed to create temporary mkdir');
     } else {
       var dest = path + '/' + expId + '_tracks.xlsx';
       var cmdStr = 'python ' + trackCGI + ' ' + userExp.proc_endPath + ' ' + dest + ' ' + '"' + trackIdStr + '"';
@@ -227,21 +227,20 @@ var _createXLSXFile = function(userExp, expId, trackIdStr, res, cb) {
   });
 };
 
-exports.downloadTrack = function(req, res, next) {
-
+exports.downloadTrack = function(req,res,next) {
   console.log('GET: ' + req);
 
   var expId = req.params.id;
   var trackId = req.params.trackId;
 
   req.app.db.models.BpuExperiment.findById(req.params.id, {}, function(err, userExp) {
-    if (err) {
-      return next('Find Experiment Error: ' + err);
-    } else if (userExp === null || userExp === undefined) {
-      return next('Find Experiment Error: ' + 'exp dne');
+    if(err) {
+      return next('Find Experiment Error: '+err);
+    } else if(userExp===null || userExp===undefined) {
+      return next('Find Experiment Error: '+'exp dne');
     } else {
       _createXLSXFile(userExp, expId, trackId, res, function(err) {
-        if (err) {
+        if(err) {
           //return next('downloadTrack failed: '+err);
           //return next(null);
           //res.redirect('/account/joinlabwithdata/'+ expId);
@@ -249,6 +248,34 @@ exports.downloadTrack = function(req, res, next) {
       });
     }
   });
+};
+
+exports.downloadFile = function (req, res, next) {
+    var send = function (dir, filename) {
+        if (dir && filename) {
+            res.download(dir, filename, function (err) {
+                if (err) {
+                    console.log('download error:' + err);
+                    //return next('Download Experiment res.download Error:'+err);
+                }
+            });
+        } else {
+            return next('download error:' + 'file does not exist');
+        }
+    };
+
+    req.app.db.models.BpuExperiment.findById(req.params.id, {}, function (err, userExp) {
+        if (err) {
+            return next('Find Experiment Error:' + err);
+        } else if (userExp === null || userExp === undefined) {
+            return next('Find Experiment Error:' + 'exp dne');
+        } else {
+            var destPath = __dirname.split('/server/')[0] + '/' + 'server/public/media/finalBpuDataLinks/finalBpuData';
+            var path = destPath + '/' +req.params.id + "/"+ req.params.filename;
+
+            send(path, req.params.filename);
+        }
+    });
 };
 
 exports.download = function(req, res, next) {
@@ -379,7 +406,6 @@ var _runRepackaging = function(userExp, callback) {
 };
 
 exports.read = function(req, res, next) {
-
   req.app.db.models.BpuExperiment.findById(req.params.id).populate('roles.admin', 'name.full').populate('roles.account', 'name.full').exec(function(err, userExp) {
     if (err) {
       return next(err);
@@ -397,8 +423,18 @@ exports.read = function(req, res, next) {
   });
 };
 
-exports.create = function(req, res, next) {
-  var workflow = req.app.utility.workflow(req, res);
+exports.status = function (req, res, next) {
+    req.app.db.models.BpuExperiment.findById(req.params.id).populate('roles.admin', 'name.full').populate('roles.account', 'name.full').exec(function (err, userExp) {
+        if (err) {
+            return next(err);
+        }
+
+        res.send(userExp);
+    });
+};
+
+exports.create = function (req, res, next) {
+    var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {
     if (!req.body.username) {
@@ -475,7 +511,7 @@ exports.update = function(req, res, next) {
   workflow.emit('patchBpuExperiment');
 };
 
-exports.delete = function(req, res, next) {
+exports.delete = function(req, res, next){
   var workflow = req.app.utility.workflow(req, res);
 
   workflow.on('validate', function() {

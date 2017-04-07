@@ -15,7 +15,7 @@ var app={
     loggerLevel:'INFO',
     //Mongo/Mongoose DB
     mongoUri:require('../shared/mainConfig.js').adminFlags.getMongoUri(), // production, dev, stage
-    socketClientServerIP:'localhost',
+    socketClientServerIP:'0.0.0.0',
     socketClientServerPort:require('../shared/mainConfig.js').adminFlags.getControllerPort(),
   },
   runParams:{
@@ -78,7 +78,7 @@ var app={
       Identifier:'C422691AA38F9A86EC02CB7B55D5F542',
       arePassKeysOpen:false,
       PassKeys:[
-        'i4bP9hXwNA3WuH0p6m0TCUIA9Wtz0Ydu',
+        'R-OpYLbT6Kk-GXyEmX1SOOOHDw157mJc'
       ],
       socketID:null,
       serverInfo:null,
@@ -133,14 +133,22 @@ var setupSocketClientServer=function(callback) {
   var server=require('http').createServer(function(req, res) {
     app.logger.warn(moduleName+' fn_serverHandler');
   });
+
   app.logger.debug('setupSocketClientServer@'+app.initParams.socketClientServerIP+':'+app.initParams.socketClientServerPort);
+
   console.log('setupSocketClientServer@'+app.initParams.socketClientServerIP+':'+app.initParams.socketClientServerPort);
+
   server.listen(app.initParams.socketClientServerPort, app.initParams.socketClientServerIP);
+
   app.socketClientIo=socketIo(server);
+
   app.socketClientIo.on('connection', function(socket) {
     app.logger.info('socketClientIo:'+'connection:'+'socketid:'+socket.id);
+
     console.log('socketClientIo:'+'connection:'+'socketid:'+socket.id);
+
     app.socketConnections.push(socket);
+
     socket.on('setConnection', function(serverInfo, cbfn_setConn) {
       _verifyServerSocketConnection(serverInfo, function(err) {
         if(err) {
