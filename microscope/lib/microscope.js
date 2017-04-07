@@ -1,8 +1,23 @@
+import env from 'dotenv';
 import mqtt from "mqtt";
 import _ from "lodash";
 import logger from "./logging";
 import Board from "./board";
-import {STATES, QOS, MESSAGE, EVENTS, PUBLICATIONS, SUBSCRIPTIONS} from "./constants";
+import {
+    STATES,
+    QOS,
+    MESSAGE,
+    EVENTS,
+    PUBLICATIONS,
+    SUBSCRIPTIONS,
+    EXPERIMENT,
+    EXPERIMENT_TYPE
+} from "./constants";
+
+
+env.config();
+
+const EXPERIMENT_EVENT_INTERVAL = parseInt(process.env.EXPERIMENT_EVENT_INTERVAL || 20);
 
 
 class Microscope {
@@ -28,6 +43,10 @@ class Microscope {
 
     isRunning() {
         return (this.state.status == STATES.RUNNING);
+    }
+
+    isQueued() {
+        return (this.state.status == STATES.QUEUED);
     }
 
     //===== MQTT SEND EVENTS =================
@@ -77,7 +96,7 @@ class Microscope {
 
     //===== MQTT RESPOND EVENTS ==============
     onConnected(payload) {
-        logger.info(`onConnected`);
+        logger.debug(`=== onConnected ===`);
         this.state.connected = 1;
 
         // do not change state if it was not connecting already
@@ -88,55 +107,144 @@ class Microscope {
     }
 
     onStatus(payload) {
-        logger.info(`onStatus`);
+        logger.debug(`=== onStatus ===`);
         this.sendMessage(MESSAGE.STATUS, this.status());
     }
 
     onExperimentSet(payload) {
-        logger.info(`onExperimentSet`);
+        logger.debug(`=== onExperimentSet ===`);
 
         if (this.isAvailable()) {
+            this.state.status = STATES.QUEUED;
+
             //reset board
             this.board.configure();
-        }
 
+            let experiment = payload.experiment;
+            // todo: create a folder to save 
+            //
+            // todo: get events to run
+            //
 
-    }
-
-    onExperimentRun(payload) {
-        logger.info(`onExperimentRun`);
-
-        if (this.isAvailable()) {
-            this.state.status = STATES.RUNNING;
-        }
-    }
-
-    onStimulus(payload) {
-        logger.info(`onStimulus`);
-
-        if (this.isRunning()) {
-            if ('devices' in payload) {
-                let devices = payload.devices;
-
-                _.each(devices, (device) => {
-                    this.board.setDevice(device.name, device.value);
-                });
-            }
+            this.state.experiment = experiment;
+            this.state.experiment.status = EXPERIMENT.QUEUED;
+            this.state.experiment.submittedAt = new Date();
         }
     }
 
-    onExperimentClear(payload) {
-        logger.info(`onExperimentClear`);
+    onExperimentCancel(payload) {
+        logger.debug(`=== onExperimentCancel ===`);
 
-        if (this.isRunning()) {
+        if (this.isQueued()) {
+            this.state.experiment.status = EXPERIMENT.CANCELLED;
+            this.state.experiment.cancelledAt = new Date();
+            // todo save this experiment
+
+
+            this.state.experiment = null;
+
+            // todo : other cleanup activities
+            // 
+            // 
+
             //reset board
             this.board.configure();
             this.state.status = STATES.IDLE;
         }
     }
 
+    onExperimentRun(payload) {
+        logger.debug(`=== onExperimentRun ===`);
+
+        if (this.isAvailable()) {
+            this.state.status = STATES.RUNNING;
+
+            // type of experiment
+            if (this.state.experiment.category == EXPERIMENT_TYPE.LIVE) {
+                this.state.allowStimulus = 1;
+            }
+
+            this.state.experiment.status = EXPERIMENT.RUNNING;
+            // todo save this experiment
+            // 
+            // batch: prepare events and execute
+            // 
+
+            // turn on the camera recorder
+            this.board.startRecording();
+
+            this.state.experiment.startedAt = new Date();
+
+            let startedAt = this.state.experiment.startedAt.getTime(); // duration in seconds
+            let shouldFinishAt = new Date(this.state.experiment.startedAt.getTime() + this.state.experiment.duration * 1000); // duration in seconds
+
+            var loop = setInterval(() => {
+                var timeNow = new Date();
+                var timeLeft = Math.abs(shouldFinishAt.getTime() - timeNow.getTime());
+
+                var event = this.state.experiment.proposedEvents.shift();
+                this.onExecuteEvent(event);
+
+                if (timeLeft <= 0) {
+                    clearInterval(loop);
+
+                    this.board.stopRecording();
+                }
+            }, EXPERIMENT_EVENT_INTERVAL);
+
+
+        }
+    }
+
+    onStimulus(payload) {
+        logger.debug(`=== onStimulus ===`);
+
+        if (this.isRunning()) {
+
+            if ('event' in payload) {
+                this.onExecuteEvent(payload.event);
+
+                // todo save this experiment
+            }
+        }
+    }
+
+    onExecuteEvent(event) {
+        let devices = event;
+        let currentTime = new Date();
+
+        _.each(devices, (device) => {
+            this.board.setDevice(device.name, device.value);
+        });
+
+        this.state.experiment.actualEvents.push({
+            time: currentTime,
+            event: event
+        });
+    }
+
+    onExperimentClear(payload) {
+        logger.debug(`=== onExperimentClear ===`);
+
+        if (this.isRunning()) {
+            this.state.experiment.status = EXPERIMENT.EXECUTED;
+            this.state.experiment.completedAt = new Date();
+            // todo save this experiment
+            // 
+
+            // todo : other cleanup activities
+
+            //reset board
+            this.board.configure();
+            this.state.experiment = null;
+            this.state.allowStimulus = 0;
+            this.state.status = STATES.IDLE;
+
+        }
+    }
+
     onMaintenance(payload) {
-        logger.info(`onMaintenance`);
+        logger.debug(`=== onMaintenance ===`);
 
         if (this.isAvailable()) {
             let duration = 1;
@@ -164,7 +272,7 @@ class Microscope {
     }
 
     onDisconnected(payload) {
-        logger.info(`onDisconnected`);
+        logger.debug(`=== onDisconnected ===`);
 
         //reset board
         this.board.configure();
@@ -193,6 +301,10 @@ class Microscope {
                 this.onExperimentSet(payload);
                 break;
 
+            case MESSAGE.EXPERIMENT_CANCEL:
+                this.onExperimentCancel(payload);
+                break;
+
             case MESSAGE.EXPERIMENT_RUN:
                 this.onExperimentRun(payload);
                 break;
@@ -214,7 +326,7 @@ class Microscope {
                 break;
 
             default:
-                logger.warn(`message type not handled`);
+                logger.warn(`invalid message: message type not handled`);
                 break;
         }
     }

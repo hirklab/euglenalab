@@ -6,6 +6,7 @@ const UNIQUE_ID = process.env.UNIQUE_ID || 'DEVICE_MISSING_UNIQUE_ID';
 const STATES = {
 	CONNECTING: 'connecting',
 	IDLE: 'idle',
+	QUEUED: 'queued',
 	RUNNING: 'running',
 	MAINTENANCE: 'maintenance',
 	OFFLINE: 'offline',
@@ -32,6 +33,7 @@ const MESSAGE = {
 	CONNECTED: 'connected',
 	STATUS: 'status',
 	EXPERIMENT_SET: 'experimentSet',
+	EXPERIMENT_CANCEL: 'experimentCancel',
 	EXPERIMENT_RUN: 'experimentRun',
 	STIMULUS: 'stimulus',
 	EXPERIMENT_CLEAR: 'experimentClear',
@@ -47,6 +49,19 @@ const SUBSCRIPTIONS = {
 	'INBOX': `microscopes/${UNIQUE_ID}/inbox`,
 };
 
+const EXPERIMENT = {
+	QUEUED: 'initializing', //when queued experiment is about to start
+	RUNNING: 'running', //when experiment is in progress
+	EXECUTED: 'executed', //when experiment has successfully captured stimulus for its duration
+	FAILED: 'failed', //when experiment fails in any of the above steps
+	CANCELLED: 'cancelled' //when experiment is explicitly stopped in the middle by the user
+}
+
+const EXPERIMENT_TYPE = {
+	LIVE: 'live',
+	BATCH: 'batch'
+}
+
 export {
 	STATES,
 	QOS,
@@ -54,5 +69,7 @@ export {
 	EVENTS,
 	PUBLICATIONS,
 	SUBSCRIPTIONS,
-	UNIQUE_ID
+	UNIQUE_ID,
+	EXPERIMENT,
+	EXPERIMENT_TYPE
 };

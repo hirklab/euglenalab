@@ -11,6 +11,11 @@ const ObjectId = mongoose.Schema.ObjectId;
 const ExperimentSchema = new mongoose.Schema({
   tag: String,
 
+  proposedMicroscope: {
+    type: ObjectId,
+    ref: 'Microscope'
+  },
+
   microscope: {
     type: ObjectId,
     ref: 'Microscope'
@@ -69,6 +74,11 @@ const ExperimentSchema = new mongoose.Schema({
     default: null
   },
 
+  cancelledAt: {
+    type: Date,
+    default: null
+  },
+
   processedAt: {
     type: Date,
     default: null
@@ -113,6 +123,9 @@ ExperimentSchema.index({
   user: 1
 });
 ExperimentSchema.index({
+  proposedMicroscope: 1
+});
+ExperimentSchema.index({
   microscope: 1
 });
 ExperimentSchema.plugin(plugins.timestamps, {
@@ -136,7 +149,7 @@ ExperimentSchema.method({});
 /**
  * Statics
  */
-ExperimentSchema.statics= Object.assign(ExperimentSchema.statics,{
+ExperimentSchema.statics = Object.assign(ExperimentSchema.statics, {
   getByBPU(bpuId, page = 1, limit = 25) {
     return this.paginate({
         bpuId: mongoose.Schema.ObjectId(bpuId)
