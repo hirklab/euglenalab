@@ -1,206 +1,259 @@
-import mqtt from 'mqtt';
-import logger from './logging';
-import Board from './board';
-import {
-	STATES,
-	QOS,
-	MESSAGE,
-	EVENTS,
-	PUBLICATIONS,
-	SUBSCRIPTIONS,
-	UNIQUE_ID
-} from './constants';
+import mqtt from "mqtt";
+import _ from "lodash";
+import logger from "./logging";
+import Board from "./board";
+import {STATES, QOS, MESSAGE, EVENTS, PUBLICATIONS, SUBSCRIPTIONS} from "./constants";
 
 
 class Microscope {
-	constructor(url, hid) {
-		this.url = url;
-		this.hid = hid;
+    constructor(url, hid) {
+        this.url = url;
+        this.hid = hid;
 
-		this.state = {};
-		this.state.hid = hid;
-		this.state.status = STATES.CONNECTING;
+        this.state = {};
+        this.state.hid = hid;
+        this.state.status = STATES.CONNECTING;
 
-		this.board = new Board();
-		this.board.configure();
-	}
+        this.board = new Board();
+        this.board.configure();
+    }
 
-	status() {
-		return this.state;
-	}
+    status() {
+        return this.state;
+    }
 
-	//===== MQTT SEND EVENTS =================
-	connect() {
-		let options = {
-			clientId: this.hid,
-			protocol: "mqtt",
-			protocolId: "MQTT",
-			protocolVersion: 4,
-			keepalive: 60,
-			clean: true,
-			reconnect: 10,
-			reconnectPeriod: 2000,
-			connectTimeout: 20000,
-			logger: 'all',
-			// key: fs.readFileSync("./keys/key.pem"),
-			// cert: fs.readFileSync("./keys/cert.pem"),
-			rejectUnauthorized: false,
-			will: {
-				topic: PUBLICATIONS.SENT,
-				payload: this.died(),
-				qos: QOS.ATLEAST_ONCE,
-				retain: false
-			},
-		};
+    isAvailable() {
+        return (this.state.status == STATES.IDLE);
+    }
 
-		this.client = mqtt.connect(this.url, options);
+    isRunning() {
+        return (this.state.status == STATES.RUNNING);
+    }
 
-		this.client.on(EVENTS.CONNECT, (connack) => {
-			logger.info(`** connected ${this.url} **`);
+    //===== MQTT SEND EVENTS =================
+    connect() {
+        let options = {
+            clientId: this.hid,
+            protocol: "mqtt",
+            protocolId: "MQTT",
+            protocolVersion: 4,
+            keepalive: 60,
+            clean: true,
+            reconnect: 10,
+            reconnectPeriod: 2000,
+            connectTimeout: 20000,
+            logger: 'all',
+            // key: fs.readFileSync("./keys/key.pem"),
+            // cert: fs.readFileSync("./keys/cert.pem"),
+            rejectUnauthorized: false,
+            will: {
+                topic: PUBLICATIONS.SENT,
+                payload: this.died(),
+                qos: QOS.ATLEAST_ONCE,
+                retain: false
+            },
+        };
 
-			if (!connack.sessionPresent) {
-				this.client.subscribe(SUBSCRIPTIONS.INBOX, {
-					qos: QOS.ATMOST_ONCE
-				});
+        this.client = mqtt.connect(this.url, options);
 
-				this.client.on(EVENTS.MESSAGE, this.handleMessage);
-				this.client.on(EVENTS.ERROR, this.handleError);
-			}
+        this.client.on(EVENTS.CONNECT, (connack) => {
+            logger.info(`** connected ${this.url} **`);
 
-			this.onConnected();
+            if (!connack.sessionPresent) {
+                this.client.subscribe(SUBSCRIPTIONS.INBOX, {
+                    qos: QOS.ATMOST_ONCE
+                });
 
-			// update manager
-			this.sendMessage(MESSAGE.CONNECTED, this.status());
-		});
-	}
+                this.client.on(EVENTS.MESSAGE, this.handleMessage);
+                this.client.on(EVENTS.ERROR, this.handleError);
+            }
 
-	//===== MQTT RESPOND EVENTS ==============
-	onConnected(payload) {
-		this.state.connected = 1;
+            this.onConnected();
 
-		// do not change state if it was not connecting already
-		// it might be some erroneous state that needs some cleanup before it is ready
-		if (this.state.status == STATES.CONNECTING) {
-			this.state.status = STATES.IDLE;
-		}
-	}
+            // update manager
+            this.sendMessage(MESSAGE.CONNECTED, this.status());
+        });
+    }
 
-	onStatus(payload) {
-		this.sendMessage(MESSAGE.CONNECTED, this.status());
-	}
+    //===== MQTT RESPOND EVENTS ==============
+    onConnected(payload) {
+        logger.info(`onConnected`);
+        this.state.connected = 1;
 
-	onExperimentSet(payload) {
-		//reset board
-		this.board.configure();
+        // do not change state if it was not connecting already
+        // it might be some erroneous state that needs some cleanup before it is ready
+        if (this.state.status == STATES.CONNECTING) {
+            this.state.status = STATES.IDLE;
+        }
+    }
 
-	}
+    onStatus(payload) {
+        logger.info(`onStatus`);
+        this.sendMessage(MESSAGE.STATUS, this.status());
+    }
 
-	onExperimentRun(payload) {
-		//reset board
-		this.board.configure();
+    onExperimentSet(payload) {
+        logger.info(`onExperimentSet`);
+
+        if (this.isAvailable()) {
+            //reset board
+            this.board.configure();
+        }
 
 
+    }
 
-	}
+    onExperimentRun(payload) {
+        logger.info(`onExperimentRun`);
 
-	onStimulus(payload) {
+        if (this.isAvailable()) {
+            this.state.status = STATES.RUNNING;
+        }
+    }
 
-	}
+    onStimulus(payload) {
+        logger.info(`onStimulus`);
 
-	onExperimentClear(payload) {
-		//reset board
-		this.board.configure();
-	}
+        if (this.isRunning()) {
+            if ('devices' in payload) {
+                let devices = payload.devices;
 
-	onMaintenance(payload) {
+                _.each(devices, (device) => {
+                    this.board.setDevice(device.name, device.value);
+                });
+            }
+        }
+    }
 
-	}
+    onExperimentClear(payload) {
+        logger.info(`onExperimentClear`);
 
-	onDisconnected(payload) {
+        if (this.isRunning()) {
+            //reset board
+            this.board.configure();
+            this.state.status = STATES.IDLE;
+        }
+    }
 
-	}
+    onMaintenance(payload) {
+        logger.info(`onMaintenance`);
 
-	//=========================================
+        if (this.isAvailable()) {
+            let duration = 1;
 
-	handleMessage(topic, messageString) {
-		let message = JSON.parse(messageString);
-		let type = message.type;
-		let payload = message.payload;
+            this.state.status = STATES.MAINTENANCE;
 
-		logger.debug(`>> ${topic}: ${type}`);
-		logger.debug(`${payload}`);
+            if ('devices' in payload) {
+                let devices = payload.devices;
 
-		switch (type) {
-			case MESSAGE.CONNECTED:
-				this.onConnected(payload);
-				break;
+                _.each(devices, (device) => {
+                    this.board.setDevice(device.name, device.value);
+                });
+            }
 
-			case MESSAGE.STATUS:
-				this.onStatus(payload);
-				break;
+            if ('flush' in payload) {
+                let flush = payload.flush;
+                this.board.flush(flush.duration);
+                duration = flush.duration;
+            }
 
-			case MESSAGE.EXPERIMENT_SET:
-				this.onExperimentSet(payload);
-				break;
+            setTimeout(() => {
+                this.state.status = STATES.IDLE;
+            }, duration);
+        }
+    }
 
-			case MESSAGE.EXPERIMENT_RUN:
-				this.onExperimentRun(payload);
-				break;
+    onDisconnected(payload) {
+        logger.info(`onDisconnected`);
 
-			case MESSAGE.STIMULUS:
-				this.onStimulus(payload);
-				break;
+        //reset board
+        this.board.configure();
+    }
 
-			case MESSAGE.EXPERIMENT_CLEAR:
-				this.onExperimentClear(payload);
-				break;
+    //=========================================
 
-			case MESSAGE.MAINTENANCE:
-				this.onMaintenance(payload);
-				break;
+    handleMessage(topic, messageString) {
+        let message = JSON.parse(messageString);
+        let type = message.type;
+        let payload = message.payload;
 
-			case MESSAGE.DISCONNECTED:
-				this.onDisconnected(payload);
-				break;
+        logger.debug(`[RX] ${topic}: ${type}`);
+        logger.debug(`${payload}`);
 
-			default:
-				logger.warn(`message type not handled`);
-				break;
-		}
-	}
+        switch (type) {
+            case MESSAGE.CONNECTED:
+                this.onConnected(payload);
+                break;
 
-	handleError(err) {
-		logger.error(`>> ${err}`)
-	}
+            case MESSAGE.STATUS:
+                this.onStatus(payload);
+                break;
 
-	sendMessage(type, message) {
-		let newMessage = {};
-		newMessage.type = type;
-		newMessage.payload = message;
+            case MESSAGE.EXPERIMENT_SET:
+                this.onExperimentSet(payload);
+                break;
 
-		this.client.publish(PUBLICATIONS.SENT, JSON.stringify(newMessage), {
-			qos: QOS.ATMOST_ONCE
-		});
-	}
+            case MESSAGE.EXPERIMENT_RUN:
+                this.onExperimentRun(payload);
+                break;
 
-	disconnect() {
-		this.state.connected = 0;
-		// this.client.sendMessage(MESSAGE.DISCONNECTED, this.state);
-		this.client.disconnect();
+            case MESSAGE.STIMULUS:
+                this.onStimulus(payload);
+                break;
 
-		this.onDisconnected();
-	}
+            case MESSAGE.EXPERIMENT_CLEAR:
+                this.onExperimentClear(payload);
+                break;
 
-	died() {
-		this.state.connected = 0;
-		this.onDisconnected();
+            case MESSAGE.MAINTENANCE:
+                this.onMaintenance(payload);
+                break;
 
-		let newMessage = {};
-		newMessage.type = MESSAGE.DISCONNECTED;
-		newMessage.payload = this.state;
+            case MESSAGE.DISCONNECTED:
+                this.onDisconnected(payload);
+                break;
 
-		return JSON.stringify(newMessage);
-	}
+            default:
+                logger.warn(`message type not handled`);
+                break;
+        }
+    }
+
+    handleError(err) {
+        logger.error(`[RX] ${err}`)
+    }
+
+    sendMessage(type, payload) {
+        let newMessage = {};
+        newMessage.type = type;
+        newMessage.payload = payload;
+
+        logger.debug(`[TX] ${PUBLICATIONS.SENT}: ${type}`);
+        logger.debug(payload);
+
+        this.client.publish(PUBLICATIONS.SENT, JSON.stringify(newMessage), {
+            qos: QOS.ATMOST_ONCE
+        });
+    }
+
+    disconnect() {
+        this.state.connected = 0;
+        // this.client.sendMessage(MESSAGE.DISCONNECTED, this.state);
+        this.client.disconnect();
+
+        this.onDisconnected();
+    }
+
+    died() {
+        this.state.connected = 0;
+        // this.onDisconnected();
+
+        let newMessage = {};
+        newMessage.type = MESSAGE.DISCONNECTED;
+        newMessage.payload = this.state;
+
+        return JSON.stringify(newMessage);
+    }
 }
 
 export default Microscope;

@@ -18,12 +18,13 @@ const EVENTS = {
 	MESSAGE: 'message',
 	PACKET_SEND: 'packetsend',
 	PACKET_RECEIVE: 'packetreceive'
-}
+};
 
 const MESSAGE = {
 	CONNECTED: 'connected',
+	STATUS: 'status',
 	DISCONNECTED: 'disconnected',
-}
+};
 
 const UNIQUE_ID = 'MANAGER';
 
@@ -31,7 +32,7 @@ const PUBLICATIONS = {
 	'BROADCAST': `manager/sent`,
 	'MICROSCOPE': `microscopes/__UNIQUE_ID__/inbox`,
 	'USER': `users/__USER_ID__/inbox`
-}
+};
 
 const SUBSCRIPTIONS = {
 	'MICROSCOPE': `microscopes/+/sent`,

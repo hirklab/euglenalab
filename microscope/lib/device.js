@@ -12,11 +12,10 @@ env.config();
 const MACHINE = process.env.MACHINE;
 
 const rpi = require(MACHINE == 'raspberrypi' ? 'wiring-pi' : './raspberrypi');
-
+logger.info(`mode: ${MACHINE}`);
 
 class Device {
 	constructor(device) {
-        logger.debug(`mode: ${MACHINE}`);
 		rpi.setup('sys');
 
 		this.name = device.name;
@@ -66,15 +65,15 @@ class Device {
 		switch (this.type) {
 			case TYPE.STATE:
 				isValid = _.includes(_.values(this.options.states), value);
-                logger.debug(`${_.values(this.options.states)} contains ${value} ? ${isValid}`);
+                // logger.debug(`${_.values(this.options.states)} contains ${value} ? ${isValid}`);
 				break;
 			case TYPE.NUMERIC:
 				isValid = (value >= this.options.min) && (value <= this.options.max);
-                logger.debug(`${this.options.min} <= ${value} <= ${this.options.max} ? ${isValid}`);
+                // logger.debug(`${this.options.min} <= ${value} <= ${this.options.max} ? ${isValid}`);
 				break;
 			default:
 				isValid = true;
-                logger.debug(`default ? ${isValid}`);
+                // logger.debug(`default ? ${isValid}`);
 				break;
 		}
 

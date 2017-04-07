@@ -65,8 +65,9 @@ class Manager {
 	}
 
 	connect() {
-		this.state.connected = 'true';
-		this.broadcast(MESSAGE.CONNECTED, this.state);
+		this.state.connected = 1;
+		// this.broadcast(MESSAGE.CONNECTED, this.state);
+		this.broadcast(MESSAGE.STATUS, this.state);
 	}
 
 	handleMessage(topic, messageString) {
@@ -74,42 +75,55 @@ class Manager {
 		let type = message.type;
 		let payload = message.payload;
 
-		logger.debug(`>> ${topic}: ${type}`);
+		logger.debug(`[RX] ${topic}: ${type}`);
 		logger.debug(payload);
 
 
 	}
 
 	handleError(err) {
-		logger.error(`>> ${err}`)
+		logger.error(`[RX] ${err}`)
 	}
 
-	broadcast(type, message) {
+	broadcast(type, payload) {
 		let newMessage = {};
 		newMessage.type = type;
-		newMessage.payload = message;
+		newMessage.payload = payload;
+
+        logger.debug(`[TX] ${PUBLICATIONS.BROADCAST}: ${type}`);
+        logger.debug(payload);
 
 		this.client.publish(PUBLICATIONS.BROADCAST, JSON.stringify(newMessage), {
 			qos: QOS.ATMOST_ONCE
 		});
 	}
 
-	sendMicroscope(type, microscopeId, message) {
+	sendMicroscope(type, microscopeId, payload) {
 		let newMessage = {};
 		newMessage.type = type;
-		newMessage.payload = message;
+		newMessage.payload = payload;
 
-		this.client.publish(PUBLICATIONS.MICROSCOPE, JSON.stringify(newMessage), {
+		let publication = PUBLICATIONS.MICROSCOPE.replace('__UNIQUE_ID__',microscopeId);
+
+        logger.debug(`[TX] ${publication}: ${type}`);
+        logger.debug(payload);
+
+		this.client.publish(publication, JSON.stringify(newMessage), {
 			qos: QOS.ATMOST_ONCE
 		});
 	}
 
-	sendUser(type, userId, message) {
+	sendUser(type, userId, payload) {
 		let newMessage = {};
 		newMessage.type = type;
-		newMessage.payload = message;
+		newMessage.payload = payload;
 
-		this.client.publish(PUBLICATIONS.USER, JSON.stringify(newMessage), {
+        let publication = PUBLICATIONS.USER.replace('__USER_ID__',userId);
+
+        logger.debug(`[TX] ${publication}: ${type}`);
+        logger.debug(payload);
+
+		this.client.publish(publication, JSON.stringify(newMessage), {
 			qos: QOS.ATMOST_ONCE
 		});
 	}
@@ -119,13 +133,13 @@ class Manager {
 	}
 
 	disconnect() {
-		this.state.connected = 'false';
+		this.state.connected = 0;
 		// this.client.sendMessage(MESSAGE.DISCONNECTED, this.state);
 		this.client.disconnect();
 	}
 
 	died() {
-		this.state.connected = 'false';
+		this.state.connected = 1;
 
 		let newMessage = {};
 		newMessage.type = MESSAGE.DISCONNECTED;

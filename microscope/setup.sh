@@ -12,6 +12,18 @@
 #$RANDOM - Returns a different random number each time is it referred to.
 #$LINENO - Returns the current line number in the Bash script.
 
+# Configure GPIO pins as per Wiring PI library
+# LEDs
+gpio write 5 1
+gpio write 6 1
+gpio write 9 1
+gpio write 10 1
+# Valve
+gpio write 11 0
+# Diffuser
+gpio write 12 1
+
+
 file_exists(){
     if [ -f $1 ]
     then

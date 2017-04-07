@@ -38,6 +38,26 @@ class Board {
 
 		return null;
 	}
+
+	startRecording(){
+        this.setDevice('camera','start');
+    }
+
+    stopRecording(){
+        this.setDevice('camera','stop');
+    }
+
+	flush(duration){
+        //sanity check
+        if(duration>20){
+            duration = 20;
+        }
+
+        this.setDevice('valve', 1);
+        setTimeout(()=>{
+            this.setDevice('valve', 0);
+        },duration);
+	}
 }
 
 export default Board;
