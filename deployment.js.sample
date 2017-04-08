@@ -6,6 +6,7 @@ module.exports = {
         db: 'master',
         webserver: {
             port:3000,
+            adminPort:3001,
             name: 'InternalWeb1',
             ident:'b3cagcde2684ebd2cba325555ec2703b',
             key:null,
@@ -19,6 +20,7 @@ module.exports = {
         db: 'stage',
         webserver: {
             port:4000,
+            adminPort:4001,
             name: 'InternalWeb1',
             ident:'b3cagcde2684ebd2cba325555ec2703b',
             key:null,
@@ -32,6 +34,7 @@ module.exports = {
         db: 'dev',
         webserver: {
             port:5000,
+            adminPort:5001,
             name: 'InternalWeb1',
             ident:'b3cagcde2684ebd2cba325555ec2703b',
             key:null,

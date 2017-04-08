@@ -44,6 +44,7 @@
     },
     close: function() {
       this.callback();
+
       this.unbind();
       this.$el.remove();
     },
@@ -176,7 +177,7 @@
       // console.log('show survey loop');
 
       app.surveyView = new app.SurveyView(app.mainView.bpuExp, function() {
-        // console.log('survey submitted');
+        console.log('survey submitted');
         location.href = '/account/';
       });
       app.surveyView.show();
@@ -274,13 +275,13 @@
       } else {
         if (isReal || app.mainView.wasTimeSetFromUpdate) {
           labelMsg += ' Lab Over.';
-          setTimeout(function() {
-            clearInterval(app.mainView.updateLoopInterval);
-            app.mainView.updateLoopInterval = null;
+          // setTimeout(function() {
+          //   clearInterval(app.mainView.updateLoopInterval);
+          //   app.mainView.updateLoopInterval = null;
 
-            clearTimeout(app.mainView.keyboardTimeout);
-            app.mainView.keyboardTimeout = null;
-          }, 1);
+          //   clearTimeout(app.mainView.keyboardTimeout);
+          //   app.mainView.keyboardTimeout = null;
+          // }, 1);
         } else if (app.mainView.wasTimeSetFromUpdate) {
           labelMsg += '0' + ' seconds.';
         } else {
@@ -306,16 +307,20 @@
         //Set time left in lab
         app.mainView.setTimeLeftInLabLabel(null, deltaFrame, false);
 
+        // console.log("timeInLab:" + app.mainView.timeInLab)
+        // console.log("timeForLab:" + app.mainView.timeForLab)
+
         //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
-        if (app.mainView.timeInLab >= (1.1 * app.mainView.timeForLab)) {
+        if (app.mainView.timeLeftInLab < 0) {
+          console.log('experiment over , kick user now');
+          app.mainView.kickUser(null, 'complete');
+
           clearInterval(app.mainView.updateLoopInterval);
           app.mainView.updateLoopInterval = null;
 
           clearTimeout(app.mainView.keyboardTimeout);
           app.mainView.keyboardTimeout = null;
-
-          app.mainView.kickUser(null, 'complete');
         } else {
           if (app.mainView.isSocketInitialized && !app.mainView.hadJoyActivity) {
             if (timerActivatedJoystick > 1000) {

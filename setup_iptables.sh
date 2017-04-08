@@ -18,6 +18,9 @@ sudo iptables -X; # delete all extra chains
 sudo iptables -t nat -A PREROUTING -p tcp --dport $WEB_PUBLIC_PORT -j REDIRECT --to-port $WEB_LOCAL_PORT
 sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport $WEB_PUBLIC_PORT -j REDIRECT --to-ports $WEB_LOCAL_PORT
 
+sudo iptables -t nat -A PREROUTING -p tcp --dport $ADMIN_PUBLIC_PORT -j REDIRECT --to-port $ADMIN_LOCAL_PORT
+sudo iptables -t nat -I OUTPUT -p tcp -o lo --dport $ADMIN_PUBLIC_PORT -j REDIRECT --to-ports $ADMIN_LOCAL_PORT
+
 sudo iptables -t nat -A PREROUTING -p tcp --dport $CONTROLLER_PUBLIC_PORT -j DNAT --to $WEB_LOCAL_IP:$CONTROLLER_LOCAL_PORT
 sudo iptables -A FORWARD -d $WEB_LOCAL_IP -p tcp --dport $CONTROLLER_LOCAL_PORT -j ACCEPT
 
@@ -46,6 +49,7 @@ done
 # So that Public IP addresses works internally too
 sudo iptables -t nat -I OUTPUT -p tcp -d $WEB_PUBLIC_IP -j DNAT --to $WEB_LOCAL_IP
 sudo iptables -t nat -I OUTPUT -p tcp --dport $WEB_PUBLIC_PORT -d $WEB_PUBLIC_IP -j DNAT --to $WEB_LOCAL_IP:$WEB_LOCAL_PORT
+sudo iptables -t nat -I OUTPUT -p tcp --dport $ADMIN_PUBLIC_PORT -d $WEB_PUBLIC_IP -j DNAT --to $WEB_LOCAL_IP:$ADMIN_LOCAL_PORT
 sudo iptables -t nat -I OUTPUT -p tcp --dport $CONTROLLER_PUBLIC_PORT -d $WEB_PUBLIC_IP -j DNAT --to $WEB_LOCAL_IP:$CONTROLLER_LOCAL_PORT
 
 for bpu in $BPU_LIST

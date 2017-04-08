@@ -6,7 +6,7 @@
     angular
         .module('BlurAdmin.pages.services', [])
         .factory('socket', function ($rootScope, $location) {
-            var socket = io.connect('localhost:5200');
+            var socket = io.connect('localhost:'+($location.$$port+200-1)); // controller is on Webserver + 200
 
             return {
                 on: function (eventName, callback) {

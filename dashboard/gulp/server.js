@@ -11,8 +11,9 @@ var util = require('util');
 
 var proxyMiddleware = require('http-proxy-middleware');
 
-var webserverPort = deployment[deployment.mode].webserver.port;
-var adminPort = deployment[deployment.mode].webserver.adminPort;
+var webserverIp = deployment[deployment.mode].publicIP;
+var webserverPort = parseInt(deployment[deployment.mode].webserver.port);
+var adminPort = parseInt(deployment[deployment.mode].webserver.adminPort);
 
 function browserSyncInit(baseDir, browser) {
     browser = browser === undefined ? 'default' : browser;
@@ -36,13 +37,14 @@ function browserSyncInit(baseDir, browser) {
      *
      * For more details and option, https://github.com/chimurai/http-proxy-middleware/blob/v0.9.0/README.md
      */
-    server.middleware = proxyMiddleware('/api', {target: 'http://localhost:' + webserverPort, changeOrigin: true});
+    server.middleware = proxyMiddleware('/api', {target: 'http://'+webserverIp+':' + webserverPort, changeOrigin: true});
 
     browserSync.instance = browserSync.init({
         startPath: '/',
         server: server,
         browser: browser,
         ghostMode: false,
+        host:webserverIp,
         port: adminPort
     });
 }

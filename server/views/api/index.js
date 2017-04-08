@@ -522,7 +522,7 @@ exports.get_bio_units = function (req, res) {
                 if (result.currentStatus === null || result.currentStatus === undefined) {
 
                     newResult.id = result._id;
-                    newResult.name = 'unknown';
+                    newResult.name = result.name;
                     newResult.index = result.index;
                     newResult.magnification = result.magnification;
                     newResult.isOn = result.isOn;
