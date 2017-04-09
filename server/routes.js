@@ -68,6 +68,7 @@ exports = module.exports = function (app, passport) {
 
     app.get('/', accountOrFront);
     app.get('/about/', require('./views/about/index').init);
+    app.get('/help/', require('./views/help/index').init);
     app.get('/contact/', require('./views/contact/index').init);
     app.post('/contact/', require('./views/contact/index').sendMessage);
 

@@ -1,0 +1,110 @@
+extends ../../layouts/default
+
+block head
+  title Help
+
+block neck
+  link(rel='stylesheet', href='/views/help/index.min.css?#{cacheBreaker}')
+
+block body
+  div.row
+    div.col-sm-3
+    div.col-sm-6
+      div.page-header
+        h1 Interactive Online Biology: Euglena Cloud Labs
+      p.
+        The purpose of this cloud lab is to investigate the phototactic behavior of Euglena Gracilis remotely over the Internet without having to come to a wetlab.
+
+      h3 Quick Overview
+
+      ol
+        li Create a user account and login.
+        li Run a live experimentation session by either pressing “Live Join Next Available BPU” button or “Join Live” button on top of each BPU. (DO NOT check the option “Prevent this page from creating additional dialog” on the popup dialog).
+        li In the Live Mode (#[a(href="#fig3") Figure 3]), play around with the joystick and observe Euglena response.
+        li You can download your experimental data from the front page (Figure 5). You might have to wait for little bit and refresh your front page.
+        li You can also upload a text file to run a pre-programmed experiment (#[a(href="#fig6a") Figure 6]). Please use #[a(href="https://goo.gl/iwg90W") the template]. Time is in milliseconds. Export/Save this file in CSV format before uploading (Please choose “Windows Command Separated CSV” if using Microsoft Excel).
+
+      h3 Live Experimentation
+
+      p.body-para.
+        Visit #[a(href="http://euglena.stanford.edu/") euglena.stanford.edu], create a user account and login. The first thing you will see is a dashboard with a list of available Biotic Processing Units (BPUs) that host cultures of Euglena in microfluidic chambers (#[a(href="#fig1") Figure 1]). We have two different types of microscope magnification that look into these chambers, 10x (“larger euglena”) and 4x (“smaller euglena”).
+
+      img(src='/media/help_figures/fig1.png'  width='100%').help-figure#fig1
+      b
+        center.
+          Figure 1: Euglena cloud lab dashboard
+        
+      p.body-para.
+        Lets click on the “Live Join Next Available BPU” button, which will pop up a confirmation dialog (see #[a(href="#fig2") Figure 2]) once a BPU is available. Please do not check the option “Prevent this page from creating additional dialog,” or else you will not be able to join live experimentation system in the future. Note that the popup may take up to ~5-6 seconds to appear even when the system says the wait time is 0, otherwise it will appear when a BPU is available (keep an eye on the wait time right below the button).
+
+      img(src='/media/help_figures/fig2.png'  width='100%').help-figure#fig2
+      br
+      br
+      b
+        center.
+          Figure 2: Joining live
+
+      p.body-para.
+        All wait times shown on the website are best estimates and may not be extremely accurate. After clicking “Ok” on the confirmation dialog, the website will take you to a Live Experimentation session like #[a(href="#fig3") Figure 3]:
+
+      img(src='/media/help_figures/fig3.png'  width='100%').help-figure#fig3
+      b
+        center.
+          Figure 3: User interface for a live experimental session. The schematics on the left shows the arrangement of the LEDs around a microfluidic device that hosts the Euglena culture
+
+      p.body-para.
+        The main display is a microscope view of the microfluidic device, which has four LEDs as shown in the schematics of #[a(href="#fig3") Figure 3]. You can use the joystick interface to shine a combination of these LEDs, which is indicated by the yellow bars (with intensity value, in percentage, written on them) along the side of the main display. The smaller display on the bottom right corner is just a peek into our real hardware in action. Perhaps you can watch the real LEDs go off in real-time as you move your joystick (BPU “eug3” is the one closest to this web-cam  - so if you choose that one you should see it), but a more interesting thing to watch would be how the Euglenas react to your joystick. A single live experimental session will last for 1 minute and you can run as many experiment sessions as you want.
+
+      p.body-para.
+        You can also run live experiments on a specific BPU of your choice by clicking the “Join Live” button found above every BPU as shown in #[a(href="#fig4") Figure 4]. However, if everybody wants to use that specific BPU at the same time then there will be a long wait time!
+
+      center
+        img(src='/media/help_figures/fig4.png'  width='50%').help-figure#fig4
+        br
+        b.
+          Figure 4: Click “Join Live” to access a specific BPU directly
+
+      h3 Data Download
+
+      p.body-para.
+        All experimental data can be downloaded as a compressed file (tar.gz format) from the frontpage (see #[a(href="#fig5") Figure 5]). They are sorted so that the latest one is at the very top. If you are using windows you may have to download some tool that can uncompress tar.gz (e.g, #[a(href="http://www.7-zip.org/") 7-Zip] is a free option). The data basically comes with a movie file named “movie.mp4” with the corresponding light and timing information in a lightdata.json file (JSON format).
+
+      p.body-para.
+        Once the experiment is done the data will appear on the front page as discussed above. Depending on the load on our system, it may take some time before your data is ready and you may need to refresh your front page to see the new data. 
+
+      img(src='/media/help_figures/fig5.png'  width='100%').help-figure#fig5
+      b
+        center.
+          Figure 5: Data download section. You may have to wait ~ 1 minute until a finished experiment shows up there – refresh your browser to see it.
+
+
+      h3 Text-Based Experimentation
+
+      p.body-para.
+        You can also program light values using #[a(href="https://goo.gl/iwg90W") a simple CSV file] (#[a(href="#fig6c") Figure 6] that can be generated in Google Spreadsheets, copy and modify this file into your own google xls and save as CSV. (You can also use MS Excel etc, but please use the “Windows Comma Separated CSV” opposed to other CSV options). The time column is in milliseconds. Each row specifies the light intensities (0-100) at the given time. This illumination will be held until the next command or the end of the experiment. There is no fixed duration for an experiment in this mode and it will only run until the last row! The items in “Red” must be present and make sure there is no extraneous spaces.
+
+      p.body-para.
+        For example, in #[a(href="#fig6c") Figure 6A], all the lights will be turned off at time 0 (the first thing in the experiment) until the 30th second when the top LED will be turned on with full brightness (100) and held until the 70th second, at which point the right LED is turned on to its full brightness. However, the command at the 70th second is the last one in the program, so the experiment will end immediately and all LEDs will be turned off. So, if you want to hold this light you will need to add a dummy row with all zeros at a appropriate time as the last command. You can utilize the “tag” row (#[a(href="#fig6c") Figure 6]) as an identifier which will appear in the “tag” column on the front page (#[a(href="#fig5") Figure 5]) for easy navigation.
+
+      p.body-para.
+        Browse and upload this cvs files to our system (see #[a(href="#fig6b") Figures 6B and 6C] on how to upload; you can choose multiple files at once – but we suggest you only submit one at a time) by clicking on the button “Choose file” as shown in #[a(href="#fig1") Figure 1] and then press “Submit text to the next Available BPU” button. The system will route your experiments to BPUs with the least wait time. However, like the Live experimentation mode, if you like to run your experiments on a specific BPU, press the  “Submit Text” button on top of the desired BPU (see #[a(href="#fig6c") Figure 6C]). Note, this may not be optimal in terms of wait time though.
+
+      img(src='/media/help_figures/fig6a.png'  width='100%').help-figure#fig6a
+      b
+        center.
+          Figure 6A
+
+      img(src='/media/help_figures/fig6b.png'  width='100%').help-figure#fig6b
+      b
+        center.
+          Figure 6B
+
+      center
+        img(src='/media/help_figures/fig6c.png'  width='50%').help-figure#fig6c
+        br
+        b.
+          Figure 6C
+
+
+    div.col-sm-3
+
