@@ -133,7 +133,7 @@
 
         vm.initializeSocket = function (bpuName, callback) {
             socket.on('connect', function () {
-                console.log('connecting...');
+                // console.log('connecting...');
                 var connectionInfo = {
                     bpuName: bpuName,
                     socketID: socket.id

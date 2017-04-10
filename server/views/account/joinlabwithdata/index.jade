@@ -29,9 +29,9 @@ block body
       //h8#headerLabel(name='headerLabel', style='text-align:center;') Waiting for BPU update.
 
       div.row
-        div.col-sm-6.col-xs-12
+        div.col-md-6.col-sm-12.col-xs-12
           div#joinlive
-        div.col-sm-6.col-xs-12
+        div.col-md-6.col-sm-12.col-xs-12
           div#textsubmit
       div#bpuimage
       //div#filters
@@ -68,20 +68,20 @@ block body
       //      |Note: You can only run one live experiment at a time
     div.row
       - for(var j=0;j<data.eugs.length;j++)
-        div.col-sm-3(style='height:320px;border-radius:5px')
+        div.col-md-3.col-sm-6.col-cs-12(style='min-height:320px;border-radius:5px')
           div.row(style='margin-bottom:5px;')
-            div.col-sm-6
+            div.col-xs-6
               button.btn.btn-primary.btn-joinLiveBpu.bpuButton.pull-left(type='button', name=data.eugs[j].joinLiveJadeName, value=data.eugs[j].index, disabled) Live
-            div.col-sm-6
+            div.col-xs-6
               button.btn.btn-primary.btn-submitTextBpu.bpuButton.pull-right(type='button', name=data.eugs[j].submitTextJadeName, value=data.eugs[j].index, disabled) Batch
           div.row
-            div.col-sm-12
+            div.col-xs-12
               div(style='background-color:#acd0ef; height:75px;padding:5px')
                 label.bpuLabel(name=data.eugs[j].titleLabelJadeName) #{data.eugs[j].titleLabel}
                 label.bpuLabelSM(name=data.eugs[j].userLabelJadeName) #{data.eugs[j].userLabel}
                 label.bpuLabelSM(name=data.eugs[j].statusLabelJadeName) #{data.eugs[j].statusLabel}
           div.row
-            div.col-sm-12
+            div.col-xs-12
               img.myImage(name='myImageLive', style='margin-bottom:1%; width:100%; height:55%;', src=data.eugs[j].imageSrc)
 
 
