@@ -114,6 +114,19 @@ exports.find = function(req, res, next) {
 
           bpuJadeObj.imageSrc=bpu.getWebSnapShotUrl();
 
+          // Determine the BPU 5-star score based on activity, response, and population.
+          var activity = JSON.parse(JSON.stringify(bpu.performanceScores)).activity;
+          var activityScore = activity > 50 && activity < 150 ? 5 : 0;
+          var response = JSON.parse(JSON.stringify(bpu.performanceScores)).response;
+          var responseScore = 5*(response / 4);
+          var population = JSON.parse(JSON.stringify(bpu.performanceScores)).population;
+          var populationScore = population > 10 && population < 100 ? 5*((population-10)/90) : 0;
+          bpuJadeObj.performanceScore = (responseScore + activityScore + populationScore ) / 3;
+          bpuJadeObj.performanceScoreLabel = 'Rating (out of 5): ' + bpuJadeObj.performanceScore;
+          bpuJadeObj.performanceScoreLabel = bpuJadeObj.performanceScoreLabel.substring(0, 24);
+
+          //console.log("Perforamance score: " + bpuJadeObj.performanceScore);
+
           outcome.bpuJadeObjects.push(bpuJadeObj);
         });
         return callback(null);
