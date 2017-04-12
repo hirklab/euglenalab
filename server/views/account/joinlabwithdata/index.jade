@@ -76,16 +76,17 @@ block body
               button.btn.btn-primary.btn-submitTextBpu.bpuButton.pull-right(type='button', name=data.eugs[j].submitTextJadeName, value=data.eugs[j].index, disabled) Batch
           div.row
             div.col-xs-12
-              div(style='background-color:#acd0ef; height:120px;padding:5px')
+              div(style='background-color:#acd0ef; height:100px;padding:5px')
                 label.bpuLabel(name=data.eugs[j].titleLabelJadeName) #{data.eugs[j].titleLabel}
                 label.bpuLabelSM(name=data.eugs[j].userLabelJadeName) #{data.eugs[j].userLabel}
                 label.bpuLabelSM(name=data.eugs[j].statusLabelJadeName) #{data.eugs[j].statusLabel}
                 label.bpuLabelSM(name=data.eugs[j].performanceScoreLabel) #{data.eugs[j].performanceScoreLabel}
                 center
                   b.
-                    Quality (out of 5):
-                  - for(var k=0;k<Math.ceil(data.eugs[j].performanceScore);k++)
-                    img(src='/media/star.png', width='20', height='20')
+                    Quality: 
+                  //- - for(var k=0;k<Math.ceil(data.eugs[j].performanceScore);k++)
+                  //-   img(src='/media/star.png', width='20', height='20')
+                  input.rating(type="hidden", value="#{Math.ceil(data.eugs[j].performanceScore)}", disabled)
           div.row
             div.col-xs-12
               img.myImage(name='myImageLive', style='margin-bottom:1%; width:100%; height:55%;', src=data.eugs[j].imageSrc)

@@ -109,11 +109,11 @@
             }
             this.$el.html(this.template(this.model.attributes));
 
-            this.$('input.rating').rating({
-                filled: 'fa fa-star',
-                filledSelected: 'fa fa-star',
-                empty: 'fa fa-star-o'
-            });
+            // this.$('input.rating').rating({
+            //     filled: 'fa fa-star',
+            //     filledSelected: 'fa fa-star',
+            //     empty: 'fa fa-star-o'
+            // });
 
             return this;
         }
@@ -543,6 +543,9 @@
                     app.mainView.setHeaderLabel('Connected. Wait for microscope Update.');
                 }
             });
+
+            
+
         },
     });
     //Start

@@ -148,7 +148,7 @@ module.exports = function (grunt) {
                         'public/vendor/bootstrap-rating/bootstrap-rating.min.js',
                         'public/vendor/momentjs/moment.js',
                         'public/layouts/core.js',
-                        'public/layouts/rating.js',
+                        // 'public/layouts/rating.js',
                     ],
                     'public/layouts/ie-sucks.min.js': [
                         'public/vendor/html5shiv/html5shiv.js',
