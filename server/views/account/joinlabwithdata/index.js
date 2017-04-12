@@ -117,14 +117,20 @@ exports.find = function(req, res, next) {
           // Determine the BPU 5-star score based on activity, response, and population.
           var performanceScores = JSON.parse(JSON.stringify(bpu.performanceScores));
           var activity = performanceScores.activity;
-          var activityScore = activity > 50 && activity < 150 ? 5 : 0;
+          var activityScore = activity > 50 && activity < 500 ? 5 : 0;
           var response = performanceScores.response;
           var responseScore = 5*(response / 4);
           var population = performanceScores.population;
           var magnification = bpu.magnification;
-          var populationScore = population / magnification > 5 && population / magnification < 17 ? 5 : 0;
+          var populationScore = 1.0*population / magnification > 3 && 1.0*population / magnification < 45 ? 5 : 0;
           bpuJadeObj.performanceScore = (5*responseScore + 2*activityScore + 3*populationScore ) / 10;
 
+          // console.log("Activity: " + activity);
+          // console.log("Response: " + response);
+          // console.log("Population: " + population);
+          // console.log("Activity s: " + activityScore);
+          // console.log("Response s: " + responseScore);
+          // console.log("Population s: " + populationScore);
           //console.log("Perforamance score: " + bpuJadeObj.performanceScore);
 
           outcome.bpuJadeObjects.push(bpuJadeObj);
