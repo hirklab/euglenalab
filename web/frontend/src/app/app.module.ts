@@ -17,10 +17,11 @@ import {NgaModule} from "./theme/nga.module";
 import {PagesModule} from "./pages/pages.module";
 import {AuthGuard} from "./authGuard";
 import {HttpClient} from './httpClient';
+import { LocalStorageModule } from 'angular-2-local-storage';
+import { LocalStorageService } from 'angular-2-local-storage';
 
-
-function httpClientFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions): Http {
-  return new HttpClient(xhrBackend, requestOptions);
+function httpClientFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions, localStorage: LocalStorageService): Http {
+  return new HttpClient(xhrBackend, requestOptions, localStorage);
 }
 
 // Application wide providers
@@ -51,12 +52,16 @@ export type StoreType = {
     ReactiveFormsModule,
     NgaModule.forRoot(),
     PagesModule,
+    LocalStorageModule.withConfig({
+      prefix: 'app',
+      storageType: 'localStorage'
+    }),
     routing
   ],
   providers: [ // expose our Services and Providers into Angular's dependency injection
     ENV_PROVIDERS,
     APP_PROVIDERS,
-    { provide: HttpClient, useFactory: httpClientFactory, deps: [XHRBackend, RequestOptions]},
+    { provide: HttpClient, useFactory: httpClientFactory, deps: [XHRBackend, RequestOptions, LocalStorageService]},
     AuthGuard,
   ]
 })

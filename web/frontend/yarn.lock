@@ -236,6 +236,10 @@ amdefine@>=0.0.4:
   version "3.20.20"
   resolved "https://codeload.github.com/amcharts/ammap3/tar.gz/b54ccca7836bf8fccf7664e741787acabb490764"
 
+angular-2-local-storage@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/angular-2-local-storage/-/angular-2-local-storage-1.0.1.tgz#3b846c90b2fffc9124f7bacc347f22d043a1e3a4"
+
 angular2-template-loader@0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/angular2-template-loader/-/angular2-template-loader-0.6.0.tgz#8a7fae4cf5a2494968da512aa43152a82a0c99b6"

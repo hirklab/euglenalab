@@ -80,12 +80,22 @@ GroupSchema.plugin(plugins.rest, {});
 /**
  * Methods
  */
-GroupSchema.method({});
+GroupSchema.method({
+
+  toJSON() {
+    var obj = this.toObject();
+    delete obj.search;
+    delete obj.createdAt;
+    delete obj.modifiedAt;
+    return obj;
+  }
+
+});
 
 /**
  * Statics
  */
-GroupSchema.statics = Object.assign(GroupSchema.statics,{
+GroupSchema.statics = Object.assign(GroupSchema.statics, {
 
   getByName(name) {
     return this.findOne({

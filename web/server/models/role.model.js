@@ -73,12 +73,20 @@ RoleSchema
 /**
  * Methods
  */
-RoleSchema.method({});
+RoleSchema.method({
+  toJSON() {
+    var obj = this.toObject();
+    delete obj.search;
+    delete obj.createdAt;
+    delete obj.modifiedAt;
+    return obj;
+  }
+});
 
 /**
  * Statics
  */
-RoleSchema.statics = Object.assign(RoleSchema.statics,{
+RoleSchema.statics = Object.assign(RoleSchema.statics, {
 
   getByName(name) {
     return this.findOne({

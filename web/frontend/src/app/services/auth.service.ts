@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Http, Headers} from '@angular/http';
 
 import { Cookie } from 'ng2-cookies/ng2-cookies';
+import { LocalStorageService } from 'angular-2-local-storage';
 
 import {BaThemeConfigProvider} from '../theme';
 
@@ -9,7 +10,7 @@ import {BaThemeConfigProvider} from '../theme';
 @Injectable()
 export class AuthService {
 
-  constructor(private _baConfig: BaThemeConfigProvider, private http: Http) {
+  constructor(private _baConfig: BaThemeConfigProvider, private http: Http, private localStorage: LocalStorageService) {
   }
 
   public register(account) {
@@ -25,32 +26,32 @@ export class AuthService {
   }
 
   public authenticate(response){
-      Cookie.set('token',response.token);
-      Cookie.set('user',JSON.stringify(response.user));
+    this.localStorage.set('token', response.token);
+    this.localStorage.set('user', response.user);
   }
 
   public unauthenticate() {
-    Cookie.delete('token');
-    Cookie.delete('user');
+    this.localStorage.remove('token');
+    this.localStorage.remove('user');
   }
 
   public getUser() {
-    if (!Cookie.get('user')) {
+    if (!this.localStorage.get('user')) {
       return;
     }
 
-    return JSON.parse(Cookie.get('user'));
+    return this.localStorage.get('user');
   }
 
   public getToken() {
-    if (!Cookie.get('token')) {
+    if (!this.localStorage.get('token')) {
       return;
     }
 
-    return Cookie.get('token');
+    return this.localStorage.get('token');
   }
 
   public isAuthenticated() {
-    return !!Cookie.get('token');
+    return !!this.localStorage.get('token');
   }
 }

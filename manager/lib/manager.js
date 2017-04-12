@@ -12,14 +12,33 @@ import {
 
 
 class Manager {
-	constructor(url) {
+	constructor(url, hid) {
 		this.url = url;
 
 		this.state = {};
-		this.state.hid = UNIQUE_ID;
+		this.state.hid = hid;
+		this.state.status = STATES.CONNECTING;
+	}
 
+	status() {
+		return this.state;
+	}
+
+	isAvailable() {
+		return (this.state.status == STATES.IDLE);
+	}
+
+	isRunning() {
+		return (this.state.status == STATES.RUNNING);
+	}
+
+	isQueued() {
+		return (this.state.status == STATES.QUEUED);
+	}
+
+	connect() {
 		let options = {
-			clientId: UNIQUE_ID,
+			clientId: this.hid,
 			protocol: "mqtt",
 			protocolId: "MQTT",
 			protocolVersion: 4,
@@ -40,11 +59,10 @@ class Manager {
 			},
 		};
 
-		this.client = mqtt.connect(url, options);
+		this.client = mqtt.connect(this.url, options);
 
 		this.client.on(EVENTS.CONNECT, (connack) => {
 			logger.info(`** connected ${this.url} **`);
-			this.state.connected = 'true';
 
 			if (!connack.sessionPresent) {
 				this.client.subscribe(SUBSCRIPTIONS.MICROSCOPE, {
@@ -60,15 +78,30 @@ class Manager {
 				this.client.on(EVENTS.ERROR, this.handleError);
 			}
 
-			this.connect();
+			this.state.connected = 1;
+			this.state.status = STATES.RUNNING;
+
+			// this.broadcast(MESSAGE.CONNECTED, this.state);
+			this.broadcast(MESSAGE.STATUS, this.status());
 		});
 	}
 
-	connect() {
-		this.state.connected = 1;
-		// this.broadcast(MESSAGE.CONNECTED, this.state);
-		this.broadcast(MESSAGE.STATUS, this.state);
+	//===== MQTT RESPOND EVENTS ==============
+	onConnected(payload) {
+		logger.debug(`=== onConnected ===`);
+
 	}
+
+	onStatus(payload) {
+		logger.debug(`=== onStatus ===`);
+		// this.sendMessage(MESSAGE.STATUS, this.status());
+	}
+
+	onDisconnected(payload) {
+		logger.debug(`=== onDisconnected ===`);
+	}
+
+	//=========================================
 
 	handleMessage(topic, messageString) {
 		let message = JSON.parse(messageString);
@@ -78,7 +111,47 @@ class Manager {
 		logger.debug(`[RX] ${topic}: ${type}`);
 		logger.debug(payload);
 
+		switch (type) {
+			case MESSAGE.CONNECTED:
+				this.onConnected(payload);
+				break;
 
+			case MESSAGE.STATUS:
+				this.onStatus(payload);
+				break;
+
+				// case MESSAGE.EXPERIMENT_SET:
+				// 	this.onExperimentSet(payload);
+				// 	break;
+
+				// case MESSAGE.EXPERIMENT_CANCEL:
+				// 	this.onExperimentCancel(payload);
+				// 	break;
+
+				// case MESSAGE.EXPERIMENT_RUN:
+				// 	this.onExperimentRun(payload);
+				// 	break;
+
+				// case MESSAGE.STIMULUS:
+				// 	this.onStimulus(payload);
+				// 	break;
+
+				// case MESSAGE.EXPERIMENT_CLEAR:
+				// 	this.onExperimentClear(payload);
+				// 	break;
+
+				// case MESSAGE.MAINTENANCE:
+				// 	this.onMaintenance(payload);
+				// 	break;
+
+			case MESSAGE.DISCONNECTED:
+				this.onDisconnected(payload);
+				break;
+
+			default:
+				logger.warn(`invalid message: message type not handled`);
+				break;
+		}
 	}
 
 	handleError(err) {
@@ -90,56 +163,55 @@ class Manager {
 		newMessage.type = type;
 		newMessage.payload = payload;
 
-        logger.debug(`[TX] ${PUBLICATIONS.BROADCAST}: ${type}`);
-        logger.debug(payload);
+		logger.debug(`[TX => B] ${PUBLICATIONS.BROADCAST}: ${type}`);
+		logger.debug(payload);
 
 		this.client.publish(PUBLICATIONS.BROADCAST, JSON.stringify(newMessage), {
 			qos: QOS.ATMOST_ONCE
 		});
 	}
 
-	sendMicroscope(type, microscopeId, payload) {
+	sendToMicroscope(type, id, payload) {
 		let newMessage = {};
 		newMessage.type = type;
 		newMessage.payload = payload;
 
-		let publication = PUBLICATIONS.MICROSCOPE.replace('__UNIQUE_ID__',microscopeId);
+		let publication = PUBLICATIONS.MICROSCOPE.replace('__UNIQUE_ID__', id);
 
-        logger.debug(`[TX] ${publication}: ${type}`);
-        logger.debug(payload);
+		logger.debug(`[TX -> M] ${publication}: ${type}`);
+		logger.debug(payload);
 
 		this.client.publish(publication, JSON.stringify(newMessage), {
 			qos: QOS.ATMOST_ONCE
 		});
 	}
 
-	sendUser(type, userId, payload) {
+	sendToUser(type, id, payload) {
 		let newMessage = {};
 		newMessage.type = type;
 		newMessage.payload = payload;
 
-        let publication = PUBLICATIONS.USER.replace('__USER_ID__',userId);
+		let publication = PUBLICATIONS.USER.replace('__USER_ID__', id);
 
-        logger.debug(`[TX] ${publication}: ${type}`);
-        logger.debug(payload);
+		logger.debug(`[TX -> U] ${publication}: ${type}`);
+		logger.debug(payload);
 
 		this.client.publish(publication, JSON.stringify(newMessage), {
 			qos: QOS.ATMOST_ONCE
 		});
-	}
-
-	status() {
-		return this.state;
 	}
 
 	disconnect() {
 		this.state.connected = 0;
 		// this.client.sendMessage(MESSAGE.DISCONNECTED, this.state);
 		this.client.disconnect();
+
+		this.onDisconnected();
 	}
 
 	died() {
-		this.state.connected = 1;
+		this.state.connected = 0;
+		// this.onDisconnected();
 
 		let newMessage = {};
 		newMessage.type = MESSAGE.DISCONNECTED;

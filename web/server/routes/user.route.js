@@ -1,7 +1,6 @@
 import express from 'express';
 import validate from 'express-validation';
-import ensureAuthenticated from './utils';
-
+import {ensureAuthenticated, ensurePermission} from './utils';
 
 import userCtrl from '../controllers/user.controller';
 

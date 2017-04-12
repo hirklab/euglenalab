@@ -12,6 +12,7 @@ import {
 } from "@angular/http";
 import {Observable} from "rxjs/Observable";
 import {Cookie} from "ng2-cookies/ng2-cookies";
+import { LocalStorageService } from 'angular-2-local-storage';
 
 function httpRequest(backend: ConnectionBackend, request: Request): Observable<Response> {
   return backend.createConnection(request).response;
@@ -37,30 +38,30 @@ function mergeOptions(defaultOpts: BaseRequestOptions, providedOpts: RequestOpti
   return newOptions.merge(new RequestOptions({method, url}));
 }
 
-function addCustomHeadersOptions(options: RequestOptionsArgs) {
+function addCustomHeadersOptions(options: RequestOptionsArgs, localStorage: LocalStorageService) {
   if (!options) {
     options = {};
   }
 
-  if (Cookie.get("token")) {
+  if (localStorage.get("token")) {
     if (!options.headers) {
       options.headers = new Headers();
     }
 
-    let token = Cookie.get("token");
+    let token = localStorage.get("token");
     options.headers.set("Authorization", `JWT ${token}`);
   }
 
   return options;
 }
 
-function addCustomHeadersRequest(request: Request) {
-  if (Cookie.get("token")) {
+function addCustomHeadersRequest(request: Request, localStorage: LocalStorageService) {
+  if (localStorage.get("token")) {
     if (!request.headers) {
       request.headers = new Headers();
     }
 
-    let token = Cookie.get("token");
+    let token = localStorage.get("token");
     request.headers.set("Authorization", `JWT ${token}`);
   }
 
@@ -70,7 +71,7 @@ function addCustomHeadersRequest(request: Request) {
 
 @Injectable()
 export class HttpClient extends Http {
-  constructor(backend: ConnectionBackend, defaultOptions: RequestOptions) {
+  constructor(backend: ConnectionBackend, defaultOptions: RequestOptions, private localStorage: LocalStorageService) {
     super(backend, defaultOptions);
   }
 
@@ -78,13 +79,13 @@ export class HttpClient extends Http {
     let responseObservable: any;
 
     if (typeof url === 'string') {
-      options = addCustomHeadersOptions(options);
+      options = addCustomHeadersOptions(options, this.localStorage);
 
       responseObservable = httpRequest(
         this._backend,
         new Request(mergeOptions(this._defaultOptions, options, RequestMethod.Get, <string>url)));
     } else if (url instanceof Request) {
-      url = addCustomHeadersRequest(url);
+      url = addCustomHeadersRequest(url, this.localStorage);
 
       responseObservable = httpRequest(this._backend, url);
     } else {

@@ -54,12 +54,21 @@ PermissionSchema.plugin(plugins.rest, {});
 /**
  * Methods
  */
-PermissionSchema.method({});
+PermissionSchema.method({
+
+  toJSON() {
+    var obj = this.toObject();
+    delete obj.search;
+    delete obj.createdAt;
+    delete obj.modifiedAt;
+    return obj;
+  }
+});
 
 /**
  * Statics
  */
-PermissionSchema.statics =  Object.assign(PermissionSchema.statics,{
+PermissionSchema.statics = Object.assign(PermissionSchema.statics, {
   getByName(name) {
     return this.findOne({
         name: name

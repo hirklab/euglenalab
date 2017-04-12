@@ -24,24 +24,10 @@ class Device {
 		this.io = device.io;
 		this.type = device.type;
 		this.options = device.options;
-		this.value=null;
+		this.value = null;
 	}
 
 	configure() {
-		// switch (this.type) {
-		// 	case TYPE.STATE:
-		// 		this.states = this.options.states;
-		// 		this.default = this.options.default;
-		// 		break;
-		// 	case TYPE.NUMERIC:
-		// 		// this.min = this.options.min;
-		// 		// this.max = this.options.max;
-		// 		this.default = this.options.default;
-		// 		break;
-		// 	default:
-		// 		this.default = null;
-		// }
-
 		if (this.pin < 40) {
 			rpi.pinMode(this.pin, this.io);
 		}
@@ -54,9 +40,9 @@ class Device {
 				break;
 		}
 
-        if (this && this.isValid(this.options.default)) {
-            this.setValue(this.options.default);
-        }
+		if (this && this.isValid(this.options.default)) {
+			this.setValue(this.options.default);
+		}
 	}
 
 	isValid(value) {
@@ -65,15 +51,15 @@ class Device {
 		switch (this.type) {
 			case TYPE.STATE:
 				isValid = _.includes(_.values(this.options.states), value);
-                // logger.debug(`${_.values(this.options.states)} contains ${value} ? ${isValid}`);
+				// logger.debug(`${_.values(this.options.states)} contains ${value} ? ${isValid}`);
 				break;
 			case TYPE.NUMERIC:
 				isValid = (value >= this.options.min) && (value <= this.options.max);
-                // logger.debug(`${this.options.min} <= ${value} <= ${this.options.max} ? ${isValid}`);
+				// logger.debug(`${this.options.min} <= ${value} <= ${this.options.max} ? ${isValid}`);
 				break;
 			default:
 				isValid = true;
-                // logger.debug(`default ? ${isValid}`);
+				// logger.debug(`default ? ${isValid}`);
 				break;
 		}
 
@@ -85,13 +71,13 @@ class Device {
 			case MODE.DIGITAL:
 				rpi.digitalWrite(this.pin, value);
 				this.value = value;
-                logger.debug(`${this.name}: ${value}`);
+				logger.debug(`${this.name}: ${value}`);
 				break;
 
 			case MODE.SOFTPWM:
 				rpi.softPwmWrite(this.pin, value);
 				this.value = value;
-                logger.debug(`${this.name}: ${value}`);
+				logger.debug(`${this.name}: ${value}`);
 				break;
 			case MODE.SOCKET:
 				if (MACHINE == 'raspberrypi') {
@@ -101,7 +87,7 @@ class Device {
 					client.connect(this.pin, 'localhost', () => {
 						client.write(value);
 						self.value = value;
-                        logger.debug(`${this.name}: ${value}`);
+						logger.debug(`${this.name}: ${value}`);
 					});
 
 					client.on('error', (err) => {
@@ -110,12 +96,12 @@ class Device {
 				} else {
 					rpi.socketWrite(this.pin, value);
 					this.value = value;
-                    logger.debug(`${this.name}: ${value}`);
+					logger.debug(`${this.name}: ${value}`);
 				}
 				break;
 			default:
 				this.value = value;
-                logger.debug(`${this.name}: ${value}`);
+				logger.debug(`${this.name}: ${value}`);
 				break;
 		}
 	}

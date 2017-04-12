@@ -14,24 +14,31 @@ const MicroscopeSchema = new mongoose.Schema({
     unique: true,
     required: true
   },
+
   name: {
     type: String,
     default: 'Unnamed'
   },
+
   isActive: {
     type: Boolean,
     default: false
   },
+
   status: {
     type: String,
     enum: [
       'unknown',
-      'initializing',
-      'ready',
-      'reserved'
+      'connecting',
+      'idle',
+      'queued',
+      'running',
+      'maintenance',
+      'offline'
     ],
     default: 'unknown'
   },
+
   magnification: { //for fixed, min=max=value
     value: {
       type: Number,
@@ -61,6 +68,7 @@ const MicroscopeSchema = new mongoose.Schema({
       default: 100
     },
   },
+
   ambientLight: { // use percentage
     value: {
       type: Number,
@@ -137,7 +145,8 @@ MicroscopeSchema.method({});
 /**
  * Statics
  */
-MicroscopeSchema.statics = Object.assign(MicroscopeSchema.statics,{
+MicroscopeSchema.statics = Object.assign(MicroscopeSchema.statics, {
+
   getByIdentification(identification) {
     return this.findOne({
         identification: identification
