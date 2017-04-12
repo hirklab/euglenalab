@@ -28,10 +28,13 @@ block body
       p.body-para.
         Visit #[a(href="http://euglena.stanford.edu/") euglena.stanford.edu], create a user account, and log in. The first thing you will see is a dashboard with a list of available Biotic Processing Units (BPUs) that host cultures of #[i Euglena] in microfluidic chambers (#[a(href="#fig1") Figure 1]). We have two different types of microscope magnification that look into these chambers, 10x (“larger Euglena”) and 4x (“smaller Euglena”).
 
-      img(src='/media/help_figures/fig1.png'  width='100%').help-figure#fig1
-      b
-        center.
+      br
+      center
+        img(src='/media/help_figures/fig1.png', width='70%', border='5').help-figure#fig1
+        br
+        b.
           Figure 1: Euglena Cloud Lab dashboard.
+      br
         
       p.body-para.
         Let's click on the “Control any available microscope live” button, which might pop up a confirmation dialog once a BPU is available. If it does, please do not check the option “Prevent this page from creating additional dialogs”, or else you will not be able to join the live experimentation system in the future. Note that the popup may take up to ~5-6 seconds to appear even when the system says the wait time is 0. Otherwise it will appear when a BPU is available (keep an eye on the wait time).
@@ -39,11 +42,13 @@ block body
       p.body-para.
         All wait times shown on the website are best estimates and may not be extremely accurate. After clicking “Ok” on the confirmation dialog, the website will take you to a Live Experimentation session like #[a(href="#fig2") Figure 2]:
 
+      br
       center
         img(src='/media/help_figures/fig2.png'  width='70%').help-figure#fig2
         br
         b.
           Figure 2: User interface for a live experimental session. The schematics on the left shows the arrangement of the LEDs around a microfluidic device that hosts the #[i Euglena] culture.
+      br
 
       p.body-para.
         The main display is a microscope view of the microfluidic device, which has four LEDs on each of the four sides of the display. You can use the joystick interface to shine a combination of these LEDs, which is indicated by the yellow bars (with intensity value, in percentage, written on them) along the side of the main display. The smaller display on the bottom right corner is just a peek into our real hardware in action. Perhaps you can watch the real LEDs go off in real-time as you move your joystick, but a more interesting thing to watch would be how the #[i Euglena]s react to your joystick. A single live experimental session will last for 1 minute and you can run as many experiment sessions as you want.
@@ -59,11 +64,12 @@ block body
       p.body-para.
         Once the experiment is done the data will appear on the front page as discussed above. Depending on the load on our system, it may take some time before your data is ready and you may need to refresh your front page to see the new data. 
 
+      br
       img(src='/media/help_figures/fig3.png'  width='100%').help-figure#fig3
       b
         center.
           Figure 3: Data download section. You may have to wait ~1 minute until a finished experiment shows up there – refresh your browser to see it.
-
+      br
 
       h3 Text-Based Experimentation
 
@@ -76,8 +82,10 @@ block body
       p.body-para.
         Browse and upload the CSV files to our system from the front page (you can choose multiple files at once – but we suggest you only submit one at a time) by clicking on the button “Batch” as shown in #[a(href="#fig1") Figure 1] and then press “Submit pre-defined experiments to any available microscope” button. The system will route your experiments to BPUs with the least wait time. However, like the Live experimentation mode, if you like to run your experiments on a specific BPU, press the  “Batch” button on top of the desired BPU. Note that this may not be optimal in terms of wait time.
 
+      br
       center
         img(src='/media/help_figures/fig4.png'  width='70%').help-figure#fig4
         br
         b.
           Figure 4: Example CSV file for a text-based experiment.
+      br
