@@ -122,8 +122,6 @@ exports.find = function(req, res, next) {
           var population = JSON.parse(JSON.stringify(bpu.performanceScores)).population;
           var populationScore = population > 10 && population < 100 ? 5*((population-10)/90) : 0;
           bpuJadeObj.performanceScore = (responseScore + activityScore + populationScore ) / 3;
-          bpuJadeObj.performanceScoreLabel = 'Rating (out of 5): ' + bpuJadeObj.performanceScore;
-          bpuJadeObj.performanceScoreLabel = bpuJadeObj.performanceScoreLabel.substring(0, 24);
 
           //console.log("Perforamance score: " + bpuJadeObj.performanceScore);
 
