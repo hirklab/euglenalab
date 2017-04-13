@@ -35,7 +35,7 @@ export class AuthService {
     this.localStorage.remove('user');
   }
 
-  public getUser() {
+  public getUser():any {
     if (!this.localStorage.get('user')) {
       return;
     }

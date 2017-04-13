@@ -1,3 +1,4 @@
+import http from 'http';
 import express from 'express';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
@@ -9,15 +10,28 @@ import httpStatus from 'http-status';
 import expressWinston from 'express-winston';
 import expressValidation from 'express-validation';
 import helmet from 'helmet';
+import responseTime from 'response-time';
+import ioServer from 'socket.io';
+import redisAdapter from 'socket.io-redis';
 
 import config from './env';
 import winstonInstance from './winston';
 import passport from './passport';
+import websocketServer from './websockets';
 
 import routes from '../server/routes/index.route';
 import APIError from '../server/helpers/api.error';
 
 const app = express();
+const server = http.createServer(app);
+const io = ioServer(server, {
+  adapter: redisAdapter({
+    host: config.redis.host,
+    port: config.redis.port
+  })
+});
+
+websocketServer.serve(io);
 
 if (config.logging.morgan) {
   app.use(logger('dev'));
@@ -41,6 +55,9 @@ app.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
 app.use(cors());
+
+// for performance metrology
+app.use(responseTime());
 
 // enable detailed API logging in dev env
 if (config.logging.winston) {
@@ -96,4 +113,4 @@ app.use((err, req, res, next) => // eslint-disable-line no-unused-vars
   })
 );
 
-export default app;
+export default server;

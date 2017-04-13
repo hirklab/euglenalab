@@ -28,6 +28,10 @@ const defaults = {
 		name: process.env.DATABASE_NAME,
 		debug: environ == 'development',
 	},
+  redis:{
+	  host:'localhost',
+	  port:6379
+  },
 	auth: {
 		jwtSecret: process.env.JWT_SECRET,
 		requireAccountVerification: false,

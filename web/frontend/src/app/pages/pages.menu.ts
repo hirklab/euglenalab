@@ -14,17 +14,17 @@ export const PAGES_MENU = [
         },
         permissions: []
       },
-      {
-        path: 'simulation',
-        data: {
-          menu: {
-            title: 'Simulation',
-            icon: 'ion-ios-analytics-outline',
-            order: 5,
-          }
-        },
-        permissions:['simulation.menu']
-      },
+      // {
+      //   path: 'simulation',
+      //   data: {
+      //     menu: {
+      //       title: 'Simulation',
+      //       icon: 'ion-ios-analytics-outline',
+      //       order: 5,
+      //     }
+      //   },
+      //   permissions:['simulation.menu']
+      // },
       {
         path: 'experiments',
         data: {
@@ -91,18 +91,16 @@ export const PAGES_MENU = [
         },
         permissions: ['permissions.menu']
       },
-      // {
-      //   path: 'about',
-      //   data: {
-      //     menu: {
-      //       title: 'About Us',
-      //       icon: 'ion-ios-chatbubble-outline',
-      //       selected: false,
-      //       expanded: false,
-      //       order: 10
-      //     }
-      //   }
-      // },
+      {
+        path: 'about',
+        data: {
+          menu: {
+            title: 'About Us',
+            icon: 'ion-ios-chatbubble-outline',
+            order: 10
+          }
+        }
+      },
     ]
   }
 ];

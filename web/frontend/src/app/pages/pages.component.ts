@@ -36,22 +36,6 @@ export class Pages {
   constructor(private _menuService: BaMenuService, private auth: AuthService) {
   }
 
-  verifyPermissions(route, permissions){
-    if (_.has(route, 'permissions') && route.permissions.length > 0) {
-      if (_.intersection(route.permissions, permissions).length == 0) {
-        return false;
-      }
-
-      if (_.has(route, 'children')) {
-        route.children = _.filter(route.children, (subroute) => {
-          return this.verifyPermissions(subroute, permissions);
-        });
-      }
-    } else {
-      return true;
-    }
-  }
-
   ngOnInit() {
     if (this.auth.isAuthenticated()) {
 
@@ -59,7 +43,7 @@ export class Pages {
 
       //allocated permissions to this user
       let permissions = [];
-      if (_.has(user, 'roles')) {
+      if (user && _.has(user, 'roles') && user.roles.length>0) {
         _.each(user.roles, (role) => {
 
           if (_.has(role, 'permissions')) {
@@ -77,12 +61,8 @@ export class Pages {
       let permittedRoutes = _.map(routes, (route)=>{
           if(_.has(route,'children')){
               route.children = _.filter(route.children, (subroute)=>{
-                if (_.has(subroute, 'permissions')) {
-                  if (subroute.permissions.length > 0 && _.intersection(subroute.permissions, permissions).length == 0) {
-                    return false;
-                  } else {
-                    return true;
-                  }
+                if (subroute && _.has(subroute, 'permissions') && subroute['permissions'].length>0) {
+                  return (_.intersection(subroute['permissions'], permissions).length > 0);
                 } else {
                   return true;
                 }

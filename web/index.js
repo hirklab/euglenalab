@@ -3,7 +3,7 @@ import util from 'util';
 import Promise from 'bluebird'; // eslint-disable-line no-global-assign
 
 import config from './config/env';
-import app from './config/express';
+import server from './config/express';
 import database from './config/database';
 
 const debug = require('debug')('web:index');
@@ -12,9 +12,9 @@ const debug = require('debug')('web:index');
 // src: https://github.com/mochajs/mocha/issues/1912
 if (!module.parent) {
 	// listen on port config.port
-	app.listen(config.server.port, () => {
+	server.listen(config.server.port, () => {
 		debug(`server started on port ${config.server.port} (${config.env})`);
 	});
 }
 
-export default app;
+export default server;

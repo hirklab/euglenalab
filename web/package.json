@@ -1,7 +1,7 @@
 {
   "name": "webserver",
   "version": "1.0.0",
-  "description": "webserver for managing BPUs",
+  "description": "webserver",
   "author": "hirklab",
   "main": "index.js",
   "private": true,
@@ -20,19 +20,7 @@
     "test:check-coverage": "yarn test && istanbul check-coverage",
     "report-coverage": "coveralls < ./coverage/lcov.info"
   },
-  "keywords": [
-    "express",
-    "node",
-    "node.js",
-    "mongodb",
-    "mongoose",
-    "es6",
-    "mocha",
-    "istanbul",
-    "REST",
-    "API",
-    "boilerplate"
-  ],
+  "keywords": [],
   "dependencies": {
     "async": "2.1.4",
     "async-es": "2.1.4",
@@ -55,13 +43,20 @@
     "joi": "9.0.4",
     "jsonwebtoken": "7.1.9",
     "method-override": "^2.3.5",
+    "moment": "^2.17.1",
     "mongodb-migrations": "0.8.5",
     "mongoose": "4.7.4",
     "morgan": "1.7.0",
+    "mqtt": "^2.5.0",
     "nodemailer": "^3.1.8",
     "passport": "0.3.2",
     "passport-jwt": "2.2.1",
     "passport-local": "1.0.0",
+    "pm2": "^2.4.2",
+    "redis": "^2.7.1",
+    "response-time": "^2.3.2",
+    "socket.io": "^1.7.3",
+    "socket.io-redis": "^4.0.0",
     "winston": "2.3.0"
   },
   "devDependencies": {

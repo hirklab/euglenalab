@@ -4,6 +4,7 @@ import _ from 'lodash';
 
 let isAuthenticated = passport.authenticate('jwt', {
   session: false
+  // failureRedirect: '/error'
 });
 
 function ensureAuthenticated(req, res, next) {
@@ -19,10 +20,7 @@ function ensurePermission(permission) {
   let hasPermission = permissions => _.intersection([permission], permissions).length > 0;
 
   return (req, res, next) => {
-    console.log(req);
-    console.log(req.user);
-
-    if (req.user) {
+    if (_.has(req, 'user')) {
 
       let permissions = [];
       if (_.has(user, 'roles')) {
@@ -48,10 +46,5 @@ function ensurePermission(permission) {
     }
   }
 }
-
-// passport.authenticate('local', {
-// 		failureRedirect: '/error'
-// 	}
-// 	passport.authenticate('jwt', { session: false })
 
 export {ensureAuthenticated, ensurePermission};
