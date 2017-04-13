@@ -1,0 +1,86 @@
+.panel {
+  &.microscope {
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.25);
+    margin-bottom: 30px;
+
+    .microscope-video-status{
+      position: absolute;
+      right: 10px;
+      top: 6px;
+      font-size: 30px;
+    }
+
+    &.disabled{
+      &> .panel-heading{
+        color:red;
+      }
+
+    }
+
+    &.enabled{
+      &> .panel-heading{
+        color: $success;
+      }
+
+    }
+
+    &> .panel-body {
+      padding: 0;
+      height: 100%;
+    }
+
+    & .microscope-footer{
+      padding: 5px 10px;
+
+      p{
+        font-size: 10px;
+        margin-bottom: 2px;
+      }
+
+      .progress{
+        margin-bottom: 5px;
+        height: 10px;
+        border-radius: 0;
+
+        .progress-bar
+        {
+          font-size: 6px;
+          line-height: 11px;
+          color:black;
+
+        }
+      }
+    }
+  }
+}
+
+.input-group-btn > .btn {
+  position: relative;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.slider-handle{
+  width: 15px;
+  height: 15px;
+  background-color: $primary;
+  background-image: linear-gradient(to top, $primary-light 0%, $primary 100%);
+}
+
+.slider.slider-horizontal .slider-tick, .slider.slider-horizontal .slider-handle {
+  margin-left: -10px;
+  margin-top: -3px;
+}
+
+.slider-selection{
+  background-color: $primary;
+  background-image: linear-gradient(to bottom, $primary-light 0%, $primary-light 100%);
+}
+
+live-status .admin-chart{
+  height: 80px;
+}
+
+.amcharts-chart-div a {
+  display:none !important;
+}

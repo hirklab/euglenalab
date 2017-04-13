@@ -35,42 +35,46 @@ exports.find = function(req, res, next) {
 
     req.app.db.models.Bpu.pagedFind({
       filters: filters,
-      keys: 'name index isOn allowedGroups localAddr publicAddr currentStatus magnification avgStatsData',
+      keys: 'name index isOn allowedGroups localAddr publicAddr magnification avgStatsData',
       limit: req.query.limit,
       page: req.query.page,
       sort: req.query.sort
     }, function(err, results) {
       if (err) {
+          myPrint(err);
         return callback(err, null);
+      }else {
+          results.data.forEach(function (result) {
+              // myPrint(result);
+              // if (result.currentStatus === null || result.currentStatus === undefined) {
+              //     result.currentStatus = {
+              //         name: 'unknown',
+              //         setTime: 'unknown',
+              //         isReady: false,
+              //         isOver: false,
+              //         isCanceled: false,
+              //         runTime: 'unknown',
+              //         expId: 'unknown',
+              //         username: 'unknown',
+              //         timeLeft: 0,
+              //         bpuStatus: 'unknown'
+              //     };
+              // } else {
+              //     myPrint(result);
+              //     // if(typeof result.currentStatus.setTime==='number') {
+              //     result.currentStatus.setTime = Math.round((new Date() - result.currentStatus.setTime) / 60000);
+              //     // }
+              //     // if(typeof result.currentStatus.timeLeft==='number') {
+              //     result.currentStatus.timeLeft = Math.round(result.currentStatus.timeLeft / 1000);
+              //     // }
+              //     // if(typeof result.currentStatus.runTime==='number') {
+              //     result.currentStatus.runTime = Math.round(result.currentStatus.runTime / 1000);
+              //     // }
+              // }
+          });
+          outcome.results = results;
+          return callback(null, 'done');
       }
-      results.data.forEach(function(result) {
-        if(result.currentStatus===null || result.currentStatus===undefined) {
-          result.currentStatus={
-            name: 'unknown',
-            setTime: 'unknown',
-            isReady: false,
-            isOver: false,
-            isCanceled: false,
-            runTime: 'unknown',
-            expId: 'unknown',
-            username: 'unknown',
-            timeLeft: 0,
-            bpuStatus: 'unknown'
-          };
-        } else {
-          if(typeof result.currentStatus.setTime.getTime==='function') {
-            result.currentStatus.setTime=Math.round((new Date()-result.currentStatus.setTime)/60000);
-          }
-          if(typeof result.currentStatus.setTime.timeLeft==='number') {
-            result.currentStatus.timeLeft=Math.round(result.currentStatus.timeLeft/1000);
-          }
-          if(typeof result.currentStatus.setTime.runTime==='number') {
-            result.currentStatus.runTime=Math.round(result.currentStatus.runTime/1000);
-          }
-        }
-      });
-      outcome.results=results;
-      return callback(null, 'done');
     });
   };
 
@@ -171,13 +175,13 @@ exports.read = function(req, res, next) {
       outcome.record.currentStatus=statusStr;
       var singletNames={};
       var singlets=[];
-      outcome.record.plotData.forEach(function(plot) {
-        if(singletNames[plot.name]) {
-        } else {
-          singletNames[plot.name]=plot.name;
-          singlets.push(plot);
-        }
-      });
+      // outcome.record.plotData.forEach(function(plot) {
+      //   if(singletNames[plot.name]) {
+      //   } else {
+      //     singletNames[plot.name]=plot.name;
+      //     singlets.push(plot);
+      //   }
+      // });
       res.render('admin/bpus/details', {
         data: {
           record: escape(JSON.stringify(outcome.record)),

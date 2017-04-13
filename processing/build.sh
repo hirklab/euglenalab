@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 sudo apt-get install -y autoconf libtool nasm yasm cmake libav-tools
 pip install xlsxwriter
 pip install numpy
@@ -11,5 +13,8 @@ cd ../euglenamovie
 ./build.sh
 cp build/euglenamovie ../tools
 
+cd ..
+
 # For MacOS, please install OpenCV Python module seperately, this build may not work
+cd ..
 ./build_opencv_python.sh

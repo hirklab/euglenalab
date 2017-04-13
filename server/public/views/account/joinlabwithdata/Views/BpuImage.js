@@ -78,6 +78,12 @@
     render: function() {
       var me=this;
       me.$el.html(me.template( me.model.attributes ));
+
+      $('input.rating', me.$el).rating({
+                filled: 'fa fa-star',
+                filledSelected: 'fa fa-star',
+                empty: 'fa fa-star-o'
+            });
     },
     updateOneBpuUI:function(bpuInfo, expInfo, isJoinLiveDisabled, isTextSubmitDisabled) {
       //Queue Info

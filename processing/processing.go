@@ -68,8 +68,6 @@ const (
 	BPU_PATH                  = ROOT + "bpuEuglenaData_forMounting/"
 	FINAL_PATH                = ROOT + "finalBpuData/"
 	MINIMUM_JPG_FILES         = 20
-	MONGODB_URI        string = "192.168.1.100"
-	DATABASE                  = "master"
 	COLLECTION                = "bpuexperiments"
 	BPUCOLLECTION             = "bpus"
 	MOVIEEXEC                 = "./tools/euglenamovie"
@@ -77,6 +75,9 @@ const (
 	MOVE_DATA                 = "./tools/movedata.sh"
 	PYTHON_SCRIPT_ROOT        = "../shared/python-scripts/"
 )
+
+var MONGODB_URI        string = os.Getenv("MONGODB_HOST")
+var DATABASE                  = os.Getenv("MONGODB_DATABASE")
 
 type ExpUser struct {
 	Id     bson.ObjectId `bson:"id,omitempty"`
@@ -102,8 +103,15 @@ type ExpMetaData struct {
 	Magnification int32 `bson:"magnification"`
 }
 
+type Stat struct {
+	ScripterResponse	float64		`bson:"scripterResponse"`
+	ScripterActivity	float64		`bson:"scripterActivity"`
+	ScripterPopulation	float64		`bson:"scripterPopulation"`
+}
+
 type Experiment struct {
 	Id                     bson.ObjectId `bson:"_id,omitempty"`
+	Stats                  Stat          `bson:"stats"`
 	ProcStartPath          string        `bson:"proc_startpath"`
 	ProcEndPath            string        `bson:"proc_endPath"`
 	ProcErr                string        `bson:"proc_err"`
@@ -316,6 +324,8 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 	}
 
 	currStat, err := strconv.ParseFloat(stat, 64)
+	statValue := reflect.ValueOf(&exp.Stats)
+	statValue.Elem().FieldByName("Scripter"+varName).SetFloat(currStat)
 
 	if err != nil {
 		return errors.New("processScripter:" + scripterName + ":" + err.Error())
@@ -380,6 +390,7 @@ func prepareDBUpdateFields(exp *Experiment) bson.M {
 		"proc_err":                exp.ProcErr,
 		"exp_status":              exp.Status,
 		"proc_attempts":           exp.ProcAttempts,
+		"stats":                   exp.Stats,
 		"exp_metaData.numFrames":  exp.ExpMetaData.NumFrames,
 	}
 	return selectedFields

@@ -1,0 +1,66 @@
+<div class="row">
+    <div class="col-md-12">
+        <div ba-panel ba-panel-class="with-scroll">
+            <div class="horizontal-scroll">
+                <table class="table" st-table="vm.displayed" st-safe-src="vm.users" st-pipe="vm.filter">
+                    <thead>
+                    <tr class="sortable ">
+                        <th class="table-id" st-sort="id">User ID</th>
+                        <th st-sort="username">Username</th>
+                        <th st-sort="email">Email</th>
+                        <th st-sort="isActive">Active</th>
+                        <th>Role</th>
+                        <th >Actions</th>
+                    </tr>
+                    <tr>
+                        <th><input st-search="_id" placeholder="Search User ID"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="username" placeholder="Search username"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="email" placeholder="Search email"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="isActive" placeholder="Search status"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th>
+                            <!--<input st-search="roles" placeholder="Search role"-->
+                                   <!--class="input-sm form-control search-input" type="search" disabled/>-->
+                        </th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="user in vm.displayed">
+                        <td class="table-id">{{user._id}}</td>
+                        <td><a ui-sref="admin.userDetail({id:user._id})">{{user.username}}</a></td>
+                        <td>{{ user.email}}</td>
+                        <td><i class="fa"
+                               ng-class="{'fa-circle text-success':user.isActive=='yes', 'fa-circle-o text-danger':user.isActive=='no'}"></i></td>
+                        <td>{{user.roles.admin?"admin":"account"}}</td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3">
+                            <div class="form-group select-page-size-wrap ">
+                                <label>
+                                    <select class="form-control selectpicker show-tick" style="max-width: 80px;" title="Rows on page" selectpicker
+                                            ng-model="vm.pageSize" ng-options="i for i in [5,10,15,20,25]">
+                                    </select> <span>rows per page</span>
+                                </label>
+                            </div>
+                        </td>
+                        <td colspan="3" class="text-right">
+                            <div st-pagination="" st-items-by-page="vm.pageSize" st-displayed-pages="5"></div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,8 +12,8 @@ html
       div.container
         div.navbar-header
           a.navbar-brand(href='/')
-            //img.navbar-logo(src='/media/logo-symbol-64x64.png')
-            span.navbar-brand-label #{projectName}
+            img.navbar-logo(src='/media/logo-symbol-64x64.png')
+            span.navbar-brand-label(style="padding-left: 40px;") #{projectName}
           button.navbar-toggle.collapsed(data-toggle='collapse', data-target='.my-navbar-collapse')
             span.icon-bar
             span.icon-bar
@@ -22,6 +22,7 @@ html
           ul.nav.navbar-nav
               li: a(href='/account') Home
               li: a(href='/about/') About
+              li: a(href='/help/') Help
           ul.nav.navbar-nav.pull-right
             li: a(href='/logout/')
               i.fa.fa-user
@@ -46,7 +47,8 @@ html
 
     //if lte IE 9
       script(src='/layouts/ie-sucks.min.js?#{cacheBreaker}')
-    script(src='/layouts/core.min.js?#{cacheBreaker}')
+
+    script(src='/layouts/core.min.js')
     script(src='/layouts/googleanalytics.js')
 
     block feet

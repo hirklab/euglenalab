@@ -1,0 +1,54 @@
+<div class="row">
+    <div class="col-md-12">
+        <div ba-panel ba-panel-class="with-scroll">
+            <div class="horizontal-scroll">
+                <table class="table" st-table="vm.displayed" st-safe-src="vm.list" st-pipe="vm.filter">
+                    <thead>
+                    <tr class="sortable ">
+                        <th class="table-id" st-sort="id">ID</th>
+                        <th st-sort="name">Name</th>
+                        <th st-sort="description">Description</th>
+                        <th >Actions</th>
+                    </tr>
+                    <tr>
+                        <th><input st-search="_id" placeholder="Search ID"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="name" placeholder="Search name"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th><input st-search="description" placeholder="Search description"
+                                   class="input-sm form-control search-input"
+                                   type="search"/></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="group in vm.displayed">
+                        <td class="table-id">{{group._id}}</td>
+                        <td><a ui-sref="admin.groupDetail({id:group._id})">{{group.name}}</a></td>
+                        <td>{{ group.description}}</td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3">
+                            <div class="form-group select-page-size-wrap ">
+                                <label>
+                                    <select class="form-control selectpicker show-tick" style="max-width: 80px;" title="Rows on page" selectpicker
+                                            ng-model="vm.pageSize" ng-options="i for i in [5,10,15,20,25]">
+                                    </select> <span>rows per page</span>
+                                </label>
+                            </div>
+                        </td>
+                        <td colspan="3" class="text-right">
+                            <div st-pagination="" st-items-by-page="vm.pageSize" st-displayed-pages="5"></div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

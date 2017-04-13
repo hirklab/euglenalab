@@ -1,0 +1,95 @@
+<main class="auth-main">
+    <div class="auth-block">
+        <h1>Interactive Microbiology Lab</h1>
+        <h3>Create your account</h3>
+        <a ui-sref="auth.login" class="auth-link">Already have an account? Sign in!</a>
+
+        <form class="form-horizontal" name="form" ng-submit="vm.signup(form.$valid)" novalidate>
+            <div class="form-group has-feedback"
+                 ng-class="{ 'has-error': vm.has_error('first_name') }">
+                <label for="first_name" class="col-sm-3 control-label">First name</label>
+
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="first_name" placeholder="First Name"
+                           ng-model="vm.account.first_name" ng-required="true">
+                    <div class="help-block" ng-if="vm.has_error('first_name')"
+                         ng-messages="form.first_name.$error">
+                        <span ng-message="required">First name is required.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-feedback"
+                 ng-class="{ 'has-error': vm.has_error('last_name') }">
+                <label for="last_name" class="col-sm-3 control-label">Last name</label>
+
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="last_name" placeholder="Last Name"
+                           ng-model="vm.account.last_name" ng-required="true">
+                    <div class="help-block" ng-if="vm.has_error('last_name')"
+                         ng-messages="form.last_name.$error">
+                        <span ng-message="required">Last name is required</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-feedback"
+                 ng-class="{ 'has-error': vm.has_error('username') }">
+                <label for="username" class="col-sm-3 control-label">Username</label>
+
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="username" placeholder="Username"
+                           ng-model="vm.account.username" ng-required="true" backend-validity>
+                    <div class="help-block" ng-if="vm.has_error('username')" ng-messages="form.username.$error">
+                        <span ng-message="required">Username is required</span>
+                        <span ng-message="backend">{{ vm.errors.username }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-feedback"
+                 ng-class="{ 'has-error': vm.has_error('email') }">
+                <label for="email" class="col-sm-3 control-label">Email</label>
+
+                <div class="col-sm-9">
+                    <input type="email" class="form-control" name="email" placeholder="Email"
+                           ng-model="vm.account.email" ng-required="true" backend-validity>
+                    <div class="help-block" ng-if="vm.has_error('email')" ng-messages="form.email.$error">
+                        <span ng-message="required">Email is required</span>
+                        <span ng-message="email">Invalid email</span>
+                        <span ng-message="backend">{{ vm.errors.email }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-feedback"
+                 ng-class="{ 'has-error': vm.has_error('password') }">
+                <label for="password" class="col-sm-3 control-label">Password</label>
+
+                <div class="col-sm-9">
+                    <input type="password" class="form-control" name="password" placeholder="Password"
+                           ng-model="vm.account.password" ng-required="true">
+                    <div class="help-block" ng-if="vm.has_error('password')" ng-messages="form.password.$error">
+                        <span ng-message="required">Password is required</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-feedback"
+                 ng-class="{ 'has-error': vm.has_error('password_confirmation') }">
+                <label for="password_confirmation" class="col-sm-3 control-label">Confirm password</label>
+
+                <div class="col-sm-9">
+                    <input type="password" class="form-control" name="password_confirmation" placeholder="Password"
+                           ng-model="vm.account.password_confirmation" ng-required="true"
+                           compare-to="vm.account.password">
+                    <div class="help-block" ng-if="vm.has_error('password_confirmation')"
+                         ng-messages="form.password_confirmation.$error">
+                        <span ng-message="required">Password confirmation is required</span>
+                        <span ng-message="compareTo">Passwords do not match</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-9">
+                    <button type="submit" class="btn btn-default btn-auth">Sign up</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>

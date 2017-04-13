@@ -15,7 +15,7 @@ var app={
     loggerLevel:'INFO',
     //Mongo/Mongoose DB
     mongoUri:require('../shared/mainConfig.js').adminFlags.getMongoUri(), // production, dev, stage
-    socketClientServerIP:'localhost',
+    socketClientServerIP:'0.0.0.0',
     socketClientServerPort:require('../shared/mainConfig.js').adminFlags.getControllerPort(),
   },
   runParams:{
@@ -78,7 +78,7 @@ var app={
       Identifier:'C422691AA38F9A86EC02CB7B55D5F542',
       arePassKeysOpen:false,
       PassKeys:[
-        'i4bP9hXwNA3WuH0p6m0TCUIA9Wtz0Ydu',
+        'R-OpYLbT6Kk-GXyEmX1SOOOHDw157mJc'
       ],
       socketID:null,
       serverInfo:null,
@@ -133,14 +133,22 @@ var setupSocketClientServer=function(callback) {
   var server=require('http').createServer(function(req, res) {
     app.logger.warn(moduleName+' fn_serverHandler');
   });
+
   app.logger.debug('setupSocketClientServer@'+app.initParams.socketClientServerIP+':'+app.initParams.socketClientServerPort);
+
   console.log('setupSocketClientServer@'+app.initParams.socketClientServerIP+':'+app.initParams.socketClientServerPort);
+
   server.listen(app.initParams.socketClientServerPort, app.initParams.socketClientServerIP);
+
   app.socketClientIo=socketIo(server);
+
   app.socketClientIo.on('connection', function(socket) {
     app.logger.info('socketClientIo:'+'connection:'+'socketid:'+socket.id);
+
     console.log('socketClientIo:'+'connection:'+'socketid:'+socket.id);
+
     app.socketConnections.push(socket);
+
     socket.on('setConnection', function(serverInfo, cbfn_setConn) {
       _verifyServerSocketConnection(serverInfo, function(err) {
         if(err) {
@@ -665,6 +673,10 @@ var loop=function() {
         } else {
           app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name]=0;
         }
+
+        if(!bpuObj.isSocketOkay){
+          delete app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name];
+        }
       }
     });
     var checkExpAndResort=function(checkExpCallback) {
@@ -963,7 +975,7 @@ var loop=function() {
       //bpu has exp in queue?
       if(expPerBpu[key]) {
         //can send to bpu
-        if(app.bpuObjects[key].doc.bpuStatus===app.mainConfig.bpuStatusTypes.resetingDone) {
+        if(app.bpuObjects[key].doc.bpuStatus===app.mainConfig.bpuStatusTypes.resetingDone && app.bpuObjects[key].isSocketOkay) {
           runParallelFuncs.push(sendExpToBpu.bind({bpuObj:app.bpuObjects[key], exp:expPerBpu[key]}));
 
         //put back in keeper docs to return to queue
@@ -1016,7 +1028,9 @@ var loop=function() {
     if(app.socketConnections.length>0) {
       var bpuDocs=[];
       Object.keys(app.bpuObjects).forEach(function(key) {
-        bpuDocs.push(app.bpuObjects[key].doc.toJSON());
+        if(app.bpuObjects[key].isSocketOkay) {
+            bpuDocs.push(app.bpuObjects[key].doc.toJSON());
+        }
       });
       app.socketConnections.forEach(function(socket) {
         if(socket.connected) {

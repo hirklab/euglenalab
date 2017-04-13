@@ -38,7 +38,7 @@ var myPrint=function(name, msg, init, err) {
       }
     }, me.options.timeoutInterval);
     //Try Connect 
-    me.mySocket=io.connect();
+    me.mySocket=io.connect('localhost:5200');
     me.mySocket.on('connect', function() {
       //Send Conenction Info 
       myPrint('setConnection connect', null, 'setting connection', null);

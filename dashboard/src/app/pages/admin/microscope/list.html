@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="col-xs-12">
+        <h3>Active</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xlg-2 col-lg-3 col-md-4 col-sm-6 col-xs-12"
+         ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering ">
+        <div ba-panel ba-panel-title="{{microscope.name}} ({{microscope.magnification}}X)"
+             ba-panel-class="{{microscope.panelClass}}"
+             ui-sref="admin.microscopeDetail({id:microscope.id})">
+            <div class="microscope-wrapper">
+                <div class="microscope-main-info">
+                    <img ng-src="{{microscope.address}}" style="width:100%">
+                </div>
+                <div class="microscope-footer">
+                    <div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}" aria-valuemin="0"
+                             aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"
+                             ng-class="stat.class">
+                            <span>{{stat.name | uppercase}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xs-12">
+        <h3>Inactive</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xlg-2 col-lg-3 col-md-4 col-sm-6 col-xs-12"
+         ng-repeat="microscope in vm.inactiveMicroscopes | orderBy:vm.ordering ">
+        <div ba-panel ba-panel-title="{{microscope.name}} ({{microscope.magnification}}X)"
+             ba-panel-class="{{microscope.panelClass}}"
+             ui-sref="admin.microscopeDetail({id:microscope.id})">
+            <div class="microscope-wrapper">
+                <div class="microscope-main-info">
+                    <img ng-src="{{microscope.address}}" style="width:100%">
+                </div>
+                <div class="microscope-footer">
+                    <div class="progress" ng-repeat="stat in microscope.statistics | orderBy: 'name'">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}" aria-valuemin="0"
+                             aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"
+                             ng-class="stat.class">
+                            <span>{{stat.name | uppercase}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

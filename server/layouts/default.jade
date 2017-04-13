@@ -11,8 +11,8 @@ html
       div.container
         div.navbar-header
           a.navbar-brand(href='/')
-            //img.navbar-logo(src='/media/logo-symbol-64x64.png')
-            span.navbar-brand-label #{projectName}
+            img.navbar-logo(src='/media/logo-symbol-64x64.png')
+            span.navbar-brand-label(style="padding-left: 40px;") #{projectName}
           button.navbar-toggle.collapsed(data-toggle='collapse', data-target='.my-navbar-collapse')
             span.icon-bar
             span.icon-bar
@@ -21,6 +21,7 @@ html
           ul.nav.navbar-nav
             li: a(href='/account') Home
             li: a(href='/about/') About
+            li: a(href='/help/') Help
             //li: a(href='/signup/') Sign Up
             //li: a(href='/contact/') Contact
           ul.nav.navbar-nav.navbar-right

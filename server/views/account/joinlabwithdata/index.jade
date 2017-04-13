@@ -3,16 +3,16 @@ extends ../../../layouts/account
 block head
   title Manage Experiments
   style.
-    #headerLabel {font-size:24px; text-align:left; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
-    #browseLabel {font-size:18px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
-    #loadLabel {font-size:18px; text-align:left; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
-    #bpuLabel {font-size:18px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
-    #bpuLabelSM {font-size:14px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    .headerLabel {font-size:24px; text-align:left; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    .browseLabel {font-size:16px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    .loadLabel {font-size:18px; text-align:left; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    .bpuLabel {font-size:16px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
+    .bpuLabelSM {font-size:14px; text-align:center; float:right; clear:both; width:100%; padding:0px 0px 0px 0px; margin:0px 0px 0px 0px;}
 
-    #myImage {width:20%; height:20%; float:left; margin:0px 5% 0px 0px;}
-    #bpuJoinButtonHidden {width:100%; height:100%; display:none; visibility:hidden;}
+    .myImage {width:20%; height:20%; float:left; margin:0px 5% 0px 0px;}
+    .bpuJoinButtonHidden {width:100%; height:100%; display:none; visibility:hidden;}
 
-    #bpuButton {margin:0% 10% 0% 4%; width:36%; height:10%}
+    .bpuButton {width:100px; height:40px}
 block neck
   link(rel='stylesheet', href='/views/account/joinlabwithdata/index.min.css?#{cacheBreaker}')
 block feet
@@ -21,54 +21,75 @@ block feet
   script(src='/views/account/joinlabwithdata/Views/LiveJoin.js')
   script(src='/views/account/joinlabwithdata/Views/TextSubmit.js')
   script(src='/views/account/joinlabwithdata/socket-client.js')
-  script(src='/views/account/joinlabwithdata/index.min.js?#{cacheBreaker}')
+  script(src='/views/account/joinlabwithdata/index.min.js')
 
 block body
   div.row
     div.col-xs-12
-      h8#headerLabel(name='headerLabel', style='text-align:center;') Waiting for BPU update.
-      div#joinlive
-      div#textsubmit
+      //h8#headerLabel(name='headerLabel', style='text-align:center;') Waiting for BPU update.
+
+      div.row
+        div.col-md-6.col-sm-12.col-xs-12
+          div#joinlive
+        div.col-md-6.col-sm-12.col-xs-12
+          div#textsubmit
       div#bpuimage
-      div#filters(style='display:none;')
+      //div#filters
       div#results-table
       div#results-paging
 
   script(type='text/template', id='tmpl-joinlive')
-    div.page-header
-      button.btn.btn-primary.btn-joinLiveNext#joinLiveNext(type='button', name='joinLiveNext', value=-1, style='width:100%; height:50px', disabled) Live Join Next Available Online Microscope
-      div.row(style='background-color:#afa2b3; width:100%; height:25%; margin:0% 0% 0% 0%;')
-        h8#browseLabel(name='joinLiveNextLabel', style='text-align:center;') No live experiments in queue.  Click To Join.
+    h3 Live Experiment
+    button.btn.btn-primary.btn-joinLiveNext#joinLiveNext(type='button', name='joinLiveNext', value=-1, style='width:100%; height:50px', disabled) Control any available microscope live
+    div.row
+      div.col-xs-12
+        div(style='background-color:#acd0ef; color:#000;height:40px; padding:5px;margin-top:3px;border-radius:5px')
+          p.browseLabel(name='joinLiveNextLabel', style='text-align:center;line-height:30px') No live experiments in queue
 
   script(type='text/template', id='tmpl-textsubmit')
-    div.page-header(style='background-color:#ffffff; width:100%; height:150px; margin:0% 0% 0% 0%;')
-      button.btn.btn-primary.btn-submitTextNext#submitTextNext(type='button', name='submitTextNext', value=-1, style=' margin:0% 0% 0% 0%;width:100%; height:35%', disabled) Submit Pre-Programmed Experiments to Next Available Online Microscopes
-      div.row(style='background-color:#afa2b3; width:100%; height:20%; margin:0% 0% 0% 0%;')
-        h8#browseLabel(name='browseLabel', style='text-align:center;') No text experiments in queue.  Browse to Add Experiments.
-      div.row(style='width:50%;  height:20%; margin:0% 0% 0% 0%;')
-        input(name='submitTextNextInput', type='file', , multiple='multiple', accept='.json, .txt, .csv', style='width:50%; float:left;')
-      div.row(style='background-color:#afa2b3; width:100%;  height:20%; margin:0% 0% 0% 0%;')
-        h8#loadLabel(name='loadLabel', style='text-align:left;') Browse to Load Text Files
+    h3 Batch Experiment
+    button.btn.btn-primary.btn-submitTextNext#submitTextNext(type='button', name='submitTextNext', value=-1, style='width:100%; height:50px', disabled) Submit pre-defined experiments to any available microscope
+    div.row
+      div.col-xs-12
+        div(style='background-color:#acd0ef; color:#000;height:40px; padding:5px;margin-top:3px;border-radius:5px')
+          p.browseLabel(name='browseLabel', style='text-align:center;line-height:30px') No batch experiments in queue
+    div.row
+      div.col-xs-12
+        input(name='submitTextNextInput', type='file', , multiple='multiple', accept='.json, .txt, .csv', style='float:left;margin-top:5px;')
+    //div.row(style='background-color:#afa2b3; width:100%;  height:20%; margin:0% 0% 0% 0%;')
+      //h8#loadLabel(name='loadLabel', style='text-align:left;') Browse to Load Text Files
 
   script(type='text/template', id='tmpl-bpuimage')
-    div.page-header(style='background-color:#ffffff; margin:0% 0% 0% 0%;')
-      h1(style='text-align:center;') Available Realtime Online Microscopes - Choose One
-      center
-        div.alert.alert-warning
-          strong
-            |Note: You can only run one live experiment at a time
-      div.row(style='background-color:#ffffff; margin:0% 0% 0% 0%;')
-        - for(var j=0;j<data.eugs.length;j++)
-            div.col-sm-3(style='background-color:#ffffff; margin-right:1%; height:320px;')
-              div.row(style='background-color:#ffffff; margin:0% 0% 0% 0%;')
-                button.btn.btn-primary.btn-joinLiveBpu#bpuButton(type='button', name=data.eugs[j].joinLiveJadeName, value=data.eugs[j].index, disabled) Live
-                button.btn.btn-primary.btn-submitTextBpu#bpuButton(type='button', name=data.eugs[j].submitTextJadeName, value=data.eugs[j].index, disabled) Text
-              div.row(style='background-color:#afa2b3; height:30%;')
-                label#bpuLabel(name=data.eugs[j].titleLabelJadeName) #{data.eugs[j].titleLabel}
-                label#bpuLabelSM(name=data.eugs[j].userLabelJadeName) #{data.eugs[j].userLabel}
-                label#bpuLabelSM(name=data.eugs[j].statusLabelJadeName) #{data.eugs[j].statusLabel}
-              div.row
-                img#myImage(name='myImageLive', style='margin-bottom:1%; width:100%; height:55%;', src=data.eugs[j].imageSrc)
+    div
+      h2(style='text-align:center;') Real-time Microscopes
+      //center
+      //  div.alert.alert-warning
+      //    strong
+      //      |Note: You can only run one live experiment at a time
+    div.row
+      - for(var j=0;j<data.eugs.length;j++)
+        div.col-md-3.col-sm-6.col-cs-12(style='min-height:320px;border-radius:5px')
+          div.row(style='margin-bottom:5px;')
+            div.col-xs-6
+              button.btn.btn-primary.btn-joinLiveBpu.bpuButton.pull-left(type='button', name=data.eugs[j].joinLiveJadeName, value=data.eugs[j].index, disabled) Live
+            div.col-xs-6
+              button.btn.btn-primary.btn-submitTextBpu.bpuButton.pull-right(type='button', name=data.eugs[j].submitTextJadeName, value=data.eugs[j].index, disabled) Batch
+          div.row
+            div.col-xs-12
+              div(style='background-color:#acd0ef; height:100px;padding:5px')
+                label.bpuLabel(name=data.eugs[j].titleLabelJadeName) #{data.eugs[j].titleLabel}
+                label.bpuLabelSM(name=data.eugs[j].userLabelJadeName) #{data.eugs[j].userLabel}
+                label.bpuLabelSM(name=data.eugs[j].statusLabelJadeName) #{data.eugs[j].statusLabel}
+                label.bpuLabelSM(name=data.eugs[j].performanceScoreLabel) #{data.eugs[j].performanceScoreLabel}
+                center
+                  b.
+                    Quality: 
+                  //- - for(var k=0;k<Math.ceil(data.eugs[j].performanceScore);k++)
+                  //-   img(src='/media/star.png', width='20', height='20')
+                  input.rating(type="hidden", value="#{Math.ceil(data.eugs[j].performanceScore)}", disabled)
+          div.row
+            div.col-xs-12
+              img.myImage(name='myImageLive', style='margin-bottom:1%; width:100%; height:55%;', src=data.eugs[j].imageSrc)
 
 
   script(type='text/template', id='tmpl-filters')
@@ -107,43 +128,44 @@ block body
             option(value='100') 100 items
 
   script(type='text/template', id='tmpl-results-table')
-    h1(style='text-align:center;') All Experiment Data
+    h2(style='text-align:center;') Completed Experiments
     table.table.table-striped
       thead
         tr
-          th
-          th Submission Time
-          th Microscope Name
-          th.stretch Tag
-          th Status
           th Experiment ID
+          th Submitted at
+          th Microscope
+          th.stretch Type
+          th Status
+          //- th Rating
+          th
       tbody#results-rows
 
   script(type='text/template', id='tmpl-results-row')
-    td
-      input.btn.btn-default.btn-sm.btn-details(type='button', value='View')
-      input.btn.btn-default.btn-sm.btn-download-tar(name='downloadTar', type='button', value='Download')
-      a#downloadLink(href='/media/eug3_response.svg', download='', hidden='true') Download
-      //- input.btn.btn-default.btn-sm.btn-video(type='button', name='video', value='See Video')
-      //- input.btn.btn-default.btn-sm.btn-details(type='button', value='Resubmit', disabled)
+    td <%= _id %>
     td <%= exp_submissionTime %>
     td <%= exp_lastResort.bpuName %>
     td <%= exp_metaData.tag %>
     td <%= exp_status %>
-    td <%= _id %>
+    //- td
+      input.rating(type="hidden", value="<%= survey.rating %>", disabled)
+    td
+      input.btn.btn-primary.btn-sm.btn-details(type='button', value='View', style='margin-right:5px;')
+      input.btn.btn-default.btn-sm.btn-download-tar(name='downloadTar', type='button', value='Download')
+
 
   script(type='text/template', id='tmpl-results-empty-row')
     tr
-      td(colspan='5') no documents matched
+      td(colspan='6') No experiments completed yet
 
   script(type='text/template', id='tmpl-results-paging')
-    div.well
-      div.btn-group.pull-left
-        button.btn.btn-default(disabled=true) Page <%= pages.current %> of <%= pages.total %>
-        button.btn.btn-default(disabled=true) Rows <%= items.begin %> - <%= items.end %> of <%= items.total %>
+    div
       div.btn-group.pull-right
         button.btn.btn-default.btn-page.btn-prev(data-page!='<%= pages.prev %>') Prev
         button.btn.btn-default.btn-page.btn-next(data-page!='<%= pages.next %>')  Next
+      div.btn-group.pull-right(style='margin-right:10px')
+        button.btn.btn-default(disabled=true) Page <%= pages.current %> of <%= pages.total %>
+        //button.btn.btn-default(disabled=true) Rows <%= items.begin %> - <%= items.end %> of <%= items.total %>
       div.clearfix
 
 
