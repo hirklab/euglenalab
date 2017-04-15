@@ -41,11 +41,19 @@ var _init=function(options, callback) {
       rpi.softPwmWrite(pin,  value);
     };
 
-    board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {
-      board.ledSet(options.LedPins.Top, topValue);
-      board.ledSet(options.LedPins.Right, rightValue);
-      board.ledSet(options.LedPins.Bottom, bottomValue);
-      board.ledSet(options.LedPins.Left, leftValue);
+    //board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {
+      //board.ledSet(options.LedPins.Top, topValue);
+      //board.ledSet(options.LedPins.Right, rightValue);
+      //board.ledSet(options.LedPins.Bottom, bottomValue);
+      //board.ledSet(options.LedPins.Left, leftValue);
+    //};
+    board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {   
+      topValue = Math.round(( topValue / 100.0 ) * 255.0);
+      rightValue = Math.round(( rightValue / 100.0 ) * 255.0);
+      bottomValue = Math.round(( bottomValue / 100.0 ) * 255.0);
+      leftValue = Math.round(( leftValue / 100.0 ) * 255.0);
+      var buf = new Buffer ([0x11,leftValue,0x11,bottomValue,0x11,rightValue,0x11,topValue]); 
+      rpi.wiringPiSPIDataRW(0,buf);
     };
 
     //Valve
