@@ -14,6 +14,7 @@ import {LineChartService} from './lineChart/lineChart.service';
 import {PieChartService} from './pieChart/pieChart.service';
 
 import {MicroscopeService} from './microscope/microscope.service';
+import { WebsocketService } from "../../services/websocket.service";
 
 @NgModule({
     imports: [
@@ -31,7 +32,8 @@ import {MicroscopeService} from './microscope/microscope.service';
     providers: [
         LineChartService,
         PieChartService,
-        MicroscopeService
+        MicroscopeService,
+        WebsocketService
     ]
 })
 export class DashboardModule {}

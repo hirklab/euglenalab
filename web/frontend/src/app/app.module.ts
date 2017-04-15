@@ -17,8 +17,7 @@ import {NgaModule} from "./theme/nga.module";
 import {PagesModule} from "./pages/pages.module";
 import {AuthGuard} from "./authGuard";
 import {HttpClient} from './httpClient';
-import { LocalStorageModule } from 'angular-2-local-storage';
-import { LocalStorageService } from 'angular-2-local-storage';
+import { LocalStorageModule, LocalStorageService } from 'angular-2-local-storage';
 
 function httpClientFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions, localStorage: LocalStorageService): Http {
   return new HttpClient(xhrBackend, requestOptions, localStorage);

@@ -5,6 +5,7 @@ import {GroupService} from './group.service';
 import {UserService} from './user.service';
 import {MicroscopeService} from './microscope.service';
 import {ExperimentService} from './experiment.service';
+import {WebsocketService} from './websocket.service';
 
 export default {
 	AuthService, 
@@ -13,5 +14,6 @@ export default {
 	GroupService,
 	UserService,
 	MicroscopeService,
-	ExperimentService
+	ExperimentService,
+	WebsocketService
 };

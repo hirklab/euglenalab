@@ -62,7 +62,15 @@ module.exports = function(options) {
       },
       proxy: [{
         path: '/api/**',
-        target: process.env.WEBSERVER_URL || 'http://biolab.local/',
+        target: process.env.WEBSERVER_URL || 'http://localhost:3000/',
+        changeOrigin: true,
+        secure: false,
+        // pathRewrite: {
+        //   '^/': ''
+        // }
+      }, {
+        path: '/ws/**',
+        target: process.env.WEBSERVER_URL || 'http://localhost:3000/',
         changeOrigin: true,
         secure: false,
         // pathRewrite: {

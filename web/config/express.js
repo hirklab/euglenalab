@@ -1,5 +1,7 @@
 import http from 'http';
 import express from 'express';
+import enableWebsockets from 'express-ws';
+
 import logger from 'morgan';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
@@ -23,15 +25,29 @@ import routes from '../server/routes/index.route';
 import APIError from '../server/helpers/api.error';
 
 const app = express();
-const server = http.createServer(app);
+// enableWebsockets(app);
+
+const server = http.Server(app);
 const io = ioServer(server, {
+  reconnect: true,
   adapter: redisAdapter({
     host: config.redis.host,
     port: config.redis.port
   })
 });
+// io.set("origins", "*:*");
 
 websocketServer.serve(io);
+// 
+// app.ws('/echo', (ws, req) => {
+//   ws.on('message', msg => {
+//     ws.send(msg)
+//   })
+
+//   ws.on('close', () => {
+//     console.log('WebSocket was closed')
+//   })
+// });
 
 if (config.logging.morgan) {
   app.use(logger('dev'));

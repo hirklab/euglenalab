@@ -1,11 +1,55 @@
+import config from './env';
+import socketioJwt from 'socketio-jwt';
+
 function serve(io) {
-	io.on('connection', function(socket) {
-		socket.on('message', function(data) {
-			socket.broadcast.emit('message', data);
-		});
-	});
+  io.sockets
+    .on('connection', socketioJwt.authorize({
+      secret: config.auth.jwtSecret,
+      timeout: 15000 // 15 seconds to send the authentication message
+    }))
+    .on('authenticated', function (socket) {
+      //this socket is authenticated, we are good to handle more events from it.
+      console.log(socket.decoded_token.id);
+
+      // socket.on('connect', function () {
+      //   console.log('connected');
+      // });
+      // socket.on('connecting', function () {
+      //   console.log('connecting');
+      // });
+      // socket.on('disconnect', function () {
+      //   console.log('disconnect');
+      // });
+      // socket.on('connect_failed', function () {
+      //   console.log('connect_failed');
+      // });
+      // socket.on('error', function (err) {
+      //   console.log('error: ' + err);
+      // });
+      // socket.on('reconnect_failed', function () {
+      //   console.log('reconnect_failed');
+      // });
+      // socket.on('reconnect', function () {
+      //   console.log('reconnected ');
+      // });
+      // socket.on('reconnecting', function () {
+      //   console.log('reconnecting');
+      // });
+
+      socket.on('add-message', (message) => {
+        io.emit('message', {
+          type: 'new-message',
+          text: message
+        });
+      });
+
+      socket.on('message', function (data) {
+        socket.broadcast.emit('message', data);
+      });
+
+    });
 }
 
 export default {
-	serve
+  serve
 };

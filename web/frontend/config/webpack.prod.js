@@ -17,7 +17,7 @@ const OptimizeJsPlugin = require('optimize-js-plugin');
  * Webpack Constants
  */
 const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
-const HOST = process.env.HOST || 'localhost';
+const HOST = process.env.HOST || 'biolab.local';
 const PORT = process.env.PORT || 3001;
 const METADATA = webpackMerge(commonConfig({
   env: ENV
@@ -28,8 +28,10 @@ const METADATA = webpackMerge(commonConfig({
   HMR: false
 });
 
-module.exports = function (env) {
-  return webpackMerge(commonConfig({env: ENV}), {
+module.exports = function(env) {
+  return webpackMerge(commonConfig({
+    env: ENV
+  }), {
 
     /**
      * Developer tool to enhance debugging
