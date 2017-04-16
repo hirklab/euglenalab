@@ -46,6 +46,7 @@ const PUBLICATIONS = {
 };
 
 const SUBSCRIPTIONS = {
+	'MANAGER': `manager/sent`,
 	'INBOX': `microscopes/${UNIQUE_ID}/inbox`,
 };
 

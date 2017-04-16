@@ -1,7 +1,9 @@
 import mqtt from 'mqtt';
+import * as _ from 'lodash';
 import logger from './logging';
 import {
 	STATES,
+	SOURCE,
 	QOS,
 	MESSAGE,
 	EVENTS,
@@ -18,6 +20,7 @@ class Manager {
 		this.state = {};
 		this.state.hid = hid;
 		this.state.status = STATES.CONNECTING;
+		this.state.microscopes = {};
 	}
 
 	status() {
@@ -25,16 +28,20 @@ class Manager {
 	}
 
 	isAvailable() {
-		return (this.state.status == STATES.IDLE);
+		return (this.state.status === STATES.IDLE);
 	}
 
 	isRunning() {
-		return (this.state.status == STATES.RUNNING);
+		return (this.state.status === STATES.RUNNING);
 	}
 
 	isQueued() {
-		return (this.state.status == STATES.QUEUED);
+		return (this.state.status === STATES.QUEUED);
 	}
+
+	getMicroscopes(){
+	    return _.values(this.state.microscopes);
+    }
 
 	connect() {
 		let options = {
@@ -66,48 +73,60 @@ class Manager {
 
 			if (!connack.sessionPresent) {
 				this.client.subscribe(SUBSCRIPTIONS.MICROSCOPE, {
-					qos: QOS.ATMOST_ONCE
+					qos: QOS.ATLEAST_ONCE
 				});
 
 				this.client.subscribe(SUBSCRIPTIONS.USER, {
-					qos: QOS.ATMOST_ONCE
+					qos: QOS.ATLEAST_ONCE
 				});
 
 
-				this.client.on(EVENTS.MESSAGE, this.handleMessage);
-				this.client.on(EVENTS.ERROR, this.handleError);
+				this.client.on(EVENTS.MESSAGE, this.handleMessage.bind(this));
+				this.client.on(EVENTS.ERROR, this.handleError.bind(this));
 			}
 
 			this.state.connected = 1;
 			this.state.status = STATES.RUNNING;
 
-			// this.broadcast(MESSAGE.CONNECTED, this.state);
-			this.broadcast(MESSAGE.STATUS, this.status());
+			this.broadcast(MESSAGE.CONNECTED, this.status());
 		});
 	}
 
 	//===== MQTT RESPOND EVENTS ==============
 	onConnected(payload) {
 		logger.debug(`=== onConnected ===`);
-
+        this.updateStatus(payload)
 	}
 
 	onStatus(payload) {
 		logger.debug(`=== onStatus ===`);
-		// this.sendMessage(MESSAGE.STATUS, this.status());
+        this.updateStatus(payload)
 	}
 
 	onDisconnected(payload) {
 		logger.debug(`=== onDisconnected ===`);
+        this.updateStatus(payload)
 	}
+
+	updateStatus(payload){
+        if('hid' in payload){
+            let hid = payload['hid'];
+            this.state.microscopes[hid] = this.state.microscopes[hid] || {}
+            this.state.microscopes[hid] = Object.assign(this.state.microscopes[hid], payload);
+        }
+
+        logger.debug(this.state);
+    }
 
 	//=========================================
 
 	handleMessage(topic, messageString) {
 		let message = JSON.parse(messageString);
 		let type = message.type;
+		// let source = message.source;
 		let payload = message.payload;
 
+        logger.debug('====================================')
 		logger.debug(`[RX] ${topic}: ${type}`);
 		logger.debug(payload);
 
@@ -154,22 +173,30 @@ class Manager {
 		}
 	}
 
+	// handleMicroscope(type, payload){
+    //
+	// }
+    //
+	// handleUser(type,payload){
+    //
+	// }
+
 	handleError(err) {
 		logger.error(`[RX] ${err}`)
 	}
 
-	broadcast(type, payload) {
-		let newMessage = {};
-		newMessage.type = type;
-		newMessage.payload = payload;
+    broadcast(type, payload) {
+        let newMessage = {};
+        newMessage.type = type;
+        newMessage.payload = payload;
 
-		logger.debug(`[TX => B] ${PUBLICATIONS.BROADCAST}: ${type}`);
-		logger.debug(payload);
+        logger.debug(`[TX => B] ${PUBLICATIONS.BROADCAST}: ${type}`);
+        logger.debug(payload);
 
-		this.client.publish(PUBLICATIONS.BROADCAST, JSON.stringify(newMessage), {
-			qos: QOS.ATMOST_ONCE
-		});
-	}
+        this.client.publish(PUBLICATIONS.BROADCAST, JSON.stringify(newMessage), {
+            qos: QOS.ATMOST_ONCE
+        });
+    }
 
 	sendToMicroscope(type, id, payload) {
 		let newMessage = {};

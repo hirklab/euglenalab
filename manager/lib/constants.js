@@ -3,10 +3,17 @@ env.config();
 
 const UNIQUE_ID = process.env.UNIQUE_ID || 'MANAGER';
 
+const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL;
+
 const STATES = {
 	CONNECTING: 'connecting',
 	RUNNING: 'running',
 	OFFLINE: 'offline',
+};
+
+const SOURCE = {
+    MICROSCOPE:'microscope',
+    USER: 'user',
 };
 
 const QOS = {
@@ -67,7 +74,9 @@ const EXPERIMENT_TYPE = {
 }
 
 export {
+    MQTT_BROKER_URL,
 	STATES,
+    SOURCE,
 	QOS,
 	MESSAGE,
 	EVENTS,

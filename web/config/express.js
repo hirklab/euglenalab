@@ -21,6 +21,8 @@ import winstonInstance from './winston';
 import passport from './passport';
 import websocketServer from './websockets';
 
+import manager from './manager';
+
 import routes from '../server/routes/index.route';
 import APIError from '../server/helpers/api.error';
 
@@ -35,19 +37,10 @@ const io = ioServer(server, {
     port: config.redis.port
   })
 });
-// io.set("origins", "*:*");
 
 websocketServer.serve(io);
-// 
-// app.ws('/echo', (ws, req) => {
-//   ws.on('message', msg => {
-//     ws.send(msg)
-//   })
 
-//   ws.on('close', () => {
-//     console.log('WebSocket was closed')
-//   })
-// });
+manager.connect();
 
 if (config.logging.morgan) {
   app.use(logger('dev'));

@@ -38,15 +38,15 @@ class Microscope {
     }
 
     isAvailable() {
-        return (this.state.status == STATES.IDLE);
+        return (this.state.status === STATES.IDLE);
     }
 
     isRunning() {
-        return (this.state.status == STATES.RUNNING);
+        return (this.state.status === STATES.RUNNING);
     }
 
     isQueued() {
-        return (this.state.status == STATES.QUEUED);
+        return (this.state.status === STATES.QUEUED);
     }
 
     //===== MQTT SEND EVENTS =================
@@ -80,16 +80,23 @@ class Microscope {
 
             if (!connack.sessionPresent) {
                 this.client.subscribe(SUBSCRIPTIONS.INBOX, {
-                    qos: QOS.ATMOST_ONCE
+                    qos: QOS.ATLEAST_ONCE
                 });
 
-                this.client.on(EVENTS.MESSAGE, this.handleMessage);
-                this.client.on(EVENTS.ERROR, this.handleError);
+                this.client.subscribe(SUBSCRIPTIONS.MANAGER, {
+                    qos: QOS.ATLEAST_ONCE
+                });
+
+                this.client.on(EVENTS.MESSAGE, this.handleMessage.bind(this));
+                this.client.on(EVENTS.ERROR, this.handleError.bind(this));
             }
 
-            this.onConnected();
+            this.state.connected = 1;
 
-            // update manager
+            if (this.state.status === STATES.CONNECTING) {
+                this.state.status = STATES.IDLE;
+            }
+
             this.sendMessage(MESSAGE.CONNECTED, this.status());
         });
     }
@@ -101,9 +108,11 @@ class Microscope {
 
         // do not change state if it was not connecting already
         // it might be some erroneous state that needs some cleanup before it is ready
-        if (this.state.status == STATES.CONNECTING) {
+        if (this.state.status === STATES.CONNECTING) {
             this.state.status = STATES.IDLE;
         }
+
+        this.sendMessage(MESSAGE.STATUS, this.status());
     }
 
     onStatus(payload) {
@@ -275,7 +284,7 @@ class Microscope {
         logger.debug(`=== onDisconnected ===`);
 
         //reset board
-        this.board.configure();
+        // this.board.configure();
     }
 
     //=========================================
@@ -285,8 +294,9 @@ class Microscope {
         let type = message.type;
         let payload = message.payload;
 
+        logger.debug('====================================')
         logger.debug(`[RX] ${topic}: ${type}`);
-        logger.debug(`${payload}`);
+        logger.debug(payload);
 
         switch (type) {
             case MESSAGE.CONNECTED:

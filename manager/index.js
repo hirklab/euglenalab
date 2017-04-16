@@ -8,12 +8,11 @@ import {
 	EVENTS,
 	PUBLICATIONS,
 	SUBSCRIPTIONS,
-	UNIQUE_ID
+	UNIQUE_ID,
+    MQTT_BROKER_URL
 } from './lib/constants';
 
 env.config();
-
-const MQTT_BROKER_URL = process.env.MQTT_BROKER_URL;
 
 let manager = new Manager(MQTT_BROKER_URL, UNIQUE_ID);
 manager.connect();

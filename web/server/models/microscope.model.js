@@ -39,6 +39,11 @@ const MicroscopeSchema = new mongoose.Schema({
     default: 'unknown'
   },
 
+  connected: {
+    type: Boolean,
+    default: false
+  },
+
   magnification: { //for fixed, min=max=value
     value: {
       type: Number,
@@ -146,11 +151,30 @@ MicroscopeSchema.method({});
  * Statics
  */
 MicroscopeSchema.statics = Object.assign(MicroscopeSchema.statics, {
+  getOrCreate(identification, properties){
+    return this.findOneAndUpdate(
+      {identification: identification},
+      properties,
+      {
+        upsert: true,
+        new: true,
+        setDefaultsOnInsert:true
+      }
+    )
+      .exec()
+      .then((instance) => {
+        if (instance) {
+          return instance;
+        }
+        const err = httpStatus.NOT_FOUND;
+        return Promise.reject(err);
+      });
+  },
 
   getByIdentification(identification) {
     return this.findOne({
-        identification: identification
-      })
+      identification: identification
+    })
       .exec()
       .then((instance) => {
         if (instance) {

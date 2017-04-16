@@ -1,4 +1,5 @@
 import Microscope from "../models/microscope.model";
+import manager from "../../config/manager";
 
 function list(req, res, next) {
   Microscope.getAll(req.query)
