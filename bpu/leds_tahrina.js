@@ -97,7 +97,7 @@ board.ambientlightSet(0);
 //***Light Sensor*** 
 //**********************
 
-var rpi = require ('wiring-pi');
+//var rpi = require ('wiring-pi');
 
 var fd = rpi.wiringPiI2CSetup(0x39);
 //console.log("fd=%d",fd);
