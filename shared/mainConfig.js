@@ -215,6 +215,31 @@ var exports=module.exports={
       },
     },
     {
+      index:4,
+      name:'eug4',
+      description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+      type: 'batch 1 bpu mics',
+      magnification:4,
+      backgroundLighting: 'white',
+      stimulusType: '4leds',
+      stimulusDescription: '4 leds controls by arduino',
+      allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+      isOn:false,
+      isArduino:false,
+      maxLightIntentisy:1, //percent of lightValues used on leds.js
+      localAddr:{
+        ip:'192.168.1.204',
+        serverPort:8090,
+        webcamPort:8080,
+      },
+      publicAddr:{
+        ip:g_publicIP,
+        serverPort:20021,
+        webcamPort:20020,
+        allowedPorts:[20015, 20016, 20017, 20018, 20019],
+      },
+    },
+    {
       index:15,
       name:'eug15',
       description: 'batch 2.0 bpu mics, 4x, 4 leds, static led diffuser',

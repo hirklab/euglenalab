@@ -3,6 +3,9 @@ var rpi =require("wiring-pi");
 //Variables
 var _valveState='valveClosed';
 var _isInitialized=false;
+rpi.wiringPiSPISetup(0,10000000);
+var rst_buf = new Buffer ([0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00]);
+rpi.wiringPiSPIDataRW(0,rst_buf);
 
 //Init
 var _init=function(options, callback) {
@@ -25,6 +28,7 @@ var _init=function(options, callback) {
     //rpi.softPwmWrite(options.diffuserPin, options.diffuserValue);
 
     //LEDs
+<<<<<<< HEAD
 //    board.ledsOff=function() {
 //      Object.keys(options.LedPins).forEach(function(item) {
 //        board.ledSet(options.LedPins[item], 0);
@@ -57,10 +61,30 @@ var _init=function(options, callback) {
 	rpi.wiringPiSPIDataRW(0,rst_buf);
 
 	//var board = {};
+=======
+    //board.ledsOff=function() {
+      //Object.keys(options.LedPins).forEach(function(item) {
+        //board.ledSet(options.LedPins[item], 0);
+      //});
+    //};
 
-//**********************
-//***Base LEDs*** 
-//********************** 
+    //board.ledsOn=function() {
+      //Object.keys(options.LedPins).forEach(function(item) {
+        //board.ledSet(options.LedPins[item], 100);
+      //});
+    //};
+    //board.ledSet=function(pin, value) {
+      //if(typeof pin!='number' && options.LedPins[pin]) {pin=options.LedPins[pin];}
+      //rpi.softPwmWrite(pin,  value);
+    //};
+>>>>>>> d5ee0fdbf01c8d1c2bd25f980828c469a20016cc
+
+    //board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {
+      //board.ledSet(options.LedPins.Top, topValue);
+      //board.ledSet(options.LedPins.Right, rightValue);
+      //board.ledSet(options.LedPins.Bottom, bottomValue);
+      //board.ledSet(options.LedPins.Left, leftValue);
+    //};
     board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {   
       topValue = Math.round(( topValue / 100.0 ) * 255.0);
       rightValue = Math.round(( rightValue / 100.0 ) * 255.0);
@@ -69,6 +93,7 @@ var _init=function(options, callback) {
       var buf = new Buffer ([0x11,leftValue,0x11,bottomValue,0x11,rightValue,0x11,topValue]); 
       rpi.wiringPiSPIDataRW(0,buf);
     };
+<<<<<<< HEAD
 //**********************
 //***Diffuser Light*** 
 //********************** 
@@ -149,6 +174,11 @@ else {ch1 = 256*result + ch1; console.log(ch1);}
 //Valve
 //**************************************
 	board.valveToggle=function() {
+=======
+
+    //Valve
+    board.valveToggle=function() {
+>>>>>>> d5ee0fdbf01c8d1c2bd25f980828c469a20016cc
       if(_valveState=='valveClosed') {board.valveOpen(); return _valveState;
       } else {board.valveClose(); return _valveState;}
     };
