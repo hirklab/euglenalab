@@ -3,6 +3,9 @@ var rpi =require("wiring-pi");
 //Variables
 var _valveState='valveClosed';
 var _isInitialized=false;
+rpi.wiringPiSPISetup(0,10000000);
+var rst_buf = new Buffer ([0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00]);
+rpi.wiringPiSPIDataRW(0,rst_buf);
 
 //Init
 var _init=function(options, callback) {
@@ -25,21 +28,21 @@ var _init=function(options, callback) {
     //rpi.softPwmWrite(options.diffuserPin, options.diffuserValue);
 
     //LEDs
-    board.ledsOff=function() {
-      Object.keys(options.LedPins).forEach(function(item) {
-        board.ledSet(options.LedPins[item], 0);
-      });
-    };
+    //board.ledsOff=function() {
+      //Object.keys(options.LedPins).forEach(function(item) {
+        //board.ledSet(options.LedPins[item], 0);
+      //});
+    //};
 
-    board.ledsOn=function() {
-      Object.keys(options.LedPins).forEach(function(item) {
-        board.ledSet(options.LedPins[item], 100);
-      });
-    };
-    board.ledSet=function(pin, value) {
-      if(typeof pin!='number' && options.LedPins[pin]) {pin=options.LedPins[pin];}
-      rpi.softPwmWrite(pin,  value);
-    };
+    //board.ledsOn=function() {
+      //Object.keys(options.LedPins).forEach(function(item) {
+        //board.ledSet(options.LedPins[item], 100);
+      //});
+    //};
+    //board.ledSet=function(pin, value) {
+      //if(typeof pin!='number' && options.LedPins[pin]) {pin=options.LedPins[pin];}
+      //rpi.softPwmWrite(pin,  value);
+    //};
 
     //board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {
       //board.ledSet(options.LedPins.Top, topValue);
