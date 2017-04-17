@@ -17,29 +17,29 @@ var _init=function(options, callback) {
     });
 
 	//Diffuser
-    rpi.pinMode(options.diffuserPin, rpi.OUTPUT);
-    rpi.digitalWrite(options.diffuserPin, 1);
-    console.log(options.diffuserPin);
+//    rpi.pinMode(options.diffuserPin, rpi.OUTPUT);
+//    rpi.digitalWrite(options.diffuserPin, 1);
+//    console.log(options.diffuserPin);
 
     //rpi.softPwmCreate(options.diffuserPin,0, 100);
     //rpi.softPwmWrite(options.diffuserPin, options.diffuserValue);
 
     //LEDs
-    board.ledsOff=function() {
-      Object.keys(options.LedPins).forEach(function(item) {
-        board.ledSet(options.LedPins[item], 0);
-      });
-    };
+//    board.ledsOff=function() {
+//      Object.keys(options.LedPins).forEach(function(item) {
+//        board.ledSet(options.LedPins[item], 0);
+//      });
+//    };
 
-    board.ledsOn=function() {
-      Object.keys(options.LedPins).forEach(function(item) {
-        board.ledSet(options.LedPins[item], 100);
-      });
-    };
-    board.ledSet=function(pin, value) {
-      if(typeof pin!='number' && options.LedPins[pin]) {pin=options.LedPins[pin];}
-      rpi.softPwmWrite(pin,  value);
-    };
+//    board.ledsOn=function() {
+//      Object.keys(options.LedPins).forEach(function(item) {
+//        board.ledSet(options.LedPins[item], 100);
+//      });
+//    };
+//    board.ledSet=function(pin, value) {
+//      if(typeof pin!='number' && options.LedPins[pin]) {pin=options.LedPins[pin];}
+//      rpi.softPwmWrite(pin,  value);
+//    };
 
 //   board.ledsSet=function(topValue, rightValue, bottomValue, leftValue) {
 //     board.ledSet(options.LedPins.Top, topValue);
@@ -51,13 +51,12 @@ var _init=function(options, callback) {
 //**********************
 //***Light Control*** 
 //**********************
-//Modules
-var rpi =require("wiring-pi");
-rpi.wiringPiSPISetup(0,10000000);
-var rst_buf = new Buffer ([0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00]);
-rpi.wiringPiSPIDataRW(0,rst_buf);
+	//var rpi =require("wiring-pi");
+	rpi.wiringPiSPISetup(0,10000000);
+	var rst_buf = new Buffer ([0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00,0x13,0x00]);
+	rpi.wiringPiSPIDataRW(0,rst_buf);
 
-//var board = {};
+	//var board = {};
 
 //**********************
 //***Base LEDs*** 
@@ -104,10 +103,32 @@ rpi.wiringPiSPIDataRW(0,rst_buf);
       rpi.wiringPiSPIDataRW(0,buf);
     }; 
 //*****************************************************
+//*** READ Channel 0 LOW and HIGH bytes ***
+//*****************************************************
+
+//Command register: cmd=1 clear=0 word=0 block=0 addr=0xE (DATA1LOW)
+var fd = rpi.wiringPiI2CSetup(0x39); 
+result = rpi.wiringPiI2CWrite(fd,0x8C);
+if(result == -1) {console.log (Error);}
+
+result = rpi.wiringPiI2CRead(fd);
+if(result == -1) {console.log (Error);}
+else {var ch1=result;}
+
+//Command register: cmd=1 clear=0 word=0 block=0 addr=0xF (DATA1HIGH) 
+result = rpi.wiringPiI2CWrite(fd,0x8D);
+if(result == -1) {console.log(Error);}
+
+result = rpi.wiringPiI2CRead(fd);
+if(result == -1) {console.log(Error);}
+else {ch1 = 256*result + ch1; console.log(ch1);}
+
+//*****************************************************
 //*** READ Channel 1 LOW and HIGH bytes ***
 //*****************************************************
 
-//Command register: cmd=1 clear=0 word=0 block=0 addr=0xE (DATA1LOW) 
+//Command register: cmd=1 clear=0 word=0 block=0 addr=0xE (DATA1LOW)
+//var fd = rpi.wiringPiI2CSetup(0x39); 
 result = rpi.wiringPiI2CWrite(fd,0x8E);
 if(result == -1) {console.log (Error);}
 
@@ -123,6 +144,7 @@ result = rpi.wiringPiI2CRead(fd);
 if(result == -1) {console.log(Error);}
 else {ch1 = 256*result + ch1; console.log(ch1);}
 	
+
 //**************************************	
 //Valve
 //**************************************
@@ -149,3 +171,4 @@ else {ch1 = 256*result + ch1; console.log(ch1);}
 };
 exports.init=_init;
 exports.getIsInitialized=function() {return _isInitialized;};
+
