@@ -45,7 +45,7 @@ export class WebsocketService {
           .on('authenticated', () => {
             //do other things
 
-            this.socket.on(topic, (data) => {
+            this.socket.on(topic, (data:any) => {
               observer.next(data);
             });
           })
