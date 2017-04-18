@@ -47,11 +47,11 @@ then
     then
         # overwrite .env file if it exists
         echo "$ENV_FILE already exists"
-	echo "updating serial number..."
+	    echo "updating serial number..."
         sed -i '/UNIQUE_ID/c\UNIQUE_ID="'"$SERIAL_NUM"'"' $ENV_FILE
     else
         cp $ENV_DEFAULT_FILE $ENV_FILE
-	echo "updating serial number..."
+	    echo "updating serial number..."
         sed -i '/UNIQUE_ID/c\UNIQUE_ID="'"$SERIAL_NUM"'"' $ENV_FILE
     fi
 else

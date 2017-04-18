@@ -50,7 +50,7 @@ class Board {
 	flush(duration){
         //sanity check
         if(duration>20){
-            duration = 20;
+            duration = 20;  //msec
         }
 
         this.setDevice('valve', 1);

@@ -13,8 +13,8 @@ router.route('/')
 
 router.route('/:microscopeId')
   .get(ensureAuthenticated, ctrl.get)
-  .put(ensureAuthenticated, validate(validation.update), ctrl.update)
-  .delete(ensureAuthenticated, ctrl.remove);
+  .put(ensureAuthenticated, ensurePermission('microscopes.update'), validate(validation.update), ctrl.update)
+  .delete(ensureAuthenticated, ensurePermission('microscopes.remove'), ctrl.remove);
 
 /** Load user when API with microscopeId route parameter is hit */
 router.param('microscopeId', ctrl.load);

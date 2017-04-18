@@ -9,7 +9,7 @@ const router = express.Router(); // eslint-disable-line new-cap
 
 router.route('/')
 	.get(ensureAuthenticated, ctrl.list)
-	.post(ensureAuthenticated, ensurePermission('permissions.crete'), validate(validation.create), ctrl.create);
+	.post(ensureAuthenticated, ensurePermission('permissions.create'), validate(validation.create), ctrl.create);
 
 router.route('/:permissionId')
 	.get(ensureAuthenticated, ctrl.get)
