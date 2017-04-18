@@ -42,17 +42,17 @@ export class MicroscopeList {
         title: 'Identity',
         type: 'string'
       },
-      // isActive: {
-      //   title: 'Is Active ?',
-      //   filter: {
-      //     type: 'checkbox',
-      //     config: {
-      //       true: true,
-      //       false: false,
-      //       resetText: 'clear',
-      //     },
-      //   },
-      // },
+      isActive: {
+        title: 'Is Active ?',
+        filter: {
+          type: 'checkbox',
+          config: {
+            true: true,
+            false: false,
+            resetText: 'clear',
+          },
+        },
+      },
     }
   };
   source: LocalDataSource = new LocalDataSource();
@@ -101,7 +101,8 @@ export class MicroscopeList {
   resetForm(): void {
     this.selected = {
       name: '',
-      identification: ''
+      identification: '',
+      isActive:false
     };
   }
 
@@ -109,7 +110,8 @@ export class MicroscopeList {
     this.selected = {
       _id: instance._id,
       name: instance.name,
-      identification: instance.identification
+      identification: instance.identification,
+      isActive:instance.isActive
     };
   }
 
@@ -135,6 +137,7 @@ export class MicroscopeList {
     let newData = {};
     newData['name'] = event.name;
     newData['identification'] = event.identification;
+    newData['isActive'] = event.isActive;
 
     this.service.create(newData).subscribe(
       (data) => {
@@ -157,6 +160,7 @@ export class MicroscopeList {
     newData['_id'] = event._id;
     newData['name'] = event.name;
     newData['identification'] = event.identification;
+    newData['isActive'] = event.isActive;
 
     this.service.update(newData).subscribe(
       (data) => {

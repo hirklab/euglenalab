@@ -21,3 +21,9 @@
 .blurCalendar {
   height: 475px;
 }
+
+.microscope-item-container{
+  .card > .card-body {
+    padding: 0;
+  }
+}

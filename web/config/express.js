@@ -40,7 +40,7 @@ const io = ioServer(server, {
 
 websocketServer.serve(io);
 
-manager.connect();
+manager.connect(io);
 
 if (config.logging.morgan) {
   app.use(logger('dev'));

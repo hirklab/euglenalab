@@ -45,9 +45,9 @@ class Manager {
     return _.values(this.state.microscopes);
   }
 
-  connect() {
+  connect(io) {
     let options = {
-      clientId: this.hid,
+      clientId: this.state.hid,
       protocol: "mqtt",
       protocolId: "MQTT",
       protocolVersion: 4,
@@ -69,6 +69,7 @@ class Manager {
     };
 
     this.client = mqtt.connect(this.url, options);
+    this.io = io;
 
     this.client.on(EVENTS.CONNECT, (connack) => {
       logger.info(`** connected ${this.url} **`);
@@ -102,7 +103,12 @@ class Manager {
 
   onStatus(payload) {
     logger.debug(`=== onStatus ===`);
-    this.updateStatus(payload)
+    this.updateStatus(payload);
+
+    this.io.emit('message', {
+      type: 'status',
+      payload:payload
+    });
   }
 
   onDisconnected(payload) {
@@ -120,6 +126,7 @@ class Manager {
         .getOrCreate(hid, this.state.microscopes[hid])
         .then((microscope) => {
           this.state.microscopes[hid] = microscope; // eslint-disable-line no-param-reassign
+          logger.debug(microscope);
         })
         .catch(e => logger.error(e));
 

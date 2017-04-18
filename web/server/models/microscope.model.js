@@ -98,7 +98,7 @@ const MicroscopeSchema = new mongoose.Schema({
       type: String,
       default: ''
     },
-    webcam: {
+    cameraPort: {
       type: String,
       default: ''
     },
@@ -113,7 +113,7 @@ const MicroscopeSchema = new mongoose.Schema({
       type: String,
       default: ''
     },
-    webcam: {
+    cameraPort: {
       type: String,
       default: ''
     },
@@ -158,7 +158,7 @@ MicroscopeSchema.statics = Object.assign(MicroscopeSchema.statics, {
       {
         upsert: true,
         new: true,
-        setDefaultsOnInsert:true
+        // setDefaultsOnInsert:true
       }
     )
       .exec()

@@ -1,6 +1,8 @@
 import env from 'dotenv';
 import mqtt from "mqtt";
 import _ from "lodash";
+import publicIp from "public-ip";
+import internalIp from "internal-ip";
 import logger from "./logging";
 import Board from "./board";
 import {
@@ -22,6 +24,8 @@ const EXPERIMENT_EVENT_INTERVAL = parseInt(process.env.EXPERIMENT_EVENT_INTERVAL
 
 class Microscope {
     constructor(url, hid) {
+        this.client = null;
+
         this.url = url;
         this.hid = hid;
 
@@ -31,6 +35,8 @@ class Microscope {
 
         this.board = new Board();
         this.board.configure();
+
+        this.getPublicIP();
     }
 
     status() {
@@ -47,6 +53,32 @@ class Microscope {
 
     isQueued() {
         return (this.state.status === STATES.QUEUED);
+    }
+
+    getPublicIP() {
+        publicIp.v4().then(ip => {
+            this.state.publicAddress = {
+                ip: ip,
+                port: 0,
+                cameraPort: 20005
+            };
+
+            this.getLocalIP();
+
+            console.log(this.state);
+
+            // this.sendMessage(MESSAGE.STATUS, this.status());
+        });
+    }
+
+    getLocalIP() {
+        this.state.localAddress = {
+            ip: internalIp.v4(),
+            port: 0,
+            cameraPort: 80
+        };
+
+        // this.sendMessage(MESSAGE.STATUS, this.status());
     }
 
     //===== MQTT SEND EVENTS =================
@@ -97,7 +129,7 @@ class Microscope {
                 this.state.status = STATES.IDLE;
             }
 
-            this.sendMessage(MESSAGE.CONNECTED, this.status());
+            this.sendMessage(MESSAGE.STATUS, this.status());
         });
     }
 
@@ -124,10 +156,10 @@ class Microscope {
         logger.debug(`=== onExperimentSet ===`);
 
         if (this.isAvailable()) {
-            this.state.status = STATES.QUEUED;
-
             //reset board
             this.board.configure();
+
+            this.state.status = STATES.QUEUED;
 
             let experiment = payload.experiment;
             // todo: create a folder to save 
@@ -294,7 +326,7 @@ class Microscope {
         let type = message.type;
         let payload = message.payload;
 
-        logger.debug('====================================')
+        logger.debug('====================================');
         logger.debug(`[RX] ${topic}: ${type}`);
         logger.debug(payload);
 
