@@ -35,8 +35,6 @@ class Microscope {
 
         this.board = new Board();
         this.board.configure();
-
-        this.getPublicIP();
     }
 
     status() {
@@ -65,9 +63,7 @@ class Microscope {
 
             this.getLocalIP();
 
-            console.log(this.state);
-
-            // this.sendMessage(MESSAGE.STATUS, this.status());
+            this.sendMessage(MESSAGE.STATUS, this.status());
         });
     }
 
@@ -130,6 +126,8 @@ class Microscope {
             }
 
             this.sendMessage(MESSAGE.STATUS, this.status());
+
+            this.getPublicIP();
         });
     }
 
