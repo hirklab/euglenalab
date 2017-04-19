@@ -3,15 +3,14 @@ import Joi from 'joi';
 export default {
 	create: {
 		body: {
-      name: Joi.string().required(),
-      description: Joi.string()
+			category: Joi.string().required(),
 		}
 	},
 
 	update: {
 		body: {
-      name: Joi.string().required(),
-      description: Joi.string(),
+			name: Joi.string().required(),
+			description: Joi.string(),
 		}
 	},
 };

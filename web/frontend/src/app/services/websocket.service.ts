@@ -15,7 +15,6 @@ export class WebsocketService {
   private socket;
 
   constructor(private config: BaThemeConfigProvider, private localStorage: LocalStorageService) {
-    // this.ws = new $WebSocket("ws://localhost:3001/ws",null, {initialTimeout:10, maxTimeout:10, reconnectIfNotNormalClose:true});
   }
 
   getToken() {

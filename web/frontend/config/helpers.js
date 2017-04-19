@@ -10,7 +10,7 @@ function hasProcessFlag(flag) {
 }
 
 function hasNpmFlag(flag) {
-  return EVENT.includes(flag);
+  return EVENT.indexOf(flag) > -1;
 }
 
 function isWebpackDevServer() {

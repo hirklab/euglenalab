@@ -70,6 +70,10 @@
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/@angularclass/hmr/-/hmr-1.2.2.tgz#46a18f89a1e94d05c268b83c9480e005f73fc265"
 
+"@ng-bootstrap/ng-bootstrap@1.0.0-alpha.22":
+  version "1.0.0-alpha.22"
+  resolved "https://registry.yarnpkg.com/@ng-bootstrap/ng-bootstrap/-/ng-bootstrap-1.0.0-alpha.22.tgz#aaad058cc39293ea6184e4b9b849f298c0b11a86"
+
 "@types/electron@1.4.32":
   version "1.4.32"
   resolved "https://registry.yarnpkg.com/@types/electron/-/electron-1.4.32.tgz#3c9fce4aa53b26213bc1f1b640206191d449fa76"
@@ -123,6 +127,12 @@
 "@types/minimatch@^2.0.29":
   version "2.0.29"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-2.0.29.tgz#5002e14f75e2d71e564281df0431c8c1b4a2a36a"
+
+"@types/moment@^2.13.0":
+  version "2.13.0"
+  resolved "https://registry.yarnpkg.com/@types/moment/-/moment-2.13.0.tgz#604ebd189bc3bc34a1548689404e61a2a4aac896"
+  dependencies:
+    moment "*"
 
 "@types/node@*", "@types/node@6.0.63":
   version "6.0.63"
@@ -249,6 +259,12 @@ amdefine@>=0.0.4:
 angular-2-local-storage@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/angular-2-local-storage/-/angular-2-local-storage-1.0.1.tgz#3b846c90b2fffc9124f7bacc347f22d043a1e3a4"
+
+angular2-moment@^1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/angular2-moment/-/angular2-moment-1.3.3.tgz#569c433bbfa2448d5424f0e10dce6f8c8c9533eb"
+  dependencies:
+    moment "^2.16.0"
 
 angular2-template-loader@0.6.0:
   version "0.6.0"
@@ -3767,9 +3783,13 @@ mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0, mkd
   dependencies:
     minimist "0.0.8"
 
-moment@2.17.1, moment@>=2.14.0, moment@>=2.5.0:
+moment@*, moment@2.17.1, moment@>=2.14.0, moment@>=2.5.0, moment@^2.16.0:
   version "2.17.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.17.1.tgz#fed9506063f36b10f066c8b59a144d7faebe1d82"
+
+moment@^2.18.1:
+  version "2.18.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.18.1.tgz#c36193dd3ce1c2eed2adb7c802dbbc77a81b1c0f"
 
 ms@0.7.1:
   version "0.7.1"
@@ -3843,6 +3863,10 @@ ngc-webpack@1.2.0:
     minimist "^1.2.0"
     reflect-metadata "^0.1.2"
     ts-node "^2.0.0"
+
+ngx-rating@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/ngx-rating/-/ngx-rating-0.0.9.tgz#1c673d6e597642e430f980064be8571663b0fc16"
 
 ngx-uploader@2.2.0:
   version "2.2.0"

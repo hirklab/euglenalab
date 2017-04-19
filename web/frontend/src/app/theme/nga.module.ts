@@ -25,6 +25,7 @@ import {
   BaMsgCenter,
   BaMultiCheckbox,
   BaPageTop,
+  BaFileUploader,
   BaPictureUploader,
   BaSidebar
 } from './components';
@@ -68,6 +69,7 @@ const NGA_COMPONENTS = [
   BaMsgCenter,
   BaMultiCheckbox,
   BaPageTop,
+  BaFileUploader,
   BaPictureUploader,
   BaSidebar
 ];

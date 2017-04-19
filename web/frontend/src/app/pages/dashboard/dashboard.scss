@@ -15,6 +15,7 @@
 .user-stats-card {
   .card-title {
     padding: 0 0 15px;
+    text-transform:none;
   }
 }
 
@@ -23,7 +24,35 @@
 }
 
 .microscope-item-container{
+  .card-title{
+    text-transform:capitalize;
+    font-weight:500;
+  }
+
   .card > .card-body {
     padding: 0;
   }
+}
+
+.rating {
+  padding:5px;
+  font-size: 18px;
+  float: right;
+  bottom: 26px;
+  position: relative;
+  background-color: rgba(0,0,0,0.25);
+}
+
+i.star-icon{
+  color:#111 !important;
+  font-size:18px !important;
+
+  &:before{
+  color:#dfb81c;
+  opacity:1;
+  }
+}
+
+.btn:hover{
+  transform:none;
 }

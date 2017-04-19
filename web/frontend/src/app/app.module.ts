@@ -18,6 +18,8 @@ import {PagesModule} from "./pages/pages.module";
 import {AuthGuard} from "./authGuard";
 import {HttpClient} from './httpClient';
 import { LocalStorageModule, LocalStorageService } from 'angular-2-local-storage';
+import { RatingModule } from "ngx-rating";
+import { MomentModule, TimeAgoPipe } from 'angular2-moment';
 
 function httpClientFactory(xhrBackend: XHRBackend, requestOptions: RequestOptions, localStorage: LocalStorageService): Http {
   return new HttpClient(xhrBackend, requestOptions, localStorage);
@@ -51,6 +53,8 @@ export type StoreType = {
     ReactiveFormsModule,
     NgaModule.forRoot(),
     PagesModule,
+    RatingModule,
+    MomentModule,
     LocalStorageModule.withConfig({
       prefix: 'app',
       storageType: 'localStorage'
@@ -62,6 +66,7 @@ export type StoreType = {
     APP_PROVIDERS,
     { provide: HttpClient, useFactory: httpClientFactory, deps: [XHRBackend, RequestOptions, LocalStorageService]},
     AuthGuard,
+
   ]
 })
 

@@ -107,13 +107,18 @@ class Manager {
 
     this.io.emit('message', {
       type: 'status',
-      payload:payload
+      payload: payload
     });
   }
 
   onDisconnected(payload) {
     logger.debug(`=== onDisconnected ===`);
     this.updateStatus(payload)
+
+    this.io.emit('message', {
+      type: 'status',
+      payload: payload
+    });
   }
 
   updateStatus(payload) {
@@ -156,29 +161,29 @@ class Manager {
         this.onStatus(payload);
         break;
 
-      // case MESSAGE.EXPERIMENT_SET:
-      // 	this.onExperimentSet(payload);
-      // 	break;
+        // case MESSAGE.EXPERIMENT_SET:
+        // 	this.onExperimentSet(payload);
+        // 	break;
 
-      // case MESSAGE.EXPERIMENT_CANCEL:
-      // 	this.onExperimentCancel(payload);
-      // 	break;
+        // case MESSAGE.EXPERIMENT_CANCEL:
+        // 	this.onExperimentCancel(payload);
+        // 	break;
 
-      // case MESSAGE.EXPERIMENT_RUN:
-      // 	this.onExperimentRun(payload);
-      // 	break;
+        // case MESSAGE.EXPERIMENT_RUN:
+        // 	this.onExperimentRun(payload);
+        // 	break;
 
-      // case MESSAGE.STIMULUS:
-      // 	this.onStimulus(payload);
-      // 	break;
+        // case MESSAGE.STIMULUS:
+        // 	this.onStimulus(payload);
+        // 	break;
 
-      // case MESSAGE.EXPERIMENT_CLEAR:
-      // 	this.onExperimentClear(payload);
-      // 	break;
+        // case MESSAGE.EXPERIMENT_CLEAR:
+        // 	this.onExperimentClear(payload);
+        // 	break;
 
-      // case MESSAGE.MAINTENANCE:
-      // 	this.onMaintenance(payload);
-      // 	break;
+        // case MESSAGE.MAINTENANCE:
+        // 	this.onMaintenance(payload);
+        // 	break;
 
       case MESSAGE.DISCONNECTED:
         this.onDisconnected(payload);

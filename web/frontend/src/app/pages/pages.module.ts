@@ -1,5 +1,6 @@
 import { NgModule }      from '@angular/core';
 import { CommonModule }  from '@angular/common';
+import { NgbRatingModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { routing }       from './pages.routing';
 import { NgaModule } from '../theme/nga.module';
@@ -15,7 +16,7 @@ import { RoleService } from '../services/role.service';
 import { PermissionService } from '../services/permission.service';
 
 @NgModule({
-  imports: [CommonModule, NgaModule, routing],
+  imports: [CommonModule, NgaModule, NgbRatingModule, routing],
   declarations: [Pages],
   providers: [
     AuthService,

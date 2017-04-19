@@ -61,9 +61,7 @@ class Microscope {
                 cameraPort: 20005
             };
 
-            this.getLocalIP();
-
-            this.sendMessage(MESSAGE.STATUS, this.status());
+            //this.sendMessage(MESSAGE.STATUS, this.status());
         });
     }
 
@@ -127,7 +125,7 @@ class Microscope {
 
             this.sendMessage(MESSAGE.STATUS, this.status());
 
-            this.getPublicIP();
+            // this.getPublicIP();
         });
     }
 

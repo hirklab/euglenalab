@@ -1,0 +1,21 @@
+<div class="file-group" [ngClass]="{uploading: uploadInProgress}">
+  <div class="file-wrapper" (click)="bringFileSelector();">
+    <!-- <img [src]="file" *ngIf="file"> -->
+    <!-- <img [src]="defaultFile" *ngIf="!!!file && !!defaultFile"> -->
+    <p><i class="ion-upload"></i> Upload Files</p>
+
+    <div class="loading" *ngIf="uploadInProgress">
+      <div class="spinner">
+        <div class="double-bounce1"></div>
+        <div class="double-bounce2"></div>
+      </div>
+    </div>
+
+  </div>
+  <i class="ion-ios-close-outline" (click)="removeFile();" *ngIf="file && canDelete"></i>
+  <a href class="change-file" (click)="bringFileSelector();">Upload Files</a>
+  <input #fileUpload ngFileSelect [options]="uploaderOptions"
+         (onUpload)="_onUpload($event)"
+         (beforeUpload)="beforeUpload($event)"
+         type="file" hidden="true">
+</div>

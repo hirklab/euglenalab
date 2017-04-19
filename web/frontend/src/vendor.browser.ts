@@ -16,7 +16,7 @@ import '@angular/router';
 import '@angularclass/hmr';
 
 // Angular 3rd party packages
-import 'ng2-cookies'
+import 'ng2-cookies';
 
 // RxJS
 import 'rxjs/add/operator/map';

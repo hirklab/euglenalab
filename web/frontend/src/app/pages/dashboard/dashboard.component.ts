@@ -1,7 +1,9 @@
 import {Component, Input, OnInit, OnDestroy, OnChanges} from '@angular/core';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import {MicroscopeService} from "../../services/microscope.service";
+import { ExperimentService } from "../../services/experiment.service";
 import {WebsocketService} from "../../services/websocket.service";
+import { NgbRatingModule } from '@ng-bootstrap/ng-bootstrap';
 
 import "style-loader!./dashboard.scss";
 
@@ -21,8 +23,9 @@ export class Dashboard implements OnInit, OnDestroy, OnChanges {
   @Input() microscopes: any = [];
   wsConnection: any = null;
   dataConnection: any = null;
+  currentExperiment: any = null;
 
-  constructor(protected ws: WebsocketService, protected service: MicroscopeService) {
+  constructor(protected ws: WebsocketService, protected microscopeService: MicroscopeService, protected experimentService:ExperimentService) {
     this.wsConnection = this.ws.getMessages('message')
       .subscribe(message => {
         let type = message['type'];
@@ -102,18 +105,31 @@ export class Dashboard implements OnInit, OnDestroy, OnChanges {
       limit: 1000
     };
 
-    this.dataConnection = this.service.getAll(params).subscribe((data) => {
+    this.dataConnection = this.microscopeService.getAll(params).subscribe((data) => {
       this.microscopes = data.docs;
 
       _.each(this.microscopes, (microscope) => {
-        if (microscope.hasOwnProperty('publicAddress') && microscope.publicAddress != null && microscope.publicAddress.hasOwnProperty('ip') && microscope.publicAddress.ip != null) {
-          microscope.address = `http://${microscope.publicAddress.ip}:${microscope.publicAddress.cameraPort}?action=snapshot`; //+ (microscope.snapshot ? 'snapshot' : 'stream');
+        if (microscope.hasOwnProperty('identification') && microscope.identification!=='DUMMY') {
+          microscope.address = `//biolab.local/cam/${microscope.identification}/?action=snapshot`; //+ (microscope.snapshot ? 'snapshot' : 'stream');
         } else {
           microscope.address = '/assets/img/bpu-disabled.jpg';
         }
+
+        microscope.rating = 3;
       })
 
     });
+  }
+
+  createExperiment(microscope, category): void {
+    let params = {
+      proposedMicroscope: microscope,
+      category:category
+    }
+    this.experimentService.create(params).subscribe((data)=>{
+
+    });
+
   }
 
 }

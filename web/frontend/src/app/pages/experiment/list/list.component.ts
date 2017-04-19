@@ -2,6 +2,8 @@ import {Component} from "@angular/core";
 import {FormBuilder} from "@angular/forms";
 import {ExperimentService} from "../../../services/experiment.service";
 import {LocalDataSource} from "ng2-smart-table";
+import * as moment from 'moment/moment';
+import * as _ from 'lodash';
 import "style-loader!./list.scss";
 
 @Component({
@@ -17,7 +19,9 @@ export class ExperimentList {
       perPage: 20
     },
     actions:{
-      delete:false
+      delete:true,
+      edit:false,
+      add:false
     },
     add: {
       addButtonContent: '<i class="ion-ios-plus-outline"></i>',
@@ -34,14 +38,26 @@ export class ExperimentList {
       confirmDelete: true
     },
     columns: {
-      name: {
-        title: 'Name',
-        type: 'string'
+      submittedAt: {
+        title: 'Submitted',
+        type: 'text',
+        valuePrepareFunction: (value) => { return _.capitalize(this.getDate(value)); }    
       },
-      identification: {
-        title: 'Identity',
-        type: 'string'
+      category: {
+        title: 'Category',
+        type: 'text',
+        valuePrepareFunction: (value) => { return _.capitalize(value); }     
       },
+      microscope: {
+        title: 'Microscope',
+        type: 'text'
+      },
+      status: {
+        title: 'Status',
+        type: 'text', 
+        valuePrepareFunction: (value) => { return _.capitalize(value); }       
+      }
+      
       // isActive: {
       //   title: 'Is Active ?',
       //   filter: {
@@ -76,6 +92,10 @@ export class ExperimentList {
     this.preloadData();
   }
 
+  getDate(date):string {
+    return moment(date).fromNow();
+  }
+
   loadData(): void {
     let params = {
       page: 1,
@@ -83,7 +103,11 @@ export class ExperimentList {
     };
 
     this.service.getAll(params).subscribe((data) => {
-      this.source.load(data.docs);
+      let experiments = _.each(data.docs, (experiment)=>{
+        return experiment;
+      })
+
+      this.source.load(experiments);
       this.source.setPaging(data.page, data.limit);
     });
   }
@@ -96,7 +120,6 @@ export class ExperimentList {
 
     this.loadData();
   }
-
 
   resetForm(): void {
     this.selected = {

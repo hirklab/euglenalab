@@ -4,7 +4,7 @@ import { Routes } from '@angular/router';
 import { BaMenuService } from '../theme';
 import { PAGES_MENU } from './pages.menu';
 import { AuthService } from "../services/auth.service";
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'pages',

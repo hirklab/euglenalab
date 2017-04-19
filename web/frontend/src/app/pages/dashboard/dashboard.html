@@ -1,6 +1,19 @@
-<div class="row">
-
+<div class="row" style="margin-bottom:15px;">
+<div class="col-md-6 col-xs-12">
+    <button class="btn btn-warning btn-raised btn-icon btn-xm" (click)="createExperiment(null, 'live')"><i class="ion ion-compass"></i> Launch interactive experiment</button>
 </div>
+<div class="col-md-6 col-xs-12">
+  <button class="btn btn-warning btn-raised btn-icon btn-xm" (click)="createExperiment(null, 'batch')"><i class="ion ion-clock"></i> Schedule batch experiment</button>
+  <ba-file-uploader [file]="batchFiles"></ba-file-uploader>
+</div>
+</div>
+
+<div class="row" style="margin-bottom:15px;display: none;">
+<div class="col-xs-12">
+  <h5>Experiment Queue</h5>
+</div>
+</div>
+
 
 <div class="row">
   <div class="col-xs-12">
@@ -12,6 +25,10 @@
 
         <div class="microscope-item">
           <img src="{{microscope.address}}" style="width:100%">
+          <rating [(ngModel)]="microscope.rating"
+                  [readonly]="true"
+                  [titles]="['worst', 'bad', 'medium', 'good', 'best']">
+          </rating>
         </div>
 
       </ba-card>
