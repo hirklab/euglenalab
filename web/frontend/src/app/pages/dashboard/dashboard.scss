@@ -7,30 +7,56 @@
 }
 
 @media screen and (max-width: 1620px) {
-  .card.feed-panel.large-card {
-    height: 824px;
-  }
+
 }
 
-.user-stats-card {
-  .card-title {
-    padding: 0 0 15px;
-    text-transform:none;
-  }
-}
+.experiment-actions {
+  ul.btn-list {
+    margin: 0 0 0 -18px;
+    padding: 0;
+    padding-top: 6px;
+    clear: both;
 
-.blurCalendar {
-  height: 475px;
+    li{
+      margin: 0px 0 8px 18px;
+      padding: 0;
+      list-style: none;
+      float: left;
+
+      .btn-action{
+        background-color:#209e91;
+        border-color:#209e91;
+        color:white;
+
+        &:hover{
+          background-color:#dfb81c;
+          border-color:#dfb81c;
+        }
+      }
+    }
+  }
 }
 
 .microscope-item-container{
   .card-title{
     text-transform:capitalize;
-    font-weight:500;
+    font-weight:400;
   }
 
   .card > .card-body {
     padding: 0;
+
+    .microscope-time{
+      float: right;
+      position: relative;
+      top: -31px;
+      height: 0px;
+      line-height: 20px;
+      font-size: 20px;
+      padding-right: 15px;
+      font-weight: 300;
+      color: #209e91;
+    }
   }
 }
 
@@ -40,7 +66,8 @@
   float: right;
   bottom: 26px;
   position: relative;
-  background-color: rgba(0,0,0,0.25);
+  background-color: rgba(0,0,0,0.35);
+  border-top-left-radius:5px;
 }
 
 i.star-icon{

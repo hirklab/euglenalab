@@ -19,7 +19,7 @@ export class ExperimentList {
       perPage: 20
     },
     actions:{
-      delete:true,
+      delete:false,
       edit:false,
       add:false
     },
@@ -38,6 +38,10 @@ export class ExperimentList {
       confirmDelete: true
     },
     columns: {
+      _id: {
+        title: 'ID',
+        type: 'text'
+      },
       submittedAt: {
         title: 'Submitted',
         type: 'text',

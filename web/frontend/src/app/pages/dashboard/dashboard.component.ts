@@ -94,6 +94,10 @@ export class Dashboard implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  onExperimentReady(){
+
+  }
+
   ngOnDestroy() {
     this.wsConnection.unsubscribe();
     this.dataConnection.unsubscribe();
@@ -127,7 +131,7 @@ export class Dashboard implements OnInit, OnDestroy, OnChanges {
       category:category
     }
     this.experimentService.create(params).subscribe((data)=>{
-
+        
     });
 
   }

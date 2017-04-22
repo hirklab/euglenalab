@@ -1,11 +1,15 @@
 <div class="row" style="margin-bottom:15px;">
-<div class="col-md-6 col-xs-12">
-    <button class="btn btn-warning btn-raised btn-icon btn-xm" (click)="createExperiment(null, 'live')"><i class="ion ion-compass"></i> Launch interactive experiment</button>
-</div>
-<div class="col-md-6 col-xs-12">
-  <button class="btn btn-warning btn-raised btn-icon btn-xm" (click)="createExperiment(null, 'batch')"><i class="ion ion-clock"></i> Schedule batch experiment</button>
-  <ba-file-uploader [file]="batchFiles"></ba-file-uploader>
-</div>
+  <div class="col-xs-12 experiment-actions">
+    <ul class="btn-list clearfix">
+      <li>
+        <button class="btn btn-warning btn-raised btn-icon btn-xm btn-action" (click)="createExperiment(null, 'live')"><i class="ion ion-compass"></i> Launch interactive experiment</button>
+      </li>
+      <li>
+         <button class="btn btn-warning btn-raised btn-icon btn-xm btn-action" (click)="createExperiment(null, 'batch')"><i class="ion ion-clock"></i> Schedule batch experiment</button>
+      <ba-file-uploader [file]="batchFiles"></ba-file-uploader>
+      </li>
+    </ul>
+  </div>
 </div>
 
 <div class="row" style="margin-bottom:15px;display: none;">
@@ -21,9 +25,10 @@
     <div class="row microscopes">
       <ba-card *ngFor="let microscope of microscopes"
                class="microscope-item-container col-xlg-2 col-lg-3 col-md-6 col-sm-12 col-xs-12"
-               title="{{microscope.name}} ({{microscope.status}})">
+               title="{{microscope.name}} ({{microscope.status}})">     
 
         <div class="microscope-item">
+          <span class="microscope-time">10s</span> 
           <img src="{{microscope.address}}" style="width:100%">
           <rating [(ngModel)]="microscope.rating"
                   [readonly]="true"
