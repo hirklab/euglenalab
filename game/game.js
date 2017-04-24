@@ -40,7 +40,8 @@ function enableDownload()
       }
       var img = new Image();
       img.onload = imageOnLoad;
-      img.src = "http://localhost:8080/?action=snapshot&n=" + (++imageNr);
+      //img.src = "http://euglena.stanford.edu:20005/?action=snapshot&n=" + (++imageNr);
+      img.src = "http://192.168.1.220:8080/?action=snapshot&n=" + (++imageNr);
       img.crossOrigin = "Anonymous";
     }
 
@@ -118,7 +119,8 @@ function processNextImage()
 
   var img = new Image();
   img.onload = imageOnLoad;
-  img.src = "http://localhost:8080/?action=snapshot&n=" + (++imageNr);
+  img.src = "http://192.168.1.220:8080/?action=snapshot&n=" + (++imageNr);
+  //img.src = "http://euglena.stanford.edu:20005/?action=snapshot&n=" + (++imageNr);
   img.crossOrigin = "Anonymous";
 }
 

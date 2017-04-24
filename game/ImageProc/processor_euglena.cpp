@@ -82,7 +82,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im)
     //std::vector< std::vector<cv::Point> > validContours;
     std::vector<cv::RotatedRect>  euglenas;
     for(auto &c : contours){
-        if ( cv::contourArea(c) > 250.0 ){
+        if ( cv::contourArea(c) > 3.0 ){
             cv::RotatedRect rect = cv::minAreaRect(c);
             euglenas.push_back( rect );
         }
