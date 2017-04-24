@@ -58,7 +58,12 @@
     //Labels
     setTitleLabel:function(index, msg) {
       var elem=app.bpuImageView.$el.find('[name="'+ 'BpuTitleLabel'+index +'"]')[0];
-      if(elem) elem.innerHTML=msg;
+      if(elem) {
+        if (msg.length < 30)
+          elem.innerHTML=msg;
+        else
+          elem.innerHTML=msg.substring(0,27) + "...";
+      }
     },
     setUserLabel:function(index, msg) {
       var elem=app.bpuImageView.$el.find('[name="'+ 'BpuUserLabel'+index +'"]')[0];
