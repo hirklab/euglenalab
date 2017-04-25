@@ -9,19 +9,12 @@ function serve(io) {
       secret: config.auth.jwtSecret,
       timeout: 15000 // 15 seconds to send the authentication message
     }))
-    .on('authenticated', function (socket) {
+    .on('authenticated', function(socket) {
       //this socket is authenticated, we are good to handle more events from it.
       logger.log(`user socket connected : ${socket.decoded_token.id}`);
 
-      socket.on('add-message', (message) => {
-        io.emit('message', {
-          type: 'new-message',
-          text: message
-        });
-      });
-
-      socket.on('message', function (data) {
-        socket.broadcast.emit('message', data);
+      socket.on('message', function(data) {
+        //socket.broadcast.emit('message', data);
       });
 
     });

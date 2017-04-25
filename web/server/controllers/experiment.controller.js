@@ -1,4 +1,5 @@
 import Experiment from "../models/experiment.model";
+import manager from '../../config/manager';
 
 function list(req, res, next) {
   Experiment.getAll(req.query)
@@ -66,8 +67,6 @@ function create(req, res, next) {
   // }
   // 
   // 
-  console.log(req.user);
-
   let experiment = new Experiment({
     proposedMicroscope: req.body.proposedMicroscope,
     category: req.body.category,
@@ -84,7 +83,12 @@ function create(req, res, next) {
   });
 
   experiment.save()
-    .then(savedExperiment => res.json(savedExperiment))
+    .then(savedExperiment => {
+      let hid = savedExperiment.proposedMicroscope ? savedExperiment.proposedMicroscope.hid : null;
+      manager.addExperiment(savedExperiment);
+
+      res.json(savedExperiment);
+    })
     .catch(e => next(e));
 }
 

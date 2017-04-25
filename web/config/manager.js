@@ -23,6 +23,7 @@ class Manager {
     this.state.hid = hid;
     this.state.status = STATES.CONNECTING;
     this.state.microscopes = {};
+    this.experiments = [];
   }
 
   status() {
@@ -31,14 +32,6 @@ class Manager {
 
   isAvailable() {
     return (this.state.status === STATES.IDLE);
-  }
-
-  isRunning() {
-    return (this.state.status === STATES.RUNNING);
-  }
-
-  isQueued() {
-    return (this.state.status === STATES.QUEUED);
   }
 
   getMicroscopes() {
@@ -79,9 +72,9 @@ class Manager {
           qos: QOS.ATLEAST_ONCE
         });
 
-        this.client.subscribe(SUBSCRIPTIONS.USER, {
-          qos: QOS.ATLEAST_ONCE
-        });
+        // this.client.subscribe(SUBSCRIPTIONS.USER, {
+        //   qos: QOS.ATLEAST_ONCE
+        // });
 
 
         this.client.on(EVENTS.MESSAGE, this.handleMessage.bind(this));
@@ -93,6 +86,63 @@ class Manager {
 
       this.broadcast(MESSAGE.CONNECTED, this.status());
     });
+  }
+
+  updateStatus(payload) {
+    if ('hid' in payload) {
+      let hid = payload['hid'];
+
+      this.state.microscopes[hid] = this.state.microscopes[hid] || {};
+      this.state.microscopes[hid] = Object.assign(this.state.microscopes[hid], payload);
+
+      models.Microscope
+        .getOrCreate(hid, this.state.microscopes[hid])
+        .then((microscope) => {
+          this.state.microscopes[hid] = Object.assign(this.state.microscopes[hid], microscope); // eslint-disable-line no-param-reassign
+          logger.debug(microscope);
+        })
+        .catch(e => logger.error(e));
+    }
+
+    logger.debug(this.state);
+  }
+
+  addExperiment(experiment) {
+    logger.debug(`=== addExperiment ===`);
+    logger.debug(experiment);
+
+    // push to list pending assignment
+    this.experiments.push(experiment);
+
+    _.each(this.experiments, function(experiment) {
+
+      if (experiment && experiment.proposedMicroscope) {
+        this.state.microscopes[hid].experiments = this.state.microscopes[hid].experiments || [];
+        this.state.microscopes[hid].experiments.push(experiment);
+      } else {
+        //find best microscope with least wait time and highest rating
+        let microscopes = _.sortBy(_.values(this.state.microscopes), [function(o) {
+          let internalRating = o.internalRating == 0 ? 1 : o.internalRating;
+          let waitTime = o.waitTime == 0 ? 1 : o.waitTime;
+
+          return waitTime / internalRating;
+        }]);
+
+        if (microscopes && microscopes.length > 0) {
+          microscopes[0].experiments.push(experiment);
+        }
+      }
+
+    });
+
+  }
+
+  updateMicroscopes() {
+
+  }
+
+  updateUsers() {
+
   }
 
   //===== MQTT RESPOND EVENTS ==============
@@ -111,6 +161,31 @@ class Manager {
     });
   }
 
+  onExperimentSet(payload) {
+    logger.debug(`=== onExperimentSet ===`);
+
+  }
+
+  onExperimentCancel(payload) {
+    logger.debug(`=== onExperimentCancel ===`);
+  }
+
+  onExperimentRun(payload) {
+    logger.debug(`=== onExperimentRun ===`);
+  }
+
+  onStimulus(payload) {
+    logger.debug(`=== onStimulus ===`);
+  }
+
+  onExperimentClear(payload) {
+    logger.debug(`=== onExperimentClear ===`);
+  }
+
+  onMaintenance(payload) {
+    logger.debug(`=== onMaintenance ===`);
+  }
+
   onDisconnected(payload) {
     logger.debug(`=== onDisconnected ===`);
     this.updateStatus(payload)
@@ -121,24 +196,7 @@ class Manager {
     });
   }
 
-  updateStatus(payload) {
-    if ('hid' in payload) {
-      let hid = payload['hid'];
-      this.state.microscopes[hid] = this.state.microscopes[hid] || {};
-      this.state.microscopes[hid] = Object.assign(this.state.microscopes[hid], payload);
 
-      models.Microscope
-        .getOrCreate(hid, this.state.microscopes[hid])
-        .then((microscope) => {
-          this.state.microscopes[hid] = microscope; // eslint-disable-line no-param-reassign
-          logger.debug(microscope);
-        })
-        .catch(e => logger.error(e));
-
-    }
-
-    logger.debug(this.state);
-  }
 
   //=========================================
 
@@ -161,29 +219,29 @@ class Manager {
         this.onStatus(payload);
         break;
 
-        // case MESSAGE.EXPERIMENT_SET:
-        // 	this.onExperimentSet(payload);
-        // 	break;
+      case MESSAGE.EXPERIMENT_SET:
+        this.onExperimentSet(payload);
+        break;
 
-        // case MESSAGE.EXPERIMENT_CANCEL:
-        // 	this.onExperimentCancel(payload);
-        // 	break;
+      case MESSAGE.EXPERIMENT_CANCEL:
+        this.onExperimentCancel(payload);
+        break;
 
-        // case MESSAGE.EXPERIMENT_RUN:
-        // 	this.onExperimentRun(payload);
-        // 	break;
+      case MESSAGE.EXPERIMENT_RUN:
+        this.onExperimentRun(payload);
+        break;
 
-        // case MESSAGE.STIMULUS:
-        // 	this.onStimulus(payload);
-        // 	break;
+      case MESSAGE.STIMULUS:
+        this.onStimulus(payload);
+        break;
 
-        // case MESSAGE.EXPERIMENT_CLEAR:
-        // 	this.onExperimentClear(payload);
-        // 	break;
+      case MESSAGE.EXPERIMENT_CLEAR:
+        this.onExperimentClear(payload);
+        break;
 
-        // case MESSAGE.MAINTENANCE:
-        // 	this.onMaintenance(payload);
-        // 	break;
+      case MESSAGE.MAINTENANCE:
+        this.onMaintenance(payload);
+        break;
 
       case MESSAGE.DISCONNECTED:
         this.onDisconnected(payload);
@@ -194,14 +252,6 @@ class Manager {
         break;
     }
   }
-
-  // handleMicroscope(type, payload){
-  //
-  // }
-  //
-  // handleUser(type,payload){
-  //
-  // }
 
   handleError(err) {
     logger.error(`[RX] ${err}`)

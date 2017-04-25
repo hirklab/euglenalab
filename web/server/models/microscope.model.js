@@ -89,6 +89,16 @@ const MicroscopeSchema = new mongoose.Schema({
     },
   },
 
+  internalRating: {
+    type: Number,
+    default: 0
+  },
+
+  externalRating: {
+    type: Number,
+    default: 0
+  },
+
   localAddress: {
     ip: {
       type: String,
@@ -151,16 +161,16 @@ MicroscopeSchema.method({});
  * Statics
  */
 MicroscopeSchema.statics = Object.assign(MicroscopeSchema.statics, {
-  getOrCreate(identification, properties){
-    return this.findOneAndUpdate(
-      {identification: identification},
-      properties,
-      {
-        upsert: true,
-        new: true,
-        // setDefaultsOnInsert:true
-      }
-    )
+  getOrCreate(identification, properties) {
+    return this.findOneAndUpdate({
+          identification: identification
+        },
+        properties, {
+          upsert: true,
+          new: true,
+          // setDefaultsOnInsert:true
+        }
+      )
       .exec()
       .then((instance) => {
         if (instance) {
@@ -173,8 +183,8 @@ MicroscopeSchema.statics = Object.assign(MicroscopeSchema.statics, {
 
   getByIdentification(identification) {
     return this.findOne({
-      identification: identification
-    })
+        identification: identification
+      })
       .exec()
       .then((instance) => {
         if (instance) {
