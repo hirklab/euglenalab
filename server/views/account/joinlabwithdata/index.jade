@@ -133,7 +133,7 @@ block body
           th Experiment ID
           th Submitted at
           th Microscope
-          th.stretch Type
+          th Type
           th Status
           //- th Rating
           th
@@ -143,7 +143,7 @@ block body
     td <%= _id %>
     td <%= exp_submissionTime %>
     td <%= exp_lastResort.bpuName %>
-    td <%= exp_metaData.tag %>
+    td <%= exp_metaData.group_experimentType %>
     td <%= exp_status %>
     //- td
       input.rating(type="hidden", value="<%= survey.rating %>", disabled)

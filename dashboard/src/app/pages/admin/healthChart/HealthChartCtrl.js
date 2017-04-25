@@ -2,7 +2,7 @@
  * @author shirish.goyal
  * created on 22.12.2016
  */
-(function () {
+(function() {
     'use strict';
 
     angular.module('BlurAdmin.pages.admin')
@@ -16,10 +16,10 @@
         var endDate = moment().toISOString();
         var startDate = moment().subtract(1, 'month').toISOString();
 
-        $scope.$watch('microscopeData', function (value) {
+        $scope.$watch('microscopeData', function(value) {
             if (value != undefined && value.length > 0) {
                 var microscope = JSON.parse(value);
-                AdminMicroscope.health(microscope.id, startDate, endDate).then(function (response) {
+                AdminMicroscope.health(microscope.id, startDate, endDate).then(function(response) {
                     createHealthChart(node, response.data.results);
                 });
             }
@@ -41,7 +41,7 @@
                     "title": "Value",
                     "position": "left",
                     "autoGridCount": false,
-                    "labelFunction": function (value) {
+                    "labelFunction": function(value) {
                         return "" + Math.round(value) + "";
                     }
                 }],
@@ -94,9 +94,9 @@
                     "balloonText": "[[title]]<br/><b style='font-size: 130%'>[[value]]</b>"
                 }],
                 "chartScrollbar": {
-                    "graph": "g1",
-                    "oppositeAxis": false,
-                    "offset": 30,
+                    graph: "g1",
+                    oppositeAxis: false,
+                    offset: 30,
                     gridAlpha: 0,
                     color: layoutColors.default,
                     scrollbarHeight: 50,
