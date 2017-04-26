@@ -703,7 +703,7 @@ exports.bio_unit_health = function(req, res) {
         };
         filters['liveBpu.id'] = mongoose.Types.ObjectId(bpu_id);
         filters['exp_processingEndTime'] = {
-            $lt: endDate, //new Date(endDate.getYear(), endDate.getMonth(), endDate.getDate())
+            // $lt: endDate, //new Date(endDate.getYear(), endDate.getMonth(), endDate.getDate())
             $gte: startDate //new Date(startDate.getYear(), startDate.getMonth(), startDate.getDate()),
         };
 
@@ -725,6 +725,10 @@ exports.bio_unit_health = function(req, res) {
             }
         }, {
             $project: projections
+        }, {
+            $sort: {
+                exp_processingEndTime: 1
+            }
         }]).exec(function(err, results) {
             if (err) {
 
@@ -780,7 +784,7 @@ exports.bio_unit_health = function(req, res) {
     });
 
     workflow.on('scripterResponse', function() {
-        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1 * 5 / 10, function(err, results) {
+        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
