@@ -725,10 +725,6 @@ exports.bio_unit_health = function(req, res) {
             }
         }, {
             $project: projections
-        }, {
-            $sort: {
-                exp_processingEndTime: 1
-            }
         }]).exec(function(err, results) {
             if (err) {
 
@@ -784,7 +780,7 @@ exports.bio_unit_health = function(req, res) {
     });
 
     workflow.on('scripterResponse', function() {
-        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1, function(err, results) {
+        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1 * 4, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {

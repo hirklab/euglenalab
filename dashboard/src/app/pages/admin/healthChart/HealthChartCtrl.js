@@ -163,7 +163,7 @@
                     "lineColor": layoutColors.info,
                     // "fillColors": layoutColors.warning,
                     // "fillAlphas": 0.5,
-                    "lineAlpha": 0.9,
+                    "lineAlpha": 0.6,
                     "bullet": "round",
                     "bulletBorderAlpha": 1,
                     "bulletSize": 0.01,
@@ -174,7 +174,7 @@
                     "columnWidth": 1,
                     "lineColorField": layoutColors.info,
                     "legendValueText": "[[value]]",
-                    "balloonText": "[[title]]: [[value]]<br/><p style='font-size: 90%'>[[notes]]</p>"
+                    "balloonText": "[[title]]: [[value]]<br/><p style='font-size: 100%'>[[notes]]</p>"
                 }],
                 "chartScrollbar": {
                     oppositeAxis: false,
