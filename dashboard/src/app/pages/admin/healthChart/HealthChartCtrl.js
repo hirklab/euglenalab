@@ -14,7 +14,7 @@
         var node = $element.children()[0];
 
         var endDate = moment(); //.toISOString();
-        var startDate = moment().subtract(1, 'month'); //.toISOString();
+        var startDate = moment().subtract(2, 'week'); //.toISOString();
 
         var sortBy = (function() {
 
@@ -85,7 +85,7 @@
                 "theme": "none",
                 "color": layoutColors.default,
                 "dataDateFormat": "YYYY-MM-DD HH:mm:ss",
-                "precision": 2,
+                "precision": 1,
                 "valueAxes": [{
                     color: layoutColors.default,
                     axisColor: layoutColors.default,
@@ -101,7 +101,7 @@
                     }
                 }],
                 "graphs": [{
-                    "id": "g3",
+                    "id": "g1",
                     color: layoutColors.default,
                     "valueAxis": "v1",
                     "lineColor": layoutColors.danger,
@@ -120,7 +120,7 @@
                     "legendValueText": "[[value]]",
                     "balloonText": "[[title]]<br/><b style='font-size: 130%'>[[value]]</b>"
                 }, {
-                    "id": "g4",
+                    "id": "g2",
                     "valueAxis": "v1",
                     color: layoutColors.default,
                     "lineColor": layoutColors.success,
@@ -139,7 +139,7 @@
                     "legendValueText": "[[value]]",
                     "balloonText": "[[title]]<br/><b style='font-size: 130%'>[[value]]</b>"
                 }, {
-                    "id": "g1",
+                    "id": "g3",
                     "valueAxis": "v1",
                     color: layoutColors.default,
                     "lineColor": layoutColors.warning,
@@ -152,12 +152,13 @@
                     "type": "smoothedLine",
                     "title": "Response",
                     "valueField": "response",
+                    "clustered": false,
                     "columnWidth": 1,
                     "lineColorField": layoutColors.warning,
                     "legendValueText": "[[value]]",
                     "balloonText": "[[title]]<br/><b style='font-size: 130%'>[[value]]</b>"
                 }, {
-                    "id": "g2",
+                    "id": "g4",
                     "valueAxis": "v1",
                     color: layoutColors.default,
                     "lineColor": layoutColors.info,
@@ -171,6 +172,7 @@
                     "title": "Rating",
                     "valueField": "rating",
                     "notesField": "notes",
+                    "clustered": false,
                     "columnWidth": 1,
                     "lineColorField": layoutColors.info,
                     "legendValueText": "[[value]]",
@@ -209,12 +211,12 @@
                 "legend": {
                     useGraphSettings: false,
                     switchable: true,
-                    switchType: 'v',
+                    switchType: 'x',
                     textClickEnabled: true,
                     position: "top",
                     color: layoutColors.default,
-                    "clickMarker": legendHandler,
-                    "clickLabel": legendHandler
+                    clickMarker: legendHandler,
+                    clickLabel: legendHandler
                 },
                 "balloon": {
                     "borderThickness": 1,
