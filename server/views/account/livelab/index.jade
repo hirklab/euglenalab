@@ -9,23 +9,23 @@ block neck
   style.
     .myMainRow {
       background-color:#ffffff;
-      margin-top:1%;
-      height:#{data.divInfo.mainRowHeight};
-      width:#{data.divInfo.mainRowWidth};
+      //- margin-top:1%;
+      //- height:#{data.divInfo.mainRowHeight};
+      //- width:#{data.divInfo.mainRowWidth};
       float:left;
     }
 
     .myMainCol {
       background-color:#ffffff;
       height:100%;
-      height:#{data.divInfo.mainColHeight};
-      width:#{data.divInfo.mainColWidth};
+      //- height:#{data.divInfo.mainColHeight};
+      //- width:#{data.divInfo.mainColWidth};
       float:left;
     }
     .myLightSpacer {
       background-color:rgba(0,0,0,0.5);
-      height:#{data.divInfo.lightShort};
-      width:#{data.divInfo.lightShort};
+      //- height:#{data.divInfo.lightShort};
+      //- width:#{data.divInfo.lightShort};
       float:left;
       text-align:center;
       border-style:solid;
@@ -33,8 +33,8 @@ block neck
     }
     .myTopLight {
       background-color:rgba(255,255,0,#{data.lightData.topLightAlpha});
-      height:#{data.divInfo.lightShort};
-      width:#{data.divInfo.lightLong};
+      //- height:#{data.divInfo.lightShort};
+      //- width:#{data.divInfo.lightLong};
       float:left;
       text-align:center;
       border-style:solid;
@@ -42,8 +42,8 @@ block neck
     }
     .myLeftLight {
       background-color:rgba(255,255,0,#{data.lightData.leftLightAlpha});
-      height:#{data.divInfo.lightLong};
-      width:#{data.divInfo.lightShort};
+      //- height:#{data.divInfo.lightLong};
+      //- width:#{data.divInfo.lightShort};
       float:left;
       text-align:center;
       border-style:solid;
@@ -51,8 +51,8 @@ block neck
     }
     #myImage {
       background-color:#d3d3d3;
-      height:#{data.divInfo.imageHeight};
-      width:#{data.divInfo.imageWidth};
+      //- height:#{data.divInfo.imageHeight};
+      //- width:#{data.divInfo.imageWidth};
       float:left;
       overflow:hidden;
       z-index:1;
@@ -66,8 +66,8 @@ block neck
 
     #myRightLight {
       background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha});
-      height:#{data.divInfo.lightLong};
-      width:#{data.divInfo.lightShort};
+      //- height:#{data.divInfo.lightLong};
+      //- width:#{data.divInfo.lightShort};
       float:left;
       text-align:center;
       border-style:solid;
@@ -76,8 +76,8 @@ block neck
     }
     #myBottomLight {
       background-color:rgba(255,255,0,#{data.lightData.bottomLightAlpha});
-      height:#{data.divInfo.lightShort};
-      width:#{data.divInfo.lightLong};
+      //- height:#{data.divInfo.lightShort};
+      //- width:#{data.divInfo.lightLong};
       float:left;
       text-align:center;
       border-style:solid;
@@ -86,16 +86,16 @@ block neck
     }
     #myAside {
       background-color:#ffffff;
-      height:#{data.divInfo.asideColHeight};
-      width:#{data.divInfo.asideColWidth};
+      //- height:#{data.divInfo.asideColHeight};
+      //- width:#{data.divInfo.asideColWidth};
       float:left;
       z-index:1;
     }
 
     #myImage2 {
       background-color:#d3d3d3;
-      height:#{data.divInfo.sideImageHeight};
-      width:#{data.divInfo.sideImageWidth};
+      //- height:#{data.divInfo.sideImageHeight};
+      //- width:#{data.divInfo.sideImageWidth};
       float:left;
     }
     #myJoystick {
@@ -142,7 +142,6 @@ block neck
     .canvas-joystick-off {background-color:#A0A0A0;}
     .canvas-joystick-on {background-color:#66b2ff;}
 
-  
     *.unselectable {
         -moz-user-select: -moz-none;
         -khtml-user-select: none;
@@ -150,6 +149,40 @@ block neck
         -ms-user-select: none;
         user-select: none;
     }
+
+    .videoSection{
+      position: relative;
+      width: 90%;
+      max-width: 640px;
+      max-height:480px;
+      height: 0;
+      padding-bottom: 67.5%;
+    }
+
+    .spacer{
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color:black;
+    }
+
+    .spacer.left{
+        left:0;
+    }
+
+    .spacer.top{
+        top:0;
+    }
+
+    .spacer.bottom{
+        bottom:0;
+    }
+
+    .spacer.right{
+        right:0;
+    }
+
+
 
 block feet
   script(src='/views/account/livelab/index.min.js?#{cacheBreaker}')
@@ -161,11 +194,12 @@ block body
   
   if data.divInfo.hasAside
     div.row
-      div.col.myMainRow.unselectable(name='myMainRow')
-        div.myMainCol.unselectable(name='myMainCol')
-          div.myLightSpacer.unselectable(name='myLightSpacer')
+      div.col-xs-8.myMainRow.unselectable(name='myMainRow')
+
+        div.videoSection.unselectable(name='myMainCol')
+          div.spacer.left.top.unselectable(name='spacer')
           div.myTopLight.unselectable(name='myTopLight') #{data.lightData.topValue}
-          div.myLightSpacer.unselectable(name='myLightSpacer')
+          div.spacer.right.top.unselectable(name='spacer')
           //- div.myLeftLight
           //-   span(name='myLeftLight',style='vertical-align:middle') #{data.lightData.leftValue}
           div.myLeftLight.unselectable(name='myLeftLight') #{data.lightData.leftValue}
@@ -177,12 +211,13 @@ block body
                   center
                     span#myScaleText.unselectable 100um
           div#myRightLight.unselectable(name='myRightLight') #{data.lightData.rightValue}
-          div.myLightSpacer.unselectable(name='myLightSpacer')
+          div.spacer.left.bottom.unselectable(name='spacer')
           div#myBottomLight.unselectable(name='myBottomLight') #{data.lightData.bottomValue}
-          div.myLightSpacer.unselectable(name='myLightSpacer')
-        div.col#myAside.unselectable(name='myAside')
-          div#myJoystick.canvas-joystick-off(name='myJoystick')
-          img#myImage2.unselectable(name='myImage2', src='#{data.sideImageIP}')
+          div.spacer.right.bottom.unselectable(name='spacer')
+
+      div.col-xs-4#myAside.unselectable(name='myAside')
+        div#myJoystick.canvas-joystick-off(name='myJoystick')
+        img#myImage2.unselectable(name='myImage2', src='#{data.sideImageIP}')
   else
     div.row.myMainRow(name='myMainRow')
       div.col.myMainCol(name='myMainCol')
