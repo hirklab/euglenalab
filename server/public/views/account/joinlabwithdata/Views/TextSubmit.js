@@ -75,7 +75,9 @@
     render: function() {
       var me = this;
       me.$el.html(me.template(me.model.attributes));
+
       var submitTextInput = me.$el.find('[name="' + 'submitTextNextInput' + '"]')[0];
+
       submitTextInput.onchange = function(evt) {
         app.mainView.userExpInfo.loadTextFiles = [];
 
@@ -133,21 +135,23 @@ var _loadTextExperiments = function(MaxFileLoad, MaxTime, files, callback) {
               fileObj.errJson = "tryJson err:" + err;
               _tryColumn(fr.result, function(err, fileData) {
                 if (err) {
-                  fileData.errColumn = "tryColumn err:" + err;
+                  fileObj.errColumn = "tryColumn err:" + err;
                 } else {
                   if (fileData.metaData.runTime < 1000) {
-                    fileData.errColumn = "tryColumn err:" + "time less than 1 second";
+                    fileObj.errColumn = "tryColumn err:" + "time less than 1 second";
                   } else {
                     fileObj.metaData = fileData.metaData;
                     fileObj.eventsToRun = fileData.eventsToRun;
                     outcome.totalRunTime += fileData.metaData.runTime;
                     outcome.filesLoaded++;
+
+                    console.log(fileObj.eventsToRun);
                   }
                 }
               });
             } else {
               if (fileData.metaData.runTime < 1000) {
-                fileData.errColumn = "tryJson err:" + "time less than 1 second";
+                fileObj.errColumn = "tryJson err:" + "time less than 1 second";
               } else {
                 fileObj.metaData = fileData.metaData;
                 fileObj.eventsToRun = fileData.eventsToRun;
@@ -196,19 +200,20 @@ var _tryJson = function(data, cb_fn) {
           tryError = "try JSON LightData Err:" + "No light data in eventsToRun";
         } else {
           var errDataCheck = null;
+
           for (var i = 0; i < eventsToRun.length; i++) {
             var dat = eventsToRun[i];
-            if (typeof dat.topValue === 'number' && typeof dat.rightValue === 'number' && typeof dat.bottomValue === 'number' && typeof dat.leftValue === 'number' && typeof dat.diffuserValue === 'number' && typeof dat.backlightValue === 'number' && typeof dat.culturelightValue === 'number' && typeof dat.ambientlightValue === 'number' && typeof dat.time === 'number') {
+            if (true) { //typeof dat.topValue === 'number' && typeof dat.rightValue === 'number' && typeof dat.bottomValue === 'number' && typeof dat.leftValue === 'number' && typeof dat.diffuserValue === 'number' && typeof dat.backlightValue === 'number' && typeof dat.culturelightValue === 'number' && typeof dat.ambientlightValue === 'number' && typeof dat.time === 'number') {
               var lightDataObj = {
-                topValue: dat.topValue,
-                rightValue: dat.rightValue,
-                bottomValue: dat.bottomValue,
-                leftValue: dat.leftValue,
-                diffuserValue: dat.diffuserValue,
-                backlightValue: dat.backlightValue,
-                culturelightValue: dat.culturelightValue,
-                ambientlightValue: dat.ambientlightValue,
-                time: dat.time
+                topValue: dat['topValue'] || 0,
+                rightValue: dat['rightValue'] || 0,
+                bottomValue: dat['bottomValue'] || 0,
+                leftValue: dat['leftValue'] || 0,
+                diffuserValue: dat['diffuserValue'] || 0,
+                backlightValue: dat['backlightValue'] || 0,
+                culturelightValue: dat['culturelightValue'] || 0,
+                ambientlightValue: dat['ambientlightValue'] || 0,
+                time: dat['time'] || 0
               };
               fileData.eventsToRun.push(lightDataObj);
             } else {
@@ -216,11 +221,14 @@ var _tryJson = function(data, cb_fn) {
               break;
             }
           }
+
           if (errDataCheck === null) {
             fileData.eventsToRun.sort(function(a, b) {
               return a.time - b.time;
             });
+
             fileData.metaData.runTime = fileData.eventsToRun[fileData.eventsToRun.length - 1].time - fileData.eventsToRun[0].time;
+
             if ((fileData.metaData.runTime <= 0) || (fileData.eventsToRun[fileData.eventsToRun.length - 1].time === 0)) {
               tryError = "try JSON LightData Check Err:" + "Zero time length";
             } else {
@@ -236,9 +244,12 @@ var _tryJson = function(data, cb_fn) {
                   ambientlightValue: 0,
                   time: 0,
                 };
+
                 fileData.eventsToRun.push(zeroLightDataObj);
               }
+
               var timeZero = fileData.eventsToRun[0].time;
+
               fileData.eventsToRun.forEach(function(dat) {
                 dat.time -= timeZero;
               });
@@ -270,37 +281,51 @@ var _tryColumn = function(data, cb_fn) {
     metaData: {},
     eventsToRun: []
   };
+
   var catchErr = null;
+
   try {
     data.split('\n').forEach(function(line) {
+
       var colonIndex = line.search(':');
       if (colonIndex > -1) {
         var key = line.substr(0, colonIndex);
         var value = line.substr(colonIndex + 1, line.length);
         jsonData.metaData[key] = value;
+
       } else {
+
         var parts = line.split(',');
         var doKeep = true;
-        if (parts.length === 9) {
-          parts.forEach(function(part) {
-            if (part.length === 0 || part === "" || isNaN(Number(part))) {
-              doKeep = false;
-            }
-          });
+
+        if (parts.length >= 2) {
+
+          var check = parts.join('').replace(/\s/g, '');
+
+          if (check == '') {
+            doKeep = false;
+          } else {
+            parts.forEach(function(part) {
+              if (part == null) {
+                doKeep = false;
+              }
+            });
+          }
         } else {
           doKeep = false;
         }
+
         if (doKeep) {
           jsonData.eventsToRun.push({
             time: Number(parts[0]),
-            topValue: Number(parts[1]),
-            rightValue: Number(parts[2]),
-            bottomValue: Number(parts[3]),
-            leftValue: Number(parts[4]),
-            diffuserValue: Number(parts[5]),
-            backlightValue: Number(parts[6]),
-            culturelightValue: Number(parts[7]),
-            ambientlightValue: Number(parts[8]),
+            topValue: Number(parts[1] || 0),
+            rightValue: Number(parts[2] || 0),
+            bottomValue: Number(parts[3] || 0),
+            leftValue: Number(parts[4] || 0),
+            diffuserValue: Number(parts[5] || 0),
+            backlightValue: Number(parts[6] || 0),
+            culturelightValue: Number(parts[7] || 0),
+            ambientlightValue: Number(parts[8] || 0),
           });
         }
       }
@@ -309,7 +334,7 @@ var _tryColumn = function(data, cb_fn) {
     catchErr = err;
   } finally {
     if (catchErr) {
-      cb_fn(catchErr, null);
+      cb_fn(catchErr, {});
     } else {
       _tryJson(JSON.stringify(jsonData), cb_fn);
     }

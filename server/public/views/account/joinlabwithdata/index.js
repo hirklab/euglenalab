@@ -277,7 +277,7 @@
                         var joinQueueData = JSON.parse(JSON.stringify(app.mainView.joinQueueDataObj));
                         joinQueueData.group_experimentType = 'text';
                         joinQueueData.exp_eventsToRun = fileObj.eventsToRun;
-                        joinQueueData.exp_metaData = fileObj.metaData;
+                        joinQueueData.exp_metaData = fileObj.metaData || {};
                         joinQueueData.exp_metaData.machine = app.clientInfo;
                         joinQueueData.exp_metaData.type = 'batch';
                         joinQueueData.exp_metaData.chosenBPU = wantsBpuName;
