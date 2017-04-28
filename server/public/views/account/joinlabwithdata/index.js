@@ -277,7 +277,7 @@
                         var joinQueueData = JSON.parse(JSON.stringify(app.mainView.joinQueueDataObj));
                         joinQueueData.group_experimentType = 'text';
                         joinQueueData.exp_eventsToRun = fileObj.eventsToRun;
-                        joinQueueData.exp_metaData = fileObj.metaData;
+                        joinQueueData.exp_metaData = fileObj.metaData || {};
                         joinQueueData.exp_metaData.machine = app.clientInfo;
                         joinQueueData.exp_metaData.type = 'batch';
                         joinQueueData.exp_metaData.chosenBPU = wantsBpuName;
@@ -291,7 +291,7 @@
                     joinQueueDataObjects.forEach(function(obj) {
                         obj.user.id = app.mainView.user.get('_id');
                         obj.user.name = app.mainView.user.get('username');
-                        obj.user.groups = app.mainView.user.get('groups');    
+                        obj.user.groups = app.mainView.user.get('groups');
                         obj.session.id = app.mainView.session.get('id');
                         obj.session.sessionID = app.mainView.session.get('sessionID');
                         obj.session.socketID = app.mainView.session.get('socketID');
@@ -362,6 +362,7 @@
             //Text
             app.textSubmitView.setSubmitTextNextLabel('Text Submit: ' + 'Submitting Exp(s) status: ' + msg);
         },
+
         //Update UI from bpu socket updates
         updateFromServer: function(updateObj) {
             app.mainView.setHeaderLabel('Updated:' + new Date());
@@ -431,7 +432,7 @@
 
                 //Live Label
                 var isLiveDisabled = false;
-                var liveMsg = 'No live experiments in queue or any microscope.  Click To Join.';
+                var liveMsg = 'No live experiments in queue';
                 //Bpu Live
                 if (updateObj.bpuLiveExp !== null && updateObj.bpuLiveExp !== undefined) {
                     var bpuLiveSecondsWaitTime = Math.round(updateObj.bpuLiveFinishTime / 1000);
@@ -439,9 +440,9 @@
                     if (bpuLiveSecondsWaitTime < 0) {
                         //bpuLiveSecondsWaitTime=-1*bpuLiveSecondsWaitTime;
                         //liveMsg+='Processing for '+bpuLiveSecondsWaitTime+' seconds.';
-                        liveMsg += 'Processing... (hang on)';
+                        liveMsg += 'Processing...';
                     } else {
-                        liveMsg += 'Wait time is ' + bpuLiveSecondsWaitTime + ' seconds.';
+                        liveMsg += 'Wait time : ' + bpuLiveSecondsWaitTime + ' seconds.';
                     }
                     isLiveDisabled = true;
 
@@ -450,9 +451,9 @@
                     var liveSecondsWaitTime = Math.round(updateObj.liveQueueExp.exp_lastResort.totalWaitTime / 1000);
                     liveMsg = 'Waiting for microscope ' + updateObj.liveQueueExp.exp_lastResort.bpuName + '.  ';
                     if (liveSecondsWaitTime < 0) {
-                        liveMsg += 'Processing... (hang on)';
+                        liveMsg += 'Processing...';
                     } else {
-                        liveMsg += 'Wait time is ' + liveSecondsWaitTime + ' seconds.';
+                        liveMsg += 'Wait time : ' + liveSecondsWaitTime + ' seconds.';
                     }
                     isLiveDisabled = true;
                 }
@@ -467,22 +468,22 @@
                 //Bpu Text Total
                 if (updateObj.bpuTextTotalExps > 0) {
                     textWaitTime = updateObj.bpuTextTotalRunTime;
-                    textMsg += updateObj.bpuTextTotalExps + ' exps on microscopes.  ';
+                    textMsg += updateObj.bpuTextTotalExps + ' experiments in queue';
                 }
                 //Queue Text
                 if (updateObj.textTotalExps > 0) {
                     textWaitTime += updateObj.textTotalRunTime;
-                    textMsg += updateObj.textTotalExps + ' exps in queue.  ';
+                    textMsg += updateObj.textTotalExps + ' experiments in queue';
 
                 }
                 if (textMsg === '') {
-                    textMsg = 'No text experiments in queue.  Click To Join.';
+                    textMsg = 'No batch experiments in queue';
                 } else {
                     var textSecondsWaitTime = Math.round(textWaitTime / 1000);
                     if (textSecondsWaitTime >= 0) {
-                        textMsg += 'Wait time is ' + textSecondsWaitTime + ' seconds.';
+                        textMsg += 'Wait time : ' + textSecondsWaitTime + ' seconds.';
                     } else {
-                        textMsg += 'Processing... (hang on)';
+                        textMsg += 'Processing...';
                     }
                 }
                 app.textSubmitView.setSubmitTextNextLabel(textMsg);
@@ -534,6 +535,7 @@
             app.resultsView = new app.ResultsView();
             app.filterView = new app.FilterView();
             app.pagingView = new app.PagingView();
+
             app.userSocketClient.setConnection(function(err) {
                 if (err) {
                     app.userSocketClient.isInitialized = false;
@@ -544,7 +546,7 @@
                 }
             });
 
-            
+
 
         },
     });
