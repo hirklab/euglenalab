@@ -55,9 +55,8 @@ block body
           p.browseLabel(name='browseLabel', style='text-align:center;line-height:30px') No batch experiments in queue
     div.row
       div.col-xs-12
-        input(name='submitTextNextInput', type='file', , multiple='multiple', accept='.json, .txt, .csv', style='float:left;margin-top:5px;')
-    //div.row(style='background-color:#afa2b3; width:100%;  height:20%; margin:0% 0% 0% 0%;')
-      //h8#loadLabel(name='loadLabel', style='text-align:left;') Browse to Load Text Files
+        input(name='submitTextNextInput', type='file', accept='.json, .txt, .csv', style='float:left;margin-top:5px;max-width:200px;')
+        span#loadLabel(name='loadLabel', style='text-align:left;margin-top:5px;display:block;max-width:450px;float:right;padding:2px 6px;')
 
   script(type='text/template', id='tmpl-bpuimage')
     div

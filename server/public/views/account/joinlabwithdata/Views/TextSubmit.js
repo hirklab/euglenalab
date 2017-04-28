@@ -44,9 +44,12 @@
       if (lbl) lbl.innerHTML = msg;
     },
     //Load Status - set entirly from Text Submit 
-    setLoadTextLabel: function(msg) {
+    setLoadTextLabel: function(msg, type) {
       var lbl = this.$el.find('[name="' + 'loadLabel' + '"]')[0];
-      if (lbl) lbl.innerHTML = msg;
+      if (lbl) {
+        lbl.innerHTML = msg;
+        lbl.className = type;
+      }
     },
 
     //Other Button Actions
@@ -81,7 +84,7 @@
       submitTextInput.onchange = function(evt) {
         app.mainView.userExpInfo.loadTextFiles = [];
 
-        app.textSubmitView.setLoadTextLabel("Loading " + evt.target.files.length + " file(s)");
+        me.setLoadTextLabel("Loading " + evt.target.files.length + " file(s)");
 
         var availableTextExps = app.mainView.userExpInfo.MaxTextFileLoad - app.mainView.userExpInfo.queueTextFiles;
         var availableTextRunTime = app.mainView.userExpInfo.MaxTextTime - app.mainView.userExpInfo.queueTextRunTime;
@@ -89,15 +92,23 @@
         console.log(availableTextExps, availableTextRunTime, app.mainView.userExpInfo.MaxTextFileLoad, app.mainView.userExpInfo.queueTextFiles);
 
         _loadTextExperiments(availableTextExps, availableTextRunTime, evt.target.files, function(err, loadedTextFilesOutcome) {
+          // console.log(err);
+          // console.log(loadedTextFilesOutcome);
+
+          if (Math.round(loadedTextFilesOutcome.totalRunTime / 1000) <= 1) {
+            err = "Experiment is too short to be executed";
+          }
+
           if (err) {
-            app.textSubmitView.setLoadTextLabel("Loading Error:" + err);
-            app.userExpInfo.loadedTextFiles = [];
+            me.setLoadTextLabel("Error:" + err, "alert-danger");
+            app.mainView.userExpInfo.loadedTextFiles = [];
           } else {
+            // console.log("loaded");
             app.mainView.userExpInfo.loadedTextFiles = loadedTextFilesOutcome.fileObjects;
             app.mainView.userExpInfo.loadedTextRunTime = loadedTextFilesOutcome.totalRunTime;
 
             var secs = Math.round(loadedTextFilesOutcome.totalRunTime / 1000);
-            app.textSubmitView.setLoadTextLabel("Loaded " + loadedTextFilesOutcome.filesLoaded + " file(s). RunTime:" + secs + " seconds.");
+            me.setLoadTextLabel("Loaded " + loadedTextFilesOutcome.filesLoaded + " file(s). RunTime:" + secs + " seconds.", "alert-success");
 
           }
         });
@@ -130,7 +141,7 @@ var _loadTextExperiments = function(MaxFileLoad, MaxTime, files, callback) {
       var fr = new FileReader();
       fr.onload = function() {
         try {
-          _tryJson(fr.result, function(err, fileData) {
+          _tryJson(fr.result, 0, function(err, fileData) {
             if (err) {
               fileObj.errJson = "tryJson err:" + err;
               _tryColumn(fr.result, function(err, fileData) {
@@ -140,12 +151,13 @@ var _loadTextExperiments = function(MaxFileLoad, MaxTime, files, callback) {
                   if (fileData.metaData.runTime < 1000) {
                     fileObj.errColumn = "tryColumn err:" + "time less than 1 second";
                   } else {
+                    fileObj.errJson = null;
+                    fileObj.errColumn = null;
+                    fileObj.errTryCatch = null;
                     fileObj.metaData = fileData.metaData;
                     fileObj.eventsToRun = fileData.eventsToRun;
                     outcome.totalRunTime += fileData.metaData.runTime;
                     outcome.filesLoaded++;
-
-                    console.log(fileObj.eventsToRun);
                   }
                 }
               });
@@ -163,6 +175,7 @@ var _loadTextExperiments = function(MaxFileLoad, MaxTime, files, callback) {
         } catch (err) {
           fileObj.errTryCatch = err;
         } finally {
+          outcome.err = fileObj.errJson || fileObj.errColumn || fileObj.errTryCatch;
           outcome.fileObjects.push(fileObj);
           next();
         }
@@ -176,7 +189,9 @@ var _loadTextExperiments = function(MaxFileLoad, MaxTime, files, callback) {
   };
   next();
 };
-var _tryJson = function(data, cb_fn) {
+
+var _tryJson = function(data, tries, cb_fn) {
+
   var tryError = null;
   var catchError = null;
   var fileData = null;
@@ -285,6 +300,8 @@ var _tryColumn = function(data, cb_fn) {
   var catchErr = null;
 
   try {
+    var header = {};
+
     data.split('\n').forEach(function(line) {
 
       var colonIndex = line.search(':');
@@ -315,18 +332,33 @@ var _tryColumn = function(data, cb_fn) {
           doKeep = false;
         }
 
+        var cols = ["time", "topValue", "rightValue", "bottomValue", "leftValue", "diffuserValue", "backlightValue", "culturelightValue", "ambientlightValue"]
+
         if (doKeep) {
-          jsonData.eventsToRun.push({
-            time: Number(parts[0]),
-            topValue: Number(parts[1] || 0),
-            rightValue: Number(parts[2] || 0),
-            bottomValue: Number(parts[3] || 0),
-            leftValue: Number(parts[4] || 0),
-            diffuserValue: Number(parts[5] || 0),
-            backlightValue: Number(parts[6] || 0),
-            culturelightValue: Number(parts[7] || 0),
-            ambientlightValue: Number(parts[8] || 0),
-          });
+
+          var check = parts.join('').replace(/\s/g, '');
+
+          if (check.indexOf('time') > -1) {
+            parts.forEach(function(part) {
+              if (cols.indexOf(part) > -1) {
+                header[part] = cols.indexOf(part);
+              }
+            });
+          } else {
+            if (JSON.stringify(header) !== '{}') {
+              jsonData.eventsToRun.push({
+                time: Number(parts[header['time']]),
+                topValue: Number(parts[header['topValue']] || 0),
+                rightValue: Number(parts[header['rightValue']] || 0),
+                bottomValue: Number(parts[header['bottomValue']] || 0),
+                leftValue: Number(parts[header['leftValue']] || 0),
+                diffuserValue: Number(parts[header['diffuserValue']] || 0),
+                backlightValue: Number(parts[header['backlightValue']] || 0),
+                culturelightValue: Number(parts[header['culturelightValue']] || 0),
+                ambientlightValue: Number(parts[header['ambientlightValue']] || 0),
+              });
+            }
+          }
         }
       }
     });
@@ -336,7 +368,11 @@ var _tryColumn = function(data, cb_fn) {
     if (catchErr) {
       cb_fn(catchErr, {});
     } else {
-      _tryJson(JSON.stringify(jsonData), cb_fn);
+      if (jsonData.eventsToRun.length > 0) {
+        _tryJson(JSON.stringify(jsonData), 1, cb_fn);
+      } else {
+        cb_fn("No events to run", {});
+      }
     }
   }
 };

@@ -535,6 +535,7 @@
             app.resultsView = new app.ResultsView();
             app.filterView = new app.FilterView();
             app.pagingView = new app.PagingView();
+
             app.userSocketClient.setConnection(function(err) {
                 if (err) {
                     app.userSocketClient.isInitialized = false;
