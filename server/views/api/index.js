@@ -703,7 +703,7 @@ exports.bio_unit_health = function(req, res) {
         };
         filters['liveBpu.id'] = mongoose.Types.ObjectId(bpu_id);
         filters['exp_processingEndTime'] = {
-            $lt: endDate, //new Date(endDate.getYear(), endDate.getMonth(), endDate.getDate())
+            // $lt: endDate, //new Date(endDate.getYear(), endDate.getMonth(), endDate.getDate())
             $gte: startDate //new Date(startDate.getYear(), startDate.getMonth(), startDate.getDate()),
         };
 
@@ -735,15 +735,81 @@ exports.bio_unit_health = function(req, res) {
                 results.forEach(function(result) {
                     var endResult = {};
                     endResult['datetime'] = new Date(result.exp_processingEndTime);
-                    endResult[param] = result[param] < 0 ? 0 : result[param] * scale;
-                    newResult.push(endResult);
+                    if (result[param] > 0) {
+                        endResult[param] = result[param] * scale;
+                        newResult.push(endResult);
+                    }
+
+                    // var endResult = {};
+                    // endResult['datetime'] = new Date(result.exp_processingEndTime);
+
+                    // if (result['rating'].length > 0 && result['rating'][0] > 0) {
+                    //     endResult['rating'] = result['rating'].length > 0 ? Math.round(result['rating'][0]) : 0;
+                    //     endResult['notes'] = result['notes'].length > 0 ? result['notes'][0] : "";
+                    //     newResult.push(endResult);
+                    // }
+
+                });
+
+                cb(null, newResult);
+            }
+        })
+    }
+
+    function getRatings(username, param, bpu_id, startDate, endDate, scale, cb) {
+        var endDate = parseInt(endDate);
+        var startDate = parseInt(startDate);
+
+        var filters = {};
+        // filters['user.name'] = username;
+        // filters['stats.' + username] = {
+        //     $eq: -1
+        // };
+        filters['liveBpu.id'] = mongoose.Types.ObjectId(bpu_id);
+        filters['exp_processingEndTime'] = {
+            // $lt: endDate, //new Date(endDate.getYear(), endDate.getMonth(), endDate.getDate())
+            $gte: startDate //new Date(startDate.getYear(), startDate.getMonth(), startDate.getDate()),
+        };
+
+        var projections = {};
+        // projections[param] = '$stats.' + username;
+        projections['bpu_id'] = '$liveBpu.id';
+        projections['exp_processingEndTime'] = 1;
+        projections['rating'] = '$survey.rating';
+        projections['notes'] = '$survey.notes';
+
+        req.app.db.models.BpuExperiment.aggregate([{
+            $match: filters,
+        }, {
+            $lookup: {
+                localField: "_id",
+                from: "surveys",
+                foreignField: "experiment",
+                as: "survey"
+            }
+        }, {
+            $project: projections
+        }]).exec(function(err, results) {
+            if (err) {
+
+                cb(err, null);
+            } else {
+                var newResult = [];
+
+                results.forEach(function(result) {
+                    // var endResult = {};
+                    // endResult['datetime'] = new Date(result.exp_processingEndTime);
+                    // if (result[param] > 0) {
+                    //     endResult[param] = result[param] * scale;
+                    //     newResult.push(endResult);
+                    // }
 
                     var endResult = {};
                     endResult['datetime'] = new Date(result.exp_processingEndTime);
-                    endResult['rating'] = result['rating'].length > 0 ? Math.round(result['rating'][0]) : 0;
-                    endResult['notes'] = result['notes'].length > 0 ? result['notes'][0] : "";
 
-                    if (endResult['rating'] != 0) {
+                    if (result[param].length > 0 && result[param][0] > 0) {
+                        endResult[param] = result[param].length > 0 ? Math.round(result[param][0]) : 0;
+                        endResult['notes'] = result['notes'].length > 0 ? result['notes'][0] : "";
                         newResult.push(endResult);
                     }
 
@@ -780,7 +846,19 @@ exports.bio_unit_health = function(req, res) {
     });
 
     workflow.on('scripterResponse', function() {
-        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1 * 5 / 10, function(err, results) {
+        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1 * 4, function(err, results) {
+            if (err) {
+                workflow.emit('exception', err);
+            } else {
+                workflow.outcome.results = workflow.outcome.results || [];
+                workflow.outcome.results.push.apply(workflow.outcome.results, results);
+                workflow.emit('scripterRatings');
+            }
+        })
+    });
+
+    workflow.on('scripterRatings', function() {
+        getRatings('', 'rating', req.params.id, req.query.start, req.query.end, 1, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
