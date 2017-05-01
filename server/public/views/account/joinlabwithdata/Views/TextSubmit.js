@@ -312,7 +312,8 @@ var _tryColumn = function(data, cb_fn) {
 
       } else {
 
-        var parts = line.split(',');
+        var parts = line.replace(/(\r\n|\n|\r)/gm,"").split(',');
+
         var doKeep = true;
 
         if (parts.length >= 2) {
@@ -332,7 +333,7 @@ var _tryColumn = function(data, cb_fn) {
           doKeep = false;
         }
 
-        var cols = ["time", "topValue", "rightValue", "bottomValue", "leftValue", "diffuserValue", "backlightValue", "culturelightValue", "ambientlightValue"]
+        var cols = ["time", "topValue", "rightValue", "bottomValue", "leftValue", "diffuserValue", "culturelightValue", "ambientlightValue", "backlightValue"];
 
         if (doKeep) {
 
@@ -340,6 +341,9 @@ var _tryColumn = function(data, cb_fn) {
 
           if (check.indexOf('time') > -1) {
             parts.forEach(function(part) {
+              console.log(part);
+              console.log(cols);
+              console.log(cols.indexOf(part));
               if (cols.indexOf(part) > -1) {
                 header[part] = cols.indexOf(part);
               }
@@ -347,6 +351,18 @@ var _tryColumn = function(data, cb_fn) {
           } else {
             if (JSON.stringify(header) !== '{}') {
               jsonData.eventsToRun.push({
+                time: Number(parts[header['time']]),
+                topValue: Number(parts[header['topValue']] || 0),
+                rightValue: Number(parts[header['rightValue']] || 0),
+                bottomValue: Number(parts[header['bottomValue']] || 0),
+                leftValue: Number(parts[header['leftValue']] || 0),
+                diffuserValue: Number(parts[header['diffuserValue']] || 0),
+                backlightValue: Number(parts[header['backlightValue']] || 0),
+                culturelightValue: Number(parts[header['culturelightValue']] || 0),
+                ambientlightValue: Number(parts[header['ambientlightValue']] || 0),
+              });
+
+              console.log({
                 time: Number(parts[header['time']]),
                 topValue: Number(parts[header['topValue']] || 0),
                 rightValue: Number(parts[header['rightValue']] || 0),
