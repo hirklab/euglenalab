@@ -341,9 +341,6 @@ var _tryColumn = function(data, cb_fn) {
 
           if (check.indexOf('time') > -1) {
             parts.forEach(function(part) {
-              console.log(part);
-              console.log(cols);
-              console.log(cols.indexOf(part));
               if (cols.indexOf(part) > -1) {
                 header[part] = cols.indexOf(part);
               }
