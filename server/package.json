@@ -28,6 +28,7 @@
     "httpp-proxy": "^0.10.3",
     "jade": "^1.x.x",
     "jquery": "^2.x.x",
+    "jquery-ui": "^1.10.5",
     "jquery.cookie": "^1.x.x",
     "jsonwebtoken": "^7.3.0",
     "kerberos": "0.0.22",

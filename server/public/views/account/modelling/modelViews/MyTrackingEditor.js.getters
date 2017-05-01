@@ -1,0 +1,228 @@
+MyTrackingEditor=function(app) {
+ 
+  var myObjectName='Tracking Editor'; 
+  self=this; 
+  app.EditorSave = Backbone.Model.extend({
+    idAttribute: '_id',
+    defaults: {
+      success: false,
+      errors: [],
+      errfor: {},
+      imageSetSelected:'not set',
+      imagesSelected:[],
+      currentImageIndex:0,
+      currentImageName:0,
+      currentPathIndex:0,
+      points:[],
+    },
+    url: '/account/tracking/editorsave/',
+    parse: function(response) {
+      if (response.account) {
+        console.log(myObjectName + ' editorsave: ' + 'response', response.account);
+        app.mainView.account.set(response.account);
+        delete response.account;
+      }
+      return response;
+    }
+  });
+  
+  app.EditorGet = Backbone.Model.extend({
+    idAttribute: '_id',
+    defaults: {
+      success: false,
+      errors: [],
+      errfor: {},
+      currentImageName:'not set',
+      currentPathIndex:0,
+      points:[],
+    },
+    url: '/account/tracking/editorget/',
+    parse: function(response) {
+      if (response.account) {
+        console.log(myObjectName + ' editorget: ' + 'response', response.account);
+        app.mainView.account.set(response.account);
+        delete response.account;
+      }
+      return response;
+    }
+  });
+  
+  app.EditorView = Backbone.View.extend({
+    el: '#trackingeditor',
+    template: _.template( $('#tmpl-trackingeditor').html() ),
+    events: {
+      'click .btn-save': 'mySave',
+      'click .btn-get': 'myGet',
+      'click .btn-newpath': 'myNewPath',
+    },
+    myNewPath: function() {
+      console.log(myObjectName + ': ' + 'myGet'); 
+      this.model.attributes.currentPathIndex++;
+    },
+    myGet: function() {
+      console.log(myObjectName + ': ' + 'myGet');
+      //this.update();
+      this.getUpdate();
+      //app.mainView.setImage();
+    },
+    mySave: function() {
+      console.log(myObjectName + ': ' + 'mySave');
+      this.update();
+      //this.getUpdate();
+      //app.mainView.setImage();
+    },
+    initialize: function() {
+      console.log(myObjectName + ': ' + 'initialize');
+      this.model = new app.EditorSave();
+      this.getModel = new app.EditorGet();
+      this.syncUp();
+      this.listenTo(app.mainView.account, 'change', this.syncUp);
+      this.listenTo(this.model, 'sync', this.render);
+      this.render();
+    },
+    syncUp: function() {
+      console.log(myObjectName + ': ' + 'syncUp');
+      this.model.set({
+        _id: app.mainView.account.id,
+        imageSetSelected: app.mainView.account.get('imageSetSelected'),
+        imagesSelected: app.mainView.account.get('imagesSelected'),
+        currentImageIndex: app.mainView.account.get('currentImageIndex'),
+        points: app.mainView.account.get('points'),
+        currentImageName: app.mainView.account.get('currentImageName'),
+        currentPathIndex: app.mainView.account.get('currentPathIndex'),
+      });
+      this.getModel.set({
+        _id: app.mainView.account.id,
+        points: app.mainView.account.get('points'),
+        currentImageName: app.mainView.account.get('currentImageName'),
+        currentPathIndex: app.mainView.account.get('currentPathIndex'),
+      });
+      app.mainView.setImageEditorCallback(this.model.attributes.imageSetSelected, 
+          this.model.attributes.imagesSelected[this.model.attributes.currentImageIndex],
+          this.model.attributes.currentImageIndex);
+    },
+    render: function() {
+      console.log(myObjectName + ': ' + 'render');
+      this.$el.html(this.template( this.model.attributes ));
+      for (var key in this.model.attributes) {
+        if (this.model.attributes.hasOwnProperty(key)) {
+          if(key=='imagesSelected') {
+            var dropdown=this.$el.find('[name="'+ 'imagesSelected' +'"]')['0'];
+            if(dropdown) {
+              var data=this.model.attributes['imagesSelected'];
+              this.setDropdownOptions();
+              this.getModel.attributes.currentImageName=data[this.model.attributes['currentImageIndex']];
+              this.$el.find('[name="'+ key +'"]').val(data[this.model.attributes['currentImageIndex']]);
+            }
+          } else if(key=='currentImageIndex') {
+              //var data=this.model.attributes['imagesSelected'];
+              //console.log(myObjectName + ': ', this.model.attributes['currentImageIndex'], data[this.model.attributes['currentImageIndex']]);
+            this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
+          } else if(key=='points') {
+              this.setPointsDropdownOptions();
+              console.log(myObjectName + ': ', key, this.model.attributes[key]);
+          } else {
+            this.$el.find('[name="'+ key +'"]').val(this.model.attributes[key]);
+          }
+        }
+      }
+    },
+    getUpdate: function() {
+      console.log(myObjectName + ': ' + 'getupdate');
+      this.getModel.save({
+        currentImageName:this.model.attributes['currentImageName'],
+        currentPathIndex:this.model.attributes['currentPathIndex'],
+      });
+    },
+    update: function() {
+      console.log(myObjectName + ': ' + 'update');
+      this.model.save({
+        currentImageSelected:this.model.attributes['currentImageIndex'],
+        points:this.getModel.attributes['points'],
+      });
+    },
+    incrementDropdown: function(num) {
+      var dropdown=this.$el.find('[name="'+ 'imagesSelected' +'"]')['0'];
+      if(dropdown) {
+        var data=this.model.attributes['imagesSelected'];
+        if(num<0 && dropdown.selectedIndex>0) {
+          this.$el.find('[name="'+ 'imagesSelected' +'"]').val(data[dropdown.selectedIndex-1]);
+          app.editorView.model.attributes['currentImageIndex']=dropdown.selectedIndex;
+          app.editorView.update();
+          return true;
+        } else if(num>0 && dropdown.selectedIndex<dropdown.options.length-1) {
+          this.$el.find('[name="'+ 'imagesSelected' +'"]').val(data[dropdown.selectedIndex+1]);
+          app.editorView.model.attributes['currentImageIndex']=dropdown.selectedIndex;
+          app.editorView.update();
+          return true;
+        } else {
+          return false;
+        }
+      }
+      return 'dropdown does not exit';
+    },
+    setDropdownOptions: function() {
+      var dropdown=this.$el.find('[name="'+ 'imagesSelected' +'"]')['0'];
+      if(dropdown) {
+        var optionsCount=dropdown.options.length;
+        //Remove all images from dropdown
+        for(var i=0;i<optionsCount;i++) {
+          dropdown.remove(dropdown.options[0]);
+        }
+        //add images from database
+        var data=app.mainView.account.attributes.imagesSelected;
+        for(var i=0;i<data.length;i++) {
+          var opt = document.createElement('OPTION');
+          dropdown.options.add(opt);
+          opt.innerHTML=''+data[i];
+          opt.value=data[i];
+        }
+        dropdown.onchange=function(e) {
+          var currentIndex=app.editorView.model.attributes['currentImageIndex'];
+          if(currentIndex!=e.target.selectedIndex) {
+            app.editorView.model.attributes['currentImageIndex']=e.target.selectedIndex;
+            app.editorView.update();
+          }
+        };
+      }
+    },
+    addPointToDropdown: function(pointObj) {
+      this.getModel.attributes.points.push(pointObj);
+    },
+    setPointsDropdownOptions: function() {
+      var dropdown=this.$el.find('[name="'+ 'imagePoints' +'"]')['0'];
+      if(dropdown) {
+        var optionsCount=dropdown.options.length;
+        //Remove all images from dropdown
+        for(var i=0;i<optionsCount;i++) {
+          dropdown.remove(dropdown.options[0]);
+        }
+        //add images from database
+        var data=app.mainView.account.attributes.points;
+        var optionStr='';
+        for(var i=0;i<data.length;i++) {
+          var opt = document.createElement('OPTION');
+          dropdown.options.add(opt);
+          optionStr=data[i].pathIndex+': point '+i+' ('+data[i].x+', '+data[i].y+')';
+          opt.innerHTML=optionStr;
+          opt.value=optionStr;
+        }
+        dropdown.value=optionStr;
+        dropdown.onchange=function(e) {
+          console.log('points drop down change');
+          /*var currentIndex=app.editorView.model.attributes['currentImageIndex'];
+          if(currentIndex!=e.target.selectedIndex) {
+            app.editorView.model.attributes['currentImageIndex']=e.target.selectedIndex;
+            app.editorView.update();
+          }*/
+        };
+      }
+    },
+  });
+
+  return new app.EditorView(); 
+}
+MyTrackingEditor.prototype=Object.create(Object.prototype);
+
+  
+

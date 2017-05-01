@@ -55,7 +55,7 @@ function accountOrFront(req, res, next) {
     }
 }
 
-exports = module.exports = function (app, passport) {
+exports = module.exports = function(app, passport) {
     //front end
     //app.get('/', require('./views/index').init);
 
@@ -247,6 +247,14 @@ exports = module.exports = function (app, passport) {
 
     //reroute home page after sign in to joinlabwithdata
     app.get('/account/', require('./views/account/joinlabwithdata/index').find);
+
+    //reroute home page after sign in to joinlabwithdata 
+    app.get('/account/modelling/', require('./views/account/modelling/index').init);
+
+    //account > modeling
+    app.get('/account/modelling/', require('./views/account/modelling/index').init);
+    app.put('/account/modelling/update/', require('./views/account/modelling/index').update);
+    app.put('/account/modelling/saveModelParameters/', require('./views/account/modelling/index').saveModelParameters);
 
     //account > verification
     app.get('/account/verification/', require('./views/account/verification/index').init);

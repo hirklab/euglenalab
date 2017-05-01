@@ -55,6 +55,7 @@ app.disable('x-powered-by');
 app.set('port', config.port);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+app.locals.pretty = true;
 
 //middleware
 app.use(require('morgan')('dev'));

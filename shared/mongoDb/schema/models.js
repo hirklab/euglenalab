@@ -29,4 +29,8 @@ exports = module.exports = function(app, mongoose) {
   require(schemaPath + '/UrlEvent')(app, mongoose);
 
   require(schemaPath + '/MyFunctions')(app, mongoose);
+
+  require(schemaPath + '/modelling/ImageSet')(app, mongoose);
+  require(schemaPath + '/modelling/SetPath')(app, mongoose);
+  require(schemaPath + '/modelling/ModelParameters')(app, mongoose);
 };

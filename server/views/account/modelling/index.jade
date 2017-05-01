@@ -1,0 +1,166 @@
+extends ../../../layouts/account
+
+block head
+  title Euglena Modeling
+
+  link(rel='stylesheet', href='/views/account/modelling/index.min.css?#{cacheBreaker}')
+  script(src='/libs/Three.js/three.js')
+
+  script(src='/libs/three/MyPoint.js')
+  script(src='/libs/three/MyPath.js')
+  script(src='/libs/three/Mesh_Text.js')
+  script(src='/libs/three/Mesh_Image.js')
+  script(src='/libs/three/MyQuadLightsMesh.js')
+
+  script(src='/views/account/modelling/libs/Euglena.js')
+
+  script(src='/views/account/modelling/libs/MicroscopeView.js')
+  script(src="/views/account/modelling/modelViews/MyTrackingEditor.js")
+  script(src="/views/account/modelling/modelViews/MyTrackingView.js")
+
+block feet
+  script(src='/views/account/modelling/index.min.js?#{cacheBreaker}')
+  link(rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css")
+  script(src="http://code.jquery.com/ui/1.11.4/jquery-ui.js")
+
+  style.
+    #topLabel {
+      position:absolute;
+      z-index:10;
+      top:0;
+      left:50%;
+      font-size:14pt;
+    }
+
+    #rightLabel {
+      position:absolute;
+      z-index:10;
+      top:280px;
+      right:1%;
+      font-size:14pt;
+    }
+
+    #bottomLabel {
+      position:absolute;
+      z-index:10;
+      top:540px;
+      left:50%;
+      font-size:14pt;
+    }
+
+    #leftLabel {
+      position:absolute;
+      z-index:10;
+      top:280px;
+      left:1%;
+      font-size:14pt;
+    }
+
+block body
+  div.main-header
+    div.col-xs-12(style='margin:0% 0% 0% 0%; padding:0px 0% 0px 0px; width:100%; height:100%; background-repeat:no-repeat; background-image:url("/media/scaleImage.png");')
+      h3#MainHeader(style='margin:1% 0% 0% 1%; padding:0px 0% 0px 0px;') Explore Euglena Model
+    //- div.col-xs-10.col-sm-10.col-md-8.col-lg-8#caseimage(style='margin:0% 0% 0% 0%; padding:10px 0% 0% 0%; width:25%; height:100%; background-color:#e0efff; background-repeat:no-repeat; background-image:url("/media/Euglena_Model_1.png");')
+  div.row.main-row#MainRow
+    div.col-xs-10.col-sm-10.col-md-8.col-lg-8.main-row-main-col
+      div.row#trackingview.main-row-main-col-subrow-view
+        label#topLabel 100
+        label#rightLabel 100
+        label#bottomLabel 100
+        label#leftLabel 100
+      div.row.main-row-main-col-subrow-info
+        div#imageSlider
+        div.col-xs-12(background-color:'#ff0000')
+          input.form-control.txtboxinfoA#txtboxFrame(type='text', name='txtboxFrame', value='Frame: 0', readonly)
+          input.form-control.txtboxinfoB#txtboxTime(type='text', name='txtboxTime', value='Time: 0 seconds', readonly)
+    div.col-xs-2.col-sm-2.col-md-4.col-lg-4.main-row-side-col#trackingeditor
+
+  script(type='text/template', id='tmpl-trackingeditor')
+    fieldSet
+      div.row#divJoystick(style='margin:5% 0% 5% 0%; padding:0% 0% 0% 0%; height:360px; width:100%; background-image:url("/media/legend.png");background-repeat: no-repeat;background-size: contain;')
+
+      div.row(style='margin:1% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%; height:50px;')
+        button.btn.btn-primary.buttonA.btn-editParameter(style='margin:0% 0% 0% 1%; padding:0% 0% 0% 0%; width:48%; height:100%;', name='btnEditParameter', type='button') Run Model
+        button.btn.btn-primary.buttonA.btn-resetParameter(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:48%; height:100%;', name='btnResetParameter', type='button') Start Over
+
+      div.row(style='margin:0% 0% 0% 10%; padding:0% 0% 0% 0%; width:90%; height:20%;')
+        div.col
+          div.control-group(style='float:left; width:90%;')
+            label(style='display:none; float:left; width:30%; margin:5px 0% 0% 10%; padding:5px 0% 0% 0%;') Model
+            input.form-control(style='display:none; float:left; width:30%;', type='number', name='modelCase', value='1', step='1', min='1', max='3')
+          div.control-group(style='float:left; width:30%;')
+            label.label-main(style='display:none;') Length
+            input.form-control.cp-name(style='display:none;', type='number', name='length', value='50', step='1', min='10', max='150')
+          div.control-group(style='float:left; width:30%;')
+            label.label-main(style='display:none;') Diameter
+            input.form-control.cp-name(style='display:none;', type='number', name='diameter', value='20', step='1', min='4', max='120')
+
+      div.row(style='margin:0% 0% 0% 10%; padding:0% 0% 0% 0%; width:90%;')
+        div.col
+          div.control-group(style='float:left;  width:30%;')
+            label.label-main(style='display:none;') Pos X
+            input.form-control.cp-name(style='display:none;', type='number', name='x', value='0', step='10', min='-600', max='600')
+        div.col
+          div.control-group(style='float:left;  width:30%;')
+            label.label-main(style='display:none;') Pos Y
+            input.form-control.cp-name(style='display:none;', type='number', name='y', value='0', step='10', min='-600', max='600')
+        div.col
+          div.control-group(style='float:left;  width:30%;')
+            label.label-main(style='display:none;') Rot*PI
+            input.form-control.cp-name(style='display:none;', type='number', name='zRot', value='-0.3', step='0.1', min='-1', max='1')
+
+      div.row(style='margin:0% 0% 0% 10%; padding:0% 0% 0% 0%; width:100%;')
+        div.col
+          div.control-group(style='float:left; width:30%;')
+            label.label-main(style='display:none;') Std. Dev.
+            input.form-control.cp-name(style='display:none;', type='text', name='std', value='NaN', readonly)
+
+      div.row(style='margin:5% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%;')
+        div.col(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%;')
+          div.control-group(style='float:left; width:65%;')
+            input.form-control.cp-name(type='text', disabled='true', name='surgeName', value='Speed [um/sec]', style=style=' float:left;')
+            //label.label.main(name='surgeName', value='10', style='text-align:left; padding:0% 0% 0% 5px;font-size:12px;float:left; background-color:#5ad3c9;')
+          div.col
+            div.control-group(style='float:left; width:35%;')
+              input.form-control.cp-name(type='number', disabled='true',name='surge',value='60', step='10', min='0', max='150', style=' float:left; background-color:#5ad3c9;')
+      div.row(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%; background-color:#5ad3c9;')
+        div.col(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%;')
+          div.control-group(style='float:left; width:100%;')
+            label.label-main(name='surgeLabel', style='margin:0.5% 0% 0% 0.5%; padding:0% 0% 0% 0%;float:left; width:11%; text-align:left;') 0
+            div#surgeSlider(style='float:left;  margin:2% 0% 0% 0%; padding:0% 0% 0% 0%; width:77%;')
+            label.label-main(name='surgeLabel', style='margin:0.5% 0.5% 0% 0%; padding:0% 0% 0% 0%;float:left; width:11%; text-align:right;') 150
+
+      div.row(style='margin:5% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%;')
+        div.col(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%;')
+          div.control-group(style='float:left; width:65%;')
+            input.form-control.cp-name(type='text', disabled='true', name='couplingName', value='Light Sensitivity', style=' float:left;')
+          div.col
+            div.control-group(style='float:left; width:35%;')
+              input.form-control.cp-name(type='number', disabled='true',name='coupling', value='-3', step='5', min='-50', max='50', style='float:left; background-color:#d1d35a;')
+      div.row(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%; background-color:#d1d35a;')
+        div.col(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%;')
+          div.control-group(style='float:left; width:100%;')
+            label.label-main(name='couplingLabel', style='margin:0.5% 0% 0% 0.5%; padding:0% 0% 0% 0%;float:left; width:11%; text-align:left;') -50
+            div#couplingSlider(style='float:left; margin:2% 0% 0% 0%; padding:0% 0% 0% 0%; width:77%;')
+            label.label-main(name='couplingLabel', style='margin:0.5% 0.5% 0% 0%; padding:0% 0% 0% 0%;float:left; width:11%; text-align:right;') 50
+
+      div.row(style='margin:5% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%; ')
+        div.col(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%;')
+          div.control-group(style='float:left; width:65%;')
+            input.form-control.cp-name(type='text', disabled='true', name='rollName', value='Roll [rotation/sec]', style='float:left;')
+          div.col
+            div.control-group(style='float:left; width:35%;')
+              input.form-control.cp-name(type='number', disabled='true',name='roll', value='1', step='1', min='0', max='8', style='float:left; background-color:#d35aaf;')
+      div.row(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%; background-color:#d35aaf;')
+        div.col(style='margin:0% 0% 0% 0%; padding:0% 0% 0% 0%; width:100%;')
+          div.control-group(style='float:left; width:100%;')
+            label.label-main(name='rollLabel', style='margin:0.5% 0% 0% 0.5%; padding:0% 0% 0% 0%;float:left; width:11%; text-align:left;') 0
+            div#rollSlider(style='float:left; margin:2% 0% 0% 0%; padding:0% 0% 0% 0%; width:77%;')
+            label.label-main(name='rollLabel', style='margin:0.5% 0.5% 0% 0%; padding:0% 0% 0% 0%;float:left; width:11%; text-align:right;') 8
+
+  script(type='text/template', id='data-account') !{data.account}
+  script(type='text/template', id='data-user') !{data.user}
+  script(type='text/template', id='data-imageset') !{data.imageset}
+  script(type='text/template', id='data-setpath') !{data.setpath}
+  script(type='text/template', id='data-modelParameters') !{data.modelParameters}
+  script(type='text/template', id='data-labSession') !{data.labSession}
