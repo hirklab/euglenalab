@@ -61,7 +61,8 @@ var _joinLabConfirmAlertCalled=false;
     //Send Live User to lab
     socket.on(socketStrs.sendUserToLiveLab, function(reqObj, callbackToServer) {
       if(callbackToServer) callbackToServer({err:null});
-      location.href='/account/livelab/';
+      //location.href='/account/livelab/';
+      location.href='/account/developgame/';
     });
     //Update Info
     socket.on('/#update', function(updateObj) {

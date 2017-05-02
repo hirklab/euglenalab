@@ -1,8 +1,0 @@
-{ "program" :
-  { "portable" :
-    { "pnacl-translate" :
-      { "url" : "image_proc.compressed.pexe"
-      }
-    }
-  }
-}

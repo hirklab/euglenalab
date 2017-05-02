@@ -173,3 +173,4 @@ function updateStatus( optMessage ) {
     statusField.innerHTML = " : " + statusText;
   }
 }
+

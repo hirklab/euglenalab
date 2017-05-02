@@ -276,6 +276,7 @@ app.server.listen(app.config.port, function () {
 
                                 socket.on(app.mainConfig.userSocketStrs.user_ledsSet, function (setLedsData) {
                                     //Emit to bpucontroller wait for exp accepted array
+                                    console.log("Sending LED info to BPU controller...");
                                     app.bpuControllerSocket.emit(app.mainConfig.socketStrs.bpu_runExpLedsSet, setLedsData);
                                 });
                             });
