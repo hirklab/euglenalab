@@ -44,10 +44,18 @@ class EuglenaProcessor : public Processor {
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
         cv::Mat _elementDilate;
+        double _boxX1;
+        double _boxX2;
+        double _boxY1;
+        double _boxY2;
 };
 
 EuglenaProcessor::EuglenaProcessor() : _fgbg(0)
 {
+    _boxX1 = (double)(rand()%200 + 200.0);
+    _boxY1 = (double)(rand()%200 + 200.0);
+    _boxX2 = (double)(rand()%500 + 400.0);
+    _boxY2 = (double)(rand()%500 + 400.0);
     _fgbg = new cv::BackgroundSubtractorMOG2(500,16,false);
     _elementErode  = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 3, 3 ) );
     _elementDilate = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ));
@@ -81,6 +89,18 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im)
                       cv::RETR_TREE,cv::CHAIN_APPROX_SIMPLE);
 
     //std::vector< std::vector<cv::Point> > validContours;
+
+    // Create goal box.
+    if (rand()%100 < 1) {
+        _boxX1 = (double)(rand()%200 + 200.0);
+        _boxY1 = (double)(rand()%200 + 200.0);
+        _boxX2 = (double)(rand()%500 + 400.0);
+        _boxY2 = (double)(rand()%500 + 400.0);
+    }
+
+    cv::rectangle(im, cv::Point(_boxX1, _boxY1), cv::Point(_boxX2, _boxY2), cv::Scalar(0,0,255,255), 2);
+
+    // Iterate over detected Euglena points and create a RotatedRect per Euglena.
     std::vector<cv::RotatedRect>  euglenas;
     for(auto &c : contours){
         if ( cv::contourArea(c) > 3.0 ){
@@ -89,7 +109,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im)
         }
     }
 
-
+    // Draw around the Euglenas.
     for(auto &e : euglenas){
         cv::Point2f pts[4];
         e.points(pts);
@@ -97,6 +117,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im)
             cv::line(im,pts[i],pts[(i+1)%4],cv::Scalar(255,0,0,255),2);
         }
     }
+
+
     //drawContours(im, validContours, -1, cv::Scalar(0,0,255),2);
 
 
