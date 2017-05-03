@@ -203,6 +203,10 @@ exports=module.exports=function(app, socketServerInfo, joinQueueDataArray, callb
     if(err) {
       callbackToClient('bc series end '+err, outcome.validationObjs);
     } else {
+      validationObjs.forEach(function(obj){
+        console.log(obj);
+      })
+
       if(outcome.validationObjs.length===0) {
         callbackToClient('no validation objects', outcome.validationObjs);
       } else if(outcome.validationPassedCnt===0) {
