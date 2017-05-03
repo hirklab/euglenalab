@@ -131,7 +131,6 @@ exports.find = function(req, res, next) {
           // console.log("Activity s: " + activityScore);
           // console.log("Response s: " + responseScore);
           // console.log("Population s: " + populationScore);
-          // console.log("Perforamance score: " + bpuJadeObj.performanceScore);
 
           outcome.bpuJadeObjects.push(bpuJadeObj);
         });
