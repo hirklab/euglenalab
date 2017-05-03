@@ -103,16 +103,16 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         cv::rectangle(im, cv::Point(_boxX1, _boxY1), cv::Point(_boxX2, _boxY2), cv::Scalar(0,0,255,255), 2);
 
         // Iterate over detected Euglena points and create a RotatedRect per Euglena.
-        std::vector<cv::RotatedRect>  euglenas;
+        std::vector<cv::RotatedRect> euglenas;
         for (auto &c : contours) {
-            if ( cv::contourArea(c) > 3.0 ){
+            if ( cv::contourArea(c) > 3.0 ) {
                 cv::RotatedRect rect = cv::minAreaRect(c);
                 euglenas.push_back( rect );
             }
         }
 
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
-        for (auto &e : euglenas){
+        for (auto &e : euglenas) {
             cv::Point2f pts[4];
             e.points(pts);
             bool withinScoreRect = false;

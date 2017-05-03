@@ -11,6 +11,46 @@ var _joinLabConfirmAlertCalled=false;
   'use strict';
   //parent app
   app = app || {};
+
+  /*
+   * ============================================================================
+   * KONAMI CODE TO ACTIVATE "DEMO MODE" from http://stackoverflow.com/questions/31626852/how-to-add-konami-code-in-a-website-based-on-html
+   * This will allow users to play the biotic game dev mode. This is a quick hack for lab presentation demo; a real button
+   * will be added when this feature is no longer secret / in development. This is done because we have real users using the
+   * staging server, but I want to demo the feature so far on staging. - Peter 
+   * ============================================================================
+   */
+  var demoMode = false;
+  var allowedKeys = {
+    37: 'left',
+    38: 'up',
+    39: 'right',
+    40: 'down',
+    65: 'a',
+    66: 'b'
+  };
+  var konamiCode = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right', 'b', 'a'];
+  var konamiCodePosition = 0;
+  document.addEventListener('keydown', function(e) {
+    var key = allowedKeys[e.keyCode];
+    var requiredKey = konamiCode[konamiCodePosition];
+    if (key == requiredKey) {
+      konamiCodePosition++;
+      if (konamiCodePosition == konamiCode.length)
+        activateCheats();
+    } else
+      konamiCodePosition = 0;
+  });
+
+  function activateCheats() {
+    alert("DEMO MODE ACTIVATED!!!");
+    demoMode = true;
+  }
+  /*
+   * ============================================================================
+   * END OF KONAMI CODE HACK; TODO(peter): Place this in appropriate file or remove
+   * ============================================================================
+   */
   
   //This Object 
   var me={};
@@ -61,8 +101,8 @@ var _joinLabConfirmAlertCalled=false;
     //Send Live User to lab
     socket.on(socketStrs.sendUserToLiveLab, function(reqObj, callbackToServer) {
       if(callbackToServer) callbackToServer({err:null});
-      //location.href='/account/livelab/';
-      location.href='/account/developgame/';
+      if (demoMode) location.href='/account/developgame/';
+      else location.href='/account/livelab/';
     });
     //Update Info
     socket.on('/#update', function(updateObj) {
