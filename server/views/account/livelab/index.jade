@@ -162,13 +162,36 @@ block neck
     }
 
     .light.left{
-      top:20px;
+      top:0;
       left:0;
       background-color:rgba(255,255,0,#{data.lightData.leftLightAlpha});
     }
 
-    .light.left > span{
-      -webkit-transform: rotate(315deg);
+    .light span{
+      display: inline-block;
+      line-height:20px;
+    }
+
+    .light.left span, .light.right span{
+      position: relative;
+      top: 50%;
+    }
+
+    .light.left span{
+      -webkit-transform: rotate(-90deg);
+      /* Firefox */
+      -moz-transform: rotate(-90deg);
+      /* IE */
+      -ms-transform: rotate(-90deg);
+      /* Opera */
+      -o-transform: rotate(-90deg);
+      /* Internet Explorer */
+      filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    }
+
+    
+    .light.right span{
+      -webkit-transform: rotate(90deg);
       /* Firefox */
       -moz-transform: rotate(90deg);
       /* IE */
@@ -176,13 +199,12 @@ block neck
       /* Opera */
       -o-transform: rotate(90deg);
       /* Internet Explorer */
-      filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
-
-      //- transform-origin: left top 0;
+      filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
     }
 
+    
     .light.right{
-      top:20px;
+      top:0;
       right:0;
       background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha});
     }
