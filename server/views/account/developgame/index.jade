@@ -166,48 +166,6 @@ block body
       embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
 
     h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.lightData.topValue} #{data.timeLeftInLab.value}
-    
-    //- if data.divInfo.hasAside
-    //-   div.row
-    //-     div.col.myMainRow.unselectable(name='myMainRow')
-    //-       div.myMainCol.unselectable(name='myMainCol')
-    //-         div.myLightSpacer.unselectable(name='myLightSpacer')
-    //-         div.myTopLight.unselectable(name='myTopLight') #{data.lightData.topValue}
-    //-         div.myLightSpacer.unselectable(name='myLightSpacer')
-    //-         //- div.myLeftLight
-    //-         //-   span(name='myLeftLight',style='vertical-align:middle') #{data.lightData.leftValue}
-    //-         div.myLeftLight.unselectable(name='myLeftLight') #{data.lightData.leftValue}
-    //-         div#myImage.unselectable
-    //-           img#myVideo.unselectable(src='#{data.mainImageIP}')
-    //-           div#myScalebar.unselectable(name='myScalebar')
-    //-             center
-    //-               div#myScale.unselectable(name='myScale')
-    //-                 center
-    //-                   span#myScaleText.unselectable 100um
-    //-         div#myRightLight.unselectable(name='myRightLight') #{data.lightData.rightValue}
-    //-         div.myLightSpacer.unselectable(name='myLightSpacer')
-    //-         div#myBottomLight.unselectable(name='myBottomLight') #{data.lightData.bottomValue}
-    //-         div.myLightSpacer.unselectable(name='myLightSpacer')
-    //-       div.col#myAside.unselectable(name='myAside')
-    //-         div#myJoystick.canvas-joystick-off(name='myJoystick')
-    //-         img#myImage2.unselectable(name='myImage2', src='#{data.sideImageIP}')
-    //- else
-    //-   div.row.myMainRow(name='myMainRow')
-    //-     div.col.myMainCol(name='myMainCol')
-    //-       div.myLightSpacer(name='myLightSpacer')
-    //-       div.myTopLight(name='myTopLight') #{data.lightData.topValue}
-    //-       div.myLightSpacer(name='myLightSpacer')
-    //-       div.myLeftLight(name='myLeftLight') #{data.lightData.leftValue}
-    //-       img#myImage(name='myImage', src='#{data.mainImageIP}')
-    //-       div#myScalebar(name='myScalebar')
-    //-         center
-    //-           div#myScale(name='myScale')
-    //-             center
-    //-               span#myScaleText 100um
-    //-       div#myRightLight(name='myRightLight') #{data.lightData.rightValue}
-    //-       div.myLightSpacer(name='myLightSpacer')
-    //-       div#myBottomLight(name='myBottomLight') #{data.lightData.bottomValue}
-    //-       div.myLightSpacer(name='myLightSpacer')
 
     div.row
       div.col-xs-7#codediv
@@ -220,7 +178,7 @@ block body
             div#myJoystick.canvas-joystick-off(name='myJoystick')
           div.col-xs-1
           div.col-xs-6
-            |Instructions: Get up to <b>100</b> <i>Euglena</i> into the moving blue box at any given moment in time. The blue box will randomly move around the screen.
+            |<u>Level 1:</u> Get <b>30%</b> of the <i>Euglena</i> on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.
         br
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")

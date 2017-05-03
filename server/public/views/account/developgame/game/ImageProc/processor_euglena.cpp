@@ -90,6 +90,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     //std::vector< std::vector<cv::Point> > validContours;
 
     int currEuglenaInBox = 0;
+    int totalDetectedEuglena = 0;
 
     if (_gameInSession) {
         // Create goal box.
@@ -108,6 +109,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             if ( cv::contourArea(c) > 3.0 ) {
                 cv::RotatedRect rect = cv::minAreaRect(c);
                 euglenas.push_back( rect );
+                totalDetectedEuglena += 1;
             }
         }
 
@@ -123,15 +125,21 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             if (withinScoreRect) currEuglenaInBox += 1;
         }
 
-        // Display current score.
+        // Display current Euglena in box.
         char scoreStr[80];
         std::strcpy(scoreStr, "Euglena in box: ");
         std::strcat(scoreStr, std::to_string(currEuglenaInBox).c_str());
         cv::putText(im, scoreStr, cv::Point(2.0, 10.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
+
+        // Display Euglena needed to win.
+        char reqScoreStr[80];
+        std::strcpy(reqScoreStr, "Euglena needed: ");
+        std::strcat(reqScoreStr, std::to_string((int)(0.1*totalDetectedEuglena)).c_str());
+        cv::putText(im, reqScoreStr, cv::Point(2.0, 30.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
     }
 
     // Display game over if that's the case.
-    if (currEuglenaInBox >= 100 || _gameInSession == false) {
+    if (currEuglenaInBox >= 0.1*totalDetectedEuglena || _gameInSession == false) {
         _gameInSession = false;
         cv::putText(im, "Game over! You win!", cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
     }

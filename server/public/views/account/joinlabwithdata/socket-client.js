@@ -100,7 +100,7 @@ var _joinLabConfirmAlertCalled=false;
     });
     //Send Live User to lab
     socket.on(socketStrs.sendUserToLiveLab, function(reqObj, callbackToServer) {
-      if(callbackToServer) callbackToServer({err:null});
+      if (callbackToServer) callbackToServer({err:null});
       if (demoMode) location.href='/account/developgame/';
       else location.href='/account/livelab/';
     });
