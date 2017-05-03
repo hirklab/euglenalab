@@ -74,7 +74,7 @@ exports.init = function(req, res, next) {
         }
 
         outcome.webStreamUrl = bpuDoc.getWebStreamUrl();
-        outcome.sideStreamUrl = bpuDoc.getSideStreamUrl();
+        outcome.sideStreamUrl = bpuDoc.getSideStreamUrl(); //"http://171.65.103.23:8082/?action=stream"; //
         return callback(null);
       }
     });
@@ -166,28 +166,28 @@ var _getStatusOfBpu = function(app, bpuDoc, timeout, callback) {
 var _setupDiv = function(username, callback) {
   var renderJade = 'account/livelab/index';
   var divInfo = {
-    mainRowWidth: '75%',
-    mainRowHeight: '480px',
+    // mainRowWidth: '75%',
+    // mainRowHeight: '480px',
 
-    mainColWidth: '75%',
-    mainColHeight: '100%',
+    // mainColWidth: '75%',
+    // mainColHeight: '100%',
 
-    lightLong: '90%',
-    lightShort: '5%',
+    // lightLong: '90%',
+    // lightShort: '5%',
 
-    imageWidth: '90%',
-    imageHeight: '90%',
+    // imageWidth: '90%',
+    // imageHeight: '90%',
 
     hasAside: true,
 
-    asideColWidth: '25%',
-    asideColHeight: '100%',
+    // asideColWidth: '25%',
+    // asideColHeight: '100%',
 
-    sideImageWidth: '100%',
-    sideImageHeight: '50%',
+    // sideImageWidth: '100%',
+    // sideImageHeight: '50%',
 
-    joystickWidth: '100%',
-    joystickHeight: '50%',
+    // joystickWidth: '100%',
+    // joystickHeight: '50%',
   };
   if (username === 'dirk_joystick') {
     renderJade = 'account/livelab/indexMuseum';
