@@ -121,7 +121,7 @@ void detectEuglena(cv::Mat im, std::vector<cv::RotatedRect>  &euglenas)
 
     euglenas.clear();
     for(auto &c : contours){
-        if ( cv::contourArea(c) > 250.0 ){
+        if ( cv::contourArea(c) > 0 ){
             cv::RotatedRect rect = cv::minAreaRect(c);
             euglenas.push_back( rectifyRect(rect) );
         }

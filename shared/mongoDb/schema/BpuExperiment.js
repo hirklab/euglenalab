@@ -308,63 +308,86 @@ exports = module.exports = function(app, mongoose) {
         var evt = exp.exp_eventsToRun[ind];
         if (evt !== null && evt !== undefined) {
 
-          var err = checkNum(evt.time, 0, 10 * 60 * 1000);
+          if(evt.hasOwnProperty('time')){
+            var err = checkNum(evt.time, 0, 10 * 60 * 1000);
 
-          if (err === null) {
-            err = checkNum(evt.topValue, 0, 100);
-          } else {
-            returnObj.validationErr = 'time:' + err;
-            break;
+            if(err!=null){
+              returnObj.validationErr = 'time:' + err;
+              break;
+            }
           }
 
+        if(evt.hasOwnProperty('topValue')){
           if (err === null) {
-            err = checkNum(evt.leftValue, 0, 100);
+            err = checkNum(evt.topValue, 0, 100);
           } else {
             returnObj.validationErr = 'topValue:' + err;
             break;
           }
+        }
 
+        if(evt.hasOwnProperty('leftValue')){
           if (err === null) {
-            err = checkNum(evt.bottomValue, 0, 100);
+            err = checkNum(evt.leftValue, 0, 100);
           } else {
             returnObj.validationErr = 'leftValue:' + err;
             break;
           }
+        }
 
+        if(evt.hasOwnProperty('bottomValue')){
+          if (err === null) {
+            err = checkNum(evt.bottomValue, 0, 100);
+          } else {
+            returnObj.validationErr = 'bottomValue:' + err;
+            break;
+          }
+        }
+
+        if(evt.hasOwnProperty('rightValue')){
           if (err === null) {
             err = checkNum(evt.rightValue, 0, 100);
           } else {
             returnObj.validationErr = 'rightValue:' + err;
             break;
           }
+        }
 
+        if(evt.hasOwnProperty('diffuserValue')){
           if (err === null) {
             err = checkNum(evt.diffuserValue, 0, 100);
           } else {
             returnObj.validationErr = 'diffuserValue:' + err;
             break;
           }
+        }
 
+        if(evt.hasOwnProperty('backlightValue')){
           if (err === null) {
             err = checkNum(evt.backlightValue, 0, 100);
           } else {
             returnObj.validationErr = 'backlightValue:' + err;
             break;
           }
+        }
 
+        if(evt.hasOwnProperty('culturelightValue')){
           if (err === null) {
             err = checkNum(evt.culturelightValue, 0, 100);
           } else {
             returnObj.validationErr = 'culturelightValue:' + err;
             break;
           }
+        }
 
+        if(evt.hasOwnProperty('ambientlightValue')){
           if (err === null) {
             err = checkNum(evt.ambientlightValue, 0, 100);
           } else {
             returnObj.validationErr = 'ambientlightValue:' + err;
             break;
           }
+        }
 
           if (err !== null) {
             returnObj.validationErr = 'sensor Value:' + err;

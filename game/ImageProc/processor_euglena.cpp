@@ -60,7 +60,7 @@ EuglenaProcessor::~EuglenaProcessor()
 }
 cv::Mat EuglenaProcessor::operator()(cv::Mat im)
 {
-    //printf("Image Type: %s\n" , getImgType(im.type()).c_str() );
+    printf("Image Type: %s\n" , getImgType(im.type()).c_str() );
 
     cv::Mat fgmask;
     (*_fgbg)(im,fgmask,-1);
@@ -82,7 +82,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im)
     //std::vector< std::vector<cv::Point> > validContours;
     std::vector<cv::RotatedRect>  euglenas;
     for(auto &c : contours){
-        if ( cv::contourArea(c) > 250.0 ){
+        if ( cv::contourArea(c) > 3.0 ){
             cv::RotatedRect rect = cv::minAreaRect(c);
             euglenas.push_back( rect );
         }
@@ -93,7 +93,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im)
         cv::Point2f pts[4];
         e.points(pts);
         for(int i=0;i<4;i++){
-            cv::line(im,pts[i],pts[(i+1)%4],cv::Scalar(255,255,0,255),2);
+            cv::line(im,pts[i],pts[(i+1)%4],cv::Scalar(55,155,0,255),2);
         }
     }
     //drawContours(im, validContours, -1, cv::Scalar(0,0,255),2);
