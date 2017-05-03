@@ -151,7 +151,7 @@
 
       if (err) console.log('kickUser', err, from);
 
-      $('#myVideo')[0].src = $('#myVideo')[0].src.replace('stream', 'snapshot');
+      $('.video')[0].src = $('.video')[0].src.replace('stream', 'snapshot');
 
       if (!app.mainView.alreadyKicked) {
         app.mainView.alreadyKicked = true;
@@ -259,22 +259,26 @@
       } else {
         app.mainView.timeLeftInLab -= dt;
       }
+
       app.mainView.timeInLab += dt;
-      var labelMsg = app.mainView.bpu.get('name') + ' Time Remaining:';
+
+      var titleMsg = app.mainView.bpu.get('name') + '';
+      var timeMsg = '';
+
       if (app.mainView.timeLeftInLab > 0) {
         if (app.mainView.timeLeftInLab === null) {
-          labelMsg += 'unknown' + ' seconds.';
+          timeMsg += '...';
         } else {
           var timeLeftSec = Math.round(app.mainView.timeLeftInLab / 1000);
           if (app.mainView.wasTimeSetFromUpdate) {
-            labelMsg += timeLeftSec + ' seconds.';
+            timeMsg += timeLeftSec + 's';
           } else {
-            labelMsg += '~' + timeLeftSec + ' seconds.';
+            timeMsg += '~' + timeLeftSec + 's';
           }
         }
       } else {
         if (isReal || app.mainView.wasTimeSetFromUpdate) {
-          labelMsg += ' Lab Over.';
+          timeMsg += 'Time over';
           // setTimeout(function() {
           //   clearInterval(app.mainView.updateLoopInterval);
           //   app.mainView.updateLoopInterval = null;
@@ -283,13 +287,17 @@
           //   app.mainView.keyboardTimeout = null;
           // }, 1);
         } else if (app.mainView.wasTimeSetFromUpdate) {
-          labelMsg += '0' + ' seconds.';
+          timeMsg += '0' + ' s';
         } else {
-          labelMsg += '~0' + ' seconds.';
+          timeMsg += '~0' + ' s';
         }
       }
-      var label = app.mainView.$el.find('[name="' + 'timeLeftInLab' + '"]')[0];
-      if (label) label.innerHTML = labelMsg;
+
+      var label = app.mainView.$el.find('[name="' + 'microscopeName' + '"]')[0];
+      if (label) label.innerHTML = titleMsg;
+
+      label = app.mainView.$el.find('[name="' + 'timeLeftInLab' + '"]')[0];
+      if (label) label.innerHTML = timeMsg + (timeMsg.indexOf('s') > -1 ? ' remaining' : '');
     },
 
     //Tag-UpdateLoop
@@ -364,6 +372,10 @@
           app.mainView.myLights.right = app.mainView.$el.find('[name="' + 'myRightLight' + '"]')[0];
           app.mainView.myLights.bottom = app.mainView.$el.find('[name="' + 'myBottomLight' + '"]')[0];
           app.mainView.myLights.left = app.mainView.$el.find('[name="' + 'myLeftLight' + '"]')[0];
+          app.mainView.myLights.topValue = app.mainView.$el.find('[name="' + 'myTopLight' + '"]').find('span')[0];
+          app.mainView.myLights.rightValue = app.mainView.$el.find('[name="' + 'myRightLight' + '"]').find('span')[0];
+          app.mainView.myLights.bottomValue = app.mainView.$el.find('[name="' + 'myBottomLight' + '"]').find('span')[0];
+          app.mainView.myLights.leftValue = app.mainView.$el.find('[name="' + 'myLeftLight' + '"]').find('span')[0];
         }
         cb_fn(null, null);
       },
@@ -374,10 +386,10 @@
           app.mainView.myLights.bottom.style.backgroundColor = 'rgba(255,255,0,' + data.bottomValue / 100 + ')';
           app.mainView.myLights.left.style.backgroundColor = 'rgba(255,255,0,' + data.leftValue / 100 + ')';
 
-          app.mainView.myLights.top.innerHTML = data.topValue;
-          app.mainView.myLights.right.innerHTML = data.rightValue;
-          app.mainView.myLights.bottom.innerHTML = data.bottomValue;
-          app.mainView.myLights.left.innerHTML = data.leftValue;
+          app.mainView.myLights.topValue.innerHTML = data.topValue;
+          app.mainView.myLights.rightValue.innerHTML = data.rightValue;
+          app.mainView.myLights.bottomValue.innerHTML = data.bottomValue;
+          app.mainView.myLights.leftValue.innerHTML = data.leftValue;
         }
       },
     },
@@ -581,9 +593,19 @@
       //Events
       window.addEventListener('resize', function(evt) {
         //Resize Joystick Canvas
+        var joystickContainer = app.mainView.$el.find('#camera')[0];
         var joystickCanvas = app.mainView.$el.find('[name="' + 'myJoystick' + '"]')[0];
-        if (joystickCanvas && app.mainView.myJoyStick) {
-          app.mainView.myJoyStick.resize(joystickCanvas.clientWidth, joystickCanvas.clientHeight);
+
+        if (joystickContainer && joystickCanvas && app.mainView.myJoyStick) {
+          var element = null;
+
+          try {
+            element = window.getComputedStyle(joystickContainer, null);
+          } catch (e) {
+            element = joystickContainer.currentStyle.height;
+          }
+
+          app.mainView.myJoyStick.resize(parseFloat(element.getPropertyValue('width')), parseFloat(element.getPropertyValue('height')));
         }
         app.mainView.setLedsEventController(evt, 'resize');
       });
