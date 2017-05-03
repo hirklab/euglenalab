@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "singleton_factory.hpp"
 #include <opencv2/core/core.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
@@ -6,10 +7,8 @@
 #include <opencv2/video/background_segm.hpp>
 
 
-
 // take number image type number (from cv::Mat.type()), get OpenCV's enum string.
-std::string getImgType(int imgTypeInt)
-{
+std::string getImgType(int imgTypeInt) {
     int numImgTypes = 35; // 7 base types, with five channel options each (none or C1, ..., C4)
 
     int enum_ints[] =       {CV_8U,  CV_8UC1,  CV_8UC2,  CV_8UC3,  CV_8UC4,
@@ -28,9 +27,8 @@ std::string getImgType(int imgTypeInt)
                              "CV_32F", "CV_32FC1", "CV_32FC2", "CV_32FC3", "CV_32FC4",
                              "CV_64F", "CV_64FC1", "CV_64FC2", "CV_64FC3", "CV_64FC4"};
 
-    for(int i=0; i<numImgTypes; i++)
-    {
-        if(imgTypeInt == enum_ints[i]) return enum_strings[i];
+    for (int i=0; i<numImgTypes; i++) {
+        if (imgTypeInt == enum_ints[i]) return enum_strings[i];
     }
     return "unknown image type";
 }
@@ -48,26 +46,27 @@ class EuglenaProcessor : public Processor {
         double _boxX2;
         double _boxY1;
         double _boxY2;
+        bool _gameInSession;
+        std::vector<cv::RotatedRect> _previousEuglenaPositions;
 };
 
-EuglenaProcessor::EuglenaProcessor() : _fgbg(0)
-{
+EuglenaProcessor::EuglenaProcessor() : _fgbg(0) {
+    _gameInSession = true;
     _boxX1 = (double)(rand()%200 + 200.0);
     _boxY1 = (double)(rand()%200 + 200.0);
     _boxX2 = (double)(rand()%500 + 400.0);
     _boxY2 = (double)(rand()%500 + 400.0);
     _fgbg = new cv::BackgroundSubtractorMOG2(500,16,false);
-    _elementErode  = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 3, 3 ) );
+    _elementErode  = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 3, 3 ));
     _elementDilate = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ));
 }
 
-EuglenaProcessor::~EuglenaProcessor()
-{
-    if(_fgbg)
+EuglenaProcessor::~EuglenaProcessor() {
+    if (_fgbg)
         delete _fgbg;
 }
-cv::Mat EuglenaProcessor::operator()(cv::Mat im)
-{
+
+cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     //printf("Image Type: %s\n" , getImgType(im.type()).c_str() );
     printf("Processing images...");
 
@@ -90,32 +89,51 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im)
 
     //std::vector< std::vector<cv::Point> > validContours;
 
-    // Create goal box.
-    if (rand()%100 < 1) {
-        _boxX1 = (double)(rand()%200 + 200.0);
-        _boxY1 = (double)(rand()%200 + 200.0);
-        _boxX2 = (double)(rand()%500 + 400.0);
-        _boxY2 = (double)(rand()%500 + 400.0);
+    int currEuglenaInBox = 0;
+
+    if (_gameInSession) {
+        // Create goal box.
+        if (rand()%100 < 1) {
+            _boxX1 = (double)(rand()%500 + 20.0);
+            _boxY1 = (double)(rand()%500 + 20.0);
+
+            _boxX2 = (double)(rand()%300 + _boxX1);
+            _boxY2 = (double)(rand()%300 + _boxY1);
+        }
+        cv::rectangle(im, cv::Point(_boxX1, _boxY1), cv::Point(_boxX2, _boxY2), cv::Scalar(0,0,255,255), 2);
+
+        // Iterate over detected Euglena points and create a RotatedRect per Euglena.
+        std::vector<cv::RotatedRect>  euglenas;
+        for (auto &c : contours) {
+            if ( cv::contourArea(c) > 3.0 ){
+                cv::RotatedRect rect = cv::minAreaRect(c);
+                euglenas.push_back( rect );
+            }
+        }
+
+        // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
+        for (auto &e : euglenas){
+            cv::Point2f pts[4];
+            e.points(pts);
+            bool withinScoreRect = false;
+            for (int i=0;i<4;i++) {
+                cv::line(im,pts[i], pts[(i+1)%4], cv::Scalar(0,255,0,255), 2);
+                if (pts[i].x < _boxX2 && pts[i].x > _boxX1 && pts[i].y < _boxY2 && pts[i].y > _boxY1) withinScoreRect = true;
+            }
+            if (withinScoreRect) currEuglenaInBox += 1;
+        }
+
+        // Display current score.
+        char scoreStr[80];
+        std::strcpy(scoreStr, "Euglena in box: ");
+        std::strcat(scoreStr, std::to_string(currEuglenaInBox).c_str());
+        cv::putText(im, scoreStr, cv::Point(2.0, 10.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
     }
 
-    cv::rectangle(im, cv::Point(_boxX1, _boxY1), cv::Point(_boxX2, _boxY2), cv::Scalar(0,0,255,255), 2);
-
-    // Iterate over detected Euglena points and create a RotatedRect per Euglena.
-    std::vector<cv::RotatedRect>  euglenas;
-    for(auto &c : contours){
-        if ( cv::contourArea(c) > 3.0 ){
-            cv::RotatedRect rect = cv::minAreaRect(c);
-            euglenas.push_back( rect );
-        }
-    }
-
-    // Draw around the Euglenas.
-    for(auto &e : euglenas){
-        cv::Point2f pts[4];
-        e.points(pts);
-        for(int i=0;i<4;i++){
-            cv::line(im,pts[i],pts[(i+1)%4],cv::Scalar(255,0,0,255),2);
-        }
+    // Display game over if that's the case.
+    if (currEuglenaInBox >= 100 || _gameInSession == false) {
+        _gameInSession = false;
+        cv::putText(im, "Game over! You win!", cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
     }
 
 
