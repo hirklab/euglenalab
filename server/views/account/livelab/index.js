@@ -129,7 +129,6 @@ exports.init = function(req, res, next) {
           setLedsObj: escape(JSON.stringify(outcome.setLedsObj)),
           survey: {
             rating: 0,
-            // euglena_moving: null,
             notes: null
           }
         },

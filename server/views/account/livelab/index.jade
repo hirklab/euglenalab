@@ -48,6 +48,28 @@ block neck
     .canvas-joystick-on {
       background-color:#66b2ff;
     }
+
+    .stylus-container{
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      max-height:360px;
+      height: 0;
+      display: table;
+      overflow:hidden;
+    }
+
+    #stylus {
+      width: 100%;
+    }
+
+    .canvas-stylus-off {
+      background-color:#A0A0A0;
+    }
+
+    .canvas-stylus-on {
+      background-color:#66b2ff;
+    }
     
     *.unselectable {
         -moz-user-select: -moz-none;
@@ -212,6 +234,7 @@ block neck
 block feet
   script(src='/views/account/livelab/index.min.js?#{cacheBreaker}')
   script(src="/views/account/livelab/Canvas_Joystick.js")
+  script(src="/views/account/livelab/stylus.js")
   script(src='/views/account/livelab/socket-client.js')
 
 block body
@@ -247,6 +270,8 @@ block body
     div.col-xs-4.aside.unselectable
       div.joystick-container
         div#joystick(name='myJoystick')
+      div.stylus-container
+        div#stylus(name='stylus')
       img#camera.unselectable(name='myImage2', src='#{data.sideImageIP}')
 
   div.modal.fade(role="dialog")

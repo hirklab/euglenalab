@@ -140,6 +140,14 @@
                 });
               }
             });
+
+            // app.mainView.stylusInstance.build(function(err, dat) {
+            //   if (app.mainView.stylusInstance.doesExist) {
+            //     app.mainView.stylus.toggleStylus('on');
+
+            //   }
+            // });
+
           });
         }
       });
@@ -355,6 +363,18 @@
         if (app.mainView.$el.find('[name="' + 'myJoystick' + '"]')[0]) {
           app.mainView.myJoyStickObj.doesExist = true;
           app.mainView.myJoyStick = new Canvas_Joystick(app.mainView.$el.find('[name="' + 'myJoystick' + '"]')[0]);
+        }
+        cb_fn(null, null);
+      },
+    },
+    stylus: null,
+    stylusInstance: {
+      touchState: 'up',
+      doesExist: false,
+      build: function(cb_fn) {
+        if (app.mainView.$el.find('[name="' + 'stylus' + '"]')[0]) {
+          app.mainView.stylusInstance.doesExist = true;
+          app.mainView.stylus = new Stylus(app.mainView.$el.find('[name="' + 'stylus' + '"]')[0]);
         }
         cb_fn(null, null);
       },
