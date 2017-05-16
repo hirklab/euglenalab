@@ -280,8 +280,8 @@ var loop = function () {
         app.logger.info('================================================================');
         app.logger.info('             Date:\t' + app.memDoc.lastDate);
         app.logger.info('      Connections:\t' + app.memDoc.socketConns);
-        app.logger.info('         Up  Time:\t' + (Math.round((app.memDoc.lastDate - StartDate) / 60000))) + ' min';
-        app.logger.info('         High Mem:\t' + Math.round((app.memDoc.highMem) / (memDiv))) + ' Mb';
+        app.logger.info('         Up  Time:\t' + (Math.round((app.memDoc.lastDate - StartDate) / 60000))+ ' min') ;
+        app.logger.info('         High Mem:\t' + Math.round((app.memDoc.highMem) / (memDiv)) + ' mb');
         app.logger.info('Curr(rss,tot,use):\t' + '(' +
             Math.round(app.memDoc.last.rss / (memDiv)) +
             ',' + Math.round(app.memDoc.last.heapTotal / (memDiv)) +
