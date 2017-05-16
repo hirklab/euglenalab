@@ -516,7 +516,7 @@ var loop = function () {
             bpuObj.checkMsgs.push({
                 isErr: false,
                 time: new Date().getTime(),
-                msg: 'Connected:\t' + (bpuObj.socket === null)
+                msg: 'Connected:\t' + (bpuObj.socket!==null)
             });
             bpuObj.checkMsgs.push({
                 isErr: false,
@@ -1046,7 +1046,6 @@ var loop = function () {
         });
     };
 
-
     var sendExpsToBpus = function (callback) {
         var cnt = 0;
         var sendExpToBpu = function (sendExpToBpuCallback) {
@@ -1221,6 +1220,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
             }
         });
     };
+
     var sendExperimentToBpu = function (cb_fn) {
         var didCallback = false;
         setTimeout(function () {
@@ -1297,6 +1297,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
             });
         } //end of socket null check
     };
+
     var activateLiveUser = function (cb_fn) {
 
         async.some(app.socketConnections, function (clientSocket, callback) {
@@ -1360,9 +1361,11 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
 
 
     };
+
     var runExpForNonLiveUser = function (cb_fn) {
         bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuResObj) {
             if (bpuResObj.err) {
+                console.log(bpuResObj.err);
             }
         });
         cb_fn(null);
@@ -1391,7 +1394,7 @@ var _verifyServerSocketConnection = function (serverInfo, callback) {
         if (serverInfo.Identifier && typeof serverInfo.Identifier === 'string') {
             if (app.Auth[serverInfo.Identifier] && app.Auth[serverInfo.Identifier].Identifier === serverInfo.Identifier) {
             } else {
-                err = 'serverInfo Indentifier is incorrect';
+                err = 'serverInfo Identifier is incorrect';
             }
         } else {
             err = 'serverInfo Identifier DNE';
