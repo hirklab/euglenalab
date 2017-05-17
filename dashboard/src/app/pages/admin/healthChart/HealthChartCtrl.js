@@ -18,17 +18,17 @@
 
         var sortBy = (function() {
 
-            const _defaults = {
-                parser: (x) => x,
+            var _defaults = {
+                parser: function(x) {return x;},
                 desc: false
             };
 
-            const isObject = (o) => o !== null && typeof o === "object";
-            const isDefined = (v) => typeof v !== "undefined";
+            var isObject = function(o) {return o !== null && typeof o === "object"};
+            var isDefined = function (v) {return typeof v !== "undefined"};
 
             //gets the item to be sorted
             function getItem(x) {
-                const isProp = isObject(x) && isDefined(x[this.prop]);
+                var isProp = isObject(x) && isDefined(x[this.prop]);
                 return this.parser(isProp ? x[this.prop] : x);
             }
 
@@ -45,7 +45,7 @@
             return function(array, options) {
                 if (!(array instanceof Array) || !array.length)
                     return [];
-                const opt = Object.assign({}, _defaults, options);
+                var opt = Object.assign({}, _defaults, options);
                 opt.desc = opt.desc ? -1 : 1;
                 return array.sort(function(a, b) {
                     a = getItem.call(opt, a);
@@ -63,7 +63,45 @@
                     var results = sortBy(response.data.results, {
                         prop: "datetime"
                     });
-                    createHealthChart(node, results);
+
+                    var calculated_ratings = [];
+
+                    var lastPopulation = null;
+                    var lastActivity = null;
+                    var lastResponse = null;
+
+                    results.forEach(function(result) {
+                        if (result.hasOwnProperty('response')) {
+                            lastResponse = result.response;
+                        }
+
+                        if (result.hasOwnProperty('activity')) {
+                            lastActivity = result.activity;
+                        }
+
+                        if (result.hasOwnProperty('population')) {
+                            lastPopulation = result.population;
+                        }
+
+                        // console.log(lastResponse + " " + lastPopulation + " " + lastActivity);
+
+                        if (lastPopulation != null && lastResponse != null && lastActivity != null) {
+                            calculated_ratings.push({
+                                datetime: result.datetime,
+                                internalRating: Math.round((5 * lastResponse + 2 * lastActivity + 3 * lastPopulation)) / 10
+                            })
+                        }
+                    });
+
+                    var updatedResults = [];
+                    updatedResults.push.apply(updatedResults, response.data.results);
+                    updatedResults.push.apply(updatedResults, calculated_ratings);
+
+                    var newResults = sortBy(updatedResults, {
+                        prop: "datetime"
+                    });
+
+                    createHealthChart(node, newResults);
                 });
             }
         }, false);
@@ -169,7 +207,7 @@
                     "bulletBorderAlpha": 1,
                     "bulletSize": 0.01,
                     "type": "smoothedLine",
-                    "title": "Rating",
+                    "title": "External Rating",
                     "valueField": "rating",
                     "notesField": "notes",
                     "clustered": false,
@@ -177,6 +215,25 @@
                     "lineColorField": layoutColors.info,
                     "legendValueText": "[[value]]",
                     "balloonText": "[[title]]: [[value]]<br/><p style='font-size: 100%'>[[notes]]</p>"
+                }, {
+                    "id": "g5",
+                    "valueAxis": "v1",
+                    color: layoutColors.default,
+                    "lineColor": layoutColors.primary,
+                    // "fillColors": layoutColors.warning,
+                    // "fillAlphas": 0.5,
+                    "lineAlpha": 0.6,
+                    "bullet": "round",
+                    "bulletBorderAlpha": 1,
+                    "bulletSize": 0.01,
+                    "type": "smoothedLine",
+                    "title": "Internal Rating",
+                    "valueField": "internalRating",
+                    "clustered": false,
+                    "columnWidth": 1,
+                    "lineColorField": layoutColors.primary,
+                    "legendValueText": "[[value]]",
+                    "balloonText": "[[title]]<br/><b style='font-size: 130%'>[[value]]</b>"
                 }],
                 "chartScrollbar": {
                     oppositeAxis: false,

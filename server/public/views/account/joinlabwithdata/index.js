@@ -251,7 +251,9 @@
         submitExperimentFromViews: function(type, wantsBpuName) {
             //Disable UI
             app.mainView.disableUI('app.mainView.submitExperimentFromViews');
+
             console.log('1. submitExperimentFromViews', 'true?:' + app.userSocketClient.isInitialized, 'false?:' + app.mainView.userExpInfo.isSubmitting);
+
             if (app.userSocketClient.isInitialized && !app.mainView.userExpInfo.isSubmitting) {
                 app.mainView.userExpInfo.isSubmitting = true;
                 var joinQueueDataObjects = [];
@@ -374,7 +376,7 @@
             //Update BpuView with updateObj.bpuPackage
 
             var isFailed = function(status) {
-                if ((status.indexOf('Failed') >= 0) || (status === 'offline')) {
+                if ((status.indexOf('failed') >= 0) || (status === 'offline')) {
                     return true;
                 }
                 return false;
@@ -388,7 +390,7 @@
                         //User
                         app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left: N/A');
                         //Status
-                        app.bpuImageView.setStatusLabel(bpuPack.index, 'Status:' + bpuPack.bpuStatus);
+                        app.bpuImageView.setStatusLabel(bpuPack.index, bpuPack.bpuStatus);
                     } else if (bpuPack.liveBpuExperiment) {
                         //Title
                         var userPart = '(Available)'
@@ -403,17 +405,17 @@
                         if (secondsLeft >= 0) {
                             app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:' + secondsLeft + ' seconds');
                         } else {
-                            app.bpuImageView.setUserLabel(bpuPack.index, 'Processing (hang on)');
+                            app.bpuImageView.setUserLabel(bpuPack.index, 'Processing...');
                         }
                         //Status
-                        app.bpuImageView.setStatusLabel(bpuPack.index, 'Status:' + bpuPack.bpuStatus);
+                        app.bpuImageView.setStatusLabel(bpuPack.index, bpuPack.bpuStatus);
                     } else {
                         //Title
                         app.bpuImageView.setTitleLabel(bpuPack.index, bpuPack.name + ': (Available)');
                         //User
                         app.bpuImageView.setUserLabel(bpuPack.index, 'Time Left:' + 0 + ' seconds');
                         //Status
-                        app.bpuImageView.setStatusLabel(bpuPack.index, 'Status:' + bpuPack.bpuStatus);
+                        app.bpuImageView.setStatusLabel(bpuPack.index, bpuPack.bpuStatus);
                     }
                 });
             } else {
@@ -423,7 +425,7 @@
                     //User
                     app.bpuImageView.setUserLabel(bpu.index, 'Time Left:' + '0' + ' seconds');
                     //Status
-                    app.bpuImageView.setStatusLabel(bpu.index, 'Status:' + 'Unknown');
+                    app.bpuImageView.setStatusLabel(bpu.index, 'Unknown');
                 });
             }
 
@@ -542,7 +544,7 @@
                     app.liveJoinView.setJoinLiveNextLabel('Connection Error:' + err + '.  Refresh Browser.');
                 } else {
                     app.userSocketClient.isInitialized = true;
-                    app.mainView.setHeaderLabel('Connected. Wait for microscope Update.');
+                    app.mainView.setHeaderLabel('Awaiting microscope update...');
                 }
             });
 

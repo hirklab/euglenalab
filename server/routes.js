@@ -69,7 +69,6 @@ exports = module.exports = function (app, passport) {
     app.get('/', accountOrFront);
     app.get('/about/', require('./views/about/index').init);
     app.get('/help/', require('./views/help/index').init);
-    app.get('/developgame/', require('./views/developgame/index').init);
     app.get('/contact/', require('./views/contact/index').init);
     app.post('/contact/', require('./views/contact/index').sendMessage);
 
@@ -266,6 +265,9 @@ exports = module.exports = function (app, passport) {
 
     //livejoylab
     app.get('/account/livelab/', require('./views/account/livelab/index').init);
+
+    // Develop game
+    app.get('/account/developgame/', require('./views/account/developgame/index').init);
 
     //route not found
     app.all('*', require('./views/http/index').http404);
