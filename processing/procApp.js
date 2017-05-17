@@ -173,7 +173,7 @@ var init_getBpuExpClearedByServer=function(callback) {
     } else if(expDocs===null || expDocs===undefined) {
       err='BpuExperiment.find.'+'expDocs dne';
     } else if(expDocs.length===0) {
-      err='BpuExperiment.find.'+'no expDocs to process';
+      err='no experiments pending';
     } else {
       if(false) {
         expDocs.forEach(function(doc) {

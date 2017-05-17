@@ -161,7 +161,7 @@ var setupSocketClientServer = function (callback) {
                         if (app.socketConnections.length > 0) {
                             app.socketConnections.forEach(function (otherSocket) {
                                 if (otherSocket.id === app.Auth[serverInfo.Identifier].socketID) {
-                                    app.logger.warn('Duplicate server info: Disconnecting');
+                                    app.logger.warn('duplicate server info: disconnecting');
                                     otherSocket.disconnect();
                                 }
                             });
@@ -711,7 +711,7 @@ var loop = function () {
             runParallelFuncs.push(checkBpu.bind(app.bpuObjects[key]));
         });
         //Run Parallel
-        app.logger.info('Checking ' + runParallelFuncs.length + ' BPUs');
+        // app.logger.debug('Checking ' + runParallelFuncs.length + ' BPUs');
         async.parallel(runParallelFuncs, function (err) {
             //Print Compiled Bpu Info
             var keys = Object.keys(app.bpuObjects);
@@ -1033,7 +1033,7 @@ var loop = function () {
                     //Run series
                     // app.logger.info('runSeries start checkExpsAndResort on ' + runSeriesFuncs.length);
                     async.series(runSeriesFuncs, function (err) {
-                        app.logger.trace('runSeries end checkExpsAndResort tags:' + Object.keys(app.newExpTagObj).length + ', exps:' + app.keeperExpDocs.length);
+                        // app.logger.trace('runSeries end checkExpsAndResort tags:' + Object.keys(app.newExpTagObj).length + ', exps:' + app.keeperExpDocs.length);
                         if (err) {
                             app.logger.error('runSeries end checkExpsAndResort on ' + runSeriesFuncs.length + ' in ' + (new Date() - startDate) + ' err:' + err + '\n');
                         } else {
@@ -1141,7 +1141,7 @@ var loop = function () {
 
     var updateClientSocketConnections = function (callback) {
         var timeNow = new Date().getTime();
-        app.logger.debug('updateClientSock:' + app.socketConnections.length);
+        // app.logger.debug('updateClientSock:' + app.socketConnections.length);
         if (app.socketConnections.length > 0) {
             var bpuDocs = [];
             Object.keys(app.bpuObjects).forEach(function (key) {
@@ -1180,7 +1180,7 @@ var loop = function () {
         if (err) {
             app.logger.error('runSeries end in ' + (new Date() - startDate) + ' err:' + err);
         } else {
-            app.logger.debug('runSeries end in ' + (new Date() - startDate));
+            // app.logger.debug('runSeries end in ' + (new Date() - startDate));
             setTimeout(function () {
                 loop();
             }, app.runParams.runLoopInterval);
@@ -1192,7 +1192,7 @@ var loop = function () {
 //Init Controller and RUn Loop
 init(function (err) {
     if (err) {
-        console.log('init err:' + err);
+        app.logger.error('init err:' + err);
     } else {
         if (app.runParams.runCounter === 0) {
             app.runData.firstMemObj = process.memoryUsage();
@@ -1236,7 +1236,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
             }
         } else {
             exp.exp_metaData.magnification = bpuDoc.magnification;
-            console.log('events to run', exp.exp_eventsToRun);
+            app.logger.info('events to run', exp.exp_eventsToRun);
             bpuSocket.emit(app.mainConfig.socketStrs.bpu_setExp, exp, confirmTimeout + 1000, function (err) {
                 if (!didCallback) {
                     didCallback = true;
@@ -1303,7 +1303,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
         async.some(app.socketConnections, function (clientSocket, callback) {
 
             if (clientSocket.connected) {
-                console.log('Activating live user to: ' + clientSocket.id);
+                app.logger.info('Activating live user to: ' + clientSocket.id);
 
                 clientSocket.emit('activateLiveUser', outcome.sess, app.runParams.liveUserConfirmTimeout, function (userActivateResData) {
                     if (userActivateResData.err || !userActivateResData.didConfirm) {
@@ -1328,7 +1328,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
                                         });
                                         return callback(false);
                                     } else {
-                                        console.log('Someone confirmed and user sent to live lab')
+                                        app.logger.info('Someone confirmed and user sent to live lab');
                                         return callback(true);
                                     }
                                 });
@@ -1343,7 +1343,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
         }, function (someoneConfirmed) {
 
             if (someoneConfirmed === false) {
-                console.log('********* Nobody Confirmed **********');
+                app.logger.debug('********* Nobody Confirmed **********');
                 // app.runData.activateLiveUserErrors.push({time:new Date(), err:'activateLiveUser sess:'+outcome.sess.sessionID+
                 //   ', user:'+outcome.sess.user.name
                 //   });
@@ -1365,7 +1365,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
     var runExpForNonLiveUser = function (cb_fn) {
         bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuResObj) {
             if (bpuResObj.err) {
-                console.log(bpuResObj.err);
+                app.logger.error(bpuResObj.err);
             }
         });
         cb_fn(null);
