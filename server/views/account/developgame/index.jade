@@ -1,0 +1,222 @@
+extends ../../../layouts/account
+
+block head
+  title Live Joystick Lab
+  //meta(http-equiv='refresh', content='30')
+
+
+block neck
+  style.
+    .myMainRow {
+      background-color:#ffffff;
+      margin-top:1%;
+      height:#{data.divInfo.mainRowHeight};
+      width:#{data.divInfo.mainRowWidth};
+      float:left;
+    }
+
+    .myMainCol {
+      background-color:#ffffff;
+      height:100%;
+      height:#{data.divInfo.mainColHeight};
+      width:#{data.divInfo.mainColWidth};
+      float:left;
+    }
+    .myLightSpacer {
+      background-color:rgba(0,0,0,0.5);
+      height:#{data.divInfo.lightShort};
+      width:#{data.divInfo.lightShort};
+      float:left;
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+    }
+    .myTopLight {
+      background-color:rgba(255,255,0,#{data.lightData.topLightAlpha});
+      height:#{data.divInfo.lightShort};
+      width:#{data.divInfo.lightLong};
+      float:left;
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+    }
+    .myLeftLight {
+      background-color:rgba(255,255,0,#{data.lightData.leftLightAlpha});
+      height:#{data.divInfo.lightLong};
+      width:#{data.divInfo.lightShort};
+      float:left;
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+    }
+    #myImage {
+      background-color:#d3d3d3;
+      height:#{data.divInfo.imageHeight};
+      width:#{data.divInfo.imageWidth};
+      float:left;
+      overflow:hidden;
+      z-index:1;
+    }
+    #myVideo {
+      background-color:#d3d3d3;
+      width:100%;      
+      float:left;
+      z-index:1;
+    }
+
+    #myRightLight {
+      background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha});
+      height:#{data.divInfo.lightLong};
+      width:#{data.divInfo.lightShort};
+      float:left;
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+      z-index:1;
+    }
+    #myBottomLight {
+      background-color:rgba(255,255,0,#{data.lightData.bottomLightAlpha});
+      height:#{data.divInfo.lightShort};
+      width:#{data.divInfo.lightLong};
+      float:left;
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+      z-index:1;
+    }
+    #myAside {
+      background-color:#ffffff;
+      /*height:#{data.divInfo.asideColHeight};
+      width:#{data.divInfo.asideColWidth};*/
+      height: 150px;
+      width: 150px;
+      float:left;
+      z-index:1;
+    }
+
+    #myImage2 {
+      background-color:#d3d3d3;
+      height:#{data.divInfo.sideImageHeight};
+      width:#{data.divInfo.sideImageWidth};
+      float:left;
+    }
+    #myJoystick {
+      background-color:#A0A0A0;
+      /*height:#{data.divInfo.joystickHeight};
+      width:#{data.divInfo.joystickWidth};*/
+      height: 150px;
+      width: 150px;
+      float:left;
+    }
+
+    #myScalebar {
+      //- background-color:rgba(0,0,0,0.0);
+      position:relative;
+      height:8%;
+      width:#{data.lengthScale100um};
+      text-align:center;
+      border-style:solid;
+      border-width:0px;
+      top:90%;
+      left:80%;
+      z-index:10;
+    }
+
+    #myScale {
+      background-color:rgba(255,255,0,1);
+      position:relative;
+      width:100%;
+      height:10px;
+      text-align:center;
+      border-style:solid;
+      border-width:1px;
+      z-index:11;
+    }
+
+    #myScaleText {
+      position:absolute;
+      z-index:11;
+      top:55%;
+      left:15%;
+      font-size:16px;
+      font-weight:bold;
+      color:rgb(0,0,0);
+    }
+
+    .canvas-joystick-off {background-color:#A0A0A0;}
+    .canvas-joystick-on {background-color:#66b2ff;}
+
+  
+    *.unselectable {
+        -moz-user-select: -moz-none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+block feet
+  script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
+  script(src="/views/account/developgame/Canvas_Joystick.js")
+  script(src='/views/account/developgame/socket-client.js')
+
+block body
+  body(onload='pageDidLoad()')
+    div#listener
+      embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
+
+    h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.lightData.topValue} #{data.timeLeftInLab.value}
+
+    div.row
+      div.col-xs-7#codediv
+      div.col-xs-5
+        //img#myVideo.unselectable(src='http://fay.iniminimo.com/shapes/giftwrap/giftwrap01.gif')
+        //(src='#{data.mainImageIP}')
+        //br
+        div.row
+          div.col-xs-5#myAside.unselectable(name='myAside')
+            div#myJoystick.canvas-joystick-off(name='myJoystick')
+          div.col-xs-1
+          div.col-xs-6
+            |<u>Level 1:</u> Get <b>30%</b> of the <i>Euglena</i> on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.
+        br
+        canvas(id="display", width="640", height="480", hidden="true")
+        canvas(id="processed", width="640", height="480")
+        h2
+          |Status 
+          code(id="statusField")
+            |Loading...
+    
+    div.modal.fade(role="dialog")
+
+    script(type='text/template',id="tmpl-survey")
+      div.modal-dialog(role="document")
+        div.modal-content
+          div.modal-header
+              h4.modal-title Send us your feedback
+          div.modal-body
+            .form-group
+                label Rate your experience
+                div
+                    input.form-control.rating(type="hidden",name="rating")
+            .form-group
+                label Note for support team
+                textarea.form-control(rows="5",style="width:520px", name="notes")
+          div.modal-footer
+            button.btn.btn-primary#btn-submit(type="submit",value="submit") Submit  
+            button.btn.btn-default#btn-close(type="button",value="close", data-dismiss="modal") Close  
+      
+
+    script(type='text/lab', id='data-user') !{data.user}
+    script(type='text/lab', id='data-bpu') !{data.bpu}
+    script(type='text/lab', id='data-bpuExp') !{data.bpuExp}
+    script(type='text/template', id='data-session') !{data.session}
+    script(type='text/lab', id='data-setLedsObj') !{data.setLedsObj}
+
+    script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js", type="text/javascript")
+    script(src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js", type="text/javascript")
+    script(src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js", type="text/javascript")
+    script(src='http://codemirror.net/1/js/codemirror.js')
+    script(src='http://codemirror.net/1/js/mirrorframe.js')
+    script(src='/views/account/developgame/game/game.js')
+

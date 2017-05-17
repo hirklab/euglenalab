@@ -2,6 +2,7 @@
 (function() {
   'use strict';
   app=app || {};
+
   app.LiveJoinView = Backbone.View.extend({
     isWaitingToConfirmJoin:false,
     
