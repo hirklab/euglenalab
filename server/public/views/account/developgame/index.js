@@ -40,14 +40,16 @@
          "\t\t}\n\n" +
          "" +
          "}";
-  var editor = new CodeMirror(document.getElementById('codediv'), {
-    height: "750px",
-    content: starterCode,
-    parserfile: ["http://codemirror.net/1/contrib/java/js/tokenizejava.js", "http://codemirror.net/1/contrib/java/js/parsejava.js"],
-    stylesheet: "http://codemirror.net/1/contrib/java/css/javacolors.css",
-    path: "http://codemirror.net/1/js/",
-    autoMatchParens: true
-  });
+  // var editor = CodeMirror.fromTextArea(document.getElementById('txtCode'), {
+  //   height: "750px",
+  //   content: starterCode,
+  //   parserfile: ["http://codemirror.net/1/contrib/java/js/tokenizejava.js", "http://codemirror.net/1/contrib/java/js/parsejava.js"],
+  //   stylesheet: "http://codemirror.net/1/contrib/java/css/javacolors.css",
+  //   path: "http://codemirror.net/1/js/",
+  //   autoMatchParens: true,
+  // });
+
+  // console.log(editor.getDoc());
 
   $(document).ready(function() {
     app.mainView = new app.MainView();
