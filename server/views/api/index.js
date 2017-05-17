@@ -11,10 +11,10 @@ var mongoose = require('mongoose');
 //   password:''
 // }
 // Response -> user: {id, username, email, createdAt}
-exports.register = function (req, res) {
+exports.register = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('validate', function () {
+    workflow.on('validate', function() {
         if (!req.body.username) {
             workflow.outcome.errfor.username = 'required';
         } else if (!/^[a-zA-Z0-9\-\_]+$/.test(req.body.username)) {
@@ -38,10 +38,10 @@ exports.register = function (req, res) {
         workflow.emit('duplicateUsernameCheck');
     });
 
-    workflow.on('duplicateUsernameCheck', function () {
+    workflow.on('duplicateUsernameCheck', function() {
         req.app.db.models.User.findOne({
             username: req.body.username
-        }, function (err, user) {
+        }, function(err, user) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -55,10 +55,10 @@ exports.register = function (req, res) {
         });
     });
 
-    workflow.on('duplicateEmailCheck', function () {
+    workflow.on('duplicateEmailCheck', function() {
         req.app.db.models.User.findOne({
             email: req.body.email.toLowerCase()
-        }, function (err, user) {
+        }, function(err, user) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -72,8 +72,8 @@ exports.register = function (req, res) {
         });
     });
 
-    workflow.on('createUser', function () {
-        req.app.db.models.User.encryptPassword(req.body.password, function (err, hash) {
+    workflow.on('createUser', function() {
+        req.app.db.models.User.encryptPassword(req.body.password, function(err, hash) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -81,7 +81,7 @@ exports.register = function (req, res) {
             //add user to default group
             req.app.db.models.Group.findOne({
                 name: 'default'
-            }, function (err, dGroup) {
+            }, function(err, dGroup) {
                 if (dGroup === null) {
                     dGroup = req.app.db.models.Group();
                     dGroup.save();
@@ -99,7 +99,7 @@ exports.register = function (req, res) {
                         req.body.email
                     ]
                 };
-                req.app.db.models.User.create(fieldsToSet, function (err, user) {
+                req.app.db.models.User.create(fieldsToSet, function(err, user) {
                     if (err) {
                         return workflow.emit('exception', err);
                     }
@@ -108,7 +108,7 @@ exports.register = function (req, res) {
                         name: dGroup.name
                     }, {
                         users: dGroup.users
-                    }, function (err, dGroup) {
+                    }, function(err, dGroup) {
                         if (err) {
                             return workflow.emit('exception', err);
                         }
@@ -120,7 +120,7 @@ exports.register = function (req, res) {
         });
     });
 
-    workflow.on('createAccount', function () {
+    workflow.on('createAccount', function() {
         var fieldsToSet = {
             isVerified: 'yes',
             'name.full': workflow.user.username,
@@ -133,14 +133,14 @@ exports.register = function (req, res) {
             ]
         };
 
-        req.app.db.models.Account.create(fieldsToSet, function (err, account) {
+        req.app.db.models.Account.create(fieldsToSet, function(err, account) {
             if (err) {
                 return workflow.emit('exception', err);
             }
 
             //update user with account
             workflow.user.roles.account = account._id;
-            workflow.user.save(function (err, user) {
+            workflow.user.save(function(err, user) {
                 if (err) {
                     return workflow.emit('exception', err);
                 }
@@ -170,10 +170,10 @@ exports.register = function (req, res) {
 //   user: {}
 //   token: "JWT 35252632632236"
 // }
-exports.login = function (req, res) {
+exports.login = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('validate', function () {
+    workflow.on('validate', function() {
         if (!req.body.username) {
             workflow.outcome.errfor.username = 'required';
         }
@@ -189,18 +189,20 @@ exports.login = function (req, res) {
         workflow.emit('attemptLogin');
     });
 
-    workflow.on('attemptLogin', function () {
-        req._passport.instance.authenticate('local', function (err, user, info) {
+    workflow.on('attemptLogin', function() {
+        req._passport.instance.authenticate('local', function(err, user, info) {
             if (err) {
                 return workflow.emit('exception', err);
             }
 
-            req.login(user, function (err) {
+            req.login(user, function(err) {
                 if (err) {
                     return workflow.emit('exception', err);
                 }
 
-                var payload = {id: user.id};
+                var payload = {
+                    id: user.id
+                };
 
                 var secretOrKey = req.app.jwtOptions.secretOrKey;
                 var token = jwt.sign(payload, secretOrKey, {
@@ -230,7 +232,7 @@ exports.login = function (req, res) {
         })(req, res);
     });
 
-    workflow.on('getSession', function () {
+    workflow.on('getSession', function() {
 
         var sessUpdate = {
             url: '/account',
@@ -247,7 +249,7 @@ exports.login = function (req, res) {
             sessionID: req.sessionID
         }, sessUpdate, {
             new: true
-        }, function (err, doc) {
+        }, function(err, doc) {
             if (err) {
                 workflow.outcome.errfor.session = err;
             } else if (doc === null || doc === undefined) {
@@ -263,7 +265,7 @@ exports.login = function (req, res) {
         });
     });
 
-    workflow.on('newSession', function () {
+    workflow.on('newSession', function() {
         var sessInfo = {
             url: '/account',
             sessionID: req.sessionID,
@@ -274,7 +276,7 @@ exports.login = function (req, res) {
             }
         };
 
-        req.app.db.models.Session.makeNewSession(sessInfo, function (err, newDoc) {
+        req.app.db.models.Session.makeNewSession(sessInfo, function(err, newDoc) {
             if (err) {
                 workflow.outcome.errfor.session = err;
             } else {
@@ -292,10 +294,10 @@ exports.login = function (req, res) {
     workflow.emit('validate');
 };
 
-exports.listUsers = function (req, res) {
+exports.listUsers = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         req.query.search = req.query.search ? req.query.search : '';
         req.query.status = req.query.status ? req.query.status : '';
         req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -317,7 +319,7 @@ exports.listUsers = function (req, res) {
             limit: req.query.limit,
             page: req.query.page,
             sort: req.query.sort
-        }, function (err, results) {
+        }, function(err, results) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -343,10 +345,10 @@ exports.listUsers = function (req, res) {
 
 };
 
-exports.detailUsers = function (req, res) {
+exports.detailUsers = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         // req.query.search = req.query.search ? req.query.search : '';
         // req.query.status = req.query.status ? req.query.status : '';
         // req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -362,7 +364,7 @@ exports.detailUsers = function (req, res) {
         //     filters['status.id'] = req.query.status;
         // }
 
-        req.app.db.models.User.findById(req.params.id, 'username email isActive timeCreated roles groups lastExperimentRunDate').exec(function (err, result) {
+        req.app.db.models.User.findById(req.params.id, 'username email isActive timeCreated roles groups lastExperimentRunDate').exec(function(err, result) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -388,10 +390,10 @@ exports.detailUsers = function (req, res) {
 
 };
 
-exports.listGroups = function (req, res) {
+exports.listGroups = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         req.query.search = req.query.search ? req.query.search : '';
         req.query.status = req.query.status ? req.query.status : '';
         req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -413,7 +415,7 @@ exports.listGroups = function (req, res) {
             limit: req.query.limit,
             page: req.query.page,
             sort: req.query.sort
-        }, function (err, results) {
+        }, function(err, results) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -439,10 +441,10 @@ exports.listGroups = function (req, res) {
 
 };
 
-exports.detailGroups = function (req, res) {
+exports.detailGroups = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         // req.query.search = req.query.search ? req.query.search : '';
         // req.query.status = req.query.status ? req.query.status : '';
         // req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -458,7 +460,7 @@ exports.detailGroups = function (req, res) {
         //     filters['status.id'] = req.query.status;
         // }
 
-        req.app.db.models.Group.findById(req.params.id, 'name description users settings').exec(function (err, result) {
+        req.app.db.models.Group.findById(req.params.id, 'name description users settings').exec(function(err, result) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -486,10 +488,10 @@ exports.detailGroups = function (req, res) {
 
 // c) MP -> API : GET /api/bio-units/ (List of bio processing units)
 // 	Response: list of units
-exports.get_bio_units = function (req, res) {
+exports.get_bio_units = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         req.query.search = req.query.search ? req.query.search : '';
         req.query.status = req.query.status ? req.query.status : '';
         req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -511,12 +513,12 @@ exports.get_bio_units = function (req, res) {
             limit: req.query.limit,
             page: req.query.page,
             sort: req.query.sort
-        }, function (err, results) {
+        }, function(err, results) {
             if (err) {
                 return workflow.emit('exception', err);
             }
 
-            var data = _.map(results.data, function (result) {
+            var data = _.map(results.data, function(result) {
                 var newResult = {};
 
                 if (result.currentStatus === null || result.currentStatus === undefined) {
@@ -588,10 +590,10 @@ exports.get_bio_units = function (req, res) {
 
 // c) MP -> API : GET /api/bio-units/:id/ (detail of bio processing units)
 // 	Response: unit
-exports.bio_unit_detail = function (req, res) {
+exports.bio_unit_detail = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         // req.query.search = req.query.search ? req.query.search : '';
         // req.query.status = req.query.status ? req.query.status : '';
         // req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -609,7 +611,7 @@ exports.bio_unit_detail = function (req, res) {
 
         req.app.db.models.Bpu.findById(req.params.id,
             'name index isOn currentStatus magnification allowedGroups localAddr publicAddr avgStatsData notes').exec(
-            function (err, result) {
+            function(err, result) {
                 if (err) {
                     return workflow.emit('exception', err);
                 }
@@ -687,36 +689,65 @@ exports.bio_unit_detail = function (req, res) {
     workflow.emit('find');
 };
 
-exports.bio_unit_health = function (req, res) {
+exports.bio_unit_health = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
     function getPerformance(username, param, bpu_id, startDate, endDate, scale, cb) {
+        var endDate = parseInt(endDate);
+        var startDate = parseInt(startDate);
+
         var filters = {};
         filters['user.name'] = username;
-        filters['stats.' + username] = {$ne: -1};
+        filters['stats.' + username] = {
+            $ne: -1
+        };
         filters['liveBpu.id'] = mongoose.Types.ObjectId(bpu_id);
-        filters['exp_processingEndTime'] = {$ne: null};//, $lt:new Date(endDate), $gte:new Date(startDate)};
+        filters['exp_processingEndTime'] = {
+            // $lt: endDate, //new Date(endDate.getYear(), endDate.getMonth(), endDate.getDate())
+            $gte: startDate //new Date(startDate.getYear(), startDate.getMonth(), startDate.getDate()),
+        };
 
         var projections = {};
         projections[param] = '$stats.' + username;
         projections['bpu_id'] = '$liveBpu.id';
         projections['exp_processingEndTime'] = 1;
+        projections['rating'] = '$survey.rating';
+        projections['notes'] = '$survey.notes';
 
         req.app.db.models.BpuExperiment.aggregate([{
-            $match: filters
+            $match: filters,
+        }, {
+            $lookup: {
+                localField: "_id",
+                from: "surveys",
+                foreignField: "experiment",
+                as: "survey"
+            }
         }, {
             $project: projections
-        }]).exec(function (err, results) {
+        }]).exec(function(err, results) {
             if (err) {
+
                 cb(err, null);
             } else {
+                var newResult = [];
 
-                var newResult = results.map(function (result) {
+                results.forEach(function(result) {
                     var endResult = {};
                     endResult['datetime'] = new Date(result.exp_processingEndTime);
-                    endResult[param] = result[param] < 0 ? 0 : result[param] * scale;
+                    if (result[param] > 0) {
+                        endResult[param] = result[param] * scale;
+                        newResult.push(endResult);
+                    }
 
-                    return endResult;
+                    // var endResult = {};
+                    // endResult['datetime'] = new Date(result.exp_processingEndTime);
+
+                    // if (result['rating'].length > 0 && result['rating'][0] > 0) {
+                    //     endResult['rating'] = result['rating'].length > 0 ? Math.round(result['rating'][0]) : 0;
+                    //     endResult['notes'] = result['notes'].length > 0 ? result['notes'][0] : "";
+                    //     newResult.push(endResult);
+                    // }
 
                 });
 
@@ -725,8 +756,72 @@ exports.bio_unit_health = function (req, res) {
         })
     }
 
-    workflow.on('scripterActivity', function () {
-        getPerformance('scripterActivity', 'activity', req.params.id, req.params.start, req.params.end, 1, function (err, results) {
+    function getRatings(username, param, bpu_id, startDate, endDate, scale, cb) {
+        var endDate = parseInt(endDate);
+        var startDate = parseInt(startDate);
+
+        var filters = {};
+        // filters['user.name'] = username;
+        // filters['stats.' + username] = {
+        //     $eq: -1
+        // };
+        filters['liveBpu.id'] = mongoose.Types.ObjectId(bpu_id);
+        filters['exp_processingEndTime'] = {
+            // $lt: endDate, //new Date(endDate.getYear(), endDate.getMonth(), endDate.getDate())
+            $gte: startDate //new Date(startDate.getYear(), startDate.getMonth(), startDate.getDate()),
+        };
+
+        var projections = {};
+        // projections[param] = '$stats.' + username;
+        projections['bpu_id'] = '$liveBpu.id';
+        projections['exp_processingEndTime'] = 1;
+        projections['rating'] = '$survey.rating';
+        projections['notes'] = '$survey.notes';
+
+        req.app.db.models.BpuExperiment.aggregate([{
+            $match: filters,
+        }, {
+            $lookup: {
+                localField: "_id",
+                from: "surveys",
+                foreignField: "experiment",
+                as: "survey"
+            }
+        }, {
+            $project: projections
+        }]).exec(function(err, results) {
+            if (err) {
+
+                cb(err, null);
+            } else {
+                var newResult = [];
+
+                results.forEach(function(result) {
+                    // var endResult = {};
+                    // endResult['datetime'] = new Date(result.exp_processingEndTime);
+                    // if (result[param] > 0) {
+                    //     endResult[param] = result[param] * scale;
+                    //     newResult.push(endResult);
+                    // }
+
+                    var endResult = {};
+                    endResult['datetime'] = new Date(result.exp_processingEndTime);
+
+                    if (result[param].length > 0 && result[param][0] > 0) {
+                        endResult[param] = result[param].length > 0 ? Math.round(result[param][0]) : 0;
+                        endResult['notes'] = result['notes'].length > 0 ? result['notes'][0] : "";
+                        newResult.push(endResult);
+                    }
+
+                });
+
+                cb(null, newResult);
+            }
+        })
+    }
+
+    workflow.on('scripterActivity', function() {
+        getPerformance('scripterActivity', 'activity', req.params.id, req.query.start, req.query.end, 1 * 5 / 300, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
@@ -738,8 +833,8 @@ exports.bio_unit_health = function (req, res) {
         })
     });
 
-    workflow.on('scripterPopulation', function () {
-        getPerformance('scripterPopulation', 'population', req.params.id, req.params.start, req.params.end, 1, function (err, results) {
+    workflow.on('scripterPopulation', function() {
+        getPerformance('scripterPopulation', 'population', req.params.id, req.query.start, req.query.end, 1 * 5 / 100, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
@@ -750,8 +845,20 @@ exports.bio_unit_health = function (req, res) {
         })
     });
 
-    workflow.on('scripterResponse', function () {
-        getPerformance('scripterResponse', 'response', req.params.id, req.params.start, req.params.end, 50, function (err, results) {
+    workflow.on('scripterResponse', function() {
+        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1 * 4, function(err, results) {
+            if (err) {
+                workflow.emit('exception', err);
+            } else {
+                workflow.outcome.results = workflow.outcome.results || [];
+                workflow.outcome.results.push.apply(workflow.outcome.results, results);
+                workflow.emit('scripterRatings');
+            }
+        })
+    });
+
+    workflow.on('scripterRatings', function() {
+        getRatings('', 'rating', req.params.id, req.query.start, req.query.end, 1, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
@@ -765,12 +872,12 @@ exports.bio_unit_health = function (req, res) {
     workflow.emit('scripterActivity');
 };
 
-exports.bio_unit_queue = function (req, res) {
+exports.bio_unit_queue = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('queue', function () {
+    workflow.on('queue', function() {
 
-        req.app.db.models.ListExperiment.getInstanceDocument(function (err, experiments) {
+        req.app.db.models.ListExperiment.getInstanceDocument(function(err, experiments) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -867,10 +974,10 @@ exports.bio_unit_queue = function (req, res) {
             // console.log(experiments[req.params.name] || []);
 
             workflow.outcome.running = experiments['newExps']
-                .filter(function (experiment) {
+                .filter(function(experiment) {
                     return experiment.exp_wantsBpuName == req.params.name;
                 })
-                .map(function (experiment) {
+                .map(function(experiment) {
                     return {
                         'id': experiment._id,
                         'user': experiment.user.name,
@@ -882,10 +989,10 @@ exports.bio_unit_queue = function (req, res) {
                 });
 
             workflow.outcome.pending = (experiments[req.params.name] || [])
-                .filter(function (experiment) {
+                .filter(function(experiment) {
                     return experiment.exp_wantsBpuName == req.params.name;
                 })
-                .map(function (experiment) {
+                .map(function(experiment) {
                     return {
                         'id': experiment._id,
                         'bpu': req.params.name,
@@ -904,12 +1011,12 @@ exports.bio_unit_queue = function (req, res) {
     workflow.emit('queue');
 };
 
-exports.add_note = function (req, res) {
+exports.add_note = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
     console.log(req.user);
 
-    workflow.on('validate', function () {
+    workflow.on('validate', function() {
         if (!req.body.message) {
             workflow.outcome.errors.push('Message is required.');
             return workflow.emit('response');
@@ -918,7 +1025,7 @@ exports.add_note = function (req, res) {
         workflow.emit('addNote');
     });
 
-    workflow.on('addNote', function () {
+    workflow.on('addNote', function() {
 
         var noteToAdd = {
             data: req.body.message,
@@ -935,7 +1042,7 @@ exports.add_note = function (req, res) {
             }
         }, {
             new: true
-        }, function (err, bpu) {
+        }, function(err, bpu) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -948,10 +1055,10 @@ exports.add_note = function (req, res) {
     workflow.emit('validate');
 };
 
-exports.remove_note = function (req, res) {
+exports.remove_note = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('removeNote', function () {
+    workflow.on('removeNote', function() {
 
         req.app.db.models.Bpu.findByIdAndUpdate(req.params.id, {
             $pull: {
@@ -962,7 +1069,7 @@ exports.remove_note = function (req, res) {
         }, {
             safe: true,
             new: true
-        }, function (err, bpu) {
+        }, function(err, bpu) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -982,25 +1089,25 @@ exports.remove_note = function (req, res) {
 
 // e) MP -> API : GET /api/experiment/{id}/status/ (Get status of experiment)
 // 	Response: status and waitTime
-exports.get_experiment_status = function (req, res) {
+exports.get_experiment_status = function(req, res) {
     /*
-
+     
      */
 };
 
 // f) MP -> API : GET /api/experiment/{id}/filter={type of data} (Get data from experiment)
 // 	Response: zip file with all filtered data
-exports.get_experiment_detail = function (req, res) {
+exports.get_experiment_detail = function(req, res) {
     // /account/joinlabwithdata/download/58014fd349a92e241293f04c/
 };
 
-exports.find = function (req, res) {
+exports.find = function(req, res) {
     var outcome = {
         joinQueueDataObj: req.app.db.models.BpuExperiment.getDataObjToJoinQueue()
     };
 
     outcome.session = null;
-    var getSession = function (callback) {
+    var getSession = function(callback) {
         var sessUpdate = {
             url: req.url,
             sessionID: req.sessionID,
@@ -1015,7 +1122,7 @@ exports.find = function (req, res) {
             sessionID: req.sessionID
         }, sessUpdate, {
             new: true
-        }, function (err, doc) {
+        }, function(err, doc) {
             if (err) {
                 return callback('getSession:' + err);
             } else if (doc === null || doc === undefined) {
@@ -1028,7 +1135,7 @@ exports.find = function (req, res) {
                         groups: req.user.groups,
                     },
                 };
-                req.app.db.models.Session.makeNewSession(sessInfo, function (err, newDoc) {
+                req.app.db.models.Session.makeNewSession(sessInfo, function(err, newDoc) {
                     if (err) {
                         return callback('getSession:' + err);
                     } else {
@@ -1044,8 +1151,8 @@ exports.find = function (req, res) {
     };
 
     outcome.user = null;
-    var getUser = function (callback) {
-        req.app.db.models.User.findById(outcome.session.user.id, 'username  groups').exec(function (err, doc) {
+    var getUser = function(callback) {
+        req.app.db.models.User.findById(outcome.session.user.id, 'username  groups').exec(function(err, doc) {
             if (err) {
                 return callback('getUser:' + err);
             } else if (doc === null || doc === undefined) {
@@ -1059,7 +1166,7 @@ exports.find = function (req, res) {
 
     outcome.bpus = null;
     outcome.bpuJadeObjects = [];
-    var getBpus = function (callback) {
+    var getBpus = function(callback) {
         var query = req.app.db.models.Bpu.find({
             isOn: true,
             allowedGroups: {
@@ -1067,7 +1174,7 @@ exports.find = function (req, res) {
             },
         });
         query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
-        query.exec(function (err, docs) {
+        query.exec(function(err, docs) {
             if (err) {
                 return callback('getBpus:' + err);
             } else if (docs === null || docs === undefined) {
@@ -1076,7 +1183,7 @@ exports.find = function (req, res) {
                 outcome.bpus = docs;
 
                 //Make Jade Object for each bpu
-                outcome.bpus.forEach(function (bpu) {
+                outcome.bpus.forEach(function(bpu) {
                     var bpuJadeObj = {};
                     bpuJadeObj.name = bpu.name;
                     bpuJadeObj.index = bpu.index;
@@ -1108,7 +1215,7 @@ exports.find = function (req, res) {
 
     outcome.bpuWithExp = null;
     outcome.liveBpuExperiment = null;
-    var checkBpusAgainstLiveSessionExperiment = function (callback) {
+    var checkBpusAgainstLiveSessionExperiment = function(callback) {
         for (var ind = 0; ind < outcome.bpus.length; ind++) {
             var bpu = outcome.bpus[ind];
             if (outcome.session.liveBpuExperiment && outcome.session.liveBpuExperiment.id && bpu.liveBpuExperiment && bpu.liveBpuExperiment.id) {
@@ -1125,7 +1232,7 @@ exports.find = function (req, res) {
         }
     };
 
-    var getExperimentData = function (callback) {
+    var getExperimentData = function(callback) {
         req.query.wasDataProcessed = req.query.wasDataProcessed ? req.query.wasDataProcessed : true;
         req.query.isRunOver = req.query.isRunOver ? req.query.isRunOver : true;
         req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -1141,7 +1248,7 @@ exports.find = function (req, res) {
             limit: req.query.limit,
             page: req.query.page,
             sort: req.query.sort
-        }, function (err, results) {
+        }, function(err, results) {
             if (err) {
                 return next(err);
             }
@@ -1157,7 +1264,7 @@ exports.find = function (req, res) {
     };
 
     outcome.data = null;
-    var buildClientSideData = function (callback) {
+    var buildClientSideData = function(callback) {
         outcome.data = {
             results: JSON.stringify(outcome.results),
             user: JSON.stringify(outcome.user),
@@ -1177,7 +1284,7 @@ exports.find = function (req, res) {
     initSeriesFuncs.push(getExperimentData);
     initSeriesFuncs.push(buildClientSideData);
     //Run Init Series
-    async.series(initSeriesFuncs, function (err) {
+    async.series(initSeriesFuncs, function(err) {
         if (err) {
             return next(err);
         } else {
@@ -1189,10 +1296,10 @@ exports.find = function (req, res) {
     });
 };
 
-exports.listExperiments = function (req, res) {
+exports.listExperiments = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         req.query.search = req.query.search ? req.query.search : '';
         req.query.status = req.query.status ? req.query.status : '';
         req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -1211,16 +1318,16 @@ exports.listExperiments = function (req, res) {
         req.app.db.models.BpuExperiment.pagedFind({
             filters: filters,
             keys: 'name user group_experimentType exp_submissionTime exp_wantsBpuName exp_eventsToRun exp_status' +
-            ' exp_metaData tag',
+                ' exp_metaData tag',
             limit: req.query.limit,
             page: req.query.page,
             sort: req.query.sort
-        }, function (err, results) {
+        }, function(err, results) {
             if (err) {
                 return workflow.emit('exception', err);
             }
 
-            var data = _.map(results.data, function (result) {
+            var data = _.map(results.data, function(result) {
                 var newResult = {};
 
                 newResult.id = result._id;
