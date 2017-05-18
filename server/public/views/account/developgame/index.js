@@ -53,6 +53,11 @@
 
   $(document).ready(function() {
     app.mainView = new app.MainView();
+
+    $('#btnUpdateRun').click(function() {
+      var runFunctionText = $('#txtCodeRun').val();
+      app.mainView.parseRunCode(runFunctionText);
+    });
   });
   app.User = Backbone.Model.extend({
     idAttribute: '_id',
@@ -127,6 +132,31 @@
           });
         }
       });
+    },
+    /*
+     * Parsing functions.
+     */
+    parseRunCode: function(runCode) {
+      console.log('parsing text...');
+      var MAXIMUM_FUNCTION_NAME_LENGTH = 20;
+      var functionCalls = runCode.split(";");
+      functionCalls.map(function(item) {
+        var functionCall = item.split('(')[0].replace('/[^a-z0-9]/gi', '');
+        alert(functionCall);
+        if (functionCall.indexOf('setLevelText') !== -1) {
+          var level = item.split('(')[1].substring(0, 1).replace('/[^a-z0-9]/gi', '');
+          var levelText = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
+          app.mainView.setLevelText(level, levelText);
+        }
+      });
+    },
+    /*
+     * Handle setLevelText(level, txt) function call.
+     */
+    setLevelText: function(level, levelText) {
+      console.log('Set level text function called.');
+      $('#level').text(level);
+      $('#levelText').text(levelText);
     },
     alreadyKicked: false,
     kickUser: function(err, from) {

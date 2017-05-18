@@ -175,36 +175,56 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;public void run() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        textarea#txtCode
+        textarea#txtCodeRun(rows='6', cols='55')
+          |setLevelText(1, "Get 10% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
+          |&nbsp;
+          |setLevelText(2, "Get 15% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
+          |&nbsp;
+          |setLevelText(3, "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
+        br
+        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-success#btnUpdateRun(type="update",value="update") Update Code
         br
         br
 
         |&nbsp;&nbsp;&nbsp;&nbsp;public void startGame() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        textarea#txtCode
+        textarea#txtCodeStart(rows='6', cols='55', disabled)
+          |Under construction.
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
+        br
+        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-success#btnUpdateStart(type="update",value="update", disabled) Update Code
         br
         br
 
         |&nbsp;&nbsp;&nbsp;&nbsp;public void endGame() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        textarea#txtCode
+        textarea#txtCodeEnd(rows='6', cols='55', disabled)
+          |Under construction.
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
+        br
+        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-success#btnUpdateEnd(type="update",value="update", disabled) Update Code
         br
         br
 
         |&nbsp;&nbsp;&nbsp;&nbsp;public void onJoystickChange() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        textarea#txtCode
+        textarea#txtCodeJoystick(rows='6', cols='55', disabled)
+          |Under construction.
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
+        br
+        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-success#btnUpdateJoystick(type="update",value="update", disabled) Update Code
         br
         br
 
@@ -218,7 +238,12 @@ block body
             div#myJoystick.canvas-joystick-off(name='myJoystick')
           div.col-xs-1
           div.col-xs-6
-            |<u>Level 1:</u> Get <b>10%</b> of the <i>Euglena</i> on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.
+            |<u>Level 
+            b#level
+              |1
+            |: </u>
+            p#levelText
+              |Get 10% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.
         br
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
@@ -226,8 +251,6 @@ block body
           |Status 
           code(id="statusField")
             |Loading...
-    div.row
-      button.btn.btn-primary#btn-update(type="update",value="update") Update Code
     
     div.modal.fade(role="dialog")
 
