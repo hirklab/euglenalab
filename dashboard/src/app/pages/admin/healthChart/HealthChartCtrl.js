@@ -18,17 +18,17 @@
 
         var sortBy = (function() {
 
-            const _defaults = {
-                parser: (x) => x,
+            var _defaults = {
+                parser: function(x) {return x;},
                 desc: false
             };
 
-            const isObject = (o) => o !== null && typeof o === "object";
-            const isDefined = (v) => typeof v !== "undefined";
+            var isObject = function(o) {return o !== null && typeof o === "object"};
+            var isDefined = function (v) {return typeof v !== "undefined"};
 
             //gets the item to be sorted
             function getItem(x) {
-                const isProp = isObject(x) && isDefined(x[this.prop]);
+                var isProp = isObject(x) && isDefined(x[this.prop]);
                 return this.parser(isProp ? x[this.prop] : x);
             }
 
@@ -45,7 +45,7 @@
             return function(array, options) {
                 if (!(array instanceof Array) || !array.length)
                     return [];
-                const opt = Object.assign({}, _defaults, options);
+                var opt = Object.assign({}, _defaults, options);
                 opt.desc = opt.desc ? -1 : 1;
                 return array.sort(function(a, b) {
                     a = getItem.call(opt, a);

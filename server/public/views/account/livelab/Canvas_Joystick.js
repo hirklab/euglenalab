@@ -266,7 +266,6 @@ Canvas_Joystick.prototype.update = function(text) {
 };
 
 Canvas_Joystick.prototype.getXyFromLightValues = function(lightValues, from) {
-
   var x = this.centerPoint.x;
   if (lightValues.leftValue > 0) {
     x -= this.maxJoyRadius * (lightValues.leftValue / 100);
@@ -289,8 +288,8 @@ Canvas_Joystick.prototype.getXyFromLightValues = function(lightValues, from) {
 
 Canvas_Joystick.prototype.setLightValuesFromXY = function(ledsSetObj, from) {
   //Convert Event Vector to Joystick Center
-  this.dx_evt = ledsSetObj.metaData.layerX - this.centerPoint.x;
-  this.dy_evt = ledsSetObj.metaData.layerY - this.centerPoint.y;
+  this.dx_evt = ledsSetObj.metaData.offsetX - this.centerPoint.x;
+  this.dy_evt = ledsSetObj.metaData.offsetY - this.centerPoint.y;
 
   //Get parameters
   this.mag_evt = Math.sqrt((this.dx_evt * this.dx_evt) + (this.dy_evt * this.dy_evt));
@@ -328,6 +327,7 @@ Canvas_Joystick.prototype.setLightValuesFromXY = function(ledsSetObj, from) {
     ledsSetObj.topValue = 0;
     ledsSetObj.bottomValue = Math.round(Math.abs(this.sin_evt * this.inten_evt) * 100);
   }
+
   if (this.cos_evt <= 0) {
     ledsSetObj.leftValue = Math.round(Math.abs(this.cos_evt * this.inten_evt) * 100);
     ledsSetObj.rightValue = 0;

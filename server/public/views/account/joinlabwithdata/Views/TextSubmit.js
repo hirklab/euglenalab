@@ -359,17 +359,17 @@ var _tryColumn = function(data, cb_fn) {
                 ambientlightValue: Number(parts[header['ambientlightValue']] || 0),
               });
 
-              console.log({
-                time: Number(parts[header['time']]),
-                topValue: Number(parts[header['topValue']] || 0),
-                rightValue: Number(parts[header['rightValue']] || 0),
-                bottomValue: Number(parts[header['bottomValue']] || 0),
-                leftValue: Number(parts[header['leftValue']] || 0),
-                diffuserValue: Number(parts[header['diffuserValue']] || 0),
-                backlightValue: Number(parts[header['backlightValue']] || 0),
-                culturelightValue: Number(parts[header['culturelightValue']] || 0),
-                ambientlightValue: Number(parts[header['ambientlightValue']] || 0),
-              });
+              // console.log({
+              //   time: Number(parts[header['time']]),
+              //   topValue: Number(parts[header['topValue']] || 0),
+              //   rightValue: Number(parts[header['rightValue']] || 0),
+              //   bottomValue: Number(parts[header['bottomValue']] || 0),
+              //   leftValue: Number(parts[header['leftValue']] || 0),
+              //   diffuserValue: Number(parts[header['diffuserValue']] || 0),
+              //   backlightValue: Number(parts[header['backlightValue']] || 0),
+              //   culturelightValue: Number(parts[header['culturelightValue']] || 0),
+              //   ambientlightValue: Number(parts[header['ambientlightValue']] || 0),
+              // });
             }
           }
         }
