@@ -38,6 +38,7 @@ class EuglenaProcessor : public Processor {
         EuglenaProcessor();
         virtual ~EuglenaProcessor();
         cv::Mat operator()(cv::Mat);
+        char gameOverStr[80];
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
@@ -59,6 +60,7 @@ EuglenaProcessor::EuglenaProcessor() : _fgbg(0) {
     _fgbg = new cv::BackgroundSubtractorMOG2(500,16,false);
     _elementErode  = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 3, 3 ));
     _elementDilate = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ));
+    std::strcpy(gameOverStr, "");
 }
 
 EuglenaProcessor::~EuglenaProcessor() {
@@ -141,7 +143,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     // Display game over if that's the case.
     if (currEuglenaInBox >= 0.1*totalDetectedEuglena || _gameInSession == false) {
         _gameInSession = false;
-        cv::putText(im, "Game over! You win!", cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
+        cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
     }
 
 

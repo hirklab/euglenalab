@@ -85,6 +85,11 @@
 
     updateLoopInterval: null,
 
+    // GAME PARAMETERS SET BY USER
+    gameLevel: 3,
+    gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
+    gameOverText: "Game over!",
+
     //Tag-Initialize
     initialize: function() {
       //Get Window Stats
@@ -133,6 +138,7 @@
         }
       });
     },
+
     /*
      * Parsing functions.
      */
@@ -142,22 +148,49 @@
       var functionCalls = runCode.split(";");
       functionCalls.map(function(item) {
         var functionCall = item.split('(')[0].replace('/[^a-z0-9]/gi', '');
-        alert(functionCall);
+
         if (functionCall.indexOf('setLevelText') !== -1) {
           var level = item.split('(')[1].substring(0, 1).replace('/[^a-z0-9]/gi', '');
           var levelText = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
           app.mainView.setLevelText(level, levelText);
         }
+
+        if (functionCall.indexOf('setLevel') !== -1) {
+          var level = item.split('(')[1].substring(0, 1).replace('/[^a-z0-9]/gi', '');
+          app.mainView.setLevel(level);
+        }
+
+        if (functionCall.indexOf('setGameOverMessage') !== -1) {
+          var gameOverMsg = item.split('(')[1].replace('/[^a-z0-9]/gi', '').slice(0, -1);
+          app.mainView.setGameOverMessage(gameOverMsg);
+        }
+
       });
     },
+
     /*
-     * Handle setLevelText(level, txt) function call.
+     * Handle various function calls.
      */
-    setLevelText: function(level, levelText) {
-      console.log('Set level text function called.');
-      $('#level').text(level);
-      $('#levelText').text(levelText);
+    setGameOverMessage: function(gameOverText) {
+      console.log('setGameOverMessage function called.');
+      app.mainView.gameOverText = gameOverText;
     },
+    setLevelText: function(level, levelText) {
+      console.log('setLevelText function called.');
+      app.mainView.gameLevelText[level] = levelText;
+    },
+    setLevel: function(level) {
+      console.log('setLevel function called.');
+      $('#level').text(level);
+      $('#levelText').text(app.mainView.gameLevelText[level]);
+      app.mainView.gameLevel = level;
+    },
+
+
+
+    /*
+     * Normal LiveLab functions.
+     */
     alreadyKicked: false,
     kickUser: function(err, from) {
       console.log('kicked from ' + from);

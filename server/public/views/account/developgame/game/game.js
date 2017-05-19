@@ -115,6 +115,7 @@ function processNextImage()
                 width: imData.width,
                 height: imData.height,
                 data: imData.data,
+                gameEndMsg: app.mainView.gameOverText,
                 processor: "Euglena" };
     startTime = performance.now();
     ImageProcModule.postMessage( cmd );
