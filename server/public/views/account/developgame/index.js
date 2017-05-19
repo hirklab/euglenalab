@@ -116,20 +116,33 @@
           app.mainView.setLevelText(level, levelText);
         }
 
-        if (functionCall.indexOf('setLevel') !== -1) {
+        else if (functionCall.indexOf('setLevel') !== -1) {
           var level = item.split('(')[1].substring(0, 1).replace('/[^a-z0-9]/gi', '');
           app.mainView.setLevel(level);
         }
 
-        if (functionCall.indexOf('setGameOverMessage') !== -1) {
+        else if (functionCall.indexOf('setGameOverMessage') !== -1) {
           var gameOverMsg = item.split('(')[1].replace('/[^a-z0-9]/gi', '').slice(0, -1);
           app.mainView.setGameOverMessage(gameOverMsg);
         }
 
-        if (functionCall.indexOf('setLED') !== -1) {
+        else if (functionCall.indexOf('setLED') !== -1) {
           var led = item.split('(')[1].split(',')[0].replace('/[^a-z0-9]/gi', '');
           var intensity = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
           app.mainView.setLED(led, intensity);
+        }
+
+        else {
+          // Try to execute the function call as a built-in JavaScript function call. 
+          // Only execute if it doesn't throw an error, of course.
+          try {
+            console.log('Attempting to run the following possibly-real JavaScript function: ');
+            console.log(item);
+            eval(item + ';');
+          }
+          catch(err) {
+            console.log('NOT A VALID FUNCTION CALL: ' + item);
+          }
         }
 
       });
