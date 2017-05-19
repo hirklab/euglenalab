@@ -3,53 +3,14 @@
   'use strict';
   app = app || {};
 
-
-  var starterCode = "public class MyBioticGame extends BioticGame {\n\n" +
-         "\t\t /* Game constants. */ \n" +
-         "\t\tprivate final int SCREEN_WIDTH = 640;\n" +
-         "\t\tprivate final int SCREEN_HEIGHT = 480;\n\n" +
-         "\t\t /* Game variables. */ \n" +
-         "\t\tprivate OrganismCounter globalCounter;\n" +
-         "\t\tprivate int euglenaCount;\n" +
-         "\t\tprivate int level = 0;\n\n" +
-         "\t\t /* Game constructor. */ \n" +
-         "\t\tMyBioticGame() {\n" +
-         "\t\t\t\t super(); */ \n" +
-         "\t\t\t\t /* Your code here... */ \n" +
-         "\t\t\t\t startGame(); \n" +
-         "\t\t}\n\n" +
-         "\t\t /* Main game loop. */ \n" +
-         "\t\tpublic void run() {\n" +
-         "\t\t\t\t super.run(); */ \n" +
-         "\t\t\t\t /* Your code here... */ \n" +
-         "\t\t\t\t if (euglenaCount < 2) \n" +
-         "\t\t\t\t\t\t endGame(\"Out of Euglena. Game over!\"); \n" +
-         "\t\t\t\t } \n" +
-         "\t\t}\n\n" +
-         "\t\t /* This code runs when the game first starts. */ \n" +
-         "\t\tpublic void startGame() {\n" +
-         "\t\t\t\t super.startGame(); */ \n" +
-         "\t\t\t\t /* Your code here... */ \n" +
-         "\t\t\t\t globalCounter = new EuglenaCounter(SCREEN_WIDTH, SCREEN_HEIGHT); \n" +
-         "\t\t\t\t euglenaCount = globalCounter.getEuglenaCount(); \n" +
-         "\t\t}\n\n" +
-         "\t\t /* This code runs when the game first starts. */ \n" +
-         "\t\tpublic void endGame(String endGameMessage) {\n" +
-         "\t\t\t\t super.endGame(endGameMessage); */ \n" +
-         "\t\t\t\t /* Your code here... */ \n" +
-         "\t\t}\n\n" +
-         "" +
-         "}";
   // var editor = CodeMirror.fromTextArea(document.getElementById('txtCode'), {
   //   height: "750px",
-  //   content: starterCode,
+  //   content: "public class CodeClass { }",
   //   parserfile: ["http://codemirror.net/1/contrib/java/js/tokenizejava.js", "http://codemirror.net/1/contrib/java/js/parsejava.js"],
   //   stylesheet: "http://codemirror.net/1/contrib/java/css/javacolors.css",
   //   path: "http://codemirror.net/1/js/",
   //   autoMatchParens: true,
   // });
-
-  // console.log(editor.getDoc());
 
   $(document).ready(function() {
     app.mainView = new app.MainView();
@@ -150,7 +111,7 @@
         var functionCall = item.split('(')[0].replace('/[^a-z0-9]/gi', '');
 
         if (functionCall.indexOf('setLevelText') !== -1) {
-          var level = item.split('(')[1].substring(0, 1).replace('/[^a-z0-9]/gi', '');
+          var level = item.split('(')[1].split(',')[0].replace('/[^a-z0-9]/gi', '');
           var levelText = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
           app.mainView.setLevelText(level, levelText);
         }
@@ -165,6 +126,12 @@
           app.mainView.setGameOverMessage(gameOverMsg);
         }
 
+        if (functionCall.indexOf('setLED') !== -1) {
+          var led = item.split('(')[1].split(',')[0].replace('/[^a-z0-9]/gi', '');
+          var intensity = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
+          app.mainView.setLED(led, intensity);
+        }
+
       });
     },
 
@@ -173,7 +140,51 @@
      */
     setGameOverMessage: function(gameOverText) {
       console.log('setGameOverMessage function called.');
-      app.mainView.gameOverText = gameOverText;
+      app.mainView.gameOverText = gameOverText.slice(1, -1);
+    },
+    setLED: function(led, intensity) {
+      console.log('setLED function called');
+      console.log(led);
+      console.log(intensity);
+      switch (led.split('.')[1]) {
+        case 'RIGHT':
+          var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
+          ledsSetObj.rightValue = parseInt(intensity);
+          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+          break;
+        case 'LEFT':
+          var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, intensity);
+          ledsSetObj.leftValue = parseInt(intensity);
+          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+          break;
+        case 'UP':
+          var ledsSetObj = app.mainView.setLEDhelper(intensity, 0, 0, 0);
+          ledsSetObj.topValue = parseInt(intensity);
+          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+          break;
+        case 'DOWN':
+          var ledsSetObj = app.mainView.setLEDhelper(0, 0, intensity, 0);
+          ledsSetObj.bottomValue = parseInt(intensity);
+          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+          break;
+        default:
+          console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN');
+      }
+    },
+    setLEDhelper: function(top, right, bottom, left) {
+      var point = app.mainView.myJoyStick.getXyFromLightValues({topValue: top, rightValue: right, bottomValue: bottom, leftValue: left}, '');
+      var ledsSetObj = app.mainView.getLedsSetObj();
+      ledsSetObj.metaData.clientTime = new Date().getTime();
+      ledsSetObj.metaData.layerX = point.x;
+      ledsSetObj.metaData.layerY = point.y;
+      ledsSetObj.metaData.touchState = app.mainView.myJoyStickObj.touchState;
+      ledsSetObj.metaData.radius = 0;
+      ledsSetObj.metaData.angle = 0;
+      ledsSetObj.topValue = top;
+      ledsSetObj.rightValue = right;
+      ledsSetObj.bottomValue = bottom;
+      ledsSetObj.leftValue = left;
+      return ledsSetObj;
     },
     setLevelText: function(level, levelText) {
       console.log('setLevelText function called.');
