@@ -86,9 +86,11 @@
         el: '.page .container',
         events: {},
         hadJoyActivity: false,
+        hadStylusActivity: false,
         roughLabStartDate: null,
         isSocketInitialized: false,
         ledsSetObj: null,
+        projectorSetObj: null,
 
         timeForLab: 0,
         timeInLab: 0,
@@ -108,6 +110,7 @@
             app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
             app.mainView.bpu = new app.User(JSON.parse(unescape($('#data-bpu').html())));
             app.mainView.ledsSetObj = new app.User(JSON.parse(unescape($('#data-setLedsObj').html())));
+            app.mainView.projectorSetObj = new app.User(JSON.parse(unescape($('#data-setProjectorObj').html())));
             app.mainView.bpuExp = new app.User(JSON.parse(unescape($('#data-bpuExp').html())));
             app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function (objA, objB) {
                 return objB.time - objA.time;
@@ -126,26 +129,30 @@
                     //My Objects
                     app.mainView.myLightsObj.build(function (err, dat) {
                         app.mainView.myJoyStickObj.build(function (err, dat) {
-                            app.mainView.isSocketInitialized = true;
-                            if (app.mainView.myJoyStickObj.doesExist) {
-                                app.mainView.myJoyStick.toggleJoystick('on');
-                                app.mainView.setupMouseEvents(function (err, dat) {
+                            app.mainView.stylusInstance.build(function(err, dat) {
+                                app.mainView.isSocketInitialized = true;
+                                if (app.mainView.myJoyStickObj.doesExist) {
+                                    app.mainView.myJoyStick.toggleJoystick('on');
+                                    app.mainView.setupMouseEvents(function (err, dat) {
+                                        app.mainView.setupKeyboardEvents(function (err, dat) {
+                                            app.mainView.startUpdateLoop();
+                                        });
+                                    });
+                                } else {
                                     app.mainView.setupKeyboardEvents(function (err, dat) {
                                         app.mainView.startUpdateLoop();
                                     });
+                                }
 
-                                    app.mainView.stylusInstance.build(function(err, dat) {
-                                        if (app.mainView.stylusInstance.doesExist) {
-                                            app.mainView.stylus.toggleStylus('on');
-                                        }
-                                    });
-                                });
-                            } else {
-                                app.mainView.setupKeyboardEvents(function (err, dat) {
-                                    app.mainView.startUpdateLoop();
-                                });
-                            }
+                                if (app.mainView.stylusInstance.doesExist) {
+                                    app.mainView.stylus.toggle('on');
+                                }
+                            });
                         });
+
+
+
+
                     });
                 }
             });
@@ -173,7 +180,7 @@
                 app.mainView.keyboardTimeout = null;
             }
 
-            if (app.mainView.bpuExp != null) {
+            if (app.mainView.bpuExp !== null) {
                 app.mainView.showSurvey();
             } else {
                 location.href = '/account/';
@@ -265,6 +272,66 @@
             }
         },
 
+        getProjectorSetObj: function () {
+            if (app.mainView.projectorSetObj === null) {
+                return null;
+            } else {
+                return JSON.parse(JSON.stringify(app.mainView.projectorSetObj));
+            }
+        },
+        setProjectorFromCoordValues: function (coordValues, evtType, previousTouchState) {
+            var point = app.mainView.stylus.getXY(coordValues, previousTouchState + '->setProjectorFromCoordValues');
+
+            var projectorSetObj = app.mainView.getProjectorSetObj();
+            projectorSetObj.metaData.clientTime = new Date().getTime();
+
+            projectorSetObj.metaData.layerX = point.x;
+            projectorSetObj.metaData.layerY = point.y;
+            projectorSetObj.metaData.offsetX = point.x;
+            projectorSetObj.metaData.offsetY = point.y;
+            projectorSetObj.metaData.evtType = evtType;
+            projectorSetObj.metaData.touchState = app.mainView.stylusInstance.touchState;
+            projectorSetObj.metaData.previousTouchState = previousTouchState;
+
+            app.mainView.setProjectorFromObjectAndSendToServer(projectorSetObj, previousTouchState + '->setProjectorFromCoordValues');
+        },
+
+        setProjectorFromEvent: function (evt, evtType, previousTouchState) {
+            // console.log('Layer = {' + evt.layerX + ',' + evt.layerY + '}');
+            // console.log('Offset = {' + evt.offsetX + ',' + evt.offsetY + '}');
+            // console.log('Screen = {' + evt.screenX + ',' + evt.screenY + '}');
+
+            var projectorSetObj = app.mainView.getProjectorSetObj();
+            projectorSetObj.metaData.clientTime = new Date().getTime();
+
+            projectorSetObj.metaData.layerX = evt.layerX;
+            projectorSetObj.metaData.layerY = evt.layerY;
+            projectorSetObj.metaData.offsetX = evt.offsetX;
+            projectorSetObj.metaData.offsetY = evt.offsetY;
+            projectorSetObj.metaData.clientX = evt.clientX;
+            projectorSetObj.metaData.clientY = evt.clientY;
+            projectorSetObj.metaData.className = evt.target.className;
+
+            projectorSetObj.metaData.evtType = evtType;
+            projectorSetObj.metaData.touchState = app.mainView.stylusInstance.touchState;
+            projectorSetObj.metaData.previousTouchState = previousTouchState;
+
+            app.mainView.setProjectorFromObjectAndSendToServer(projectorSetObj, previousTouchState + '->setProjectorFromEvent');
+        },
+        setProjectorFromObjectAndSendToServer: function (projectorSetObj, from) {
+
+            //Reset Values
+            projectorSetObj = app.mainView.stylus.setXY(projectorSetObj, from + '->setProjectorFromObjectAndSendToServer');
+            app.mainView.stylus.update(projectorSetObj);
+
+            //only update bpu on interval
+            var newDate = new Date();
+            if ((newDate - app.mainView.lastSetLedsFromEventDate) >= app.mainView.setLedsFromEventInterval) {
+                app.mainView.lastSetLedsFromEventDate = newDate;
+                app.userSocketClient.projectorSet(projectorSetObj);
+            }
+        },
+
         //From Socket
         setTimeLeftInLabLabel: function (timeLeft, dt, isReal) {
             if (isReal) {
@@ -319,12 +386,14 @@
             var lastFrameTime = frameTime;
             var deltaFrame = frameTime - lastFrameTime;
             var timerActivatedJoystick = 0;
+            var timerActivatedStylus = 0;
             //Update Loop
             app.mainView.updateLoopInterval = setInterval(function () {
                 frameTime = new Date().getTime();
                 deltaFrame = frameTime - lastFrameTime;
                 lastFrameTime = frameTime;
                 timerActivatedJoystick += deltaFrame;
+                timerActivatedStylus += deltaFrame;
                 //Set time left in lab
                 app.mainView.setTimeLeftInLabLabel(null, deltaFrame, false);
 
@@ -355,8 +424,22 @@
                     } else {
                         timerActivatedJoystick = 0;
                     }
+
+                    if (app.mainView.isSocketInitialized && !app.mainView.hadStylusActivity) {
+                        if (timerActivatedStylus > 1000) {
+                            timerActivatedStylus = 0;
+                            if (app.mainView.stylus.canvas.className === 'canvas-stylus-off') {
+                                app.mainView.stylus.toggle('on');
+                            } else {
+                                app.mainView.stylus.toggle('off');
+                            }
+                        }
+                    } else {
+                        timerActivatedStylus = 0;
+                    }
                 }
                 app.mainView.myJoyStick.update('Joystick');
+                app.mainView.stylus.update('Stylus');
             }, 20);
         },
         //Tag-Joystick
@@ -472,8 +555,48 @@
         },
 
         setProjectorEventController: function(evt, evtType){
-            console.log(evt);
-            console.log(evtType);
+            console.log(evtType + ': {'+evt.offsetX+','+evt.offsetY+'}');
+
+
+            var previousTouchState = '' + app.mainView.stylusInstance.touchState;
+            if (evtType === 'mousedown') {
+                app.mainView.hadStylusActivity = true;
+
+                app.mainView.stylus.toggle('on');
+                app.mainView.stylusInstance.touchState = 'down';
+                //Set Leds
+                app.mainView.setProjectorFromEvent(evt, evtType, previousTouchState);
+
+            } else if (evtType === 'mousemove') {
+
+                if (app.mainView.stylusInstance.touchState === 'down' && new Date().getTime() - app.mainView.lastMouseMoveTime > 20) {
+                    app.mainView.lastMouseMoveTime = new Date().getTime();
+                    //Set Leds
+                    app.mainView.setProjectorFromEvent(evt, evtType, previousTouchState);
+                }
+
+            } else if (evtType === 'mouseout') {
+                app.mainView.stylusInstance.touchState = 'up';
+                app.mainView.stylus.toggle('off');
+                //Set Leds
+                app.mainView.setProjectorFromCoordValues(app.mainView.zeroLeds, evtType, previousTouchState);
+
+            } else if (evtType === 'mouseup') {
+                app.mainView.stylusInstance.touchState = 'up';
+                app.mainView.stylus.toggle('off');
+                //Set Leds
+                app.mainView.setProjectorFromCoordValues(app.mainView.zeroLeds, evtType, previousTouchState);
+
+            } else if (evtType === 'resize') {
+                app.mainView.stylusInstance.touchState = 'up';
+                app.mainView.stylus.toggle('off');
+                //Set Leds
+                app.mainView.setProjectorFromCoordValues(app.mainView.zeroLeds, evtType, previousTouchState);
+
+            } else if (evtType === 'myStylusKeys_loop') { //event is light values
+                app.mainView.stylus.toggle('on');
+                app.mainView.setProjectorFromCoordValues(evt, evtType, previousTouchState);
+            }
         },
 
         //Tag-Keyboard
@@ -619,7 +742,7 @@
             });
             cb_fn(null, null);
         },
-        //Tag-Mouse
+       //Tag-Mouse
         setupMouseEvents: function (cb_fn) {
             //Events
             window.addEventListener('resize', function (evt) {
