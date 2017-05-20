@@ -107,34 +107,58 @@
       console.log('parsing text...');
       var MAXIMUM_FUNCTION_NAME_LENGTH = 20;
       var functionCalls = runCode.split(";");
-      functionCalls.map(function(item) {
-        var functionCall = item.split('(')[0].replace('/[^a-z0-9]/gi', '');
 
+      var accumulatedCodeBlock = "";
+      var openBrackets = 0;
+      var accumulatingCodeBlock = false;
+      
+
+      functionCalls.map(function(item) {
+        
+        // Handle code blocks.
+        if (accumulatingCodeBlock) {
+          accumulatedCodeBlock += item;
+          var numOpeningBrackets = item.split('{').length - 1;
+          var numClosingBrackets = item.split('}').length - 1;
+          openBrackets += numOpeningBrackets;
+          openBrackets -= numClosingBrackets;
+          if (openBrackets === 0) {
+            app.mainView.executeCodeBlock(accumulatedCodeBlock);
+          }
+        }
+        if (item.indexOf('{') !== -1 || item.indexOf('}') !== -1) {
+          accumulatingCodeBlock = true;
+          accumulatedCodeBlock += item;
+          var numOpeningBrackets = item.split('{').length - 1;
+          var numClosingBrackets = item.split('}').length - 1;
+          openBrackets += numOpeningBrackets;
+          openBrackets -= numClosingBrackets;
+        }
+
+        // Handle supported function calls if applicable.
+        var functionCall = item.split('(')[0].replace('/[^a-z0-9]/gi', '');
         if (functionCall.indexOf('setLevelText') !== -1) {
           var level = item.split('(')[1].split(',')[0].replace('/[^a-z0-9]/gi', '');
           var levelText = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
           app.mainView.setLevelText(level, levelText);
         }
-
         else if (functionCall.indexOf('setLevel') !== -1) {
           var level = item.split('(')[1].substring(0, 1).replace('/[^a-z0-9]/gi', '');
           app.mainView.setLevel(level);
         }
-
         else if (functionCall.indexOf('setGameOverMessage') !== -1) {
           var gameOverMsg = item.split('(')[1].replace('/[^a-z0-9]/gi', '').slice(0, -1);
           app.mainView.setGameOverMessage(gameOverMsg);
         }
-
         else if (functionCall.indexOf('setLED') !== -1) {
           var led = item.split('(')[1].split(',')[0].replace('/[^a-z0-9]/gi', '');
           var intensity = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
           app.mainView.setLED(led, intensity);
         }
 
+        // Try to execute the function call as a built-in JavaScript function call. 
+        // Only execute if it doesn't throw an error, of course.
         else {
-          // Try to execute the function call as a built-in JavaScript function call. 
-          // Only execute if it doesn't throw an error, of course.
           try {
             console.log('Attempting to run the following possibly-real JavaScript function: ');
             console.log(item);
@@ -147,6 +171,42 @@
 
       });
     },
+
+    /*
+     * Handle parsing of the code.
+     */
+     executeCodeBlock: function(runCode) {
+       console.log('Exexuting the following code block: ');
+       console.log(runCode);
+       var preBlock = runCode.split('{')[0];
+       console.log(preBlock);
+       var typeOfStatement = preBlock.split('(')[0];
+       var evaluationExpression = preBlock.substring(preBlock.indexOf('(')-1, preBlock.indexOf(')'));
+       var codeBlock = runCode.substring(runCode.indexOf('{')-1, runCode.lastIndexOf('}'));
+       console.log(typeOfStatement);
+       console.log(evaluationExpression);
+       console.log(codeBlock);
+       
+       // Handle if-statement
+       if (typeOfStatement.indexOf('if') !== 0) {
+          app.mainView.handleIfStatement(evaluationExpression, codeBlock);
+       }
+       // Handle 'else if'-statement
+       if (typeOfStatement.indexOf('else if') !== 0) {
+
+       }
+       // Handle 'else' statement
+       if (typeOfStatement.indexOf('else') !== 0) {
+
+       }
+
+     },
+     handleIfStatement: function(evaluationExpression, codeBlock) {
+        console.log('Handling if-statement');
+        if (true) {
+          //app.mainView.parseRunCode(codeBlock);
+        }
+     },
 
     /*
      * Handle various function calls.
