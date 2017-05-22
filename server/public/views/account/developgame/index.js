@@ -104,7 +104,6 @@
      * Parsing functions.
      */
     parseRunCode: function(runCode) {
-      console.log('parsing text...');
       var MAXIMUM_FUNCTION_NAME_LENGTH = 20;
       var functionCalls = runCode.split(";");
 
@@ -114,21 +113,29 @@
       
 
       functionCalls.map(function(item) {
+
+        item += ";";
         
         // Handle code blocks.
         if (accumulatingCodeBlock) {
           accumulatedCodeBlock += item;
+          console.log('Accumulated block now: ' + accumulatedCodeBlock);
           var numOpeningBrackets = item.split('{').length - 1;
           var numClosingBrackets = item.split('}').length - 1;
           openBrackets += numOpeningBrackets;
           openBrackets -= numClosingBrackets;
           if (openBrackets === 0) {
+            console.log('Received a full code block: ' + accumulatedCodeBlock);
             app.mainView.executeCodeBlock(accumulatedCodeBlock);
+            // Reset accumulator variables.
+            accumulatedCodeBlock = "";
+            accumulatingCodeBlock = false;
           }
         }
-        if (item.indexOf('{') !== -1 || item.indexOf('}') !== -1) {
+        if (item.indexOf('{') !== -1) {
           accumulatingCodeBlock = true;
           accumulatedCodeBlock += item;
+          console.log('Accumulated block: ' + accumulatedCodeBlock);
           var numOpeningBrackets = item.split('{').length - 1;
           var numClosingBrackets = item.split('}').length - 1;
           openBrackets += numOpeningBrackets;
@@ -176,16 +183,10 @@
      * Handle parsing of the code.
      */
      executeCodeBlock: function(runCode) {
-       console.log('Exexuting the following code block: ');
-       console.log(runCode);
        var preBlock = runCode.split('{')[0];
-       console.log(preBlock);
        var typeOfStatement = preBlock.split('(')[0];
-       var evaluationExpression = preBlock.substring(preBlock.indexOf('(')-1, preBlock.indexOf(')'));
-       var codeBlock = runCode.substring(runCode.indexOf('{')-1, runCode.lastIndexOf('}'));
-       console.log(typeOfStatement);
-       console.log(evaluationExpression);
-       console.log(codeBlock);
+       var evaluationExpression = preBlock.substring(preBlock.indexOf('(')+1, preBlock.indexOf(')'));
+       var codeBlock = runCode.substring(runCode.indexOf('{')+1, runCode.lastIndexOf('}'));
        
        // Handle if-statement
        if (typeOfStatement.indexOf('if') !== 0) {
@@ -202,9 +203,11 @@
 
      },
      handleIfStatement: function(evaluationExpression, codeBlock) {
-        console.log('Handling if-statement');
-        if (true) {
-          //app.mainView.parseRunCode(codeBlock);
+        console.log('Handling if-statement:');
+        console.log(evaluationExpression);
+        console.log("Code block: ===" + codeBlock + "===");
+        if (true) { //TODO: Determine if evaluationExpression is actually true.
+          app.mainView.parseRunCode(codeBlock);
         }
      },
 
@@ -213,7 +216,9 @@
      */
     setGameOverMessage: function(gameOverText) {
       console.log('setGameOverMessage function called.');
-      app.mainView.gameOverText = gameOverText.slice(1, -1);
+      console.log(gameOverText);
+      console.log(gameOverText.slice(1, -2));
+      app.mainView.gameOverText = gameOverText.slice(1, -2);
     },
     setLED: function(led, intensity) {
       console.log('setLED function called');

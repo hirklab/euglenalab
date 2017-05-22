@@ -67,6 +67,7 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
 
     // Handle variables passed from JavaScript layer.
     if (dynamic_cast<EuglenaProcessor*>(processor.get()) != NULL) {
+      memset(((EuglenaProcessor*)processor.get())->gameOverStr, 0, 80);
       std::strcpy(((EuglenaProcessor*)processor.get())->gameOverStr, var_dict.Get("gameEndMsg").AsString().c_str());
     }
 
