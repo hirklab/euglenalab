@@ -3,22 +3,29 @@
   'use strict';
   app = app || {};
 
-  // var editor = CodeMirror.fromTextArea(document.getElementById('txtCode'), {
-  //   height: "750px",
-  //   content: "public class CodeClass { }",
-  //   parserfile: ["http://codemirror.net/1/contrib/java/js/tokenizejava.js", "http://codemirror.net/1/contrib/java/js/parsejava.js"],
-  //   stylesheet: "http://codemirror.net/1/contrib/java/css/javacolors.css",
-  //   path: "http://codemirror.net/1/js/",
-  //   autoMatchParens: true,
-  // });
+  var codeRunStarterCode = "" +
+    "setLevelText(1, \"Get 10% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.\");";
+
+  
 
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
-    $('#btnUpdateRun').click(function() {
-      var runFunctionText = $('#txtCodeRun').val();
-      app.mainView.parseRunCode(runFunctionText);
+    var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
+      height: "50px",
+      content: codeRunStarterCode,
+      //parserfile: ["http://codemirror.net/1/contrib/java/js/tokenizejava.js", "http://codemirror.net/1/contrib/java/js/parsejava.js"],
+      //stylesheet: "http://codemirror.net/1/contrib/java/css/javacolors.css",
+      mode: "javascript",
+      theme: "default",
+      autoMatchParens: true
     });
+
+    $('#btnUpdateRun').click(function() {
+      app.mainView.parseRunCode(runEditor.getDoc().getValue());
+    });
+
+
   });
   app.User = Backbone.Model.extend({
     idAttribute: '_id',
@@ -146,7 +153,7 @@
         var functionCall = item.split('(')[0].replace('/[^a-z0-9]/gi', '');
         if (functionCall.indexOf('setLevelText') !== -1) {
           var level = item.split('(')[1].split(',')[0].replace('/[^a-z0-9]/gi', '');
-          var levelText = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
+          var levelText = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(1, -1);
           app.mainView.setLevelText(level, levelText);
         }
         else if (functionCall.indexOf('setLevel') !== -1) {
