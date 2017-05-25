@@ -186,7 +186,7 @@ var Stylus = function (canvasDiv) {
         // } else if (txt.length === 3) {
         //   txt += '0';
         // }
-        context.fillText('{x=' + Math.round(x) + ',y=' + Math.round(y) + ',mag=' + Math.round(stimulus.mag) + '}', me.textStimulus.x, me.textStimulus.y);
+        // context.fillText('{x=' + Math.round(x) + ',y=' + Math.round(y) + ',mag=' + Math.round(stimulus.mag) + '}', me.textStimulus.x, me.textStimulus.y);
     };
 
     // var drawAngleText = function(angle) {

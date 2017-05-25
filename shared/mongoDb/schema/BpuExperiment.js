@@ -389,6 +389,24 @@ exports = module.exports = function (app, mongoose) {
                         }
                     }
 
+                    if (evt.hasOwnProperty('projectorX')) {
+                        if (err === null) {
+                            err = checkNum(evt.projectorX, -1, 1000);
+                        } else {
+                            returnObj.validationErr = 'projectorX:' + err;
+                            break;
+                        }
+                    }
+
+                    if (evt.hasOwnProperty('projectorY')) {
+                        if (err === null) {
+                            err = checkNum(evt.ambientlightValue, -1, 1000);
+                        } else {
+                            returnObj.validationErr = 'ambientlightValue:' + err;
+                            break;
+                        }
+                    }
+
                     if (err !== null) {
                         returnObj.validationErr = 'sensor Value:' + err;
                         break;
@@ -415,7 +433,9 @@ exports = module.exports = function (app, mongoose) {
                         diffuserValue: 0,
                         backlightValue: 0,
                         culturelightValue: 0,
-                        ambientlightValue: 0
+                        ambientlightValue: 0,
+                        projectorX:-1,
+                        projectorY:-1
                     });
                 }
                 returnObj.isValid = true;
@@ -530,7 +550,9 @@ var _getDataObjToJoinQueue = function (app) {
             diffuserValue: 0,
             culturelightValue: 0,
             backlightValue: 0,
-            ambientlightValue: 0
+            ambientlightValue: 0,
+            projectorX:-1,
+            projectorY:-1
         }
     };
     return joinQueueData;
