@@ -66,7 +66,7 @@ var _init = function (options, callback) {
         // console.log('ambientlightSet = ' + ambientlightValue);
     };
 
-    board.projectorSet = function (x, y, cb_fn) {
+    board.projectorSet = function (x, y) {
         if (x && y) {
             console.log('projector = {' + x + ', ' + y + '}');
 
@@ -76,13 +76,10 @@ var _init = function (options, callback) {
                 if (x >= 0 && y >= 0) {
                     client.write({x: x, y: y});
                 }
-                cb_fn(null);
             });
             client.on('error', function (err) {
-                cb_fn(err);
+
             });
-        } else {
-            cb_fn("x and y cannot be null");
         }
     };
 
