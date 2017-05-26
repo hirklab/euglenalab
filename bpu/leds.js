@@ -77,7 +77,7 @@ var _init = function (options, callback) {
             var client = new net.Socket();
             client.connect(32001, 'localhost', function () {
                 if (x >= 0 && y >= 0) {
-                    client.write("{x: x, y: y}\n");
+                    client.write("{x: "+x+", y: "+y+"}\n");
                 }
             });
             client.on('error', function (err) {
