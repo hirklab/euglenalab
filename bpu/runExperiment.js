@@ -62,6 +62,14 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
                     app.logger.error(err);
                     return callback(err);
                 } else {
+                    initializeProjector(function(err, projector){
+                       if(err){
+
+                       }else{
+                           app.projector = projector;
+                       }
+                    });
+
                     //Small Wait for camera lead in
                     setTimeout(function () {
                         //Run Experiment
@@ -223,6 +231,18 @@ var toggleWebCamSave = function (startStop, cb_fn) {
         cb_fn("1st param needs to be 'start' or 'stop'");
     }
 };
+
+var initializeProjector = function(cb_fn){
+    var net = require('net');
+    var client = new net.Socket();
+    client.connect(32001, 'localhost', function () {
+        cb_fn(null, client);
+    });
+    client.on('error', function (err) {
+
+    });
+};
+
 //Side Func - Part of Socket*****Add Exp
 var EventKeys = ['topValue', 'rightValue', 'bottomValue', 'leftValue', 'diffuserValue', 'backlightValue', 'culturelightValue', 'ambientlightValue', 'projectorX', 'projectorY'];
 var checkEventValues = function (evt) {

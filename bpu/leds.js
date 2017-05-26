@@ -38,7 +38,7 @@ var _init = function (options, callback) {
         if (typeof pin != 'number' && options.LedPins[pin]) {
             pin = options.LedPins[pin];
         }
-        if(pin && value) {
+        if (pin && value) {
             console.log('led = {' + pin + ', ' + value + '}');
             rpi.softPwmWrite(pin, value);
         }
@@ -69,20 +69,14 @@ var _init = function (options, callback) {
         // console.log('ambientlightSet = ' + ambientlightValue);
     };
 
-    board.projectorSet = function (x, y) {
+    board.projectorSet = function (projector, x, y) {
         if (x && y) {
             console.log('projector = {' + x + ', ' + y + '}');
 
-            var net = require('net');
-            var client = new net.Socket();
-            client.connect(32001, 'localhost', function () {
-                if (x >= 0 && y >= 0) {
-                    client.write("{x: "+x+", y: "+y+"}\n");
-                }
-            });
-            client.on('error', function (err) {
+            if (x >= 0 && y >= 0) {
+                projector.write("{x: " + x + ", y: " + y + "}\n");
+            }
 
-            });
         }
     };
 

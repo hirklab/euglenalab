@@ -210,7 +210,7 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                         app.bpu.ledControl.board.backlightSet(lightValues.backlightValue);
                         app.bpu.ledControl.board.culturelightSet(lightValues.culturelightValue);
                         app.bpu.ledControl.board.ambientlightSet(lightValues.ambientlightValue);
-                        app.bpu.ledControl.board.projectorSet(lightValues.projectorX, lightValues.projectorY);
+                        app.bpu.ledControl.board.projectorSet(app.projector, lightValues.projectorX, lightValues.projectorY);
 
                         lightValues.time = new Date().getTime();
                         return lightValues;
