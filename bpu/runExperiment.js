@@ -80,7 +80,7 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
                                 var evt = app.exp.exp_eventsToRunFinal.shift();
                                 evt.setTime = dtStart;
                                 evtCounter++;
-                                var msg = evt.setTime + ":" + evt.topValue + ", " + evt.rightValue + ", " + evt.bottomValue + ", " + evt.leftValue + ", " + evt.diffuserValue + ", " + evt.backlightValue + ", " + evt.culturelightValue + ", " + evt.ambientlightValue;
+                                var msg = evt.setTime + ":" + evt.topValue + ", " + evt.rightValue + ", " + evt.bottomValue + ", " + evt.leftValue + ", " + evt.diffuserValue + ", " + evt.backlightValue + ", " + evt.culturelightValue + ", " + evt.ambientlightValue + ", " + evt.projectorX+ ", " + evt.projectorY;
                                 app.logger.info('in:::' + fName + ' ' + evtCounter + '(' + msg + ')');
 
                                 var ranEvent = app.bpu.ledsSet(evt, doReset);

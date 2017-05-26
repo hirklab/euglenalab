@@ -100,10 +100,9 @@ var Stylus = function (canvasDiv) {
         // drawCenterMark();
 
         //Dynamic -
-        if(me.x_evt && me.y_evt)
-        {
+        if (me.x_evt && me.y_evt) {
             drawPoint(me.x_evt, me.y_evt);
-            drawStimulusText(me.stimulus_evt,me.x_evt, me.y_evt);
+            drawStimulusText(me.stimulus_evt, me.x_evt, me.y_evt);
             drawCenterMark();
         }
         // drawJoystickHead(me.x_evt, me.y_evt);
@@ -145,15 +144,15 @@ var Stylus = function (canvasDiv) {
     };
 
     // //Static
-    var drawCenterMark = function() {
-      context.beginPath();
-      context.strokeStyle = "rgba(255, 255, 255, 1)";
-      context.lineWidth = 2;
-      context.moveTo(me.centerPoint.x, me.centerPoint.y - 4);
-      context.lineTo(me.centerPoint.x, me.centerPoint.y + 4);
-      context.moveTo(me.centerPoint.x - 4, me.centerPoint.y);
-      context.lineTo(me.centerPoint.x + 4, me.centerPoint.y);
-      context.stroke();
+    var drawCenterMark = function () {
+        context.beginPath();
+        context.strokeStyle = "rgba(255, 255, 255, 1)";
+        context.lineWidth = 2;
+        context.moveTo(me.centerPoint.x, me.centerPoint.y - 4);
+        context.lineTo(me.centerPoint.x, me.centerPoint.y + 4);
+        context.moveTo(me.centerPoint.x - 4, me.centerPoint.y);
+        context.lineTo(me.centerPoint.x + 4, me.centerPoint.y);
+        context.stroke();
     };
 
     // var drawBoundingCircle = function() {
@@ -176,7 +175,7 @@ var Stylus = function (canvasDiv) {
     //   }
     // };
     //Text
-    var drawStimulusText = function (stimulus, x ,y ) {
+    var drawStimulusText = function (stimulus, x, y) {
         context.beginPath();
         context.fillStyle = "rgba(255, 255, 255, 1.0)";
         context.font = me.textStimulus.size + 'px Arial';
@@ -346,6 +345,9 @@ Stylus.prototype.setXY = function (projectorSetObj, from) {
     //   ledsSetObj.leftValue = 0;
     //   ledsSetObj.rightValue = Math.round(Math.abs(this.cos_evt * this.inten_evt) * 100);
     // }
+
+    projectorSetObj.projectorX=this.x_evt;
+    projectorSetObj.projectorY=this.y_evt;
 
     //Add info to ledsSetObj
     projectorSetObj.metaData.mag = this.stimulus_evt;

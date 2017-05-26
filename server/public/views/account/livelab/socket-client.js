@@ -4,7 +4,6 @@ var socketStrs = {
     setConnection: '/#setConnection',
     updateBpus: '/#updateBpus',
     ledsSet: '/#ledsSet',
-    projectorSet: '/#projectorSet',
     kickFromLab: '/#kickFromLab',
 };
 
@@ -114,7 +113,7 @@ var socketStrs = {
             me.projectorSetEventCounter++;
             projectorSetObj.sessionID = app.mainView.session.get('sessionID');
             projectorSetObj.sentTime = new Date().getTime();
-            socket.emit(socketStrs.projectorSet, projectorSetObj);
+            socket.emit(socketStrs.ledsSet, projectorSetObj);
         };
     };
 }());

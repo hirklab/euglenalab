@@ -400,9 +400,9 @@ exports = module.exports = function (app, mongoose) {
 
                     if (evt.hasOwnProperty('projectorY')) {
                         if (err === null) {
-                            err = checkNum(evt.ambientlightValue, -1, 1000);
+                            err = checkNum(evt.projectorY, -1, 1000);
                         } else {
-                            returnObj.validationErr = 'ambientlightValue:' + err;
+                            returnObj.validationErr = 'projectorY:' + err;
                             break;
                         }
                     }
@@ -473,7 +473,7 @@ exports = module.exports = function (app, mongoose) {
 };
 var checkNum = function (num, low, high) {
     if (num !== null && num !== undefined) {
-        if (num < 0) return 'out of bounds(<' + low + ')';
+        if (num < low) return 'out of bounds(<' + low + ')';
         else if (num > high) return 'out of bounds(>' + high + ')';
         else return null;
     } else {
@@ -568,6 +568,8 @@ var _getDataObjToSetLeds = function () {
         culturelightValue: null,
         backlightValue: null,
         ambientlightValue: null,
+        projectorX:null,
+        projectorY:null,
         metaData: {
             clientTime: null, //set when event need a new setLedsDataObbect
             sentTime: null, //time when sent to server through socket io

@@ -555,7 +555,7 @@
         },
 
         setProjectorEventController: function(evt, evtType){
-            console.log(evtType + ': {'+evt.offsetX+','+evt.offsetY+'}');
+            // console.log(evtType + ': {'+evt.offsetX+','+evt.offsetY+'}');
 
 
             var previousTouchState = '' + app.mainView.stylusInstance.touchState;
