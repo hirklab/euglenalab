@@ -38,7 +38,10 @@ var _init = function (options, callback) {
         if (typeof pin != 'number' && options.LedPins[pin]) {
             pin = options.LedPins[pin];
         }
-        rpi.softPwmWrite(pin, value);
+        if(pin && value) {
+            console.log('led = {' + pin + ', ' + value + '}');
+            rpi.softPwmWrite(pin, value);
+        }
     };
 
     board.ledsSet = function (topValue, rightValue, bottomValue, leftValue) {
