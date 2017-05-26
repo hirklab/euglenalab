@@ -155,6 +155,12 @@ block neck
         user-select: none;
     }
 
+    .CodeMirror-scroll {
+      height: auto;
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+
 block feet
   script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
   script(src="/views/account/developgame/Canvas_Joystick.js")
@@ -175,28 +181,23 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;public void run() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        textarea#txtCodeRun(rows='6', cols='55')
-          |setLevelText(1, "Get 10% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
-          |&nbsp;
-          |setLevelText(2, "Get 15% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
-          |&nbsp;
-          |setLevelText(3, "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
-          |&nbsp;
-          |setGameOverMessage("Game over, yo!");
-          |&nbsp;
-          |if (true) {
-          |&nbsp;
-          |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("a");
-          |&nbsp;
-          |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("b");
-          |&nbsp;
-          |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("c");
-          |&nbsp;
-          |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("IF STATEMENT EVALUATED!!!!!");
-          |&nbsp;
-          |}
-          |&nbsp;
-          |setLED(LED.RIGHT, 255);
+        div.row
+          div.col-xs-1
+          div.col-xs-11
+            textarea#txtCodeRun
+              |if (true) {
+              |&nbsp;
+              |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("a");
+              |&nbsp;
+              |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("b");
+              |&nbsp;
+              |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("c");
+              |&nbsp;
+              |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("IF STATEMENT EVALUATED!!!!!");
+              |&nbsp;
+              |}
+              |&nbsp;
+              |setLED(LED.RIGHT, 255);
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br
@@ -208,47 +209,63 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;public void startGame() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        textarea#txtCodeStart(rows='6', cols='55', disabled)
-          |Under construction.
+        div.row
+          div.col-xs-1
+          div.col-xs-11
+            textarea#txtCodeStart
+              |setTextPerLevel(1, "Get 10% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
+              |&nbsp;
+              |setTextPerLevel(2, "Get 15% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
+              |&nbsp;
+              |setTextPerLevel(3, "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
+              |&nbsp;
+              |setGameOverMessage("Game over, yo!");
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-success#btnUpdateStart(type="update",value="update", disabled) Update Code
+        button.btn.btn-success#btnUpdateStart(type="update",value="update") Update Code
         br
         br
 
         |&nbsp;&nbsp;&nbsp;&nbsp;public void endGame() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        textarea#txtCodeEnd(rows='6', cols='55', disabled)
-          |Under construction.
+        div.row
+          div.col-xs-1
+          div.col-xs-11
+            textarea#txtCodeEnd
+              |setLED(LED.RIGHT, 0);
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-success#btnUpdateEnd(type="update",value="update", disabled) Update Code
+        button.btn.btn-success#btnUpdateEnd(type="update",value="update") Update Code
         br
         br
 
         |&nbsp;&nbsp;&nbsp;&nbsp;public void onJoystickChange(int angle, int intensity) {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        textarea#txtCodeJoystick(rows='6', cols='55', disabled)
-          |Under construction.
+        div.row
+          div.col-xs-1
+          div.col-xs-11
+            textarea#txtCodeJoystick
+              |console.log('Changed!');
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-success#btnUpdateJoystick(type="update",value="update", disabled) Update Code
+        button.btn.btn-success#btnUpdateJoystick(type="update",value="update") Update Code
         br
         br
 
         |}
       div.col-xs-5
-        //img#myVideo.unselectable(src='http://fay.iniminimo.com/shapes/giftwrap/giftwrap01.gif')
-        //(src='#{data.mainImageIP}')
-        //br
+        div.row
+          div.col-xs-12
+            button.btn.btn-success#btnStartGame(type="update",value="update") Play Game
+        br
         div.row
           div.col-xs-5#myAside.unselectable(name='myAside')
             div#myJoystick.canvas-joystick-off(name='myJoystick')
@@ -303,4 +320,5 @@ block body
     //script(src='http://codemirror.net/1/js/codemirror.js')
     //script(src='http://codemirror.net/1/js/mirrorframe.js')
     script(src='/views/account/developgame/game/game.js')
+    script(src="http://codemirror.net/mode/javascript/javascript.js")
 

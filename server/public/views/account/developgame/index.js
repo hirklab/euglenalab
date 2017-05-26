@@ -3,27 +3,66 @@
   'use strict';
   app = app || {};
 
-  var codeRunStarterCode = "" +
-    "setLevelText(1, \"Get 10% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.\");";
-
-  
-
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
+    var myVar = setInterval(app.mainView.runLoop ,1000);
+
     var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
-      height: "50px",
-      content: codeRunStarterCode,
-      //parserfile: ["http://codemirror.net/1/contrib/java/js/tokenizejava.js", "http://codemirror.net/1/contrib/java/js/parsejava.js"],
-      //stylesheet: "http://codemirror.net/1/contrib/java/css/javacolors.css",
       mode: "javascript",
       theme: "default",
       autoMatchParens: true
     });
 
-    $('#btnUpdateRun').click(function() {
-      app.mainView.parseRunCode(runEditor.getDoc().getValue());
+    var startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
+      height: "50px",
+      mode: "javascript",
+      theme: "default",
+      autoMatchParens: true
     });
+
+    var endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
+      height: "50px",
+      mode: "javascript",
+      theme: "default",
+      autoMatchParens: true
+    });
+
+    var joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
+      height: "50px",
+      mode: "javascript",
+      theme: "default",
+      autoMatchParens: true
+    });
+
+    // Handle new run code.
+    $('#btnUpdateRun').click(function() {
+      app.mainView.gameRunCode = runEditor.getDoc().getValue();
+    });
+
+    // Handle new start code.
+    $('#btnUpdateStart').click(function() {
+      app.mainView.gameStartCode = startEditor.getDoc().getValue();
+    });
+    $('#btnStartGame').click(function() {
+      app.mainView.gameInSession = true;
+      app.mainView.parseStartCode(app.mainView.gameStartCode);
+    });
+
+    // Handle new end code.
+    $('#btnUpdateEnd').click(function() {
+      app.mainView.gameEndCode = endEditor.getDoc().getValue();
+      // TODO: Find when to run this: app.mainView.parseEndCode(app.mainView.gameEndCode);
+    });
+
+    // Handle new joystick code.
+    $('#btnUpdateJoystick').click(function() {
+      app.mainView.gameJoystickCode = joystickEditor.getDoc().getValue();
+      app.mainView.parseJoystickCode();
+      // TODO: Find when (and how) to run this: 
+    });
+
+
 
 
   });
@@ -57,6 +96,21 @@
     gameLevel: 3,
     gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
     gameOverText: "Game over!",
+
+    // INTERNAL GAME-RELATED-VARIABLES
+    gameInSession: false,
+    gameRunCode: "if (true) {" +
+      "setGameOverMessage(\"a\");" +
+      "setGameOverMessage(\"b\");" +
+      "setGameOverMessage(\"c\");" +
+      "setGameOverMessage(\"IF STATEMENT EVALUATED!!!!!\");" +
+      "}" +
+      "setLED(LED.RIGHT, 255);",
+    gameStartCode: "",
+    gameEndCode: "",
+    gameJoystickCode: "",
+    gameJoystickCodeAngle: "",
+    gameJoystickCodeIntensity: "",
 
     //Tag-Initialize
     initialize: function() {
@@ -108,124 +162,58 @@
     },
 
     /*
-     * Parsing functions.
+     * Game logic functions.
      */
-    parseRunCode: function(runCode) {
-      var MAXIMUM_FUNCTION_NAME_LENGTH = 20;
-      var functionCalls = runCode.split(";");
-
-      var accumulatedCodeBlock = "";
-      var openBrackets = 0;
-      var accumulatingCodeBlock = false;
-      
-
-      functionCalls.map(function(item) {
-
-        item += ";";
-        
-        // Handle code blocks.
-        if (accumulatingCodeBlock) {
-          accumulatedCodeBlock += item;
-          console.log('Accumulated block now: ' + accumulatedCodeBlock);
-          var numOpeningBrackets = item.split('{').length - 1;
-          var numClosingBrackets = item.split('}').length - 1;
-          openBrackets += numOpeningBrackets;
-          openBrackets -= numClosingBrackets;
-          if (openBrackets === 0) {
-            console.log('Received a full code block: ' + accumulatedCodeBlock);
-            app.mainView.executeCodeBlock(accumulatedCodeBlock);
-            // Reset accumulator variables.
-            accumulatedCodeBlock = "";
-            accumulatingCodeBlock = false;
-          }
-        }
-        if (item.indexOf('{') !== -1) {
-          accumulatingCodeBlock = true;
-          accumulatedCodeBlock += item;
-          console.log('Accumulated block: ' + accumulatedCodeBlock);
-          var numOpeningBrackets = item.split('{').length - 1;
-          var numClosingBrackets = item.split('}').length - 1;
-          openBrackets += numOpeningBrackets;
-          openBrackets -= numClosingBrackets;
-        }
-
-        // Handle supported function calls if applicable.
-        var functionCall = item.split('(')[0].replace('/[^a-z0-9]/gi', '');
-        if (functionCall.indexOf('setLevelText') !== -1) {
-          var level = item.split('(')[1].split(',')[0].replace('/[^a-z0-9]/gi', '');
-          var levelText = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(1, -1);
-          app.mainView.setLevelText(level, levelText);
-        }
-        else if (functionCall.indexOf('setLevel') !== -1) {
-          var level = item.split('(')[1].substring(0, 1).replace('/[^a-z0-9]/gi', '');
-          app.mainView.setLevel(level);
-        }
-        else if (functionCall.indexOf('setGameOverMessage') !== -1) {
-          var gameOverMsg = item.split('(')[1].replace('/[^a-z0-9]/gi', '').slice(0, -1);
-          app.mainView.setGameOverMessage(gameOverMsg);
-        }
-        else if (functionCall.indexOf('setLED') !== -1) {
-          var led = item.split('(')[1].split(',')[0].replace('/[^a-z0-9]/gi', '');
-          var intensity = item.split(',')[1].split(');')[0].replace('/[^a-z0-9]/gi', '').slice(0, -1);
-          app.mainView.setLED(led, intensity);
-        }
-
-        // Try to execute the function call as a built-in JavaScript function call. 
-        // Only execute if it doesn't throw an error, of course.
-        else {
-          try {
-            console.log('Attempting to run the following possibly-real JavaScript function: ');
-            console.log(item);
-            eval(item + ';');
-          }
-          catch(err) {
-            console.log('NOT A VALID FUNCTION CALL: ' + item);
-          }
-        }
-
-      });
+    runLoop: function() {
+      if (app.mainView.gameInSession) {
+        app.mainView.parseRunCode(app.mainView.gameRunCode);
+      }
     },
 
     /*
-     * Handle parsing of the code.
+     * Parsing functions.
      */
-     executeCodeBlock: function(runCode) {
-       var preBlock = runCode.split('{')[0];
-       var typeOfStatement = preBlock.split('(')[0];
-       var evaluationExpression = preBlock.substring(preBlock.indexOf('(')+1, preBlock.indexOf(')'));
-       var codeBlock = runCode.substring(runCode.indexOf('{')+1, runCode.lastIndexOf('}'));
-       
-       // Handle if-statement
-       if (typeOfStatement.indexOf('if') !== 0) {
-          app.mainView.handleIfStatement(evaluationExpression, codeBlock);
-       }
-       // Handle 'else if'-statement
-       if (typeOfStatement.indexOf('else if') !== 0) {
+    generalParser: function(runCode) {
+      // TODO: Remove unnecessary code here.
 
-       }
-       // Handle 'else' statement
-       if (typeOfStatement.indexOf('else') !== 0) {
+      // Replace EuglenaScript functions with appropriate function calls.
+      var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
+      modifiedCode = modifiedCode.split('finishGame').join('app.mainView.finishGame');
+      modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
+      modifiedCode = modifiedCode.split('setLevel').join('app.mainView.setLevel');
+      modifiedCode = modifiedCode.split('setTextPerLevel').join('app.mainView.setTextPerLevel');
 
-       }
+      // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
+      modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
+      modifiedCode = modifiedCode.split('LED.LEFT').join('\"LED.LEFT\"');
+      modifiedCode = modifiedCode.split('LED.UP').join('\"LED.UP\"');
+      modifiedCode = modifiedCode.split('LED.DOWN').join('\"LED.DOWN\"');
 
-     },
-     handleIfStatement: function(evaluationExpression, codeBlock) {
-        console.log('Handling if-statement:');
-        console.log(evaluationExpression);
-        console.log("Code block: ===" + codeBlock + "===");
-        if (true) { //TODO: Determine if evaluationExpression is actually true.
-          app.mainView.parseRunCode(codeBlock);
-        }
-     },
+      eval(modifiedCode);
+    },
+    parseRunCode: function(runCode) {
+      app.mainView.generalParser(runCode);
+    },
+    parseStartCode: function(runCode) {
+      app.mainView.generalParser(runCode);
+    },
+    parseEndCode: function(runCode) {
+      app.mainView.generalParser(runCode);
+    },
+    parseJoystickCode: function(runCode) {
+      app.mainView.generalParser(runCode);
+    },
 
     /*
      * Handle various function calls.
      */
+    finishGame: function() {
+      console.log('finishGame function called.');
+      app.mainView.gameInSession = false;
+    },
     setGameOverMessage: function(gameOverText) {
       console.log('setGameOverMessage function called.');
-      console.log(gameOverText);
-      console.log(gameOverText.slice(1, -2));
-      app.mainView.gameOverText = gameOverText.slice(1, -2);
+      app.mainView.gameOverText = gameOverText;
     },
     setLED: function(led, intensity) {
       console.log('setLED function called');
@@ -271,7 +259,7 @@
       ledsSetObj.leftValue = left;
       return ledsSetObj;
     },
-    setLevelText: function(level, levelText) {
+    setTextPerLevel: function(level, levelText) {
       console.log('setLevelText function called.');
       app.mainView.gameLevelText[level] = levelText;
     },
