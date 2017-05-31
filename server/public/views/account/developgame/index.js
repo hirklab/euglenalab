@@ -52,7 +52,6 @@
     // Handle new end code.
     $('#btnUpdateEnd').click(function() {
       app.mainView.gameEndCode = endEditor.getDoc().getValue();
-      // TODO: Find when to run this: app.mainView.parseEndCode(app.mainView.gameEndCode);
     });
 
     // Handle new joystick code.
@@ -210,6 +209,7 @@
     finishGame: function() {
       console.log('finishGame function called.');
       app.mainView.gameInSession = false;
+      app.mainView.parseEndCode(app.mainView.gameEndCode);
     },
     setGameOverMessage: function(gameOverText) {
       console.log('setGameOverMessage function called.');
