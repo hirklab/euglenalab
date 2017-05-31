@@ -56,6 +56,7 @@ var Canvas_Joystick=function(canvasDiv) {
   //Draw Updates
 
   this.updateDraw=function() {
+
     //Clear Draw Context
     context.clearRect(0, 0, thisJoy.canvas.width, thisJoy.canvas.height);
 
@@ -218,6 +219,9 @@ Canvas_Joystick.prototype.toggleJoystick=function(toggle) {
   if(this.canvas.className!==this.className + '-' +toggle) {
     this.canvas.className=this.className + '-' +toggle;
   }
+
+  // Run user's joystick update code.
+  app.mainView.parseJoystickCode(app.mainView.gameJoystickCode);
 };
 Canvas_Joystick.prototype.update=function(text) {
   this.updateDraw(text);

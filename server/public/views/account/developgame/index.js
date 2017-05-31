@@ -6,7 +6,18 @@
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
-    var myVar = setInterval(app.mainView.runLoop ,1000);
+    var myVar = setInterval(app.mainView.runLoop, 1000);
+
+    document.onkeypress = function (e) {
+        e = e || window.event;
+        var code;
+        if (!e) var e = window.event;
+        if (e.keyCode) code = e.keyCode;
+        else if (e.which) code = e.which;
+        var character = String.fromCharCode(code);
+        console.log('User pressed the following key: ' + character);
+        app.mainView.parseKeypressCode(app.mainView.gameKeypressCode);
+    };
 
     var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
       mode: "javascript",
@@ -35,6 +46,13 @@
       autoMatchParens: true
     });
 
+    var keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
+      height: "50px",
+      mode: "javascript",
+      theme: "default",
+      autoMatchParens: true
+    });
+
     // Handle new run code.
     $('#btnUpdateRun').click(function() {
       app.mainView.gameRunCode = runEditor.getDoc().getValue();
@@ -54,11 +72,15 @@
       app.mainView.gameEndCode = endEditor.getDoc().getValue();
     });
 
+    // Handle new keypress code.
+    $('#btnUpdateKeypress').click(function() {
+      app.mainView.gameKeypressCode = keypressEditor.getDoc().getValue();
+    });
+
     // Handle new joystick code.
     $('#btnUpdateJoystick').click(function() {
       app.mainView.gameJoystickCode = joystickEditor.getDoc().getValue();
-      app.mainView.parseJoystickCode();
-      // TODO: Find when (and how) to run this: 
+      // TODO: Find when (and how) to run this: app.mainView.parseJoystickCode(app.mainView.gameJoystickCode);
     });
 
 
@@ -107,6 +129,7 @@
       "setLED(LED.RIGHT, 255);",
     gameStartCode: "",
     gameEndCode: "",
+    gameKeypressCode: "",
     gameJoystickCode: "",
     gameJoystickCodeAngle: "",
     gameJoystickCodeIntensity: "",
@@ -200,6 +223,12 @@
       app.mainView.generalParser(runCode);
     },
     parseJoystickCode: function(runCode) {
+      // Set 'angle' and 'intensity' 
+      var modifiedCode = runCode + "";
+
+      app.mainView.generalParser(runCode);
+    },
+    parseKeypressCode: function(runCode) {
       app.mainView.generalParser(runCode);
     },
 
