@@ -2,19 +2,23 @@
 
 #include "ofMain.h"
 #include "ofxCv.h"
+#include "ofxNetwork.h"
+#include "ofxHomography.h"
 
 #define DISPLAY_WIDTH 640
 #define DISPLAY_HEIGHT 480
 
 #define PROJECTOR_WIDTH 100
-#define PROJECTOR_HEIGHT 100
+#define PROJECTOR_HEIGHT 75
 #define PROJECTOR_FRAMERATE 5
 
 #define CAMERA_WIDTH 640
 #define CAMERA_HEIGHT 480
-#define CAMERA_FRAMERATE 60
+#define CAMERA_FRAMERATE 30
 
-enum Mode {PHASE0, PHASE1, PHASE2, TEST};
+#define PORT 32001
+
+enum Mode {CALIBRATION, TEST, PRODUCTION};
 
 class ofApp : public ofBaseApp{
 
@@ -54,30 +58,48 @@ class ofApp : public ofBaseApp{
         ofTexture projection;
 
         ofPolyline line;
-        ofFbo fbo;
+        // ofFbo fbo;
 
-        ofRectangle viewportDisplay;
-        ofRectangle viewportProjector;
+        // ofRectangle viewportDisplay;
+        // ofRectangle viewportProjector;
 
-        ofxCv::Calibration calibrationCamera;
-        ofxCv::Calibration calibrationProjector;
+        // ofxCv::Calibration calibrationCamera;
+        // ofxCv::Calibration calibrationProjector;
         
         Mode mode;
 
         ofMatrix4x4 m;
 
-        cv::Mat rotateCamToProjector;
-        cv::Mat translateCamToProjector;
+        // cv::Mat rotateCamToProjector;
+        // cv::Mat translateCamToProjector;
         string extrinsics;
 
-        int cameraWidth;
-        int cameraHeight;
-        float projectionZoom;
-        int projectionX;
-        int projectionY;
-        int projectionWidth;
-        int projectionHeight;
-        float projectionRotation;
+        // int cameraWidth;
+        // int cameraHeight;
+
+        // float projectionZoom;
+        
+        // int projectionX;
+        // int projectionY;
+
+        // int projectionWidth;
+        // int projectionHeight;
+        
+        // float projectionRotation;
+
+        float posX;
+        float posY;
+        float posZ;
+
+        float scaleX;
+        float scaleY;
+        float scaleZ=1.0;
+
+        float rotX;
+        float rotY;
+        float rotZ;
+
+        ofPath path;
 
         ofxTCPServer TCP;
 
@@ -86,4 +108,8 @@ class ofApp : public ofBaseApp{
 
         vector <string> storeText;
         uint64_t lastSent;
+
+        ofPoint originalCorners[4];
+        ofPoint distortedCorners[4];
+        ofMatrix4x4 homography;
 };

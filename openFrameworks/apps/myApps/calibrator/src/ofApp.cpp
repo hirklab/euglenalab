@@ -6,18 +6,39 @@ using namespace cv;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    projectionX=312;
-    projectionY=438;
-    projectionZoom=0.263;
-    projectionRotation=2.3;
+	// 10X magnification for camera lens
+    // posX=279;
+    // posY=453;
+    // posZ=0;
+
+    // scaleX=0.034;
+    // scaleY=0.054;
+    // scaleZ=1.0;
+
+    // rotX=-14.4;
+    // rotY=1.2;
+    // rotZ=2.9;
+
+	// 4x magnification for camera lens
+    posX=261;
+    posY=383;
+    posZ=0;
+
+    scaleX=0.15;
+    scaleY=2.08;
+    scaleZ=1.0;
+
+    rotX=-5.9;
+    rotY=-0.299;
+    rotZ=1.5;
 
     ofSetFullscreen(true);
     ofSetVerticalSync(true);
     ofSetFrameRate(PROJECTOR_FRAMERATE);
-    ofEnableAlphaBlending();
-    ofEnableSmoothing();
-    ofSetCircleResolution(100);
-    ofBackground(0,0,0);
+    // ofEnableAlphaBlending();
+    // ofEnableSmoothing();
+    ofSetCircleResolution(15);
+    // ofBackground(0,0,0);
 
     //we can now get back a list of devices.
     // vector<ofVideoDevice> devices = camera.listDevices();
@@ -54,13 +75,27 @@ void ofApp::setup(){
     // viewportProjector.set(DISPLAY_WIDTH,0,PROJECTOR_WIDTH,PROJECTOR_HEIGHT);
 
     lastTime=0;
-    mode=PHASE0;
-
-    // setup the server to listen on 32001
-	TCP.setup(32001);
-	// optionally set the delimiter to something else.  The delimiter in the client and the server have to be the same, default being [/TCP]
+    mode=CALIBRATION;
+	TCP.setup(PORT);
 	TCP.setMessageDelimiter("\n");
 	lastSent = 0;
+
+	originalCorners[0].set(0, 0);
+	originalCorners[1].set(640, 0);
+	originalCorners[2].set(640, 480);
+	originalCorners[3].set(0, 480);
+	
+	distortedCorners[0].set(0, 0);
+	distortedCorners[1].set(100, 0);
+	distortedCorners[2].set(100, 100);
+	distortedCorners[3].set(0, 100);
+
+	homography = ofxHomography::findHomography(originalCorners, distortedCorners);
+
+	ofPoint point(640,80);
+
+	ofPoint pointInScreen = ofxHomography::toScreenCoordinates(point, homography);
+	ofLogNotice() << "Local coordinates " + ofToString(point) + "\nScreen coordinates " + ofToString(pointInScreen);
 
     // fbo.allocate(ofGetWidth(), ofGetHeight(), OF_PIXELS_RGB);
 }
@@ -99,15 +134,16 @@ void ofApp::update(){
 		for(int i = 0; i < TCP.getLastID(); i++){
 			if( !TCP.isClientConnected(i) ) continue;
 
-			TCP.send(i, "hello client - you are connected on port - "+ofToString(TCP.getClientPort(i)) );
+			// ofLogNotice() << "connected on port " + ofToString(TCP.getClientPort(i));
 		}
+
 		lastSent = now;
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofSetHexColor(0xffffff);
+	// ofSetHexColor(0xffffff);
     // camera.draw(0, 0);
     drawProjection();
 
@@ -160,16 +196,16 @@ void ofApp::draw(){
 		if( !TCP.isClientConnected(i) )continue;
 
 		// give each client its own color
-		ofSetColor(255 - i*30, 255 - i * 20, 100 + i*40);
+		// ofSetColor(255 - i*30, 255 - i * 20, 100 + i*40);
 
 		// calculate where to draw the text
-		int xPos = 15;
-		int yPos = 80 + (12 * i * 4);
+		// int xPos = 15;
+		// int yPos = 80 + (12 * i * 4);
 
 		// get the ip and port of the client
-		string port = ofToString( TCP.getClientPort(i) );
-		string ip   = TCP.getClientIP(i);
-		string info = "client "+ofToString(i)+" -connected from "+ip+" on port: "+port;
+		// string port = ofToString( TCP.getClientPort(i) );
+		// string ip   = TCP.getClientIP(i);
+		// string info = "client "+ofToString(i)+" -connected from "+ip+" on port: "+port;
 
 
 		// if we don't have a string allocated yet
@@ -204,11 +240,22 @@ void ofApp::draw(){
 void ofApp::drawProjection(){
 	glPushMatrix();
 
-	glRotatef(projectionRotation,0,0,1);
+	// ofMultMatrix(homography);
 
-	ofFill(); 
-	ofSetColor(ofColor(255,0,0), 100);
-    ofDrawRectangle(projectionX, projectionY, PROJECTOR_WIDTH*projectionZoom, PROJECTOR_HEIGHT*projectionZoom);
+	glTranslatef(posX,posY,posZ);
+	glRotatef(rotX,1,0,0);
+	glRotatef(rotY,0,1,0);
+	glRotatef(rotZ,0,0,1);
+	glScalef(scaleX, scaleY, scaleZ);
+
+	// ofFill(); 
+	ofNoFill();  
+	ofSetColor(ofColor(0,0,255), 100);
+    ofDrawRectangle(0, 0, 640, 480);
+
+    // path.setFillColor(ofColor::red);
+	// path.rectangle(0, 0, 640, 480);
+	// path.rectangle(20, 20, 620, 460);
 
     glPopMatrix();
 }
@@ -216,53 +263,77 @@ void ofApp::drawProjection(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    // in fullscreen mode, on a pc at least, the 
-    // first time video settings the come up
-    // they come up *under* the fullscreen window
-    // use alt-tab to navigate to the settings
-    // window. we are working on a fix for this...
-
-    // Video settings no longer works in 10.7
-    // You'll need to compile with the 10.6 SDK for this
-    // For Xcode 4.4 and greater, see this forum post on instructions on installing the SDK
-    // http://forum.openframeworks.cc/index.php?topic=10343
-    // if(key == 's'){
-    //     camera.videoSettings();
-    // }
-
     if(key=='m'){
-    	projectionZoom +=0.001;
+    	scaleX +=0.001;
     }
 
     if(key=='n'){
-    	projectionZoom -=0.001;
+    	scaleX -=0.001;
     }
 
+    if(key=='l'){
+    	scaleY +=0.001;
+    }
+
+    if(key=='k'){
+    	scaleY -=0.001;
+    }
+
+
+
     if(key=='w'){
-    	projectionY -=1;
+    	// projectionY +=1;
+    	posY +=0.1;
     }
 
     if(key=='z'){
-    	projectionY +=1;
+    	// projectionY +=1;
+    	posY -=0.1;
     }
 
     if(key=='a'){
-    	projectionX -=1;
+    	// projectionX -=1;
+    	posX -=0.1;
     }
 
     if(key=='d'){
-    	projectionX +=1;
+    	// projectionX +=1;
+    	posX +=0.1;
+    }
+
+
+
+    if(key=='t'){
+    	// projectionRotation -=0.1;
+    	rotX -=0.1;
+    }
+
+    if(key=='y'){
+    	rotX +=0.1;
+    }
+
+    if(key=='u'){
+    	// projectionRotation -=0.1;
+    	rotY -=0.1;
+    }
+
+    if(key=='i'){
+    	rotY +=0.1;
     }
 
     if(key=='o'){
-    	projectionRotation -=0.1;
+    	// projectionRotation -=0.1;
+    	rotZ -=0.1;
     }
 
     if(key=='p'){
-    	projectionRotation +=0.1;
+    	rotZ +=0.1;
     }
 
-    ofLogNotice() << "{" <<projectionX << ", " << projectionY << ", "  << projectionZoom << ", "  << projectionRotation <<" deg}";
+    ofLogNotice() << "==========================";
+    ofLogNotice() << "{" <<posX << ", " << posY << ", "  << posZ << "}";
+    ofLogNotice() << "{" <<scaleX << ", " << scaleY << ", "  << scaleZ << "}";
+    ofLogNotice() << "{" <<rotX << ", " << rotY << ", "  << rotZ << "}";
 }
 
 //--------------------------------------------------------------
