@@ -225,11 +225,10 @@
     parseEndCode: function(runCode) {
       app.mainView.generalParser(runCode);
     },
-    parseJoystickCode: function(runCode) {
-      // Set 'angle' and 'intensity' 
-      var modifiedCode = runCode + "";
-
-      app.mainView.generalParser(runCode);
+    parseJoystickCode: function(runCode, angle, intensity) { 
+      var modifiedCode = runCode.split('angle').join(angle);
+      modifiedCode = modifiedCode.split('intensity').join('\'' + intensity + '\'');
+      app.mainView.generalParser(modifiedCode);
     },
     parseKeypressCode: function(runCode, key) {
       var modifiedCode = runCode.split('KEY.W').join('\'w\'');
@@ -239,7 +238,6 @@
       modifiedCode = modifiedCode.split('KEY.D').join('\'d\'');
       modifiedCode = modifiedCode.split('KEY.C').join('\'c\'');
       modifiedCode = modifiedCode.split('key').join('\'' + key + '\'');
-      console.log(modifiedCode);
       app.mainView.generalParser(modifiedCode);
     },
 

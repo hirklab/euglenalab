@@ -221,7 +221,7 @@ Canvas_Joystick.prototype.toggleJoystick=function(toggle) {
   }
 
   // Run user's joystick update code.
-  app.mainView.parseJoystickCode(app.mainView.gameJoystickCode);
+  app.mainView.parseJoystickCode(app.mainView.gameJoystickCode, this.degs_evt, this.inten_evt);
 };
 Canvas_Joystick.prototype.update=function(text) {
   this.updateDraw(text);
