@@ -39,6 +39,7 @@ class EuglenaProcessor : public Processor {
         virtual ~EuglenaProcessor();
         cv::Mat operator()(cv::Mat);
         char gameOverStr[80];
+        bool gameInSession;
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
@@ -47,12 +48,11 @@ class EuglenaProcessor : public Processor {
         double _boxX2;
         double _boxY1;
         double _boxY2;
-        bool _gameInSession;
         std::vector<cv::RotatedRect> _previousEuglenaPositions;
 };
 
 EuglenaProcessor::EuglenaProcessor() : _fgbg(0) {
-    _gameInSession = true;
+    gameInSession = true;
     _boxX1 = (double)(rand()%200 + 200.0);
     _boxY1 = (double)(rand()%200 + 200.0);
     _boxX2 = (double)(rand()%500 + 400.0);
@@ -94,7 +94,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     int currEuglenaInBox = 0;
     int totalDetectedEuglena = 0;
 
-    if (_gameInSession) {
+    if (gameInSession) {
         // Create goal box.
         if (rand()%100 < 1) {
             _boxX1 = (double)(rand()%500 + 20.0);
@@ -141,8 +141,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     }
 
     // Display game over if that's the case.
-    if (currEuglenaInBox >= 0.1*totalDetectedEuglena || _gameInSession == false) {
-        _gameInSession = false;
+    if (currEuglenaInBox >= 0.1*totalDetectedEuglena || gameInSession == false) {
+        gameInSession = false;
         cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
     }
 

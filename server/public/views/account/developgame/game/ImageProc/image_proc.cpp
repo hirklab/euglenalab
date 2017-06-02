@@ -69,8 +69,8 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
     if (dynamic_cast<EuglenaProcessor*>(processor.get()) != NULL) {
       memset(((EuglenaProcessor*)processor.get())->gameOverStr, 0, 80);
       std::strcpy(((EuglenaProcessor*)processor.get())->gameOverStr, var_dict.Get("gameEndMsg").AsString().c_str());
+      ((EuglenaProcessor*)processor.get())->gameInSession = var_dict.Get("gameInSession").AsBool();
     }
-
 
     // Convert data to CMat
     // SendStatus("Casting to byte array");
