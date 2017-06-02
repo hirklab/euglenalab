@@ -9,14 +9,17 @@
     var myVar = setInterval(app.mainView.runLoop, 1000);
 
     document.onkeypress = function (e) {
-        e = e || window.event;
-        var code;
-        if (!e) var e = window.event;
-        if (e.keyCode) code = e.keyCode;
-        else if (e.which) code = e.which;
-        var character = String.fromCharCode(code);
-        console.log('User pressed the following key: ' + character);
-        app.mainView.parseKeypressCode(app.mainView.gameKeypressCode);
+      if (!app.mainView.gameInSession) {
+        return;
+      }
+      e = e || window.event;
+      var code;
+      if (!e) var e = window.event;
+      if (e.keyCode) code = e.keyCode;
+      else if (e.which) code = e.which;
+      var character = String.fromCharCode(code);
+      console.log('User pressed the following key: ' + character);
+      app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
     var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
@@ -228,8 +231,16 @@
 
       app.mainView.generalParser(runCode);
     },
-    parseKeypressCode: function(runCode) {
-      app.mainView.generalParser(runCode);
+    parseKeypressCode: function(runCode, key) {
+      var modifiedCode = runCode.split('KEY.W').join('\'w\'');
+      modifiedCode = modifiedCode.split('KEY.SPACE').join('\' \'');
+      modifiedCode = modifiedCode.split('KEY.A').join('\'a\'');
+      modifiedCode = modifiedCode.split('KEY.S').join('\'s\'');
+      modifiedCode = modifiedCode.split('KEY.D').join('\'d\'');
+      modifiedCode = modifiedCode.split('KEY.C').join('\'c\'');
+      modifiedCode = modifiedCode.split('key').join('\'' + key + '\'');
+      console.log(modifiedCode);
+      app.mainView.generalParser(modifiedCode);
     },
 
     /*
