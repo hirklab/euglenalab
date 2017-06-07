@@ -1,4 +1,4 @@
-var Stylus = function (canvasDiv) {
+var Stylus = function(canvasDiv) {
     var me = this;
 
     //Class Variables
@@ -74,7 +74,7 @@ var Stylus = function (canvasDiv) {
 
     //Draw Updates
 
-    this.updateDraw = function (text) {
+    this.updateDraw = function(text) {
 
         //Clear Draw Context
         // context.clearRect(0, 0, me.canvas.width, me.canvas.height);
@@ -102,8 +102,8 @@ var Stylus = function (canvasDiv) {
         //Dynamic -
         if (me.x_evt && me.y_evt) {
             drawPoint(me.x_evt, me.y_evt);
-            drawStimulusText(me.stimulus_evt, me.x_evt, me.y_evt);
-            drawCenterMark();
+            // drawStimulusText(me.stimulus_evt, me.x_evt, me.y_evt);
+            // drawCenterMark();
         }
         // drawJoystickHead(me.x_evt, me.y_evt);
 
@@ -130,7 +130,7 @@ var Stylus = function (canvasDiv) {
     //   context.stroke();
     // };
 
-    var drawPoint = function (xPos, yPos) {
+    var drawPoint = function(xPos, yPos) {
         context.beginPath();
         context.fillStyle = "rgba(53, 103, 191, 1)";
         context.arc(xPos, yPos, me.maxradius, 0, me.TWO_PI, true);
@@ -144,7 +144,7 @@ var Stylus = function (canvasDiv) {
     };
 
     // //Static
-    var drawCenterMark = function () {
+    var drawCenterMark = function() {
         context.beginPath();
         context.strokeStyle = "rgba(255, 255, 255, 1)";
         context.lineWidth = 2;
@@ -175,7 +175,7 @@ var Stylus = function (canvasDiv) {
     //   }
     // };
     //Text
-    var drawStimulusText = function (stimulus, x, y) {
+    var drawStimulusText = function(stimulus, x, y) {
         context.beginPath();
         context.fillStyle = "rgba(255, 255, 255, 1.0)";
         context.font = me.textStimulus.size + 'px Arial';
@@ -207,7 +207,7 @@ var Stylus = function (canvasDiv) {
     //   context.fillText('Angle: ' + txt + '°', me.textAngle.x, me.textAngle.y);
     // };
 
-    var drawTitle = function () {
+    var drawTitle = function() {
         context.beginPath();
         context.fillStyle = "rgba(255, 255, 255, " + 1.0 + ")";
         context.font = me.textStimulus.size + 'px Arial';
@@ -221,14 +221,14 @@ var Stylus = function (canvasDiv) {
 
 Stylus.prototype = Object.create(Object.prototype);
 
-Stylus.prototype.reset = function (index) {
+Stylus.prototype.reset = function(index) {
     // this.setPositionFromLightValues(lightValues);
     this.drawTitle();
 };
 
-Stylus.prototype.resize = function (width, height) {
+Stylus.prototype.resize = function(width, height) {
     this.canvas.width = width;
-    this.canvas.height = width;
+    this.canvas.height = height;
 
     //Resize Joystick Parameters
     // this.maxJoyRadius = this.canvas.width * 0.300;
@@ -265,17 +265,17 @@ Stylus.prototype.resize = function (width, height) {
     this.titlePos.y = (this.canvas.height - 20);
 };
 
-Stylus.prototype.toggle = function (toggle) {
+Stylus.prototype.toggle = function(toggle) {
     if (this.canvas.className !== this.className + '-' + toggle) {
         this.canvas.className = this.className + '-' + toggle;
     }
 };
 
-Stylus.prototype.update = function (text) {
+Stylus.prototype.update = function(text) {
     this.updateDraw(text);
 };
 
-Stylus.prototype.getXY = function (values, from) {
+Stylus.prototype.getXY = function(values, from) {
 
     // var x = this.centerPoint.x;
     // if (lightValues.leftValue > 0) {
@@ -293,14 +293,18 @@ Stylus.prototype.getXY = function (values, from) {
 
     return {
         x: Math.round(values.offsetX),
-        y: Math.round(values.offsetY)
+        y: Math.round(values.offsetY),
+        color: 0,
+        clear: 0
     };
 };
 
-Stylus.prototype.setXY = function (projectorSetObj, from) {
+Stylus.prototype.setXY = function(projectorSetObj, from) {
     //Convert Event Vector to Joystick Center
-    this.dx_evt = projectorSetObj.metaData.offsetX;// - this.centerPoint.x;
-    this.dy_evt = projectorSetObj.metaData.offsetY;// - this.centerPoint.y;
+    this.dx_evt = projectorSetObj.metaData.offsetX; // - this.centerPoint.x;
+    this.dy_evt = projectorSetObj.metaData.offsetY; // - this.centerPoint.y;
+    this.dcolor_evt = projectorSetObj.metaData.color; // - this.centerPoint.y;
+    this.dclear_evt = projectorSetObj.metaData.clear; // - this.centerPoint.y;
 
     //Get parameters
     // this.mag_evt = Math.sqrt((this.dx_evt * this.dx_evt) + (this.dy_evt * this.dy_evt));
@@ -346,8 +350,8 @@ Stylus.prototype.setXY = function (projectorSetObj, from) {
     //   ledsSetObj.rightValue = Math.round(Math.abs(this.cos_evt * this.inten_evt) * 100);
     // }
 
-    projectorSetObj.projectorX=this.x_evt;
-    projectorSetObj.projectorY=this.y_evt;
+    projectorSetObj.projectorX = this.x_evt;
+    projectorSetObj.projectorY = this.y_evt;
 
     //Add info to ledsSetObj
     projectorSetObj.metaData.mag = this.stimulus_evt;
@@ -355,6 +359,8 @@ Stylus.prototype.setXY = function (projectorSetObj, from) {
     // ledsSetObj.metaData.rads = this.rads_evt;
     projectorSetObj.metaData.x = this.x_evt;
     projectorSetObj.metaData.y = this.y_evt;
+    projectorSetObj.metaData.color = this.dcolor_evt;
+    projectorSetObj.metaData.clear = this.dclear_evt;
 
     return projectorSetObj;
 };

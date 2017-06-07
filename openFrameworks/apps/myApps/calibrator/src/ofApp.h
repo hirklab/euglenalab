@@ -30,6 +30,8 @@ class ofApp : public ofBaseApp{
         void draw();
 
         void drawProjection();
+        void drawPoint(int x, int y);
+        void drawLine();
 
         void keyPressed(int key);
         void keyReleased(int key);
@@ -101,6 +103,7 @@ class ofApp : public ofBaseApp{
         float rotZ;
 
         ofPath path;
+        ofMesh mesh;
 
         ofxTCPServer TCP;
         ofxJSONElement response;

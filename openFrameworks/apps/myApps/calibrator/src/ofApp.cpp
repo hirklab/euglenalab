@@ -20,17 +20,17 @@ void ofApp::setup(){
     // rotZ=2.9;
 
 	// 4x magnification for camera lens
-    posX=260.3;
-    posY=390.5;
+    posX=241.09;
+    posY=479.405;
     posZ=0;
 
-    scaleX=0.138;
-    scaleY=0.192;
+    scaleX=0.149;
+    scaleY=0.176;
     scaleZ=1.0;
 
-    rotX=-5.9;
-    rotY=-0.299;
-    rotZ=1.5;
+    rotX=203.303;
+    rotY=-0.501;
+    rotZ=-1.4;
 
     ofSetFullscreen(true);
     ofSetVerticalSync(true);
@@ -98,6 +98,9 @@ void ofApp::setup(){
 	ofLogNotice() << "Local coordinates " + ofToString(point) + "\nScreen coordinates " + ofToString(pointInScreen);
 
     // fbo.allocate(ofGetWidth(), ofGetHeight(), OF_PIXELS_RGB);
+    // 
+    mesh.setMode(OF_PRIMITIVE_POINTS);
+    mesh.enableColors();
 }
 
 
@@ -224,7 +227,7 @@ void ofApp::draw(){
 		}while(tmp!="");
 
 		// if there was a message set it to the corresponding client
-		if(str.length() > 0){
+		if(str.length() > 1){
 			storeText[i] = str;
 		}
 
@@ -232,17 +235,33 @@ void ofApp::draw(){
 		// ofDrawBitmapString(info, xPos, yPos);
 		// ofDrawBitmapString(storeText[i], 25, yPos + 20);
 		// 
+		// 
+		
+		ofLogNotice() << storeText[i];
 		
 		bool parsingSuccessful = response.parse(storeText[i]);
 
 		if (parsingSuccessful)
 		{
-			ofLogNotice() << response.getRawString();
+			// ofLogNotice() << response.getRawString();
+			int x = (int)(response["x"].asDouble());
+			int y = (int)(response["y"].asDouble());
+			int clear = (int)(response["clear"].asDouble());
+
+			if(x>=0 && y >= 0){
+				ofPoint pt;
+    			pt.set(x,y);
+    			mesh.addVertex(pt);
+    			mesh.addColor(ofFloatColor(0.0, 0.0, 1.0)); // Blue
+    		}
+
+    		if(clear>0){
+    			mesh.clear();
+    		}
 		}
-
-		
-
 	}
+
+	drawLine();
 }
 
 void ofApp::drawProjection(){
@@ -258,12 +277,55 @@ void ofApp::drawProjection(){
 
 	// ofFill(); 
 	ofNoFill();  
-	ofSetColor(ofColor(0,0,255), 100);
+	ofSetColor(ofColor(255,255,255), 100);
     ofDrawRectangle(0, 0, 640, 480);
 
     // path.setFillColor(ofColor::red);
 	// path.rectangle(0, 0, 640, 480);
 	// path.rectangle(20, 20, 620, 460);
+
+    glPopMatrix();
+}
+
+void ofApp::drawPoint(int x,int y){
+	glPushMatrix();
+
+	// ofMultMatrix(homography);
+
+	glTranslatef(posX,posY,posZ);
+	glRotatef(rotX,1,0,0);
+	glRotatef(rotY,0,1,0);
+	glRotatef(rotZ,0,0,1);
+	glScalef(scaleX, scaleY, scaleZ);
+
+	// ofFill(); 
+	ofNoFill();  
+	ofSetColor(ofColor(0,0,255), 100);
+    ofDrawRectangle(x, y, 1, 1);
+
+    // path.setFillColor(ofColor::red);
+	// path.rectangle(0, 0, 640, 480);
+	// path.rectangle(20, 20, 620, 460);
+
+    glPopMatrix();
+}
+
+void ofApp::drawLine(){
+	glPushMatrix();
+
+	// ofMultMatrix(homography);
+
+	glTranslatef(posX,posY,posZ);
+	glRotatef(rotX,1,0,0);
+	glRotatef(rotY,0,1,0);
+	glRotatef(rotZ,0,0,1);
+	glScalef(scaleX, scaleY, scaleZ);
+
+	// ofFill(); 
+	ofNoFill();  
+	// ofSetColor(ofColor(0,0,255), 100);
+
+    mesh.draw();
 
     glPopMatrix();
 }

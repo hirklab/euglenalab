@@ -1,7 +1,7 @@
 var _app = null;
 var _fs = null;
 var _exec = null;
-exports = module.exports = function (app, deps, options, mainCallback) {
+exports = module.exports = function(app, deps, options, mainCallback) {
     var moduleName = 'resetBpu.js';
 
     //Assert Deps
@@ -27,31 +27,31 @@ exports = module.exports = function (app, deps, options, mainCallback) {
         var o_doFlushFlag = options.doFlushFlag || false;
         var o_flushTime = options.flushTime || 20 * 1000;
 
-        var finishInit = function () {
+        var finishInit = function() {
             //Series Vars
             var outcome = {};
             var num = 0;
 
             //Series Funcs
 
-            var checkDataFolders = function (callback) {
+            var checkDataFolders = function(callback) {
                 num++;
                 var options = {
                     fName: moduleName + ' ' + num + '. checkDataFolders',
                     timeoutInterval: 5000
                 };
-                var action = function (cb_fn) {
+                var action = function(cb_fn) {
                     var fldsToCheck = [
                         app.mainDataDir,
                         app.expDataDir,
                         app.mountedDataDir,
                     ];
-                    _checkFolders(fldsToCheck, function (err) {
+                    _checkFolders(fldsToCheck, function(err) {
                         cb_fn(err);
                     });
                 };
                 app.logger.trace(options.fName + ' start');
-                app.myFunctions.asyncFunctionTemplate(options, action, function (err) {
+                app.myFunctions.asyncFunctionTemplate(options, action, function(err) {
                     app.logger.trace(options.fName + ' end');
                     if (err) {
                         return callback(options.fName + ' ' + err);
@@ -61,19 +61,19 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                 });
             };
 
-            var clearTempFolder = function (callback) {
+            var clearTempFolder = function(callback) {
                 num++;
                 var options = {
                     fName: moduleName + ' ' + num + '. clearTempFolder',
                     timeoutInterval: 5000
                 };
-                var action = function (cb_fn) {
-                    _clearTempFolder(app.expDataDir, function (err) {
+                var action = function(cb_fn) {
+                    _clearTempFolder(app.expDataDir, function(err) {
                         cb_fn(err);
                     });
                 };
                 app.logger.trace(options.fName + ' start');
-                app.myFunctions.asyncFunctionTemplate(options, action, function (err) {
+                app.myFunctions.asyncFunctionTemplate(options, action, function(err) {
                     app.logger.trace(options.fName + ' end');
                     if (err) {
                         return callback(options.fName + ' ' + err);
@@ -83,13 +83,13 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                 });
             };
 
-            var resetBpuData = function (callback) {
+            var resetBpuData = function(callback) {
                 num++;
                 var options = {
                     fName: moduleName + ' ' + num + '. resetBpuData',
                     timeoutInterval: 5000
                 };
-                var action = function (cb_fn) {
+                var action = function(cb_fn) {
                     //Other
                     app.bpu.startTime = null;
                     app.exp = null;
@@ -101,7 +101,7 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                     cb_fn(null);
                 };
                 app.logger.trace(options.fName + ' start');
-                app.myFunctions.asyncFunctionTemplate(options, action, function (err) {
+                app.myFunctions.asyncFunctionTemplate(options, action, function(err) {
                     app.logger.trace(options.fName + ' end');
                     if (err) {
                         return callback(options.fName + ' ' + err);
@@ -111,19 +111,19 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                 });
             };
 
-            var checkFlush = function (callback) {
+            var checkFlush = function(callback) {
                 num++;
                 var options = {
                     fName: moduleName + ' ' + num + '. checkFlush',
                     timeoutInterval: 5000
                 };
                 if (o_doFlushFlag) options.timeoutInterval = 2 * o_flushTime;
-                var action = function (cb_fn) {
+                var action = function(cb_fn) {
                     //Check Flush
                     if (o_doFlushFlag) {
                         app.bpu.startFlush({
                             flushTime: o_flushTime
-                        }, function () {
+                        }, function() {
                             cb_fn(null);
                         });
                     } else {
@@ -131,7 +131,7 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                     }
                 };
                 app.logger.trace(options.fName + ' start');
-                app.myFunctions.asyncFunctionTemplate(options, action, function (err) {
+                app.myFunctions.asyncFunctionTemplate(options, action, function(err) {
                     app.logger.trace(options.fName + ' end');
                     if (err) {
                         return callback(options.fName + ' ' + err);
@@ -151,7 +151,7 @@ exports = module.exports = function (app, deps, options, mainCallback) {
             //Start Series
             var startDate = new Date();
             app.logger.info(moduleName + ' start');
-            app.async.series(funcs, function (err) {
+            app.async.series(funcs, function(err) {
                 app.logger.info(moduleName + ' end in ' + (new Date() - startDate) + ' ms');
                 if (err) {
                     app.bpuStatus = app.bpuStatusTypes.resetingFailed;
@@ -185,32 +185,36 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                     Left: 8
                 },
             };
-            app.bpu.ledControl.init(app.bpu.ledControlOptions, function (err) {
+            app.bpu.ledControl.init(app.bpu.ledControlOptions, function(err) {
                 if (err) {
                     mainCallback(app.bpu.ledControl.init + ' ' + err);
                 } else {
 
                     //Bpu Function Wrappers
-                    app.bpu.ledsSet = function (lightValues, doReset) {
-                        if (doReset) lightValues = {
-                            topValue: 0,
-                            rightValue: 0,
-                            bottomValue: 0,
-                            leftValue: 0,
-                            diffuserValue: 0,
-                            backlightValue: 0,
-                            culturelightValue: 0,
-                            ambientlightValue: 0,
-                            projectorX: -1,
-                            projectorY: -1
-                        };
+                    app.bpu.ledsSet = function(lightValues, doReset) {
+                        if (doReset) {
+                            lightValues = {
+                                topValue: 0,
+                                rightValue: 0,
+                                bottomValue: 0,
+                                leftValue: 0,
+                                diffuserValue: 0,
+                                backlightValue: 0,
+                                culturelightValue: 0,
+                                ambientlightValue: 0,
+                                projectorX: -1,
+                                projectorY: -1,
+                                projectorColor: -1,
+                                projectorClear: 1,
+                            };
+                        }
 
                         app.bpu.ledControl.board.ledsSet(lightValues.topValue, lightValues.rightValue, lightValues.bottomValue, lightValues.leftValue);
                         app.bpu.ledControl.board.diffuserSet(lightValues.diffuserValue);
                         app.bpu.ledControl.board.backlightSet(lightValues.backlightValue);
                         app.bpu.ledControl.board.culturelightSet(lightValues.culturelightValue);
                         app.bpu.ledControl.board.ambientlightSet(lightValues.ambientlightValue);
-                        app.bpu.ledControl.board.projectorSet(app.projector, lightValues.projectorX, lightValues.projectorY);
+                        app.bpu.ledControl.board.projectorSet(app.projector, lightValues.projectorX, lightValues.projectorY, lightValues.projectorColor, lightValues.projectorClear);
 
                         lightValues.time = new Date().getTime();
                         return lightValues;
@@ -222,7 +226,7 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                     //Flush Thingy
                     var _doFlushFlag = false;
                     var startFlushDate = new Date();
-                    app.bpu.startFlush = function (data, flushCallback) {
+                    app.bpu.startFlush = function(data, flushCallback) {
                         if (!app.isFlushing) {
                             startFlushDate = new Date();
                             var flushTime = 5 * 1000;
@@ -233,7 +237,7 @@ exports = module.exports = function (app, deps, options, mainCallback) {
                             app.logger.info('bpu.startFlush flush for ' + flushTime + ' ms.');
                             var startDate = new Date();
                             app.bpu.ledControl.board.valveOpen();
-                            setTimeout(function () {
+                            setTimeout(function() {
                                 app.bpu.ledControl.board.valveClose();
                                 app.logger.info('bpu.startFlush flush done in ' + (new Date() - startDate));
                                 app.isFlushing = false;
@@ -254,11 +258,11 @@ exports = module.exports = function (app, deps, options, mainCallback) {
 };
 
 //Main Functions
-_checkFolders = function (fldsToCheck, callback) {
-    var checkFolders = function () {
+_checkFolders = function(fldsToCheck, callback) {
+    var checkFolders = function() {
         if (fldsToCheck.length > 0) {
             var fld = fldsToCheck.shift();
-            _fs.stat(fld, function (err, dat) {
+            _fs.stat(fld, function(err, dat) {
                 if (err) {
                     callback(err);
                 } else {
@@ -275,17 +279,17 @@ _checkFolders = function (fldsToCheck, callback) {
     };
     checkFolders();
 };
-_clearTempFolder = function (tempDataDir, callback) {
+_clearTempFolder = function(tempDataDir, callback) {
     var cmdStr = 'rm ' + tempDataDir + '/*.jpg' + ' && ' + 'rm ' + tempDataDir + '/*.json';
-    runBashCommand(cmdStr, function (err, stdout) {
+    runBashCommand(cmdStr, function(err, stdout) {
         if (err) _app.logger.warn('(usually okay folder may be empty is all)clearTempFolder ' + err);
         callback(null);
     });
 };
 
 //Other Functions
-var runBashCommand = function (cmdStr, callback) {
-    var child = _exec(cmdStr, function (error, stdout, stderr) {
+var runBashCommand = function(cmdStr, callback) {
+    var child = _exec(cmdStr, function(error, stdout, stderr) {
         if (error !== null) {
             callback('error: ' + stderr, stdout);
         } else if (stderr) {

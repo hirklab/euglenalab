@@ -50,13 +50,19 @@ block neck
     }
 
     .stylus-container{
-      position: relative;
+      position: absolute;
       width: 100%;
-      max-width: 360px;
-      max-height:360px;
-      height: 0;
-      display: table;
+      top:20px;
+      left:20px;
+      //- max-width: 360px;
+      //- max-height:360px;
+      //- height: 0;
+      //- display: table;
       overflow:hidden;
+      top: 20px;
+      left: 20px;
+      z-index: 999;
+      //- max-height:480px;
     }
 
     #stylus {
@@ -64,11 +70,11 @@ block neck
     }
 
     .canvas-stylus-off {
-      background-color:#A0A0A0;
+      background-color:#A0A0A044;
     }
 
     .canvas-stylus-on {
-      background-color:#66b2ff;
+      background-color:#66b2ff44;
     }
     
     *.unselectable {
@@ -257,6 +263,8 @@ block body
           span #{data.lightData.leftValue}
         div.video-container.unselectable
           img.video.unselectable(src='#{data.mainImageIP}')
+          div.stylus-container.unselectable
+            div#stylus.unselectable(name='stylus')
           div.scale-section.unselectable
             div.scale.unselectable(name='myScale')
             span.scale-text.unselectable 100 &mu;m
@@ -270,8 +278,6 @@ block body
     div.col-xs-4.aside.unselectable
       div.joystick-container
         div#joystick(name='myJoystick')
-      div.stylus-container
-        div#stylus(name='stylus')
       img#camera.unselectable(name='myImage2', src='#{data.sideImageIP}')
 
   div.modal.fade(role="dialog")
