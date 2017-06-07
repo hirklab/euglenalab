@@ -289,8 +289,8 @@
             projectorSetObj.metaData.offsetX = point.x;
             projectorSetObj.metaData.offsetY = point.y;
             projectorSetObj.metaData.evtType = evtType;
-            projectorSetObj.metaData.color = 0;
-            projectorSetObj.metaData.clear = 0;
+            projectorSetObj.metaData.color = point.color;
+            projectorSetObj.metaData.clear = point.clear;
             projectorSetObj.metaData.touchState = app.mainView.stylusInstance.touchState;
             projectorSetObj.metaData.previousTouchState = previousTouchState;
 

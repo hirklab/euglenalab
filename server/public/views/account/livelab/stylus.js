@@ -294,8 +294,8 @@ Stylus.prototype.getXY = function(values, from) {
     return {
         x: Math.round(values.offsetX),
         y: Math.round(values.offsetY),
-        color: 0,
-        clear: 0
+        color: Math.round(values.color),
+        clear: Math.round(values.clear)
     };
 };
 
