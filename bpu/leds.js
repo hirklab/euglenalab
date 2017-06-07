@@ -74,7 +74,7 @@ var _init = function(options, callback) {
             console.log('projector = {' + x + ', ' + y + '}');
 
             if (x >= 0 && y >= 0) {
-                projector.write('{"x": ' + x + ', "y": ' + y + '}\n');
+                projector.write('{\"x\": ' + x + ', \"y\": ' + y + '}\n');
             }
 
         }
