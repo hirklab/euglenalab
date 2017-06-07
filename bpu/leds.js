@@ -71,11 +71,11 @@ var _init = function(options, callback) {
 
     board.projectorSet = function(projector, x, y, color, clear) {
         if (x && y) {
-            console.log('projector = {' + x + ', ' + y + '}');
+            console.log('projector = {' + x + ', ' + y + ', ' + color + ', ' + clear + '}');
 
-            if (x >= 0 && y >= 0) {
-                projector.write('{\"x\": ' + x + ', \"y\": ' + y + ', \"color\": ' + color + ', \"clear\": ' + clear + '}\n');
-            }
+            // if (x >= 0 && y >= 0) {
+            projector.write('{\"x\": ' + x + ', \"y\": ' + y + ', \"color\": ' + color + ', \"clear\": ' + clear + '}\n');
+            // }
 
         }
     };
