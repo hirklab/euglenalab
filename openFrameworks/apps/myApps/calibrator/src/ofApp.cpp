@@ -20,12 +20,12 @@ void ofApp::setup(){
     // rotZ=2.9;
 
 	// 4x magnification for camera lens
-    posX=261;
-    posY=383;
+    posX=260.3;
+    posY=390.5;
     posZ=0;
 
-    scaleX=0.15;
-    scaleY=2.08;
+    scaleX=0.138;
+    scaleY=0.192;
     scaleZ=1.0;
 
     rotX=-5.9;
@@ -232,7 +232,15 @@ void ofApp::draw(){
 		// ofDrawBitmapString(info, xPos, yPos);
 		// ofDrawBitmapString(storeText[i], 25, yPos + 20);
 		// 
-		ofLogNotice() << storeText[i];
+		
+		bool parsingSuccessful = response.parse(storeText[i]);
+
+		if (parsingSuccessful)
+		{
+			ofLogNotice() << response.getRawString();
+		}
+
+		
 
 	}
 }

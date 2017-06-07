@@ -4,6 +4,7 @@
 #include "ofxCv.h"
 #include "ofxNetwork.h"
 #include "ofxHomography.h"
+#include "ofxJSON.h"
 
 #define DISPLAY_WIDTH 640
 #define DISPLAY_HEIGHT 480
@@ -102,6 +103,7 @@ class ofApp : public ofBaseApp{
         ofPath path;
 
         ofxTCPServer TCP;
+        ofxJSONElement response;
 
         // ofTrueTypeFont  mono;
         // ofTrueTypeFont  monosm;
