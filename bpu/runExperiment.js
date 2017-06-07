@@ -1,7 +1,7 @@
 var _exec = null;
 var _ToggleCameraOn = 'start';
 var _ToggleCameraOff = 'stop';
-exports = module.exports = function (app, deps, options, exp, mainCallback) {
+exports = module.exports = function(app, deps, options, exp, mainCallback) {
     var moduleName = 'runExperiment.js';
 
     //Assert Deps
@@ -30,12 +30,12 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
         var outcome = {};
         var num = 0;
         //Series Funcs
-        var checkExp = function (callback) {
+        var checkExp = function(callback) {
             num++;
             var fName = num + ' checkExp';
             app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
 
-            app.exp.exp_eventsToRun.sort(function (objA, objB) {
+            app.exp.exp_eventsToRun.sort(function(objA, objB) {
                 return objA.time - objB.time;
             });
             app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.group_experimentType:' + app.exp.group_experimentType);
@@ -50,37 +50,38 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
                 return callback(null);
             }
         };
-        var experimentLoop = function (callback) {
+        var experimentLoop = function(callback) {
             num++;
             var fName = num + ' experimentLoop';
             app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
 
             //Start Web Cam and Run Light Events
-            toggleWebCamSave(_ToggleCameraOn, function (err) {
+            toggleWebCamSave(_ToggleCameraOn, function(err) {
                 if (err) {
                     err = fName + ' ' + _ToggleCameraOn + ' ' + err;
                     app.logger.error(err);
                     return callback(err);
                 } else {
-                    initializeProjector(function(err, projector){
-                       if(err){
-
-                       }else{
-                           app.projector = projector;
-                       }
+                    initializeProjector(function(err, projector) {
+                        if (err) {
+                            console.log("==== projector failed ====");
+                            console.log(err);
+                        } else {
+                            app.projector = projector;
+                        }
                     });
 
                     //Small Wait for camera lead in
-                    setTimeout(function () {
+                    setTimeout(function() {
                         //Run Experiment
                         app.exp.exp_runStartTime = new Date().getTime();
-                        app.exp.exp_eventsToRunFinal.sort(function (objA, objB) {
+                        app.exp.exp_eventsToRunFinal.sort(function(objA, objB) {
                             return objA.time - objB.time;
                         });
                         app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsToRunFinal:' + app.exp.exp_eventsToRunFinal.length);
                         app.logger.trace(moduleName + ' ' + fName + ' ' + 'final events runTime:' + (app.exp.exp_eventsToRunFinal[app.exp.exp_eventsToRunFinal.length - 1].askTime));
                         var evtCounter = 0;
-                        var runInt = setInterval(function () {
+                        var runInt = setInterval(function() {
                             var timeNow = new Date().getTime();
                             var dtStart = timeNow - app.exp.exp_runStartTime;
                             var doReset = false;
@@ -88,7 +89,7 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
                                 var evt = app.exp.exp_eventsToRunFinal.shift();
                                 evt.setTime = dtStart;
                                 evtCounter++;
-                                var msg = evt.setTime + ":" + evt.topValue + ", " + evt.rightValue + ", " + evt.bottomValue + ", " + evt.leftValue + ", " + evt.diffuserValue + ", " + evt.backlightValue + ", " + evt.culturelightValue + ", " + evt.ambientlightValue + ", " + evt.projectorX+ ", " + evt.projectorY;
+                                var msg = evt.setTime + ":" + evt.topValue + ", " + evt.rightValue + ", " + evt.bottomValue + ", " + evt.leftValue + ", " + evt.diffuserValue + ", " + evt.backlightValue + ", " + evt.culturelightValue + ", " + evt.ambientlightValue + ", " + evt.projectorX + ", " + evt.projectorY;
                                 app.logger.info('in:::' + fName + ' ' + evtCounter + '(' + msg + ')');
 
                                 var ranEvent = app.bpu.ledsSet(evt, doReset);
@@ -97,13 +98,13 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
                                 if (app.exp.exp_eventsToRunFinal.length === 0) {
                                     clearInterval(runInt);
                                     //Stop Camera
-                                    toggleWebCamSave(_ToggleCameraOff, function (err) {
+                                    toggleWebCamSave(_ToggleCameraOff, function(err) {
                                         if (err) {
                                             err = fName + ' ' + _ToggleCameraOff + ' ' + err;
                                             app.logger.error(err);
                                         }
                                         app.exp.exp_runEndTime = timeNow;
-                                        app.exp.exp_eventsRan.sort(function (objA, objB) {
+                                        app.exp.exp_eventsRan.sort(function(objA, objB) {
                                             return objA.time - objB.time;
                                         });
 
@@ -120,7 +121,7 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
             });
         };
 
-        var finalizeData = function (callback) {
+        var finalizeData = function(callback) {
 
             app.bpuStatus = app.bpuStatusTypes.finalizing;
             num++;
@@ -133,16 +134,16 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
             app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_metaData:' + app.exp.exp_metaData);
 
             app.exp.exp_metaData.numFrames = -1;
-            deps.fs.readdir(app.expDataDir, function (err, files) {
+            deps.fs.readdir(app.expDataDir, function(err, files) {
                 if (err) {
                     app.exp.exp_metaData.numFrames = -1;
                 } else {
-                    var jpgs = files.filter(function (filename) {
+                    var jpgs = files.filter(function(filename) {
                         return filename.search('.jpg') > -1;
                     });
                     app.exp.exp_metaData.numFrames = jpgs.length;
                 }
-                app.db.BpuExperiment.save(app.exp, function (err) {
+                app.db.BpuExperiment.save(app.exp, function(err) {
                     if (err) {
                         return callback('script_fakeMongo ' + err);
                     } else {
@@ -152,7 +153,7 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
             });
 
         };
-        var movePackageToMountedDrive = function (callback) {
+        var movePackageToMountedDrive = function(callback) {
             num++;
             var fName = num + ' movePackageToMountedDrive';
             app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
@@ -169,7 +170,7 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
             //Final and Run
             //var cmdStr=mkdirCmd+' && '+changeOwnershipCmd+' && '+moveCmd+ ' && '+rmTempFiles;
             var cmdStr = mkdirCmd + ' && ' + moveCmd + ' && ' + rmTempFiles;
-            runBashCommand(cmdStr, function (err) {
+            runBashCommand(cmdStr, function(err) {
                 if (err) {
                     app.bpuStatus = app.bpuStatusTypes.finalizingFailed;
                     app.bpuStatusError = fName + ' ' + err;
@@ -191,7 +192,7 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
         //Start Series
         var startDate = new Date();
         app.logger.info(moduleName + ' start');
-        app.async.series(funcs, function (err) {
+        app.async.series(funcs, function(err) {
             app.logger.info(moduleName + ' end in ' + (new Date() - startDate) + ' ms');
             if (err) {
                 mainCallback(err);
@@ -202,8 +203,8 @@ exports = module.exports = function (app, deps, options, exp, mainCallback) {
     }
 };
 //General Functions
-var runBashCommand = function (cmdStr, callback) {
-    var child = _exec(cmdStr, function (error, stdout, stderr) {
+var runBashCommand = function(cmdStr, callback) {
+    var child = _exec(cmdStr, function(error, stdout, stderr) {
         if (error !== null) {
             callback('error: ' + stderr, stdout);
         } else if (stderr) {
@@ -216,15 +217,15 @@ var runBashCommand = function (cmdStr, callback) {
     });
 };
 //Camera functions
-var toggleWebCamSave = function (startStop, cb_fn) {
+var toggleWebCamSave = function(startStop, cb_fn) {
     if (startStop === 'stop' || startStop === 'start') {
         var net = require('net');
         var client = new net.Socket();
-        client.connect(32000, 'localhost', function () {
+        client.connect(32000, 'localhost', function() {
             client.write(startStop);
             cb_fn(null);
         });
-        client.on('error', function (err) {
+        client.on('error', function(err) {
             cb_fn(err);
         });
     } else {
@@ -232,20 +233,20 @@ var toggleWebCamSave = function (startStop, cb_fn) {
     }
 };
 
-var initializeProjector = function(cb_fn){
+var initializeProjector = function(cb_fn) {
     var net = require('net');
     var client = new net.Socket();
-    client.connect(32001, 'localhost', function () {
+    client.connect(32001, 'localhost', function() {
         cb_fn(null, client);
     });
-    client.on('error', function (err) {
+    client.on('error', function(err) {
 
     });
 };
 
 //Side Func - Part of Socket*****Add Exp
 var EventKeys = ['topValue', 'rightValue', 'bottomValue', 'leftValue', 'diffuserValue', 'backlightValue', 'culturelightValue', 'ambientlightValue', 'projectorX', 'projectorY'];
-var checkEventValues = function (evt) {
+var checkEventValues = function(evt) {
     var returnEvent = {
         time: evt.time,
         topValue: 0,
@@ -259,7 +260,7 @@ var checkEventValues = function (evt) {
         projectorX: -1,
         projectorY: -1
     };
-    EventKeys.forEach(function (key) {
+    EventKeys.forEach(function(key) {
         var value = evt[key];
         if (value === null || value === undefined || isNaN(Number(value))) {
             returnEvent[key] = 0;
@@ -273,7 +274,7 @@ var checkEventValues = function (evt) {
     });
     return returnEvent;
 };
-var _checkEventsArray = function (eventsToRun) {
+var _checkEventsArray = function(eventsToRun) {
     var MaxExperimentTime = 5 * 60 * 1000; //5 minutes
     var MinTimeBetweenEvents = 10; //ms
 
@@ -291,7 +292,7 @@ var _checkEventsArray = function (eventsToRun) {
         var keeperEvents = [];
         try {
             //Check Each Event
-            org_eventsToRun.forEach(function (evt) {
+            org_eventsToRun.forEach(function(evt) {
                 if (evt.time !== null && evt.time !== undefined && !isNaN(Number(evt.time)) && evt.time >= 0) {
                     var retEvt = checkEventValues(evt);
                     if (retEvt !== null) {
@@ -302,17 +303,17 @@ var _checkEventsArray = function (eventsToRun) {
             //Recheck Events for at least 2 or more
             if (keeperEvents.length >= 2) {
                 //Make Times Relative
-                keeperEvents.sort(function (objA, objB) {
+                keeperEvents.sort(function(objA, objB) {
                     return objA.time - objB.time;
                 });
                 var zeroTime = keeperEvents[0].time;
-                keeperEvents.forEach(function (evt) {
+                keeperEvents.forEach(function(evt) {
                     evt.askTime = evt.time - zeroTime;
                     evt.setTime = -1;
                 });
                 //Strip over max time and events too close to eachother
                 var lastTime = -1000;
-                keeperEvents.forEach(function (evt) {
+                keeperEvents.forEach(function(evt) {
                     //Max Time Keep
                     if (evt.askTime <= MaxExperimentTime) {
                         //between interval
@@ -339,7 +340,7 @@ var _checkEventsArray = function (eventsToRun) {
         eventsToRun: final_eventsToRun
     };
 };
-var setNewExperiment = function (newExp, callback) {
+var setNewExperiment = function(newExp, callback) {
     var savePath = mongoose.getSavePath();
     var saveName = newExp._id + "_" + newExp.user.name + ".json";
     savePath = savePath + "/" + saveName;
@@ -358,9 +359,9 @@ var setNewExperiment = function (newExp, callback) {
         doFakeBpu: app.config.doFakeBpu,
         doCamera: app.config.doCamera,
     };
-    var setGroupFlags = function (cb_fn) {
+    var setGroupFlags = function(cb_fn) {
         var compiledSettings = {};
-        Object.keys(newExp.groupSettings).forEach(function (key) {
+        Object.keys(newExp.groupSettings).forEach(function(key) {
             if (key.search('_') === -1) {
                 compiledSettings[key] = false;
             }
@@ -368,8 +369,8 @@ var setNewExperiment = function (newExp, callback) {
         //Filter Groups by bpu
         var tempGroups = JSON.parse(JSON.stringify(newExp.usergroups));
         var groups = [];
-        tempGroups.forEach(function (tg) {
-            app.bpuConfig.allowedGroups.forEach(function (ag) {
+        tempGroups.forEach(function(tg) {
+            app.bpuConfig.allowedGroups.forEach(function(ag) {
                 if (tg === ag) {
                     groups.push(tg);
                 }
@@ -377,16 +378,16 @@ var setNewExperiment = function (newExp, callback) {
         });
         //Set Group permissions
         var didFindOneGroup = false;
-        var findNext = function () {
+        var findNext = function() {
             if (groups.length > 0) {
                 var grp = groups.shift();
                 app.db.models.Group.findOne({
                     name: grp
-                }, {}, function (err, data) {
+                }, {}, function(err, data) {
                     if (data && data.settings) {
                         didFindOneGroup = true;
                         keys = Object.keys(data.settings);
-                        keys.forEach(function (key) {
+                        keys.forEach(function(key) {
                             if (!compiledSettings[key] && data.settings[key]) {
                                 compiledSettings[key] = data.settings[key];
                             }
@@ -409,11 +410,11 @@ var setNewExperiment = function (newExp, callback) {
             cb_fn('no groups');
         }
     };
-    setGroupFlags(function (err) {
+    setGroupFlags(function(err) {
         if (err) {
             callback(err, null);
         } else {
-            app.db.models.BpuExperiment.save(newExp, function (err, dat) {
+            app.db.models.BpuExperiment.save(newExp, function(err, dat) {
                 if (err) {
                     callback('setNewExperiment asyncFinally could not save err:' + err, null);
                 }
