@@ -89,7 +89,7 @@ exports = module.exports = function(app, deps, options, exp, mainCallback) {
                                 var evt = app.exp.exp_eventsToRunFinal.shift();
                                 evt.setTime = dtStart;
                                 evtCounter++;
-                                var msg = evt.setTime + ":" + evt.topValue + ", " + evt.rightValue + ", " + evt.bottomValue + ", " + evt.leftValue + ", " + evt.diffuserValue + ", " + evt.backlightValue + ", " + evt.culturelightValue + ", " + evt.ambientlightValue + ", " + evt.projectorX + ", " + evt.projectorY;
+                                var msg = evt.setTime + ":" + evt.topValue + ", " + evt.rightValue + ", " + evt.bottomValue + ", " + evt.leftValue + ", " + evt.diffuserValue + ", " + evt.backlightValue + ", " + evt.culturelightValue + ", " + evt.ambientlightValue + ", " + evt.projectorX + ", " + evt.projectorY + ", " + evt.projectorColor + ", " + evt.projectorClear;
                                 app.logger.info('in:::' + fName + ' ' + evtCounter + '(' + msg + ')');
 
                                 var ranEvent = app.bpu.ledsSet(evt, doReset);
@@ -245,7 +245,7 @@ var initializeProjector = function(cb_fn) {
 };
 
 //Side Func - Part of Socket*****Add Exp
-var EventKeys = ['topValue', 'rightValue', 'bottomValue', 'leftValue', 'diffuserValue', 'backlightValue', 'culturelightValue', 'ambientlightValue', 'projectorX', 'projectorY'];
+var EventKeys = ['topValue', 'rightValue', 'bottomValue', 'leftValue', 'diffuserValue', 'backlightValue', 'culturelightValue', 'ambientlightValue', 'projectorX', 'projectorY', 'projectorColor', 'projectorClear'];
 var checkEventValues = function(evt) {
     var returnEvent = {
         time: evt.time,
@@ -258,8 +258,11 @@ var checkEventValues = function(evt) {
         culturelightValue: 0,
         ambientlightValue: 0,
         projectorX: -1,
-        projectorY: -1
+        projectorY: -1,
+        projectorColor: 0,
+        projectorClear: 0
     };
+
     EventKeys.forEach(function(key) {
         var value = evt[key];
         if (value === null || value === undefined || isNaN(Number(value))) {

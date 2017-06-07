@@ -1,5 +1,5 @@
 'use strict';
-exports = module.exports = function (app, mongoose) {
+exports = module.exports = function(app, mongoose) {
     var mySchema = new mongoose.Schema({
         //Set on Creation
         //Client Server
@@ -281,15 +281,15 @@ exports = module.exports = function (app, mongoose) {
     });
     mySchema.plugin(require('./plugins/pagedFind'));
     //Action on Exp
-    mySchema.methods.cancel = function (callback) {
+    mySchema.methods.cancel = function(callback) {
         this.isCanceled = true;
         this.exp_status = 'failed';
-        this.save(function (err, dat) {
+        this.save(function(err, dat) {
             if (err) console.log('BpuExperiment methods Schema Cancel Error:' + err);
             if (callback) callback(err, dat);
         });
     };
-    mySchema.statics.validate = function (exp) {
+    mySchema.statics.validate = function(exp) {
         var returnObj = {
             isValid: false,
             validationErr: null
@@ -301,7 +301,7 @@ exports = module.exports = function (app, mongoose) {
             returnObj.validationErr = 'must have 2 events';
             return returnObj;
         } else {
-            exp.exp_eventsToRun.sort(function (objA, objB) {
+            exp.exp_eventsToRun.sort(function(objA, objB) {
                 return objA.time - objB.time;
             });
             for (var ind = 0; ind < exp.exp_eventsToRun.length; ind++) {
@@ -412,6 +412,29 @@ exports = module.exports = function (app, mongoose) {
                         break;
                     }
 
+                    if (evt.hasOwnProperty('projectorColor')) {
+                        if (err === null) {
+                            err = checkNum(evt.projectorColor, -1, 1000);
+                        } else {
+                            returnObj.validationErr = 'projectorColor:' + err;
+                            break;
+                        }
+                    }
+
+                    if (evt.hasOwnProperty('projectorClear')) {
+                        if (err === null) {
+                            err = checkNum(evt.projectorClear, -1, 1);
+                        } else {
+                            returnObj.validationErr = 'projectorClear:' + err;
+                            break;
+                        }
+                    }
+
+                    if (err !== null) {
+                        returnObj.validationErr = 'sensor Value:' + err;
+                        break;
+                    }
+
                 } else {
                     returnObj.validationErr = 'evt dne';
                     break;
@@ -419,7 +442,7 @@ exports = module.exports = function (app, mongoose) {
             }
             //Check for zero event
             if (returnObj.validationErr === null) {
-                exp.exp_eventsToRun.sort(function (objA, objB) {
+                exp.exp_eventsToRun.sort(function(objA, objB) {
                     return objA.time - objB.time;
                 });
                 returnObj.exp_eventsRunTime = exp.exp_eventsToRun[exp.exp_eventsToRun.length - 1].time;
@@ -434,8 +457,10 @@ exports = module.exports = function (app, mongoose) {
                         backlightValue: 0,
                         culturelightValue: 0,
                         ambientlightValue: 0,
-                        projectorX:-1,
-                        projectorY:-1
+                        projectorX: -1,
+                        projectorY: -1,
+                        projectorColor: 0,
+                        projectorClear: 1
                     });
                 }
                 returnObj.isValid = true;
@@ -446,18 +471,18 @@ exports = module.exports = function (app, mongoose) {
     };
 
     //Bpu Experiment Objects
-    mySchema.statics.getDataObjToJoinQueue = function () {
+    mySchema.statics.getDataObjToJoinQueue = function() {
         return _getDataObjToJoinQueue(app);
     };
-    mySchema.methods.getDataObjToSetLeds = function () {
+    mySchema.methods.getDataObjToSetLeds = function() {
         var thisDoc = this;
         return _getDataObjToSetLeds(thisDoc);
     };
-    mySchema.methods.getDataObjToSetProjector = function () {
+    mySchema.methods.getDataObjToSetProjector = function() {
         var thisDoc = this;
         return _getDataObjToSetProjector(thisDoc);
     };
-    mySchema.methods.getExperimentTag = function () {
+    mySchema.methods.getExperimentTag = function() {
         var thisDoc = this;
         return _getExperimentTag(thisDoc);
     };
@@ -471,7 +496,7 @@ exports = module.exports = function (app, mongoose) {
     if (app.config) mySchema.set('autoIndex', app.config.isDevelopment);
     app.db.model('BpuExperiment', mySchema);
 };
-var checkNum = function (num, low, high) {
+var checkNum = function(num, low, high) {
     if (num !== null && num !== undefined) {
         if (num < low) return 'out of bounds(<' + low + ')';
         else if (num > high) return 'out of bounds(>' + high + ')';
@@ -480,7 +505,7 @@ var checkNum = function (num, low, high) {
         return 'dne';
     }
 };
-var _getExperimentTag = function (thisDoc) {
+var _getExperimentTag = function(thisDoc) {
     //Build tag
     var expTag = {
         user: {
@@ -522,7 +547,7 @@ var _getExperimentTag = function (thisDoc) {
     }
     return expTag;
 };
-var _getDataObjToJoinQueue = function (app) {
+var _getDataObjToJoinQueue = function(app) {
     var joinQueueData = {
         user: {
             id: null,
@@ -551,13 +576,15 @@ var _getDataObjToJoinQueue = function (app) {
             culturelightValue: 0,
             backlightValue: 0,
             ambientlightValue: 0,
-            projectorX:-1,
-            projectorY:-1
+            projectorX: -1,
+            projectorY: -1,
+            projectorColor: 0,
+            projectorClear: 1
         }
     };
     return joinQueueData;
 };
-var _getDataObjToSetLeds = function () {
+var _getDataObjToSetLeds = function() {
     var setLedsData = {
         time: null,
         topValue: null,
@@ -568,8 +595,10 @@ var _getDataObjToSetLeds = function () {
         culturelightValue: null,
         backlightValue: null,
         ambientlightValue: null,
-        projectorX:null,
-        projectorY:null,
+        projectorX: null,
+        projectorY: null,
+        projectorColor: null,
+        projectorClear: null,
         metaData: {
             clientTime: null, //set when event need a new setLedsDataObbect
             sentTime: null, //time when sent to server through socket io
@@ -597,11 +626,11 @@ var _getDataObjToSetLeds = function () {
     };
     return setLedsData;
 };
-var _getDataObjToSetProjector = function () {
+var _getDataObjToSetProjector = function() {
     var setProjectorData = {
         time: null,
-        x:null,
-        y:null,
+        x: null,
+        y: null,
         metaData: {
             clientTime: null, //set when event need a new setLedsDataObbect
             sentTime: null, //time when sent to server through socket io
@@ -610,7 +639,9 @@ var _getDataObjToSetProjector = function () {
             // degs: null,
             // rads: null,
             x: null,
-            y: null, //values from joystick while figuring position
+            y: null, //values from joystick while figuring position,
+            color: null,
+            clear: null,
 
             layerX: null,
             layerY: null, //used for all events, light value set events are converted to xy
