@@ -352,6 +352,8 @@ Stylus.prototype.setXY = function(projectorSetObj, from) {
 
     projectorSetObj.projectorX = this.x_evt;
     projectorSetObj.projectorY = this.y_evt;
+    projectorSetObj.projectorColor = this.dcolor_evt;
+    projectorSetObj.projectorClear = this.dclear_evt;
 
     //Add info to ledsSetObj
     projectorSetObj.metaData.mag = this.stimulus_evt;
