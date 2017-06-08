@@ -15,6 +15,7 @@ var Stylus = function(canvasDiv) {
     me.canvas.width = canvasDiv.clientWidth * canvasPCT;
     me.canvas.height = canvasDiv.clientWidth * canvasPCT;
     me.canvas.className = me.className + '-' + 'off';
+    me.canvas.visible = true;
     // me.canvas.style.left = canvasDiv.clientWidth * ((1 - canvasPCT) * 0.5) + 'px';
     // me.canvas.style.top = canvasDiv.clientHeight * ((1 - canvasPCT) * 0.5) + 'px';
     me.canvas.style.position = 'relative';
@@ -77,7 +78,14 @@ var Stylus = function(canvasDiv) {
     this.updateDraw = function(text) {
 
         //Clear Draw Context
-        // context.clearRect(0, 0, me.canvas.width, me.canvas.height);
+        if (text && text.hasOwnProperty('projectorClear') && text.projectorClear > 0) {
+            context.beginPath();
+            context.clearRect(0, 0, me.canvas.width, me.canvas.height);
+        }
+
+        console.log(me.canvas.visible);
+        // me.canvas.style.visibility = (me.canvas.visible ? 'visible' : 'hidden');
+        me.canvas.style.opacity = (me.canvas.visible ? 1 : 0);
 
         //Resize Joystick Parameters
         //me.maxJoyRadius=me.canvas.width*0.300;
@@ -135,12 +143,6 @@ var Stylus = function(canvasDiv) {
         context.fillStyle = "rgba(53, 103, 191, 1)";
         context.arc(xPos, yPos, me.maxradius, 0, me.TWO_PI, true);
         context.fill();
-        // context.lineWidth = 2;
-        // context.moveTo(xPos, yPos - 1);
-        // context.lineTo(xPos, yPos + 1);
-        // context.moveTo(xPos - 1, yPos);
-        // context.lineTo(xPos + 1, yPos);
-        // context.stroke();
     };
 
     // //Static
@@ -154,6 +156,8 @@ var Stylus = function(canvasDiv) {
         context.lineTo(me.centerPoint.x + 4, me.centerPoint.y);
         context.stroke();
     };
+
+
 
     // var drawBoundingCircle = function() {
     //   for (var i = 0; i < me.segs; i = i + 2) {
@@ -226,6 +230,12 @@ Stylus.prototype.reset = function(index) {
     this.drawTitle();
 };
 
+Stylus.prototype.toggleVisiblity = function() {
+
+    this.canvas.visible = !this.canvas.visible;
+    console.log(this.canvas.visible);
+}
+
 Stylus.prototype.resize = function(width, height) {
     this.canvas.width = width;
     this.canvas.height = height;
@@ -276,29 +286,16 @@ Stylus.prototype.update = function(text) {
 };
 
 Stylus.prototype.getXY = function(values, from) {
-
-    // var x = this.centerPoint.x;
-    // if (lightValues.leftValue > 0) {
-    //   x -= this.maxJoyRadius * (lightValues.leftValue / 100);
-    // } else if (lightValues.rightValue > 0) {
-    //   x += this.maxJoyRadius * (lightValues.rightValue / 100);
-    // }
-    //
-    // var y = this.centerPoint.y;
-    // if (lightValues.topValue > 0) {
-    //   y -= this.maxJoyRadius * (lightValues.topValue / 100);
-    // } else if (lightValues.bottomValue > 0) {
-    //   y += this.maxJoyRadius * (lightValues.bottomValue / 100);
-    // }
-    // 
-    var x = Math.round(values.offsetX);
-    var y = Math.round(values.offsetY);
+    var x = values.offsetX;
+    var y = values.offsetY;
+    var color = values.color;
+    var clear = values.clear;
 
     return {
-        x: x == null ? -1 : x,
-        y: y == null ? -1 : y,
-        color: 0, //Math.round(values.color),
-        clear: 0 //Math.round(values.clear)
+        x: x == null ? -1 : Math.round(x),
+        y: y == null ? -1 : Math.round(y),
+        color: color == null ? -1 : Math.round(color),
+        clear: clear == null ? -1 : Math.round(clear)
     };
 };
 
@@ -309,22 +306,9 @@ Stylus.prototype.setXY = function(projectorSetObj, from) {
     this.dcolor_evt = projectorSetObj.metaData.color; // - this.centerPoint.y;
     this.dclear_evt = projectorSetObj.metaData.clear; // - this.centerPoint.y;
 
-    //Get parameters
-    // this.mag_evt = Math.sqrt((this.dx_evt * this.dx_evt) + (this.dy_evt * this.dy_evt));
-    // this.rads_evt = Math.atan2(this.dy_evt, this.dx_evt);
-    // if (this.mag_evt === 0) {
-    //   this.sin_evt = 0;
-    //   this.cos_evt = 0;
-    // } else {
-    //   this.sin_evt = this.dy_evt / this.mag_evt;
-    //   this.cos_evt = this.dx_evt / this.mag_evt;
-    // }
-
     //Check parameters outside joystick radius
     //  scale down to max
     if (this.stimulus_evt.mag > 100) {
-        // this.dx_evt = this.maxJoyRadius * this.cos_evt;
-        // this.dy_evt = this.maxJoyRadius * this.sin_evt;
         this.stimulus_evt.mag = 100;
     }
 
@@ -332,31 +316,10 @@ Stylus.prototype.setXY = function(projectorSetObj, from) {
     this.x_evt = this.dx_evt;
     this.y_evt = this.dy_evt;
 
-    //Get degrees for for text display
-    // this.degs_evt = (this.rads_evt * this.RADS_TO_DEGREES).toFixed(0);
-    // //Set intensity/alpha for draw
-    // this.inten_evt = (this.mag_evt / this.maxJoyRadius).toFixed(2);
-
-    //Parse light values, Scale to 100, and Set Light Values
-    // if (this.sin_evt <= 0) {
-    //   ledsSetObj.topValue = Math.round(Math.abs(this.sin_evt * this.inten_evt) * 100);
-    //   ledsSetObj.bottomValue = 0;
-    // } else {
-    //   ledsSetObj.topValue = 0;
-    //   ledsSetObj.bottomValue = Math.round(Math.abs(this.sin_evt * this.inten_evt) * 100);
-    // }
-    // if (this.cos_evt <= 0) {
-    //   ledsSetObj.leftValue = Math.round(Math.abs(this.cos_evt * this.inten_evt) * 100);
-    //   ledsSetObj.rightValue = 0;
-    // } else {
-    //   ledsSetObj.leftValue = 0;
-    //   ledsSetObj.rightValue = Math.round(Math.abs(this.cos_evt * this.inten_evt) * 100);
-    // }
-
-    projectorSetObj.projectorX = this.x_evt == null ? -1 : this.x_evt;
-    projectorSetObj.projectorY = this.y_evt == null ? -1 : this.y_evt;
-    projectorSetObj.projectorColor = this.dcolor_evt == null ? -1 : this.dcolor_evt;
-    projectorSetObj.projectorClear = this.dclear_evt == null ? -1 : this.dclear_evt;
+    projectorSetObj.projectorX = (this.dx_evt == null ? -1 : this.dx_evt);
+    projectorSetObj.projectorY = (this.dy_evt == null ? -1 : this.dy_evt);
+    projectorSetObj.projectorColor = (this.dcolor_evt == null ? -1 : this.dcolor_evt);
+    projectorSetObj.projectorClear = (this.dclear_evt == null ? -1 : this.dclear_evt);
 
     //Add info to ledsSetObj
     projectorSetObj.metaData.mag = this.stimulus_evt;

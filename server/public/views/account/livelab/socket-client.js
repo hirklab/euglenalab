@@ -108,6 +108,7 @@ var socketStrs = {
             ledsSetObj.sentTime = new Date().getTime();
             socket.emit(socketStrs.ledsSet, ledsSetObj);
         };
+
         me.projectorSet = function(projectorSetObj, width, height) {
             me.projectorSetEventCounter++;
 
@@ -119,6 +120,7 @@ var socketStrs = {
                 projectorSetObj.projectorY = Math.round(projectorSetObj.projectorY * 480 / height);
             }
 
+            console.log("sending data");
             console.log(projectorSetObj);
 
             socket.emit(socketStrs.ledsSet, projectorSetObj);

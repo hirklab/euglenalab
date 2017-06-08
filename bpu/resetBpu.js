@@ -211,8 +211,8 @@ exports = module.exports = function(app, deps, options, mainCallback) {
                             };
                         }
 
-                        console.log(lightValues);
-                        console.log(doReset);
+                        // console.log(lightValues);
+                        // console.log(doReset);
 
                         app.bpu.ledControl.board.ledsSet(lightValues.topValue, lightValues.rightValue, lightValues.bottomValue, lightValues.leftValue);
                         app.bpu.ledControl.board.diffuserSet(lightValues.diffuserValue);
