@@ -332,6 +332,7 @@
             var newDate = new Date();
             if ((newDate - app.mainView.lastSetLedsFromEventDate) >= app.mainView.setLedsFromEventInterval) {
                 app.mainView.lastSetLedsFromEventDate = newDate;
+
                 app.userSocketClient.projectorSet(projectorSetObj, app.mainView.stylus.canvas.width, app.mainView.stylus.canvas.height);
             }
         },

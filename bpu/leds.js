@@ -70,7 +70,7 @@ var _init = function(options, callback) {
     };
 
     board.projectorSet = function(projector, x, y, color, clear) {
-        if (x && y) {
+        if (x && y && color && clear) {
             console.log('projector = {' + x + ', ' + y + ', ' + color + ', ' + clear + '}');
 
             if (projector) {
