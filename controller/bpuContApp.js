@@ -114,28 +114,27 @@ var app = {
 };
 
 //Init Series Functions
-var setupLogger = function (callback) {
+var setupLogger = function(callback) {
     app.logger = log4js.getLogger(app.initParams.loggerName);
     app.logger.setLevel(app.initParams.loggerLevel);
     callback(null);
 };
 
-var setupMongoose = function (callback) {
+var setupMongoose = function(callback) {
     app.logger.warn('Using database at: ' + app.initParams.mongoUri);
     app.db = mongoose.createConnection(app.initParams.mongoUri);
-    app.db.on('error', function (err) {
+    app.db.on('error', function(err) {
         callback('init setupMongoose error:' + err);
     });
-    app.db.once('open', function () {
+    app.db.once('open', function() {
         require('./mongoModels')(app, mongoose);
         callback(null);
     });
 };
 
-var setupSocketClientServer = function (callback) {
+var setupSocketClientServer = function(callback) {
     //Create Socket Server
-    var server = require('http').createServer(function (req, res) {
-    });
+    var server = require('http').createServer(function(req, res) {});
 
     app.logger.warn('setupSocketClientServer@' + app.initParams.socketClientServerIP + ':' + app.initParams.socketClientServerPort);
 
@@ -143,13 +142,13 @@ var setupSocketClientServer = function (callback) {
 
     app.socketClientIo = socketIo(server);
 
-    app.socketClientIo.on('connection', function (socket) {
+    app.socketClientIo.on('connection', function(socket) {
         app.logger.info('socketClientIo:' + 'connection:' + 'socketid:' + socket.id);
 
         app.socketConnections.push(socket);
 
-        socket.on('setConnection', function (serverInfo, cbfn_setConn) {
-            _verifyServerSocketConnection(serverInfo, function (err) {
+        socket.on('setConnection', function(serverInfo, cbfn_setConn) {
+            _verifyServerSocketConnection(serverInfo, function(err) {
                 if (err) {
                     app.logger.error('setConnection _verifyServerSocketConnection end err', err);
                     socket.disconnect();
@@ -159,7 +158,7 @@ var setupSocketClientServer = function (callback) {
                     if (app.Auth[serverInfo.Identifier].socketID !== null) {
                         app.logger.warn('remove old socket for Auth');
                         if (app.socketConnections.length > 0) {
-                            app.socketConnections.forEach(function (otherSocket) {
+                            app.socketConnections.forEach(function(otherSocket) {
                                 if (otherSocket.id === app.Auth[serverInfo.Identifier].socketID) {
                                     app.logger.warn('duplicate server info: disconnecting');
                                     otherSocket.disconnect();
@@ -178,8 +177,8 @@ var setupSocketClientServer = function (callback) {
                     cbfn_setConn(null, retData);
 
                     //Setup socket funcs
-                    socket.on('getJoinQueueDataObj', function (serverInfo, callback) {
-                        _verifyServerSocketConnection(serverInfo, function (err) {
+                    socket.on('getJoinQueueDataObj', function(serverInfo, callback) {
+                        _verifyServerSocketConnection(serverInfo, function(err) {
                             if (err) {
                                 app.logger.error('getJoinQueueDataObj _verifyServerSocketConnection end err', err);
                                 socket.disconnect();
@@ -191,17 +190,18 @@ var setupSocketClientServer = function (callback) {
                             }
                         });
                     });
-                    socket.on(app.mainConfig.socketStrs.bpu_runExpLedsSet, function (lightData) {
+                    socket.on(app.mainConfig.socketStrs.bpu_runExpLedsSet, function(lightData) {
                         if (app.bpuLedsSetMatch[lightData.sessionID]) {
+                            console.log(lightData);
                             app.bpuLedsSetMatch[lightData.sessionID](lightData);
                         }
                     });
-                    socket.on('getExp', function (serverInfo, expId, callbackToClient) {
+                    socket.on('getExp', function(serverInfo, expId, callbackToClient) {
                         //pull exp by id
                         callbackToClient('not implemented', null);
                     });
-                    socket.on(app.mainConfig.socketStrs.bpuCont_submitExperimentRequest, function (serverInfo, joinQueueDataArray, callbackToClient) {
-                        _verifyServerSocketConnection(serverInfo, function (err) {
+                    socket.on(app.mainConfig.socketStrs.bpuCont_submitExperimentRequest, function(serverInfo, joinQueueDataArray, callbackToClient) {
+                        _verifyServerSocketConnection(serverInfo, function(err) {
                             if (err) {
                                 app.logger.error('submitExperimentRequest _verifyServerSocketConnection end err', err);
                                 socket.disconnect();
@@ -220,8 +220,8 @@ var setupSocketClientServer = function (callback) {
     callback(null);
 };
 
-var getListExperiment = function (callback) {
-    app.db.models.ListExperiment.getInstanceDocument(function (err, listDoc) {
+var getListExperiment = function(callback) {
+    app.db.models.ListExperiment.getInstanceDocument(function(err, listDoc) {
         if (err) {
             callback('init getListExperiment error:' + err);
         } else {
@@ -232,7 +232,7 @@ var getListExperiment = function (callback) {
 };
 
 //Init Function
-var init = function (callbackToMain) {
+var init = function(callbackToMain) {
     //Build Init Series
     var initSeriesFuncs = [];
     initSeriesFuncs.push(setupLogger);
@@ -241,7 +241,7 @@ var init = function (callbackToMain) {
     initSeriesFuncs.push(getListExperiment);
     //initSeriesFuncs.push(addFakeExpsToListExpDoc);
     //Run Init Series
-    async.series(initSeriesFuncs, function (err) {
+    async.series(initSeriesFuncs, function(err) {
         if (err) {
             callbackToMain('initSeries end err:' + err);
         } else {
@@ -251,11 +251,11 @@ var init = function (callbackToMain) {
 };
 
 //Run Loop with Run Functions
-var loop = function () {
+var loop = function() {
     if (app.runParams.doClearConsole) app.funcs.clearConsole();
     var startDate = new Date();
 
-    var saveMemInfo = function (callback) {
+    var saveMemInfo = function(callback) {
         //Temp Current Mem Info
         app.runData.currMemObj = process.memoryUsage();
         //Socket Connections
@@ -275,12 +275,12 @@ var loop = function () {
         return callback(null);
     };
 
-    var printMemHeader = function (callback) {
+    var printMemHeader = function(callback) {
         var memDiv = 1024 * 1024;
         app.logger.info('================================================================');
         app.logger.info('             Date:\t' + app.memDoc.lastDate);
         app.logger.info('      Connections:\t' + app.memDoc.socketConns);
-        app.logger.info('         Up  Time:\t' + (Math.round((app.memDoc.lastDate - StartDate) / 60000))+ ' min') ;
+        app.logger.info('         Up  Time:\t' + (Math.round((app.memDoc.lastDate - StartDate) / 60000)) + ' min');
         app.logger.info('         High Mem:\t' + Math.round((app.memDoc.highMem) / (memDiv)) + ' mb');
         app.logger.info('Curr(rss,tot,use):\t' + '(' +
             Math.round(app.memDoc.last.rss / (memDiv)) +
@@ -296,9 +296,9 @@ var loop = function () {
         return callback(null);
     };
 
-    var printExpErrors = function (callback) {
+    var printExpErrors = function(callback) {
         //Sort, oldest first
-        app.runData.addExpToBpuErrors.sort(function (objA, objB) {
+        app.runData.addExpToBpuErrors.sort(function(objA, objB) {
             return objA.time - objB.time;
         });
         if (app.runData.addExpToBpuErrors.length === 0) {
@@ -328,9 +328,9 @@ var loop = function () {
         return callback(null);
     };
 
-    var printLiveActivateErrors = function (callback) {
+    var printLiveActivateErrors = function(callback) {
         //Sort, oldest first
-        app.runData.activateLiveUserErrors.sort(function (objA, objB) {
+        app.runData.activateLiveUserErrors.sort(function(objA, objB) {
             return objA.time - objB.time;
         });
         if (app.runData.activateLiveUserErrors.length === 0) {
@@ -362,9 +362,9 @@ var loop = function () {
         return callback(null);
     };
 
-    var printCheckBpusErrors = function (callback) {
+    var printCheckBpusErrors = function(callback) {
         //Sort, oldest first
-        app.runData.checkBpusErrors.sort(function (objA, objB) {
+        app.runData.checkBpusErrors.sort(function(objA, objB) {
             return objA.time - objB.time;
         });
         if (app.runData.checkBpusErrors.length === 0) {
@@ -397,16 +397,16 @@ var loop = function () {
     };
 
     //Two Funcs
-    var getBpus = function (callback) {
+    var getBpus = function(callback) {
         var query = app.db.models.Bpu.find({
             isOn: true,
         });
         query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
-        query.exec(function (err, docs) {
+        query.exec(function(err, docs) {
             if (err) {
                 return callback('getBpus error:' + err);
             } else {
-                docs.forEach(function (bpuDoc) {
+                docs.forEach(function(bpuDoc) {
                     //Object Already Exists
                     if (app.bpuObjects[bpuDoc.name]) {
                         app.bpuObjects[bpuDoc.name].doc = bpuDoc;
@@ -427,29 +427,28 @@ var loop = function () {
         });
     };
 
-    var checkBpus = function (callback) {
+    var checkBpus = function(callback) {
         //Sub func -- individual bpu socket functions
-        var fn_connectBpu = function (bpuObj, cb_connectBpu) {
+        var fn_connectBpu = function(bpuObj, cb_connectBpu) {
             //Create New Socket
             if (bpuObj.socket === null) {
                 bpuObj.socket = socketIoClient('http://' + bpuObj.doc.localAddr.ip + ':' + bpuObj.doc.localAddr.serverPort, {
                     multiplex: false,
                     reconnection: true
                 });
-                bpuObj.socket.on('connect', function () {
-                });
-                bpuObj.socket.on('disconnect', function (msg) {
+                bpuObj.socket.on('connect', function() {});
+                bpuObj.socket.on('disconnect', function(msg) {
                     bpuObj.socket.disconnect();
                     bpuObj.socket.close();
                     delete bpuObj.socket;
                     bpuObj.socketTimeouts = 0;
                     bpuObj.socket = null;
                 });
-                app.bpuLedsSetFuncs[bpuObj.doc.name] = function (setLedsData) {
+                app.bpuLedsSetFuncs[bpuObj.doc.name] = function(setLedsData) {
                     console.log(setLedsData);
                     bpuObj.socket.emit(app.mainConfig.socketStrs.bpu_runExpLedsSet, setLedsData);
                 };
-                setTimeout(function () {
+                setTimeout(function() {
                     cb_connectBpu(null);
                 }, 500);
             } else {
@@ -464,14 +463,14 @@ var loop = function () {
                 }
             }
         };
-        var fn_clearBpuExp = function (bpuObj, cb_clearBpuExp) {
+        var fn_clearBpuExp = function(bpuObj, cb_clearBpuExp) {
             if (bpuObj.getStatusResObj.expOverId !== null && bpuObj.getStatusResObj.expOverId !== undefined) {
                 if (bpuObj.doc.bpuStatus === app.mainConfig.bpuStatusTypes.finalizingDone) {
                     var updateObj = {
                         exp_serverClearTime: new Date().getTime(),
                         exp_status: 'servercleared',
                     };
-                    app.db.models.BpuExperiment.findByIdAndUpdate(bpuObj.getStatusResObj.expOverId, updateObj, function (err, savedExpDoc) {
+                    app.db.models.BpuExperiment.findByIdAndUpdate(bpuObj.getStatusResObj.expOverId, updateObj, function(err, savedExpDoc) {
                         if (err) {
                             app.runData.addExpToBpuErrors.push({
                                 time: new Date(),
@@ -495,11 +494,11 @@ var loop = function () {
         };
 
         //Main Func //Loop through each bpu
-        var checkBpu = function (checkBpuCallback) {
+        var checkBpu = function(checkBpuCallback) {
             var bpuObj = this;
             //Timeout
             var didCallback = false;
-            setTimeout(function () {
+            setTimeout(function() {
                 if (!didCallback) {
                     didCallback = true;
                     bpuObj.socketTimeouts++;
@@ -517,7 +516,7 @@ var loop = function () {
             bpuObj.checkMsgs.push({
                 isErr: false,
                 time: new Date().getTime(),
-                msg: 'Connected:\t' + (bpuObj.socket!==null)
+                msg: 'Connected:\t' + (bpuObj.socket !== null)
             });
             bpuObj.checkMsgs.push({
                 isErr: false,
@@ -525,7 +524,7 @@ var loop = function () {
                 msg: 'Timeout:\t' + bpuObj.socketTimeouts
             });
 
-            fn_connectBpu(bpuObj, function (err) {
+            fn_connectBpu(bpuObj, function(err) {
                 if (!didCallback) {
                     if (err) {
                         didCallback = true;
@@ -559,7 +558,7 @@ var loop = function () {
                     } else {
 
                         //Get Status
-                        bpuObj.socket.emit(app.mainConfig.socketStrs.bpu_getStatus, function (resObj) {
+                        bpuObj.socket.emit(app.mainConfig.socketStrs.bpu_getStatus, function(resObj) {
                             if (!didCallback) {
                                 didCallback = true;
                                 bpuObj.isSocketOkay = true;
@@ -611,7 +610,7 @@ var loop = function () {
                                 }
 
                                 //Check for exp over
-                                fn_clearBpuExp(bpuObj, function (err) {
+                                fn_clearBpuExp(bpuObj, function(err) {
                                     if (err) {
                                         bpuObj.checkMsgs.push({
                                             isErr: true,
@@ -637,11 +636,11 @@ var loop = function () {
                                         age: startDate.getTime() - bpuObj.doc.performanceScores.scripterResponseDate,
                                         msg: 'Response:\t' + Math.round(bpuObj.doc.performanceScores.scripterResponse, 2) + ' '
                                     });
-                                    statMsg.sort(function (objA, objB) {
+                                    statMsg.sort(function(objA, objB) {
                                         return objA.age - objB.age;
                                     });
                                     var cnt = 0;
-                                    statMsg.forEach(function (stat) {
+                                    statMsg.forEach(function(stat) {
                                         bpuObj.checkMsgs.push({
                                             isErr: false,
                                             time: new Date().getTime() + cnt * 100,
@@ -662,7 +661,7 @@ var loop = function () {
                                             }, {
                                                 name: statMsg[statMsg.length - 1].name,
                                                 groups: ['scripter']
-                                            }, function (err, expTag) {
+                                            }, function(err, expTag) {
                                                 if (err) {
                                                     bpuObj.checkMsgs.push({
                                                         isErr: true,
@@ -671,7 +670,7 @@ var loop = function () {
                                                     });
                                                 }
                                                 bpuObj.doc.performanceScores.bc_lastSendDate = startDate.getTime();
-                                                bpuObj.doc.save(function (err, newDoc) {
+                                                bpuObj.doc.save(function(err, newDoc) {
                                                     if (err) {
                                                         bpuObj.checkMsgs.push({
                                                             isErr: true,
@@ -704,27 +703,27 @@ var loop = function () {
         //Build Parallel
         var runParallelFuncs = [];
         var keys = Object.keys(app.bpuObjects);
-        keys.sort(function (objA, objB) {
+        keys.sort(function(objA, objB) {
             return app.bpuObjects[objA].doc.index - app.bpuObjects[objB].doc.index;
         });
-        keys.forEach(function (key) {
+        keys.forEach(function(key) {
             app.bpuObjects[key].isSocketOkay = false;
             runParallelFuncs.push(checkBpu.bind(app.bpuObjects[key]));
         });
         //Run Parallel
         // app.logger.debug('Checking ' + runParallelFuncs.length + ' BPUs');
-        async.parallel(runParallelFuncs, function (err) {
+        async.parallel(runParallelFuncs, function(err) {
             //Print Compiled Bpu Info
             var keys = Object.keys(app.bpuObjects);
-            keys.sort(function (objA, objB) {
+            keys.sort(function(objA, objB) {
                 return app.bpuObjects[objA].doc.index - app.bpuObjects[objB].doc.index;
             });
-            keys.forEach(function (key) {
+            keys.forEach(function(key) {
                 app.logger.info(app.bpuObjects[key].doc.name);
-                app.bpuObjects[key].checkMsgs.sort(function (objA, objB) {
+                app.bpuObjects[key].checkMsgs.sort(function(objA, objB) {
                     return objA.time - objB.time;
                 });
-                app.bpuObjects[key].checkMsgs.forEach(function (msgObj) {
+                app.bpuObjects[key].checkMsgs.forEach(function(msgObj) {
                     if (msgObj.isErr) {
                         app.logger.error('\t' + msgObj.msg);
                     } else {
@@ -742,7 +741,7 @@ var loop = function () {
     };
 
     //Pulls ListExperiment doc each time
-    var checkExpsAndResort = function (callback) {
+    var checkExpsAndResort = function(callback) {
 
         //Checks each experiment tag in listExperiment doc
         var ExpRejectMax = 10;
@@ -750,7 +749,7 @@ var loop = function () {
         app.keeperExpDocs = []; //BpuExperiments are pulled from db for each expTag, they are kept though the rest of the loop
         app.runData.runningQueueTimesPerBpuName = {}; //Experiments are sorted into bpus, running bpu time is need for scoring, not used outside of this function
         //Set Bpus runtime in runningQueueTimesPerBpuName  to zero
-        Object.keys(app.bpuObjects).forEach(function (key) {
+        Object.keys(app.bpuObjects).forEach(function(key) {
             var bpuObj = app.bpuObjects[key];
             //Set Queue Time
             if (app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name] === null || app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name] === undefined) {
@@ -766,12 +765,12 @@ var loop = function () {
             }
         });
 
-        var checkExpAndResort = function (checkExpCallback) {
+        var checkExpAndResort = function(checkExpCallback) {
             cnt++;
             var expTag = this;
             app.logger.trace(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(age:' + (startDate.getTime() - expTag.exp_submissionTime) + ')');
             app.logger.trace(cnt + ':checkExpAndResort:(user:' + expTag.user.name + ', bpu:' + expTag.exp_wantsBpuName + ')');
-            app.db.models.BpuExperiment.findById(expTag.id, function (err, expDoc) {
+            app.db.models.BpuExperiment.findById(expTag.id, function(err, expDoc) {
 
                 //Failed
                 if (err) {
@@ -818,7 +817,7 @@ var loop = function () {
                     expDoc.exp_lastResort.waitTime = 0;
                     expDoc.exp_resortTime = startDate.getTime();
                     //Get Bpus In Groups
-                    Object.keys(app.bpuObjects).forEach(function (key) {
+                    Object.keys(app.bpuObjects).forEach(function(key) {
                         var bpuObj = app.bpuObjects[key];
                         if (bpuObj.isSocketOkay) {
                             //Filter bpus by experiment user groups
@@ -855,19 +854,19 @@ var loop = function () {
 
                     } else if (expDoc.exp_lastResort.canidateBpus.length > 1) {
                         //Sort By final Score
-                        expDoc.exp_lastResort.canidateBpus.sort(function (objA, objB) {
+                        expDoc.exp_lastResort.canidateBpus.sort(function(objA, objB) {
                             return objB.finalScore - objA.finalScore;
                         });
                         //choose bpu from score and wait time
                         var zeroScore = expDoc.exp_lastResort.canidateBpus[0].finalScore;
                         var scoreInt = 0.2;
-                        var sameScoreObjs = expDoc.exp_lastResort.canidateBpus.filter(function (scoreObj) {
+                        var sameScoreObjs = expDoc.exp_lastResort.canidateBpus.filter(function(scoreObj) {
                             if (scoreObj.finalScore <= zeroScore + scoreInt && scoreObj.finalScore >= zeroScore - scoreInt) return true;
                             else return false;
                         });
                         if (sameScoreObjs.length > 0) {
                             //Sort similar final scores by wait time.
-                            sameScoreObjs.sort(function (objA, objB) {
+                            sameScoreObjs.sort(function(objA, objB) {
                                 return objA.totalWaitTime - objB.totalWaitTime;
                             });
                             expDoc.exp_lastResort.bpuName = sameScoreObjs[0].bpuName;
@@ -885,7 +884,7 @@ var loop = function () {
 
                     if (true) {
                         app.logger.trace(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(cans:' + expDoc.exp_lastResort.canidateBpus.length + ')');
-                        expDoc.exp_lastResort.canidateBpus.forEach(function (canBpu) {
+                        expDoc.exp_lastResort.canidateBpus.forEach(function(canBpu) {
                             app.logger.trace(canBpu.bpuName + ' ' + canBpu.finalScore + ' ' + canBpu.totalWaitTime);
                         });
                     }
@@ -905,7 +904,7 @@ var loop = function () {
         //Get new Exps from database and build series function array
         app.db.models.ListExperiment.findById(app.listExperimentDoc._id, {
             newExps: 1
-        }, function (err, newListExperimentDoc) {
+        }, function(err, newListExperimentDoc) {
             if (err) {
                 app.logger.error('checkExpsAndResort ListExperiment.findById error:' + err);
                 return callback('checkExpsAndResort ListExperiment.findById error:' + err);
@@ -941,7 +940,7 @@ var loop = function () {
                 }
 
                 //Save db doc with removed new experiments
-                newListExperimentDoc.save(function (err, saveDoc) {
+                newListExperimentDoc.save(function(err, saveDoc) {
 
                     //Pull New Experiments from current docuemnt
                     while (app.listExperimentDoc.newExps.length > 0) {
@@ -965,7 +964,7 @@ var loop = function () {
                     }
 
                     //add bpu exps from this doc to expTag Obj
-                    Object.keys(app.listExperimentDoc._doc).forEach(function (key) {
+                    Object.keys(app.listExperimentDoc._doc).forEach(function(key) {
                         if (key[0] !== '_' && (key.search('eug') > -1)) {
                             while (app.listExperimentDoc[key].length > 0) {
                                 var expTag = app.listExperimentDoc[key].shift();
@@ -995,7 +994,7 @@ var loop = function () {
                         }
                     }
 
-                    idSubmissionTimeArray.sort(function (objA, objB) {
+                    idSubmissionTimeArray.sort(function(objA, objB) {
                         return objA.subTime - objB.subTime;
                     });
                     var initialTime = null;
@@ -1003,7 +1002,7 @@ var loop = function () {
                         initialTime = idSubmissionTimeArray[0].subTime;
                     }
                     //Add Scripters and move to front
-                    Object.keys(bpuScripterTracker).forEach(function (key) {
+                    Object.keys(bpuScripterTracker).forEach(function(key) {
                         var expTag = bpuScripterTracker[key];
                         if (initialTime !== null) {
                             expTag.exp_submissionTime = initialTime;
@@ -1017,7 +1016,7 @@ var loop = function () {
                     });
 
                     //Build Series
-                    idSubmissionTimeArray.sort(function (objA, objB) {
+                    idSubmissionTimeArray.sort(function(objA, objB) {
                         return objA.subTime - objB.subTime;
                     });
                     var runSeriesFuncs = [];
@@ -1033,7 +1032,7 @@ var loop = function () {
                     }
                     //Run series
                     // app.logger.info('runSeries start checkExpsAndResort on ' + runSeriesFuncs.length);
-                    async.series(runSeriesFuncs, function (err) {
+                    async.series(runSeriesFuncs, function(err) {
                         // app.logger.trace('runSeries end checkExpsAndResort tags:' + Object.keys(app.newExpTagObj).length + ', exps:' + app.keeperExpDocs.length);
                         if (err) {
                             app.logger.error('runSeries end checkExpsAndResort on ' + runSeriesFuncs.length + ' in ' + (new Date() - startDate) + ' err:' + err + '\n');
@@ -1047,14 +1046,14 @@ var loop = function () {
         });
     };
 
-    var sendExpsToBpus = function (callback) {
+    var sendExpsToBpus = function(callback) {
         var cnt = 0;
-        var sendExpToBpu = function (sendExpToBpuCallback) {
+        var sendExpToBpu = function(sendExpToBpuCallback) {
             cnt++;
             var exp = this.exp;
             var bpuObj = this.bpuObj;
             app.logger.trace(cnt + ':sendExpToBpu ' + bpuObj.doc.name + ':' + exp.group_experimentType + ':' + exp.id + ' on Socket?null:' + (bpuObj.socket === null));
-            _addExpToBpu(app, exp, bpuObj.doc, bpuObj.socket, function (err, session) {
+            _addExpToBpu(app, exp, bpuObj.doc, bpuObj.socket, function(err, session) {
                 if (err) {
                     err = cnt + ':sendExpsToBpus _addExpToBpu error:' + err;
                     app.runData.addExpToBpuErrors.push({
@@ -1072,7 +1071,7 @@ var loop = function () {
         };
 
         //Find next Experiment per bpu
-        app.keeperExpDocs.sort(function (objA, objB) {
+        app.keeperExpDocs.sort(function(objA, objB) {
             return objA.exp_submissionTime - objB.exp_submissionTime;
         });
         var expPerBpu = {};
@@ -1086,7 +1085,7 @@ var loop = function () {
         }
         //Build Parallel - Match Available Bpus with Queue Experiments
         var runParallelFuncs = [];
-        Object.keys(app.bpuObjects).forEach(function (key) {
+        Object.keys(app.bpuObjects).forEach(function(key) {
             //bpu has exp in queue?
             if (expPerBpu[key]) {
                 //can send to bpu
@@ -1106,7 +1105,7 @@ var loop = function () {
 
         //Run Parallel
         // app.logger.info('runParallel start sendExpsToBpus on ' + runParallelFuncs.length);
-        async.parallel(runParallelFuncs, function (err) {
+        async.parallel(runParallelFuncs, function(err) {
             if (err) {
                 app.logger.error('runParallel end sendExpsToBpus on ' + runParallelFuncs.length + ' in ' + (new Date() - startDate) + ' err:' + err + '\n');
             } else {
@@ -1116,7 +1115,7 @@ var loop = function () {
         });
     };
 
-    var checkUpdateListExperiment = function (callback) {
+    var checkUpdateListExperiment = function(callback) {
         //Add left over newExpTags into this listExpDoc
         while (Object.keys(app.newExpTagObj).length > 0) {
             var expTag = app.newExpTagObj[Object.keys(app.newExpTagObj)[0]];
@@ -1135,22 +1134,22 @@ var loop = function () {
             }
         }
         //Save to database
-        app.listExperimentDoc.save(function (err, savedDoc) {
+        app.listExperimentDoc.save(function(err, savedDoc) {
             return callback(null);
         });
     };
 
-    var updateClientSocketConnections = function (callback) {
+    var updateClientSocketConnections = function(callback) {
         var timeNow = new Date().getTime();
         // app.logger.debug('updateClientSock:' + app.socketConnections.length);
         if (app.socketConnections.length > 0) {
             var bpuDocs = [];
-            Object.keys(app.bpuObjects).forEach(function (key) {
+            Object.keys(app.bpuObjects).forEach(function(key) {
                 if (app.bpuObjects[key].isSocketOkay) {
                     bpuDocs.push(app.bpuObjects[key].doc.toJSON());
                 }
             });
-            app.socketConnections.forEach(function (socket) {
+            app.socketConnections.forEach(function(socket) {
                 if (socket.connected) {
                     socket.emit('update', bpuDocs, app.listExperimentDoc.toJSON(), app.runData.runningQueueTimesPerBpuName);
                 }
@@ -1160,7 +1159,7 @@ var loop = function () {
         }
         return callback(null);
     };
-    
+
     //Build Series
     var runSeriesFuncs = [];
     runSeriesFuncs.push(saveMemInfo);
@@ -1176,13 +1175,13 @@ var loop = function () {
     runSeriesFuncs.push(checkUpdateListExperiment);
     runSeriesFuncs.push(updateClientSocketConnections);
     //Run Series
-    async.series(runSeriesFuncs, function (err) {
+    async.series(runSeriesFuncs, function(err) {
         app.runParams.runCounter++;
         if (err) {
             app.logger.error('runSeries end in ' + (new Date() - startDate) + ' err:' + err);
         } else {
             // app.logger.debug('runSeries end in ' + (new Date() - startDate));
-            setTimeout(function () {
+            setTimeout(function() {
                 loop();
             }, app.runParams.runLoopInterval);
         }
@@ -1191,7 +1190,7 @@ var loop = function () {
 
 
 //Init Controller and RUn Loop
-init(function (err) {
+init(function(err) {
     if (err) {
         app.logger.error('init err:' + err);
     } else {
@@ -1203,14 +1202,14 @@ init(function (err) {
 });
 
 
-var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
+var _addExpToBpu = function(app, exp, bpuDoc, bpuSocket, mainCallback) {
     var confirmTimeout = 15000;
     var outcome = {};
     outcome.sess = null;
 
-    var getSession = function (cb_fn) {
+    var getSession = function(cb_fn) {
 
-        app.db.models.Session.findById(exp.session.id, function (err, sessDoc) {
+        app.db.models.Session.findById(exp.session.id, function(err, sessDoc) {
             if (err) {
                 cb_fn('getSession err:' + err);
             } else if (sessDoc === null) {
@@ -1222,9 +1221,9 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
         });
     };
 
-    var sendExperimentToBpu = function (cb_fn) {
+    var sendExperimentToBpu = function(cb_fn) {
         var didCallback = false;
-        setTimeout(function () {
+        setTimeout(function() {
             if (!didCallback) {
                 didCallback = true;
                 cb_fn('sendExperimentToBpu timed out');
@@ -1238,7 +1237,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
         } else {
             exp.exp_metaData.magnification = bpuDoc.magnification;
             app.logger.info('events to run', exp.exp_eventsToRun);
-            bpuSocket.emit(app.mainConfig.socketStrs.bpu_setExp, exp, confirmTimeout + 1000, function (err) {
+            bpuSocket.emit(app.mainConfig.socketStrs.bpu_setExp, exp, confirmTimeout + 1000, function(err) {
                 if (!didCallback) {
                     didCallback = true;
                     if (err) {
@@ -1260,7 +1259,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
                         };
                         app.db.models.BpuExperiment.findByIdAndUpdate(exp.id, expUpdateObj, {
                             new: true
-                        }, function (err, savedExp) {
+                        }, function(err, savedExp) {
                             if (err) {
                                 app.logger.error('sendExperimentToBpu BpuExperiment.findByIdAndUpdate err:' + err);
                                 cb_fn(null);
@@ -1279,7 +1278,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
                                 };
                                 app.db.models.Session.findByIdAndUpdate(exp.session.id, sessUpdateObj, {
                                     new: true
-                                }, function (err, sessDoc) {
+                                }, function(err, sessDoc) {
                                     if (err) {
                                         app.logger.error('sendExperimentToBpu Session.findByIdAndUpdate err:' + err);
                                         cb_fn(null);
@@ -1299,21 +1298,21 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
         } //end of socket null check
     };
 
-    var activateLiveUser = function (cb_fn) {
+    var activateLiveUser = function(cb_fn) {
 
-        async.some(app.socketConnections, function (clientSocket, callback) {
+        async.some(app.socketConnections, function(clientSocket, callback) {
 
             if (clientSocket.connected) {
                 app.logger.info('Activating live user to: ' + clientSocket.id);
 
-                clientSocket.emit('activateLiveUser', outcome.sess, app.runParams.liveUserConfirmTimeout, function (userActivateResData) {
+                clientSocket.emit('activateLiveUser', outcome.sess, app.runParams.liveUserConfirmTimeout, function(userActivateResData) {
                     if (userActivateResData.err || !userActivateResData.didConfirm) {
                         return callback(false);
                     } else {
 
                         app.bpuLedsSetMatch[outcome.sess.sessionID] = app.bpuLedsSetFuncs[bpuDoc.name];
 
-                        bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuRunResObj) {
+                        bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function(bpuRunResObj) {
                             if (bpuRunResObj.err) {
                                 app.runData.activateLiveUserErrors.push({
                                     time: new Date(),
@@ -1321,7 +1320,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
                                 });
                                 return callback(false);
                             } else {
-                                clientSocket.emit('sendUserToLiveLab', outcome.sess, function (userSendResObj) {
+                                clientSocket.emit('sendUserToLiveLab', outcome.sess, function(userSendResObj) {
                                     if (userSendResObj.err) {
                                         app.runData.activateLiveUserErrors.push({
                                             time: new Date(),
@@ -1341,7 +1340,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
                 return callback(false);
             }
 
-        }, function (someoneConfirmed) {
+        }, function(someoneConfirmed) {
 
             if (someoneConfirmed === false) {
                 app.logger.debug('********* Nobody Confirmed **********');
@@ -1350,7 +1349,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
                 //   });
 
                 var isUserCancel = true;
-                bpuSocket.emit(app.mainConfig.socketStrs.bpu_resetBpu, isUserCancel, outcome.sess.sessionID, function (err) {
+                bpuSocket.emit(app.mainConfig.socketStrs.bpu_resetBpu, isUserCancel, outcome.sess.sessionID, function(err) {
                     app.runData.activateLiveUserErrors.push({
                         time: new Date(),
                         err: 'activateLiveUser bpu callback on reset'
@@ -1363,8 +1362,8 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
 
     };
 
-    var runExpForNonLiveUser = function (cb_fn) {
-        bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuResObj) {
+    var runExpForNonLiveUser = function(cb_fn) {
+        bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function(bpuResObj) {
             if (bpuResObj.err) {
                 app.logger.error(bpuResObj.err);
             }
@@ -1380,7 +1379,7 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
     else seriesFuncs.push(runExpForNonLiveUser);
 
     // Start Series
-    async.series(seriesFuncs, function (err) {
+    async.series(seriesFuncs, function(err) {
         if (err) {
             mainCallback('_addExpToBpu ' + err, null);
         } else {
@@ -1389,12 +1388,11 @@ var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
     });
 };
 
-var _verifyServerSocketConnection = function (serverInfo, callback) {
+var _verifyServerSocketConnection = function(serverInfo, callback) {
     var err = null;
     if (typeof serverInfo === 'object') {
         if (serverInfo.Identifier && typeof serverInfo.Identifier === 'string') {
-            if (app.Auth[serverInfo.Identifier] && app.Auth[serverInfo.Identifier].Identifier === serverInfo.Identifier) {
-            } else {
+            if (app.Auth[serverInfo.Identifier] && app.Auth[serverInfo.Identifier].Identifier === serverInfo.Identifier) {} else {
                 err = 'serverInfo Identifier is incorrect';
             }
         } else {

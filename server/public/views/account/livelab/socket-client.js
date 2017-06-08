@@ -110,6 +110,7 @@ var socketStrs = {
         };
         me.projectorSet = function(projectorSetObj, width, height) {
             me.projectorSetEventCounter++;
+
             projectorSetObj.sessionID = app.mainView.session.get('sessionID');
             projectorSetObj.sentTime = new Date().getTime();
 
@@ -117,6 +118,8 @@ var socketStrs = {
                 projectorSetObj.projectorX = Math.round(projectorSetObj.projectorX * 640 / width);
                 projectorSetObj.projectorY = Math.round(projectorSetObj.projectorY * 480 / height);
             }
+
+            console.log(projectorSetObj);
 
             socket.emit(socketStrs.ledsSet, projectorSetObj);
         };

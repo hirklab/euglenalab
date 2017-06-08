@@ -192,6 +192,8 @@ exports = module.exports = function(app, deps, options, mainCallback) {
 
                     //Bpu Function Wrappers
                     app.bpu.ledsSet = function(lightValues, doReset) {
+
+
                         if (doReset) {
                             lightValues = {
                                 topValue: 0,
@@ -208,6 +210,9 @@ exports = module.exports = function(app, deps, options, mainCallback) {
                                 projectorClear: 1,
                             };
                         }
+
+                        console.log(lightValues);
+                        console.log(doReset);
 
                         app.bpu.ledControl.board.ledsSet(lightValues.topValue, lightValues.rightValue, lightValues.bottomValue, lightValues.leftValue);
                         app.bpu.ledControl.board.diffuserSet(lightValues.diffuserValue);

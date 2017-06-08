@@ -290,10 +290,13 @@ Stylus.prototype.getXY = function(values, from) {
     // } else if (lightValues.bottomValue > 0) {
     //   y += this.maxJoyRadius * (lightValues.bottomValue / 100);
     // }
+    // 
+    var x = Math.round(values.offsetX);
+    var y = Math.round(values.offsetY);
 
     return {
-        x: Math.round(values.offsetX),
-        y: Math.round(values.offsetY),
+        x: x == null ? -1 : x,
+        y: y == null ? -1 : y,
         color: 0, //Math.round(values.color),
         clear: 0 //Math.round(values.clear)
     };
@@ -350,10 +353,10 @@ Stylus.prototype.setXY = function(projectorSetObj, from) {
     //   ledsSetObj.rightValue = Math.round(Math.abs(this.cos_evt * this.inten_evt) * 100);
     // }
 
-    projectorSetObj.projectorX = this.x_evt;
-    projectorSetObj.projectorY = this.y_evt;
-    projectorSetObj.projectorColor = this.dcolor_evt;
-    projectorSetObj.projectorClear = this.dclear_evt;
+    projectorSetObj.projectorX = this.x_evt == null ? -1 : this.x_evt;
+    projectorSetObj.projectorY = this.y_evt == null ? -1 : this.y_evt;
+    projectorSetObj.projectorColor = this.dcolor_evt == null ? -1 : this.dcolor_evt;
+    projectorSetObj.projectorClear = this.dclear_evt == null ? -1 : this.dclear_evt;
 
     //Add info to ledsSetObj
     projectorSetObj.metaData.mag = this.stimulus_evt;

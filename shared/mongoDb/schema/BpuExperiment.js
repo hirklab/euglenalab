@@ -606,10 +606,10 @@ var _getDataObjToSetLeds = function() {
             intensity: null,
             degs: null,
             rads: null,
-            x: null,
-            y: null, //values from joystick while figuring position
-            color: null,
-            clear: null,
+            x: -1,
+            y: -1, //values from joystick while figuring position
+            color: -1,
+            clear: -1,
 
             layerX: null,
             layerY: null, //used for all events, light value set events are converted to xy
@@ -640,10 +640,10 @@ var _getDataObjToSetProjector = function() {
             intensity: null,
             // degs: null,
             // rads: null,
-            x: null,
-            y: null, //values from joystick while figuring position,
-            color: null,
-            clear: null,
+            x: -1,
+            y: -1, //values from joystick while figuring position,
+            color: -1,
+            clear: -1,
 
             layerX: null,
             layerY: null, //used for all events, light value set events are converted to xy
