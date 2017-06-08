@@ -132,16 +132,16 @@ void ofApp::update(){
         // calibrationProjector.add(currentImage);
     // }
     // 
-    uint64_t now = ofGetElapsedTimeMillis();
-	if(now - lastSent >= 10){
-		for(int i = 0; i < TCP.getLastID(); i++){
-			if( !TCP.isClientConnected(i) ) continue;
+ //    uint64_t now = ofGetElapsedTimeMillis();
+	// if(now - lastSent >= 10){
+	// 	for(int i = 0; i < TCP.getLastID(); i++){
+	// 		if( !TCP.isClientConnected(i) ) continue;
 
-			// ofLogNotice() << "connected on port " + ofToString(TCP.getClientPort(i));
-		}
+	// 		// ofLogNotice() << "connected on port " + ofToString(TCP.getClientPort(i));
+	// 	}
 
-		lastSent = now;
-	}
+	// 	lastSent = now;
+	// }
 }
 
 //--------------------------------------------------------------
@@ -194,10 +194,14 @@ void ofApp::draw(){
     // calibrationProjector.drawCandidateProjectorPattern(0,0, PROJECTOR_WIDTH, PROJECTOR_HEIGHT, ofColor(255,255,255,255), 6);
     
     // for each connected client lets get the data being sent and lets print it to the screen
+    ofLogNotice() << TCP.getLastID();
+
 	for(unsigned int i = 0; i < (unsigned int)TCP.getLastID(); i++){
 
-		if( !TCP.isClientConnected(i) )continue;
-
+		if( !TCP.isClientConnected(i) ){
+            ofLogNotice() << "not connected";
+            continue;
+        }
 		// give each client its own color
 		// ofSetColor(255 - i*30, 255 - i * 20, 100 + i*40);
 
@@ -226,39 +230,39 @@ void ofApp::draw(){
             tmp = TCP.receive(i);
 		}while(tmp!="");
 
+        ofLogNotice() << str;
+
 		// if there was a message set it to the corresponding client
-		if(str.length() > 1){
-			storeText[i] = str;
-		}
-
-		// draw the info text and the received text bellow it
-		// ofDrawBitmapString(info, xPos, yPos);
-		// ofDrawBitmapString(storeText[i], 25, yPos + 20);
-		// 
-		// 
+		if(str.length() > 0){
+			
+    		// draw the info text and the received text bellow it
+    		// ofDrawBitmapString(info, xPos, yPos);
+    		// ofDrawBitmapString(storeText[i], 25, yPos + 20);
+    		// 
+    		// 
 		
-		ofLogNotice() << storeText[i];
-		
-		bool parsingSuccessful = response.parse(storeText[i]);
+    		bool parsingSuccessful = response.parse(str);
 
-		if (parsingSuccessful)
-		{
-			// ofLogNotice() << response.getRawString();
-			int x = (int)(response["x"].asDouble());
-			int y = (int)(response["y"].asDouble());
-			int clear = (int)(response["clear"].asDouble());
+    		if (parsingSuccessful)
+    		{
+    			// ofLogNotice() << response.getRawString();
+    			int x = (int)(response["x"].asDouble());
+    			int y = (int)(response["y"].asDouble());
+    			int clear = (int)(response["clear"].asDouble());
 
-			if(x>=0 && y >= 0){
-				ofPoint pt;
-    			pt.set(x,y);
-    			mesh.addVertex(pt);
-    			mesh.addColor(ofFloatColor(0.0, 0.0, 1.0)); // Blue
+    			if(x>=0 && y >= 0){
+    				ofPoint pt;
+        			pt.set(x,y);
+        			mesh.addVertex(pt);
+        			mesh.addColor(ofFloatColor(0.0, 0.0, 1.0)); // Blue
+        		}
+
+        		if(clear>0){
+        			mesh.clear();
+        		}
     		}
 
-    		if(clear>0){
-    			mesh.clear();
-    		}
-		}
+        }
 	}
 
 	drawLine();

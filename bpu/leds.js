@@ -70,13 +70,10 @@ var _init = function(options, callback) {
     };
 
     board.projectorSet = function(projector, x, y, color, clear) {
-        if (x && y && color && clear) {
-            console.log('projector = {' + x + ', ' + y + ', ' + color + ', ' + clear + '}');
+        console.log('projector = {' + x + ', ' + y + ', ' + color + ', ' + clear + '}');
 
-            if (projector) {
-                projector.write('{\"x\": ' + x + ', \"y\": ' + y + ', \"color\": ' + color + ', \"clear\": ' + clear + '}\n');
-            }
-
+        if (projector && x && y && color && clear) {
+            projector.write('{\"x\": ' + x + ', \"y\": ' + y + ', \"color\": ' + color + ', \"clear\": ' + clear + '}\n');
         }
     };
 

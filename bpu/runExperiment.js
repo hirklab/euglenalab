@@ -66,6 +66,8 @@ exports = module.exports = function(app, deps, options, exp, mainCallback) {
                         if (err) {
                             console.log("==== projector failed ====");
                             console.log(err);
+                            err = fName + ' initializeProjector ' + err;
+                            return callback(err);
                         } else {
                             app.projector = projector;
                         }
