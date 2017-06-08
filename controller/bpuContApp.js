@@ -446,6 +446,7 @@ var loop = function () {
                     bpuObj.socket = null;
                 });
                 app.bpuLedsSetFuncs[bpuObj.doc.name] = function (setLedsData) {
+                    console.log(setLedsData);
                     bpuObj.socket.emit(app.mainConfig.socketStrs.bpu_runExpLedsSet, setLedsData);
                 };
                 setTimeout(function () {

@@ -20,15 +20,15 @@ void ofApp::setup(){
     // rotZ=2.9;
 
 	// 4x magnification for camera lens
-    posX=241.09;
+    posX=274.092;
     posY=479.405;
     posZ=0;
 
-    scaleX=0.149;
-    scaleY=0.176;
+    scaleX=0.178;
+    scaleY=0.233;
     scaleZ=1.0;
 
-    rotX=203.303;
+    rotX=181.502;
     rotY=-0.501;
     rotZ=-1.4;
 
@@ -37,7 +37,7 @@ void ofApp::setup(){
     ofSetFrameRate(PROJECTOR_FRAMERATE);
     // ofEnableAlphaBlending();
     // ofEnableSmoothing();
-    ofSetCircleResolution(15);
+    ofSetCircleResolution(10);
     // ofBackground(0,0,0);
 
     //we can now get back a list of devices.
@@ -80,22 +80,22 @@ void ofApp::setup(){
 	TCP.setMessageDelimiter("\n");
 	lastSent = 0;
 
-	originalCorners[0].set(0, 0);
-	originalCorners[1].set(640, 0);
-	originalCorners[2].set(640, 480);
-	originalCorners[3].set(0, 480);
+	// originalCorners[0].set(0, 0);
+	// originalCorners[1].set(640, 0);
+	// originalCorners[2].set(640, 480);
+	// originalCorners[3].set(0, 480);
 	
-	distortedCorners[0].set(0, 0);
-	distortedCorners[1].set(100, 0);
-	distortedCorners[2].set(100, 100);
-	distortedCorners[3].set(0, 100);
+	// distortedCorners[0].set(0, 0);
+	// distortedCorners[1].set(100, 0);
+	// distortedCorners[2].set(100, 100);
+	// distortedCorners[3].set(0, 100);
 
-	homography = ofxHomography::findHomography(originalCorners, distortedCorners);
+	// homography = ofxHomography::findHomography(originalCorners, distortedCorners);
 
-	ofPoint point(640,80);
+	// ofPoint point(320,240);
 
-	ofPoint pointInScreen = ofxHomography::toScreenCoordinates(point, homography);
-	ofLogNotice() << "Local coordinates " + ofToString(point) + "\nScreen coordinates " + ofToString(pointInScreen);
+	// ofPoint pointInScreen = ofxHomography::toScreenCoordinates(point, homography);
+	// ofLogNotice() << "Local coordinates " + ofToString(point) + "\nScreen coordinates " + ofToString(pointInScreen);
 
     // fbo.allocate(ofGetWidth(), ofGetHeight(), OF_PIXELS_RGB);
     // 

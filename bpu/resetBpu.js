@@ -204,7 +204,7 @@ exports = module.exports = function(app, deps, options, mainCallback) {
                                 ambientlightValue: 0,
                                 projectorX: -1,
                                 projectorY: -1,
-                                projectorColor: -1,
+                                projectorColor: 0,
                                 projectorClear: 1,
                             };
                         }

@@ -7,7 +7,7 @@ var socketStrs = {
     kickFromLab: '/#kickFromLab',
 };
 
-(function () {
+(function() {
     'use strict';
     //parent app
     app = app || {};
@@ -22,9 +22,9 @@ var socketStrs = {
     app.userSocketClient = me;
 
     //Set connection called from parent client page
-    me.setConnection = function (setConnectionCallbackToParent) {
+    me.setConnection = function(setConnectionCallbackToParent) {
         var didCallback = false;
-        setTimeout(function () {
+        setTimeout(function() {
             if (!didCallback) {
                 didCallback = true;
                 setConnectionCallbackToParent('timed out', null);
@@ -41,7 +41,7 @@ var socketStrs = {
         //Primary Connection
         var socket = io.connect();
         //Wait for Set Connection
-        socket.on(socketStrs.setConnection, function (serverCallback) {
+        socket.on(socketStrs.setConnection, function(serverCallback) {
             if (!didCallback) {
                 didCallback = true;
                 app.mainView.session.attributes.socketID = socket.id;
@@ -52,13 +52,12 @@ var socketStrs = {
                 setConnectionCallbackToParent(null);
             }
         });
-        socket.on(socketStrs.kickFromLab, function (cb_fn) {
+        socket.on(socketStrs.kickFromLab, function(cb_fn) {
             app.mainView.kickUser(null, 'socket kick');
         });
-        socket.on('connect', function () {
-        });
+        socket.on('connect', function() {});
         //Update Info
-        socket.on('/#update', function (updateObj) {
+        socket.on('/#update', function(updateObj) {
             var clientUpdateObj = {};
 
             //Queue info for UI update
@@ -75,7 +74,7 @@ var socketStrs = {
 
 
             //Go through active bpu exps
-            updateObj.bpuExps.forEach(function (bpuExp) {
+            updateObj.bpuExps.forEach(function(bpuExp) {
                 if (bpuExp.liveBpuExperiment.group_experimentType === 'live') {
                     clientUpdateObj.bpuLiveExp = bpuExp;
                     clientUpdateObj.bpuLiveFinishTime = bpuExp.liveBpuExperiment.bc_timeLeft;
@@ -92,7 +91,7 @@ var socketStrs = {
                 app.mainView.setTimeLeftInLabLabel(clientUpdateObj.bpuLiveFinishTime, 0, true);
             }
             //Go through queue bpu exps
-            updateObj.queueExpTags.forEach(function (expTag) {
+            updateObj.queueExpTags.forEach(function(expTag) {
                 if (expTag.session.sessionID !== null && expTag.session.sessionID !== undefined) {
                     if (expTag.group_experimentType === 'live') {
                         clientUpdateObj.liveQueueExp = expTag;
@@ -103,16 +102,22 @@ var socketStrs = {
                 }
             });
         });
-        me.ledsSet = function (ledsSetObj) {
+        me.ledsSet = function(ledsSetObj) {
             me.ledsSetEventCounter++;
             ledsSetObj.sessionID = app.mainView.session.get('sessionID');
             ledsSetObj.sentTime = new Date().getTime();
             socket.emit(socketStrs.ledsSet, ledsSetObj);
         };
-        me.projectorSet = function (projectorSetObj) {
+        me.projectorSet = function(projectorSetObj, width, height) {
             me.projectorSetEventCounter++;
             projectorSetObj.sessionID = app.mainView.session.get('sessionID');
             projectorSetObj.sentTime = new Date().getTime();
+
+            projectorSetObj.projectorX = Math.round(projectorSetObj.projectorX * 640 / width);
+            projectorSetObj.projectorY = Math.round(projectorSetObj.projectorY * 480 / height);
+
+            console.log(width);
+
             socket.emit(socketStrs.ledsSet, projectorSetObj);
         };
     };

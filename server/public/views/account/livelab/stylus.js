@@ -294,8 +294,8 @@ Stylus.prototype.getXY = function(values, from) {
     return {
         x: Math.round(values.offsetX),
         y: Math.round(values.offsetY),
-        color: Math.round(values.color),
-        clear: Math.round(values.clear)
+        color: 0, //Math.round(values.color),
+        clear: 0 //Math.round(values.clear)
     };
 };
 
@@ -359,10 +359,10 @@ Stylus.prototype.setXY = function(projectorSetObj, from) {
     projectorSetObj.metaData.mag = this.stimulus_evt;
     // ledsSetObj.metaData.degs = this.degs_evt;
     // ledsSetObj.metaData.rads = this.rads_evt;
-    projectorSetObj.metaData.x = this.x_evt;
-    projectorSetObj.metaData.y = this.y_evt;
-    projectorSetObj.metaData.color = this.dcolor_evt;
-    projectorSetObj.metaData.clear = this.dclear_evt;
+    // projectorSetObj.metaData.x = this.x_evt;
+    // projectorSetObj.metaData.y = this.y_evt;
+    // projectorSetObj.metaData.color = this.dcolor_evt;
+    // projectorSetObj.metaData.clear = this.dclear_evt;
 
     return projectorSetObj;
 };

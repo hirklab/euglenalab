@@ -289,8 +289,8 @@
             projectorSetObj.metaData.offsetX = point.x;
             projectorSetObj.metaData.offsetY = point.y;
             projectorSetObj.metaData.evtType = evtType;
-            projectorSetObj.metaData.color = point.color;
-            projectorSetObj.metaData.clear = point.clear;
+            projectorSetObj.metaData.color = 0;
+            projectorSetObj.metaData.clear = 0;
             projectorSetObj.metaData.touchState = app.mainView.stylusInstance.touchState;
             projectorSetObj.metaData.previousTouchState = previousTouchState;
 
@@ -326,12 +326,13 @@
             //Reset Values
             projectorSetObj = app.mainView.stylus.setXY(projectorSetObj, from + '->setProjectorFromObjectAndSendToServer');
             app.mainView.stylus.update(projectorSetObj);
+            // console.log(projectorSetObj);
 
             //only update bpu on interval
             var newDate = new Date();
             if ((newDate - app.mainView.lastSetLedsFromEventDate) >= app.mainView.setLedsFromEventInterval) {
                 app.mainView.lastSetLedsFromEventDate = newDate;
-                app.userSocketClient.projectorSet(projectorSetObj);
+                app.userSocketClient.projectorSet(projectorSetObj, app.mainView.stylus.canvas.width, app.mainView.stylus.canvas.height);
             }
         },
 
@@ -400,8 +401,8 @@
                 //Set time left in lab
                 app.mainView.setTimeLeftInLabLabel(null, deltaFrame, false);
 
-                console.log("timeInLab:" + app.mainView.timeInLab)
-                console.log("timeForLab:" + app.mainView.timeForLab)
+                // console.log("timeInLab:" + app.mainView.timeInLab)
+                // console.log("timeForLab:" + app.mainView.timeForLab)
 
                 //Fail safe user kick. leds will not be set on bpu if bpu is done.
                 //  this covers the case if the server does not properly inform the client of a lab over scenerio.

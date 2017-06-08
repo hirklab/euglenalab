@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ofxCv.h"
 #include "ofxNetwork.h"
-#include "ofxHomography.h"
+// #include "ofxHomography.h"
 #include "ofxJSON.h"
 
 #define DISPLAY_WIDTH 640

@@ -1,4 +1,3 @@
 ofxCv
 ofxNetwork
-ofxHomography
 ofxJSON

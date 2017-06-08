@@ -460,7 +460,7 @@ exports = module.exports = function(app, mongoose) {
                         projectorX: -1,
                         projectorY: -1,
                         projectorColor: 0,
-                        projectorClear: 1
+                        projectorClear: 0
                     });
                 }
                 returnObj.isValid = true;
@@ -579,7 +579,7 @@ var _getDataObjToJoinQueue = function(app) {
             projectorX: -1,
             projectorY: -1,
             projectorColor: 0,
-            projectorClear: 1
+            projectorClear: 0
         }
     };
     return joinQueueData;
@@ -608,6 +608,8 @@ var _getDataObjToSetLeds = function() {
             rads: null,
             x: null,
             y: null, //values from joystick while figuring position
+            color: null,
+            clear: null,
 
             layerX: null,
             layerY: null, //used for all events, light value set events are converted to xy
