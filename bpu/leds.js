@@ -72,7 +72,7 @@ var _init = function(options, callback) {
     board.projectorSet = function(projector, x, y, color, clear) {
         console.log('projector = {' + x + ', ' + y + ', ' + color + ', ' + clear + '}');
 
-        if (projector && x && y && color && clear) {
+        if (projector != null && x != null && y != null && color != null && clear != null) {
             projector.write('{\"x\": ' + x + ', \"y\": ' + y + ', \"color\": ' + color + ', \"clear\": ' + clear + '}\n');
         }
     };
