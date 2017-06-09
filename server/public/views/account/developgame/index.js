@@ -195,6 +195,7 @@
       modifiedCode = modifiedCode.split('LED.UP').join('\"LED.UP\"');
       modifiedCode = modifiedCode.split('LED.DOWN').join('\"LED.DOWN\"');
 
+      // TODO: CAREFULLY DETERMINE WHEN CODE SHOULD BE EVALUATED LOCALLY VS. GLOBALLY!!!!!
       //eval(modifiedCode);
       $.globalEval(modifiedCode);
     },
