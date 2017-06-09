@@ -22,77 +22,49 @@
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
-    // var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
-    //   height: "20px",
-    //   mode: "javascript",
-    //   //theme: "default",
-    //   autoMatchParens: true
-    // });
-
     var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
-        lineNumbers: true
+        lineNumbers: false,
+        theme: "default",
+        autoMatchParens: true
     });
 
     var startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
-      height: "20px",
-      mode: "javascript",
-      //theme: "default",
-      autoMatchParens: true
+        lineNumbers: false,
+        theme: "default",
+        autoMatchParens: true
     });
 
     var endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
-      height: "20px",
-      mode: "javascript",
-      //theme: "default",
-      autoMatchParens: true
+        lineNumbers: false,
+        theme: "default",
+        autoMatchParens: true
     });
 
     var joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
-      height: "20px",
-      mode: "javascript",
-      //theme: "default",
-      autoMatchParens: true
+        lineNumbers: false,
+        theme: "default",
+        autoMatchParens: true
     });
 
     var keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
-      height: "20px",
-      mode: "javascript",
-      //theme: "default",
-      autoMatchParens: true
+        lineNumbers: false,
+        theme: "default",
+        autoMatchParens: true
     });
 
-    // Handle new run code.
+    // Handle new code.
     $('#btnUpdateRun').click(function() {
       app.mainView.gameRunCode = runEditor.getValue();
+      app.mainView.gameStartCode = startEditor.getValue();
+      app.mainView.gameEndCode = endEditor.getValue();
+      app.mainView.gameKeypressCode = keypressEditor.getValue();
+      app.mainView.gameJoystickCode = joystickEditor.getValue();
     });
 
-    // Handle new start code.
-    $('#btnUpdateStart').click(function() {
-      app.mainView.gameStartCode = startEditor.getValue();
-    });
     $('#btnStartGame').click(function() {
       app.mainView.gameInSession = true;
       app.mainView.parseStartCode(app.mainView.gameStartCode);
     });
-
-    // Handle new end code.
-    $('#btnUpdateEnd').click(function() {
-      app.mainView.gameEndCode = endEditor.getValue();
-    });
-
-    // Handle new keypress code.
-    $('#btnUpdateKeypress').click(function() {
-      app.mainView.gameKeypressCode = keypressEditor.getValue();
-    });
-
-    // Handle new joystick code.
-    $('#btnUpdateJoystick').click(function() {
-      app.mainView.gameJoystickCode = joystickEditor.getValue();
-      // TODO: Find when (and how) to run this: app.mainView.parseJoystickCode(app.mainView.gameJoystickCode);
-    });
-
-
-
 
   });
   app.User = Backbone.Model.extend({
@@ -427,7 +399,7 @@
         app.mainView.timeLeftInLab -= dt;
       }
       app.mainView.timeInLab += dt;
-      var labelMsg = app.mainView.bpu.get('name') + ' Time Remaining:';
+      var labelMsg = 'Remaining time in session:';
       if (app.mainView.timeLeftInLab > 0) {
         if (app.mainView.timeLeftInLab === null) {
           labelMsg += 'unknown' + ' seconds.';
@@ -456,7 +428,7 @@
         }
       }
       var label = app.mainView.$el.find('[name="' + 'timeLeftInLab' + '"]')[0];
-      if (label) label.innerHTML = 'Develop your own biotic game!' + '<br><br>' + labelMsg + '<br>';
+      if (label) label.innerHTML = labelMsg + '<br>';
     },
 
     //Tag-UpdateLoop

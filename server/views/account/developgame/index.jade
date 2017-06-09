@@ -178,14 +178,20 @@ block body
     div#listener
       embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
 
-    h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.lightData.topValue} #{data.timeLeftInLab.value}
-
     div.row
       div.col-xs-7
-        |public class MyBioticGame extends BioticGame {
+        font(color='purple')
+          |function&nbsp;
+        |MyBioticGame() {
         br
         br
-        |&nbsp;&nbsp;&nbsp;&nbsp;public void run() {
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        font(color='#0F6BA0')
+          |this
+        |.run = 
+        font(color='purple')
+          |function
+        |() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
@@ -197,14 +203,18 @@ block body
                 |//&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("a");
                 |//}
         br
-        |&nbsp;&nbsp;&nbsp;&nbsp;}
+        |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-success#btnUpdateRun(type="update",value="update") Update Code
-        br
         br
 
-        |&nbsp;&nbsp;&nbsp;&nbsp;public void startGame() {
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        font(color='#0F6BA0')
+          |this
+        |.startGame = 
+        font(color='purple')
+          |function
+        |() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
@@ -215,14 +225,18 @@ block body
               |&nbsp;
               |//console.log('started!');
         br
-        |&nbsp;&nbsp;&nbsp;&nbsp;}
+        |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-success#btnUpdateStart(type="update",value="update") Update Code
-        br
         br
 
-        |&nbsp;&nbsp;&nbsp;&nbsp;public void endGame() {
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        font(color='#0F6BA0')
+          |this
+        |.endGame = 
+        font(color='purple')
+          |function
+        |() {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
@@ -231,14 +245,21 @@ block body
             textarea.codeArea#txtCodeEnd
               |//console.log('End game!');
         br
-        |&nbsp;&nbsp;&nbsp;&nbsp;}
+        |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-success#btnUpdateEnd(type="update",value="update") Update Code
-        br
         br
 
-        |&nbsp;&nbsp;&nbsp;&nbsp;public void onJoystickChange(int angle, int intensity) {
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        font(color='#0F6BA0')
+          |this
+        |.onJoystickChange = 
+        font(color='purple')
+          |function
+        |(
+        font(color='blue')
+          |angle, intensity
+        |) {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
@@ -247,14 +268,21 @@ block body
             textarea.codeArea#txtCodeJoystick
               |//console.log('Joystick changed!');
         br
-        |&nbsp;&nbsp;&nbsp;&nbsp;}
+        |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-success#btnUpdateJoystick(type="update",value="update") Update Code
-        br
         br
 
-        |&nbsp;&nbsp;&nbsp;&nbsp;public void onKeypress(int key) {
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        font(color='#0F6BA0')
+          |this
+        |.onKeypress = 
+        font(color='purple')
+          |function
+        |(
+        font(color='blue')
+          |key
+        |) {
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
@@ -263,14 +291,15 @@ block body
             textarea.codeArea#txtCodeKeypress
               |//console.log('Keypress!');
         br
-        |&nbsp;&nbsp;&nbsp;&nbsp;}
+        |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-success#btnUpdateKeypress(type="update",value="update") Update Code
+        br
+        |};
         br
         br
-
-        |}
+        button.btn.btn-success#btnUpdateRun(type="update",value="update") Update Code
+        
       div.col-xs-5
         div.row
           div.col-xs-12
@@ -290,10 +319,12 @@ block body
         br
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
-        h2
-          |Status 
-          code(id="statusField")
-            |Loading...
+        h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
+        button.btn.btn-success#btnSaveGame(type="save",value="save", disabled) Save Game
+        //- h2
+        //-   |Status 
+        //-   code(id="statusField")
+        //-     |Loading...
     
     div.modal.fade(role="dialog")
 
