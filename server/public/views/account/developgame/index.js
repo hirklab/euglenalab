@@ -22,48 +22,53 @@
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
+    // var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
+    //   height: "20px",
+    //   mode: "javascript",
+    //   //theme: "default",
+    //   autoMatchParens: true
+    // });
+
     var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
-      mode: "javascript",
-      theme: "default",
-      autoMatchParens: true
+        lineNumbers: true
     });
 
     var startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
-      height: "50px",
+      height: "20px",
       mode: "javascript",
-      theme: "default",
+      //theme: "default",
       autoMatchParens: true
     });
 
     var endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
-      height: "50px",
+      height: "20px",
       mode: "javascript",
-      theme: "default",
+      //theme: "default",
       autoMatchParens: true
     });
 
     var joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
-      height: "50px",
+      height: "20px",
       mode: "javascript",
-      theme: "default",
+      //theme: "default",
       autoMatchParens: true
     });
 
     var keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
-      height: "50px",
+      height: "20px",
       mode: "javascript",
-      theme: "default",
+      //theme: "default",
       autoMatchParens: true
     });
 
     // Handle new run code.
     $('#btnUpdateRun').click(function() {
-      app.mainView.gameRunCode = runEditor.getDoc().getValue();
+      app.mainView.gameRunCode = runEditor.getValue();
     });
 
     // Handle new start code.
     $('#btnUpdateStart').click(function() {
-      app.mainView.gameStartCode = startEditor.getDoc().getValue();
+      app.mainView.gameStartCode = startEditor.getValue();
     });
     $('#btnStartGame').click(function() {
       app.mainView.gameInSession = true;
@@ -72,17 +77,17 @@
 
     // Handle new end code.
     $('#btnUpdateEnd').click(function() {
-      app.mainView.gameEndCode = endEditor.getDoc().getValue();
+      app.mainView.gameEndCode = endEditor.getValue();
     });
 
     // Handle new keypress code.
     $('#btnUpdateKeypress').click(function() {
-      app.mainView.gameKeypressCode = keypressEditor.getDoc().getValue();
+      app.mainView.gameKeypressCode = keypressEditor.getValue();
     });
 
     // Handle new joystick code.
     $('#btnUpdateJoystick').click(function() {
-      app.mainView.gameJoystickCode = joystickEditor.getDoc().getValue();
+      app.mainView.gameJoystickCode = joystickEditor.getValue();
       // TODO: Find when (and how) to run this: app.mainView.parseJoystickCode(app.mainView.gameJoystickCode);
     });
 
