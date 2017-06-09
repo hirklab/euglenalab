@@ -120,8 +120,8 @@ var socketStrs = {
                 projectorSetObj.projectorY = Math.round(projectorSetObj.projectorY * 480 / height);
             }
 
-            console.log("sending data");
-            console.log(projectorSetObj);
+            // console.log("sending data");
+            // console.log(projectorSetObj);
 
             socket.emit(socketStrs.ledsSet, projectorSetObj);
         };

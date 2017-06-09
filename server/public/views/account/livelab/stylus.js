@@ -83,7 +83,7 @@ var Stylus = function(canvasDiv) {
             context.clearRect(0, 0, me.canvas.width, me.canvas.height);
         }
 
-        console.log(me.canvas.visible);
+        // console.log(me.canvas.visible);
         // me.canvas.style.visibility = (me.canvas.visible ? 'visible' : 'hidden');
         me.canvas.style.opacity = (me.canvas.visible ? 1 : 0);
 

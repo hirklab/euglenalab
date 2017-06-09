@@ -116,6 +116,8 @@
                 return objB.time - objA.time;
             });
 
+            console.log(app.mainView.bpuExp.attributes);
+
             //Set Lab Times
             app.mainView.timeForLab = app.mainView.bpuExp.attributes.exp_eventsToRun[0].time;
             app.mainView.setTimeLeftInLabLabel(app.mainView.timeForLab, 0, true);
@@ -182,7 +184,7 @@
                 app.mainView.keyboardTimeout = null;
             }
 
-            if (app.mainView.bpuExp !== null) {
+            if (app.mainView.bpuExp !== null && (new Date().getTime() - app.mainView.bpuExp.attributes.exp_submissionTime) < app.mainView.timeForLab + 8000) {
                 app.mainView.showSurvey();
             } else {
                 location.href = '/account/';
@@ -348,6 +350,11 @@
                 app.mainView.timeLeftInLab = timeLeft;
             } else {
                 app.mainView.timeLeftInLab -= dt;
+                // app.mainView.timeLeftInLab = (new Date().getTime() - app.mainView.bpuExp.attributes.exp_submissionTime);
+            }
+
+            if ((new Date().getTime() - app.mainView.bpuExp.attributes.exp_submissionTime) > app.mainView.timeForLab) {
+                app.mainView.kickUser(null, 'complete');
             }
 
             app.mainView.timeInLab += dt;
@@ -355,7 +362,7 @@
             var titleMsg = app.mainView.bpu.get('name') + '';
             var timeMsg = '';
 
-            if (app.mainView.timeLeftInLab > 0) {
+            if (app.mainView.timeLeftInLab > 0 && (new Date().getTime() - app.mainView.bpuExp.attributes.exp_submissionTime) < app.mainView.timeForLab) {
                 if (app.mainView.timeLeftInLab === null) {
                     timeMsg += '...';
                 } else {
