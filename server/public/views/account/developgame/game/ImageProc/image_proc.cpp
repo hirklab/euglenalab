@@ -72,6 +72,12 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->gameInSession = var_dict.Get("gameInSession").AsBool();
     }
 
+    // Post message with C++ variables back to JavaScript layer.
+    pp::VarDictionary msg;
+    msg.Set( "Type", "gamedata" );
+    msg.Set( "TotalEuglena", ((EuglenaProcessor*)processor.get())->totalEuglena );
+    PostMessage( msg );
+
     // Convert data to CMat
     // SendStatus("Casting to byte array");
     uint8_t* byteData = static_cast<uint8_t*>(data.Map());

@@ -141,6 +141,10 @@ function drawImage(pixels){
 var lastTime = 0;
 function handleMessage(msg) {
   var res = msg.data;
+  if ( res.Type == "gamedata" ) {
+    console.log('detected euglena: ' + res.TotalEuglena);
+    app.mainView.gameEuglenaCount = parseInt(res.TotalEuglena);
+  }
   if ( res.Type == "completed" ) {
     if ( res.Data ) {
       endTime = performance.now();

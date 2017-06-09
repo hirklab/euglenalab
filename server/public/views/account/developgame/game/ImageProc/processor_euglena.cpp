@@ -40,6 +40,7 @@ class EuglenaProcessor : public Processor {
         cv::Mat operator()(cv::Mat);
         char gameOverStr[80];
         bool gameInSession;
+        int totalEuglena;
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
@@ -69,17 +70,12 @@ EuglenaProcessor::~EuglenaProcessor() {
 }
 
 cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
-    //printf("Image Type: %s\n" , getImgType(im.type()).c_str() );
     printf("Processing images...");
 
     cv::Mat fgmask;
     (*_fgbg)(im,fgmask,-1);
 
-    //int morphElem = 0;
     cv::Mat dst;
-
-    // cv::morphologyEx( fgmask, dst, cv::MORPH_ERODE,  _elementErode );
-    // cv::morphologyEx( dst, fgmask, cv::MORPH_DILATE, _elementDilate );
 
     cv::threshold(fgmask,fgmask, 127,255, cv::THRESH_BINARY);
     cv::morphologyEx( fgmask, fgmask, cv::MORPH_ERODE,  _elementErode );
@@ -88,8 +84,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     std::vector<std::vector<cv::Point> > contours;
     cv::findContours( fgmask, contours,
                       cv::RETR_TREE,cv::CHAIN_APPROX_SIMPLE);
-
-    //std::vector< std::vector<cv::Point> > validContours;
 
     int currEuglenaInBox = 0;
     int totalDetectedEuglena = 0;
@@ -114,6 +108,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 totalDetectedEuglena += 1;
             }
         }
+        totalEuglena = totalDetectedEuglena;
 
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
         for (auto &e : euglenas) {
@@ -146,17 +141,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
     }
 
-
-    //drawContours(im, validContours, -1, cv::Scalar(0,0,255),2);
-
-
-    // cv::Mat fullAlpha = cv::Mat( im.size(), CV_8UC1, cv::Scalar(255));
-    // std::vector<cv::Mat> rgb;
-    // rgb.push_back(fgmask);
-    // rgb.push_back(fgmask);
-    // rgb.push_back(fgmask);
-    // rgb.push_back(fullAlpha);
-    // cv::merge(rgb,im);
 
     return im;
 }

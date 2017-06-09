@@ -185,19 +185,9 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeRun
-              |if (true) {
-              |&nbsp;
-              |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("a");
-              |&nbsp;
-              |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("b");
-              |&nbsp;
-              |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("c");
-              |&nbsp;
-              |&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("IF STATEMENT EVALUATED!!!!!");
-              |&nbsp;
-              |}
-              |&nbsp;
-              |setLED(LED.RIGHT, 255);
+              |//if (true) {
+              |//&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("a");
+              |//}
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br
@@ -213,13 +203,9 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeStart
-              |setTextPerLevel(1, "Get 10% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
+              |//console.log('Game!');
               |&nbsp;
-              |setTextPerLevel(2, "Get 15% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
-              |&nbsp;
-              |setTextPerLevel(3, "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.");
-              |&nbsp;
-              |setGameOverMessage("Game over, yo!");
+              |//console.log('started!');
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br
@@ -235,7 +221,7 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeEnd
-              |setLED(LED.RIGHT, 0);
+              |//console.log('End game!');
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br
@@ -251,7 +237,7 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeJoystick
-              |console.log('Changed!');
+              |//console.log('Joystick changed!');
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br
@@ -267,7 +253,7 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeKeypress
-              |console.log('Keypress!');
+              |//console.log('Keypress!');
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;}
         br

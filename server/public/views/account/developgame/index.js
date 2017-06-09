@@ -119,23 +119,18 @@
     // GAME PARAMETERS SET BY USER
     gameLevel: 3,
     gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
-    gameOverText: "Game over!",
+    gameOverText: "",
 
     // INTERNAL GAME-RELATED-VARIABLES
     gameInSession: false,
-    gameRunCode: "if (true) {" +
-      "setGameOverMessage(\"a\");" +
-      "setGameOverMessage(\"b\");" +
-      "setGameOverMessage(\"c\");" +
-      "setGameOverMessage(\"IF STATEMENT EVALUATED!!!!!\");" +
-      "}" +
-      "setLED(LED.RIGHT, 255);",
+    gameRunCode: "",
     gameStartCode: "",
     gameEndCode: "",
     gameKeypressCode: "",
     gameJoystickCode: "",
     gameJoystickCodeAngle: "",
     gameJoystickCodeIntensity: "",
+    gameEuglenaCount: -1,
 
     //Tag-Initialize
     initialize: function() {
@@ -207,6 +202,7 @@
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setLevel').join('app.mainView.setLevel');
       modifiedCode = modifiedCode.split('setTextPerLevel').join('app.mainView.setTextPerLevel');
+      modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
       modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
@@ -306,6 +302,12 @@
       $('#level').text(level);
       $('#levelText').text(app.mainView.gameLevelText[level]);
       app.mainView.gameLevel = level;
+    },
+
+
+    getEuglenaCount: function() {
+      console.log('getEuglenaCount function called.');
+      return app.mainView.gameEuglenaCount;
     },
 
 
