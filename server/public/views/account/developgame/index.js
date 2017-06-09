@@ -18,9 +18,14 @@
       if (e.keyCode) code = e.keyCode;
       else if (e.which) code = e.which;
       var character = String.fromCharCode(code);
-      console.log('User pressed the following key: ' + character);
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
+
+    var codeVariablesEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeVariables'), {
+        lineNumbers: false,
+        theme: "default",
+        autoMatchParens: true
+    });
 
     var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
         lineNumbers: false,
@@ -54,6 +59,7 @@
 
     // Handle new code.
     $('#btnUpdateRun').click(function() {
+      app.mainView.gameGlobalVariables = codeVariablesEditor.getValue();
       app.mainView.gameRunCode = runEditor.getValue();
       app.mainView.gameStartCode = startEditor.getValue();
       app.mainView.gameEndCode = endEditor.getValue();
@@ -63,6 +69,7 @@
 
     $('#btnStartGame').click(function() {
       app.mainView.gameInSession = true;
+      app.mainView.parseGlobalVariables(app.mainView.gameGlobalVariables);
       app.mainView.parseStartCode(app.mainView.gameStartCode);
     });
 
@@ -100,6 +107,7 @@
 
     // INTERNAL GAME-RELATED-VARIABLES
     gameInSession: false,
+    gameGlobalVariables: "",
     gameRunCode: "",
     gameStartCode: "",
     gameEndCode: "",
@@ -187,7 +195,11 @@
       modifiedCode = modifiedCode.split('LED.UP').join('\"LED.UP\"');
       modifiedCode = modifiedCode.split('LED.DOWN').join('\"LED.DOWN\"');
 
-      eval(modifiedCode);
+      //eval(modifiedCode);
+      $.globalEval(modifiedCode);
+    },
+    parseGlobalVariables: function(runCode) {
+      app.mainView.generalParser(runCode);
     },
     parseRunCode: function(runCode) {
       app.mainView.generalParser(runCode);
