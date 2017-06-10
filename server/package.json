@@ -12,6 +12,7 @@
     "bcrypt": "^0.8.x",
     "body-parser": "^1.x.x",
     "bootstrap": "^3.x.x",
+    "bootstrap-colorpicker": "^2.5.1",
     "bootstrap-rating": "0.0.1",
     "compression": "^1.x.x",
     "connect-mongo": "^0.8.x",

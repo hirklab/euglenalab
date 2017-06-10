@@ -1,7 +1,7 @@
 var path = require('path');
 var nodePath = process.env.NODE_PATH;
 var nodePath = 'node_modules';
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     var env = grunt.option('env') || process.env.GRUNT_ENV || 'development';
     var compress = (env == 'production');
@@ -11,11 +11,11 @@ module.exports = function (grunt) {
         copy: {
             vendor: {
                 files: [{
-                    expand: true,
-                    cwd: nodePath + '/bootstrap/',
-                    src: ['js/**', 'less/**'],
-                    dest: 'public/vendor/bootstrap/'
-                },
+                        expand: true,
+                        cwd: nodePath + '/bootstrap/',
+                        src: ['js/**', 'less/**'],
+                        dest: 'public/vendor/bootstrap/'
+                    },
                     // For glyphicons
                     {
                         expand: true,
@@ -27,6 +27,11 @@ module.exports = function (grunt) {
                         cwd: nodePath + '/bootstrap-rating/',
                         src: ['bootstrap-rating.min.js', 'bootstrap-rating.css'],
                         dest: 'public/vendor/bootstrap-rating/'
+                    }, {
+                        expand: true,
+                        cwd: nodePath + '/bootstrap-colorpicker/dist/',
+                        src: ['js/**', 'css/**', 'img/**', 'less/**'],
+                        dest: 'public/vendor/bootstrap-colorpicker/'
                     }, {
                         expand: true,
                         cwd: nodePath + '/backbone/',
@@ -122,7 +127,7 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 sourceMap: true,
-                sourceMapName: function (filePath) {
+                sourceMapName: function(filePath) {
                     return filePath + '.map';
                 }
             },
@@ -146,6 +151,7 @@ module.exports = function (grunt) {
                         'public/vendor/bootstrap/js/tab.js',
                         'public/vendor/bootstrap/js/transition.js',
                         'public/vendor/bootstrap-rating/bootstrap-rating.min.js',
+                        'public/vendor/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js',
                         'public/vendor/momentjs/moment.js',
                         'public/layouts/core.js',
                         // 'public/layouts/rating.js',
@@ -201,6 +207,7 @@ module.exports = function (grunt) {
                     'public/layouts/core.min.css': [
                         'public/less/bootstrap-build.less',
                         'public/less/font-awesome-build.less',
+                        'public/vendor/bootstrap-colorpicker/less/bootstrap-colorpicker.less',
                         'public/layouts/core.less'
                     ],
                     'public/layouts/admin.min.css': ['public/layouts/admin.less']
