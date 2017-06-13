@@ -190,7 +190,12 @@ block body
           div.col-xs-12
             div(style='margin-left:3%;')
               textarea.codeArea#txtCodeVariables
-                |//this.totalEuglenaCount = 0;
+                |this.currLED = LED.RIGHT;
+                |this.possibleLEDs = [LED.UP, LED.DOWN, LED.RIGHT, LED.LEFT];
+                |this.instructions = "Guess which LED is currently shining. Press 'W'" +
+                |&nbsp;&nbsp;&nbsp;&nbsp;"for top LED, 'A' for left LED, 'S' for bottom LED, and" +
+                |&nbsp;&nbsp;&nbsp;&nbsp;"'D' for right LED.";
+                |this.score = 1;
         br
 
         |&nbsp;&nbsp;&nbsp;&nbsp;
@@ -206,9 +211,10 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeRun
-              |//if (true) {
-              |//&nbsp;&nbsp;&nbsp;&nbsp;setGameOverMessage("a");
-              |//}
+              |setLED(this.currLED, 999);
+              |if (this.score >= 10) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;finishGame();
+              |}
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -228,9 +234,9 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeStart
-              |//console.log('Game!');
-              |&nbsp;
-              |//console.log('started!');
+              |setJoystickView(false);
+              |setLevel(1);
+              |setTextPerLevel(1, this.instructions);
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -250,7 +256,7 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeEnd
-              |//console.log('End game!');
+              |alert('Guess correctly 10 times, congrats!');
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -296,7 +302,46 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeKeypress
-              |//console.log('Keypress!');
+              |switch(key) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.W:
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.UP) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Correct!');
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.score += 1;
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.currLED = this.possibleLEDs[Math.floor(Math.random() * this.possibleLEDs.length)];
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Wrong!');
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+              |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.A:
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.LEFT) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Correct!');
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.score += 1;
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.currLED = this.possibleLEDs[Math.floor(Math.random() * this.possibleLEDs.length)];
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Wrong!');
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+              |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.S:
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.DOWN) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Correct!');
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.score += 1;
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.currLED = this.possibleLEDs[Math.floor(Math.random() * this.possibleLEDs.length)];
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Wrong!');
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+              |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.D:
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.RIGHT) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Correct!');
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.score += 1;
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.currLED = this.possibleLEDs[Math.floor(Math.random() * this.possibleLEDs.length)];
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Wrong!');
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+              |&nbsp;&nbsp;&nbsp;&nbsp;default:
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+              |}
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
