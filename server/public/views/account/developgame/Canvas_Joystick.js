@@ -70,24 +70,26 @@ var Canvas_Joystick=function(canvasDiv) {
 
     //Draw Sequence
 
-    //Static
-    drawBoundingCircle();
-    drawBoundingCircleHalf();
+    if (app.mainView.gameJoystickView) {
+      //Static
+      drawBoundingCircle();
+      drawBoundingCircleHalf();
 
-    //Dynamic - Fillstyle(opacity) Depends on intensity of joystick
-    drawIntensityCircle(thisJoy.inten_evt);
+      //Dynamic - Fillstyle(opacity) Depends on intensity of joystick
+      drawIntensityCircle(thisJoy.inten_evt);
 
-    //Static
-    drawCenterMark();
+      //Static
+      drawCenterMark();
 
-    //Dynamic -
-    drawJoystickStick(thisJoy.x_evt, thisJoy.y_evt);
-    drawJoystickHead(thisJoy.x_evt, thisJoy.y_evt);
+      //Dynamic -
+      drawJoystickStick(thisJoy.x_evt, thisJoy.y_evt);
+      drawJoystickHead(thisJoy.x_evt, thisJoy.y_evt);
 
-    //Text
-    drawIntensityText(thisJoy.inten_evt);
-    drawAngleText(thisJoy.degs_evt);
-    drawJoystickTitle();
+      //Text
+      drawIntensityText(thisJoy.inten_evt);
+      drawAngleText(thisJoy.degs_evt);
+      drawJoystickTitle();
+    }
   };
 
   //Draw Functions

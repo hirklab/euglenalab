@@ -104,6 +104,7 @@
     gameLevel: 3,
     gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
     gameOverText: "",
+    gameJoystickView: true,
 
     // INTERNAL GAME-RELATED-VARIABLES
     gameInSession: false,
@@ -184,6 +185,7 @@
       // Replace EuglenaScript functions with appropriate function calls.
       var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
       modifiedCode = modifiedCode.split('finishGame').join('app.mainView.finishGame');
+      modifiedCode = modifiedCode.split('setJoystickView').join('app.mainView.setJoystickView');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setLevel').join('app.mainView.setLevel');
       modifiedCode = modifiedCode.split('setTextPerLevel').join('app.mainView.setTextPerLevel');
@@ -234,6 +236,10 @@
       console.log('finishGame function called.');
       app.mainView.gameInSession = false;
       app.mainView.parseEndCode(app.mainView.gameEndCode);
+    },
+    setJoystickView: function(isOn) {
+      console.log('setJoystickView function called.');
+      app.mainView.gameJoystickView = isOn;
     },
     setGameOverMessage: function(gameOverText) {
       console.log('setGameOverMessage function called.');
