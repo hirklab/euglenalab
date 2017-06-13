@@ -708,26 +708,26 @@
           },
         }
       };
-      document.addEventListener('keydown', function(event) {
-        if (app.mainView.myJoyStickObj.touchState !== 'down') {
-          Object.keys(app.mainView.myJoyKeys.keys).forEach(function(item) {
-            if (event.keyCode == app.mainView.myJoyKeys.keys[item].code) {
-              app.mainView.myJoyKeys.keys[item].isDown = true;
-              app.mainView.myJoyKeys.runKeys();
-            }
-          });
-        }
-      });
-      document.addEventListener('keyup', function(event) {
-        if (app.mainView.myJoyStickObj.touchState !== 'down') {
-          Object.keys(app.mainView.myJoyKeys.keys).forEach(function(item) {
-            if (event.keyCode == app.mainView.myJoyKeys.keys[item].code) {
-              app.mainView.myJoyKeys.keys[item].isDown = false;
-              app.mainView.myJoyKeys.runKeys();
-            }
-          });
-        }
-      });
+      // document.addEventListener('keydown', function(event) {
+      //   if (app.mainView.myJoyStickObj.touchState !== 'down') {
+      //     Object.keys(app.mainView.myJoyKeys.keys).forEach(function(item) {
+      //       if (event.keyCode == app.mainView.myJoyKeys.keys[item].code) {
+      //         app.mainView.myJoyKeys.keys[item].isDown = true;
+      //         app.mainView.myJoyKeys.runKeys();
+      //       }
+      //     });
+      //   }
+      // });
+      // document.addEventListener('keyup', function(event) {
+      //   if (app.mainView.myJoyStickObj.touchState !== 'down') {
+      //     Object.keys(app.mainView.myJoyKeys.keys).forEach(function(item) {
+      //       if (event.keyCode == app.mainView.myJoyKeys.keys[item].code) {
+      //         app.mainView.myJoyKeys.keys[item].isDown = false;
+      //         app.mainView.myJoyKeys.runKeys();
+      //       }
+      //     });
+      //   }
+      // });
       cb_fn(null, null);
     },
     //Tag-Mouse
