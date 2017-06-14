@@ -117,6 +117,7 @@
     gameJoystickCodeAngle: "",
     gameJoystickCodeIntensity: "",
     gameEuglenaCount: -1,
+    gameDemoMode: false,
 
     //Tag-Initialize
     initialize: function() {
@@ -184,12 +185,17 @@
 
       // Replace EuglenaScript functions with appropriate function calls.
       var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
+      modifiedCode = modifiedCode.split('drawOnTrackedEuglena').join('app.mainView.drawOnTrackedEuglena');
+      modifiedCode = modifiedCode.split('drawRect').join('app.mainView.drawRect');
       modifiedCode = modifiedCode.split('finishGame').join('app.mainView.finishGame');
+      modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
+      modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
+      modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
       modifiedCode = modifiedCode.split('setJoystickView').join('app.mainView.setJoystickView');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setLevel').join('app.mainView.setLevel');
       modifiedCode = modifiedCode.split('setTextPerLevel').join('app.mainView.setTextPerLevel');
-      modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
+      
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
       modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
@@ -232,10 +238,39 @@
     /*
      * Handle various function calls.
      */
+
+    drawOnTrackedEuglena: function(isDrawing) {
+      console.log('XXX function called.');
+      /*
+       * UNDER CONSTRUCTION!!!!!
+       */
+    },
+    drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B) {
+      console.log('XXX function called.');
+      /*
+       * UNDER CONSTRUCTION!!!!!
+       */
+    },
     finishGame: function() {
       console.log('finishGame function called.');
       app.mainView.gameInSession = false;
       app.mainView.parseEndCode(app.mainView.gameEndCode);
+    },
+    getAllEuglenaPositions: function() {
+      console.log('XXX function called.');
+      /*
+       * UNDER CONSTRUCTION!!!!!
+       */
+    },
+    getEuglenaCount: function() {
+      console.log('getEuglenaCount function called.');
+      return app.mainView.gameEuglenaCount;
+    },
+    getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
+      console.log('XXX function called.');
+      /*
+       * UNDER CONSTRUCTION!!!!!
+       */
     },
     setJoystickView: function(isOn) {
       console.log('setJoystickView function called.');
@@ -299,13 +334,6 @@
       $('#levelText').text(app.mainView.gameLevelText[level]);
       app.mainView.gameLevel = level;
     },
-
-
-    getEuglenaCount: function() {
-      console.log('getEuglenaCount function called.');
-      return app.mainView.gameEuglenaCount;
-    },
-
 
 
     /*

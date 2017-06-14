@@ -70,6 +70,7 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       memset(((EuglenaProcessor*)processor.get())->gameOverStr, 0, 80);
       std::strcpy(((EuglenaProcessor*)processor.get())->gameOverStr, var_dict.Get("gameEndMsg").AsString().c_str());
       ((EuglenaProcessor*)processor.get())->gameInSession = var_dict.Get("gameInSession").AsBool();
+      ((EuglenaProcessor*)processor.get())->demoMode = var_dict.Get("gameDemoMode").AsBool();
     }
 
     // Post message with C++ variables back to JavaScript layer.
