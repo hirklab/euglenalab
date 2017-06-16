@@ -72,6 +72,14 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->gameInSession = var_dict.Get("gameInSession").AsBool();
       ((EuglenaProcessor*)processor.get())->demoMode = var_dict.Get("gameDemoMode").AsBool();
       ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = var_dict.Get("gameDrawOnTrackedEuglena").AsBool();
+      // drawRect
+      ((EuglenaProcessor*)processor.get())->drawRectUpperLeftX = var_dict.Get("drawRectUpperLeftX").AsDouble();
+      ((EuglenaProcessor*)processor.get())->drawRectUpperLeftY = var_dict.Get("drawRectUpperLeftY").AsDouble();
+      ((EuglenaProcessor*)processor.get())->drawRectLowerRightX = var_dict.Get("drawRectLowerRightX").AsDouble();
+      ((EuglenaProcessor*)processor.get())->drawRectLowerRightY = var_dict.Get("drawRectLowerRightY").AsDouble();
+      ((EuglenaProcessor*)processor.get())->drawRectR = var_dict.Get("drawRectR").AsDouble();
+      ((EuglenaProcessor*)processor.get())->drawRectG = var_dict.Get("drawRectG").AsDouble();
+      ((EuglenaProcessor*)processor.get())->drawRectB = var_dict.Get("drawRectB").AsDouble();
     }
 
     // Post message with C++ variables back to JavaScript layer.

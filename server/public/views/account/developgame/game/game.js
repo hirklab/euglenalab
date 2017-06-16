@@ -149,6 +149,14 @@ function processNextImage()
                 gameInSession: app.mainView.gameInSession,
                 gameDemoMode: app.mainView.gameDemoMode,
                 gameDrawOnTrackedEuglena: app.mainView.gameDrawOnTrackedEuglena,
+                // drawRect
+                drawRectUpperLeftX: app.mainView.drawRectUpperLeftX, 
+                drawRectUpperLeftY: app.mainView.drawRectUpperLeftY, 
+                drawRectLowerRightX: app.mainView.drawRectLowerRightX, 
+                drawRectLowerRightY: app.mainView.drawRectLowerRightY, 
+                drawRectR: app.mainView.drawRectR, 
+                drawRectG: app.mainView.drawRectG, 
+                drawRectB: app.mainView.drawRectB,
                 processor: "Euglena" };
     startTime = performance.now();
     ImageProcModule.postMessage( cmd );

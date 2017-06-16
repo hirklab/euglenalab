@@ -118,6 +118,15 @@
     gameEuglenaCount: -1,
     gameDemoMode: false,
 
+    // drawRect
+    drawRectUpperLeftX: 0, 
+    drawRectUpperLeftY: 0, 
+    drawRectLowerRightX: 0, 
+    drawRectLowerRightY: 0, 
+    drawRectR: 0, 
+    drawRectG: 0, 
+    drawRectB: 0,
+
     //Tag-Initialize
     initialize: function() {
       //Get Window Stats
@@ -239,14 +248,18 @@
      */
 
     drawOnTrackedEuglena: function(isDrawing) {
-      console.log('XXX function called.');
+      console.log('drawOnTrackedEuglena function called.');
       app.mainView.gameDrawOnTrackedEuglena = isDrawing;
     },
     drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B) {
-      console.log('XXX function called.');
-      /*
-       * UNDER CONSTRUCTION!!!!!
-       */
+      console.log('drawRect function called.');
+      app.mainView.drawRectUpperLeftX = upperLeftX;
+      app.mainView.drawRectUpperLeftY = upperLeftY;
+      app.mainView.drawRectLowerRightX = lowerRightX;
+      app.mainView.drawRectLowerRightY = lowerRightY;
+      app.mainView.drawRectR = R;
+      app.mainView.drawRectG = G;
+      app.mainView.drawRectB = B;
     },
     finishGame: function() {
       console.log('finishGame function called.');
@@ -254,7 +267,7 @@
       app.mainView.parseEndCode(app.mainView.gameEndCode);
     },
     getAllEuglenaPositions: function() {
-      console.log('XXX function called.');
+      console.log('getAllEuglenaPositions function called.');
       /*
        * UNDER CONSTRUCTION!!!!!
        */
@@ -264,7 +277,7 @@
       return app.mainView.gameEuglenaCount;
     },
     getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
-      console.log('XXX function called.');
+      console.log('getEuglenaInRect function called.');
       /*
        * UNDER CONSTRUCTION!!!!!
        */

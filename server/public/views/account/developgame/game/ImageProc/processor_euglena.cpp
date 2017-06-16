@@ -43,23 +43,24 @@ class EuglenaProcessor : public Processor {
         int totalEuglena;
         bool demoMode;
         bool drawOnTrackedEuglena;
+
+        // drawRect
+        double drawRectUpperLeftX;
+        double drawRectUpperLeftY;
+        double drawRectLowerRightX;
+        double drawRectLowerRightY; 
+        double drawRectR;
+        double drawRectG; 
+        double drawRectB;
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
         cv::Mat _elementDilate;
-        double _boxX1;
-        double _boxX2;
-        double _boxY1;
-        double _boxY2;
         std::vector<cv::RotatedRect> _previousEuglenaPositions;
 };
 
 EuglenaProcessor::EuglenaProcessor() : _fgbg(0) {
     gameInSession = true;
-    _boxX1 = (double)(rand()%200 + 200.0);
-    _boxY1 = (double)(rand()%200 + 200.0);
-    _boxX2 = (double)(rand()%500 + 400.0);
-    _boxY2 = (double)(rand()%500 + 400.0);
     _fgbg = new cv::BackgroundSubtractorMOG2(500,16,false);
     _elementErode  = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 3, 3 ));
     _elementDilate = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ));
@@ -96,15 +97,9 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         }
 
         cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
-        // Create goal box.
-        if (rand()%100 < 1) {
-            _boxX1 = (double)(rand()%500 + 20.0);
-            _boxY1 = (double)(rand()%500 + 20.0);
 
-            _boxX2 = (double)(rand()%300 + _boxX1);
-            _boxY2 = (double)(rand()%300 + _boxY1);
-        }
-        cv::rectangle(im, cv::Point(_boxX1, _boxY1), cv::Point(_boxX2, _boxY2), cv::Scalar(0,0,255,255), 2);
+        // Create goal box.
+        cv::rectangle(im, cv::Point(drawRectUpperLeftX, drawRectUpperLeftY), cv::Point(drawRectLowerRightX, drawRectLowerRightY), cv::Scalar(drawRectR,drawRectG,drawRectB,255), 2);
 
         // Iterate over detected Euglena points and create a RotatedRect per Euglena.
         std::vector<cv::RotatedRect> euglenas;
@@ -126,7 +121,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 if (drawOnTrackedEuglena) {
                     cv::line(im,pts[i], pts[(i+1)%4], cv::Scalar(0,255,0,255), 2);
                 }
-                if (pts[i].x < _boxX2 && pts[i].x > _boxX1 && pts[i].y < _boxY2 && pts[i].y > _boxY1) withinScoreRect = true;
+                if (pts[i].x < drawRectLowerRightX && pts[i].x > drawRectUpperLeftX && pts[i].y < drawRectUpperLeftY && pts[i].y > drawRectLowerRightY) withinScoreRect = true;
             }
             if (withinScoreRect) currEuglenaInBox += 1;
         }
