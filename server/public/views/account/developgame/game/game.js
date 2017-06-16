@@ -157,6 +157,14 @@ function processNextImage()
                 drawRectR: app.mainView.drawRectR, 
                 drawRectG: app.mainView.drawRectG, 
                 drawRectB: app.mainView.drawRectB,
+                // drawText
+                drawTextdrawTxt: app.mainView.drawTextdrawTxt,
+                drawTextXPos: app.mainView.drawTextXPos,
+                drawTextYPos: app.mainView.drawTextYPos,
+                drawTextSize: app.mainView.drawTextSize,
+                drawTextR: app.mainView.drawTextR,
+                drawTextG: app.mainView.drawTextG,
+                drawTextB: app.mainView.drawTextB,
                 processor: "Euglena" };
     startTime = performance.now();
     ImageProcModule.postMessage( cmd );

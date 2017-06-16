@@ -52,6 +52,15 @@ class EuglenaProcessor : public Processor {
         double drawRectR;
         double drawRectG; 
         double drawRectB;
+
+        // drawText
+        char drawTextdrawTxt[80];
+        double drawTextXPos;
+        double drawTextYPos;
+        double drawTextSize;
+        double drawTextR;
+        double drawTextG; 
+        double drawTextB;
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
@@ -126,18 +135,19 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             if (withinScoreRect) currEuglenaInBox += 1;
         }
 
-        // Display current Euglena in box.
-        char scoreStr[80];
-        std::strcpy(scoreStr, "Euglena in box: ");
-        std::strcat(scoreStr, std::to_string(currEuglenaInBox).c_str());
-        cv::putText(im, scoreStr, cv::Point(2.0, 10.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
+        // // Display current Euglena in box.
+        // char scoreStr[80];
+        // std::strcpy(scoreStr, "Euglena in box: ");
+        // std::strcat(scoreStr, std::to_string(currEuglenaInBox).c_str());
+        // cv::putText(im, scoreStr, cv::Point(2.0, 10.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
 
-        // Display Euglena needed to win.
-        char reqScoreStr[80];
-        std::strcpy(reqScoreStr, "Euglena needed: ");
-        std::strcat(reqScoreStr, std::to_string((int)(0.1*totalDetectedEuglena)).c_str());
-        cv::putText(im, reqScoreStr, cv::Point(2.0, 30.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
+        // // Display Euglena needed to win.
+        // char reqScoreStr[80];
+        // std::strcpy(reqScoreStr, "Euglena needed: ");
+        // std::strcat(reqScoreStr, std::to_string((int)(0.1*totalDetectedEuglena)).c_str());
+        // cv::putText(im, reqScoreStr, cv::Point(2.0, 30.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
 
+        cv::putText(im, drawTextdrawTxt, cv::Point(drawTextXPos, drawTextYPos), cv::FONT_HERSHEY_DUPLEX, drawTextSize, cv::Scalar(drawTextR,drawTextG,drawTextB,255));
     }
 
     // Display game over if that's the case.

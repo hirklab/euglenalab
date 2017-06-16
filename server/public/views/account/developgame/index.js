@@ -8,6 +8,10 @@
 
     var myVar = setInterval(app.mainView.runLoop, 1000);
 
+    document.getElementById("txtCodeVariables").addEventListener("onfocus", function() {
+      console.log('we are focused!');
+    }, true);
+
     document.onkeypress = function (e) {
       if (!app.mainView.gameInSession) {
         return;
@@ -127,6 +131,15 @@
     drawRectG: 0, 
     drawRectB: 0,
 
+    // drawText
+    drawTextdrawTxt: "", 
+    drawTextXPos: 0, 
+    drawTextYPos: 0, 
+    drawTextSize: 0, 
+    drawTextR: 0, 
+    drawTextG: 0, 
+    drawTextB: 0,
+
     //Tag-Initialize
     initialize: function() {
       //Get Window Stats
@@ -195,6 +208,7 @@
       var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
       modifiedCode = modifiedCode.split('drawOnTrackedEuglena').join('app.mainView.drawOnTrackedEuglena');
       modifiedCode = modifiedCode.split('drawRect').join('app.mainView.drawRect');
+      modifiedCode = modifiedCode.split('drawText').join('app.mainView.drawText');
       modifiedCode = modifiedCode.split('finishGame').join('app.mainView.finishGame');
       modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
       modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
@@ -260,6 +274,16 @@
       app.mainView.drawRectR = R;
       app.mainView.drawRectG = G;
       app.mainView.drawRectB = B;
+    },
+    drawText: function(drawTxt, xPos, yPos, size, R, G, B) {
+      console.log('drawText function called.');
+      app.mainView.drawTextdrawTxt = drawTxt;
+      app.mainView.drawTextXPos = xPos;
+      app.mainView.drawTextYPos = yPos;
+      app.mainView.drawTextSize = size;
+      app.mainView.drawTextR = R;
+      app.mainView.drawTextG = G;
+      app.mainView.drawTextB = B;
     },
     finishGame: function() {
       console.log('finishGame function called.');
