@@ -148,6 +148,7 @@ function processNextImage()
                 gameEndMsg: app.mainView.gameOverText,
                 gameInSession: app.mainView.gameInSession,
                 gameDemoMode: app.mainView.gameDemoMode,
+                gameDrawOnTrackedEuglena: app.mainView.gameDrawOnTrackedEuglena,
                 processor: "Euglena" };
     startTime = performance.now();
     ImageProcModule.postMessage( cmd );

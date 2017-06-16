@@ -100,13 +100,12 @@
 
     updateLoopInterval: null,
 
-    // GAME PARAMETERS SET BY USER
+    // GAME-RELATED-VARIABLES
+    gameDrawOnTrackedEuglena: false,
     gameLevel: 3,
     gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
     gameOverText: "",
     gameJoystickView: true,
-
-    // INTERNAL GAME-RELATED-VARIABLES
     gameInSession: false,
     gameGlobalVariables: "",
     gameRunCode: "",
@@ -241,9 +240,7 @@
 
     drawOnTrackedEuglena: function(isDrawing) {
       console.log('XXX function called.');
-      /*
-       * UNDER CONSTRUCTION!!!!!
-       */
+      app.mainView.gameDrawOnTrackedEuglena = isDrawing;
     },
     drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B) {
       console.log('XXX function called.');

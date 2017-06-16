@@ -42,6 +42,7 @@ class EuglenaProcessor : public Processor {
         bool gameInSession;
         int totalEuglena;
         bool demoMode;
+        bool drawOnTrackedEuglena;
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
@@ -91,17 +92,19 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
     if (gameInSession) {
         if (demoMode) {
-            cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
-            // Create goal box.
-            if (rand()%100 < 1) {
-                _boxX1 = (double)(rand()%500 + 20.0);
-                _boxY1 = (double)(rand()%500 + 20.0);
-
-                _boxX2 = (double)(rand()%300 + _boxX1);
-                _boxY2 = (double)(rand()%300 + _boxY1);
-            }
-            cv::rectangle(im, cv::Point(_boxX1, _boxY1), cv::Point(_boxX2, _boxY2), cv::Scalar(0,0,255,255), 2);
+            // Do something with demo mode here, if applicable.
         }
+
+        cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
+        // Create goal box.
+        if (rand()%100 < 1) {
+            _boxX1 = (double)(rand()%500 + 20.0);
+            _boxY1 = (double)(rand()%500 + 20.0);
+
+            _boxX2 = (double)(rand()%300 + _boxX1);
+            _boxY2 = (double)(rand()%300 + _boxY1);
+        }
+        cv::rectangle(im, cv::Point(_boxX1, _boxY1), cv::Point(_boxX2, _boxY2), cv::Scalar(0,0,255,255), 2);
 
         // Iterate over detected Euglena points and create a RotatedRect per Euglena.
         std::vector<cv::RotatedRect> euglenas;
@@ -114,31 +117,32 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         }
         totalEuglena = totalDetectedEuglena;
 
-        if (demoMode) {
-            // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
-            for (auto &e : euglenas) {
-                cv::Point2f pts[4];
-                e.points(pts);
-                bool withinScoreRect = false;
-                for (int i=0;i<4;i++) {
+        // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
+        for (auto &e : euglenas) {
+            cv::Point2f pts[4];
+            e.points(pts);
+            bool withinScoreRect = false;
+            for (int i=0;i<4;i++) {
+                if (drawOnTrackedEuglena) {
                     cv::line(im,pts[i], pts[(i+1)%4], cv::Scalar(0,255,0,255), 2);
-                    if (pts[i].x < _boxX2 && pts[i].x > _boxX1 && pts[i].y < _boxY2 && pts[i].y > _boxY1) withinScoreRect = true;
                 }
-                if (withinScoreRect) currEuglenaInBox += 1;
+                if (pts[i].x < _boxX2 && pts[i].x > _boxX1 && pts[i].y < _boxY2 && pts[i].y > _boxY1) withinScoreRect = true;
             }
-
-            // Display current Euglena in box.
-            char scoreStr[80];
-            std::strcpy(scoreStr, "Euglena in box: ");
-            std::strcat(scoreStr, std::to_string(currEuglenaInBox).c_str());
-            cv::putText(im, scoreStr, cv::Point(2.0, 10.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
-
-            // Display Euglena needed to win.
-            char reqScoreStr[80];
-            std::strcpy(reqScoreStr, "Euglena needed: ");
-            std::strcat(reqScoreStr, std::to_string((int)(0.1*totalDetectedEuglena)).c_str());
-            cv::putText(im, reqScoreStr, cv::Point(2.0, 30.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
+            if (withinScoreRect) currEuglenaInBox += 1;
         }
+
+        // Display current Euglena in box.
+        char scoreStr[80];
+        std::strcpy(scoreStr, "Euglena in box: ");
+        std::strcat(scoreStr, std::to_string(currEuglenaInBox).c_str());
+        cv::putText(im, scoreStr, cv::Point(2.0, 10.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
+
+        // Display Euglena needed to win.
+        char reqScoreStr[80];
+        std::strcpy(reqScoreStr, "Euglena needed: ");
+        std::strcat(reqScoreStr, std::to_string((int)(0.1*totalDetectedEuglena)).c_str());
+        cv::putText(im, reqScoreStr, cv::Point(2.0, 30.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
+
     }
 
     // Display game over if that's the case.
