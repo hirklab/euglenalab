@@ -88,12 +88,18 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->drawTextR = var_dict.Get("drawTextR").AsDouble();
       ((EuglenaProcessor*)processor.get())->drawTextG = var_dict.Get("drawTextG").AsDouble();
       ((EuglenaProcessor*)processor.get())->drawTextB = var_dict.Get("drawTextB").AsDouble();
+      // getEuglenaInRect
+      ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftX = var_dict.Get("getEuglenaInRectUpperLeftX").AsDouble();
+      ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftY = var_dict.Get("getEuglenaInRectUpperLeftY").AsDouble();
+      ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightX = var_dict.Get("getEuglenaInRectLowerRightX").AsDouble();
+      ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightY = var_dict.Get("getEuglenaInRectLowerRightY").AsDouble();
     }
 
     // Post message with C++ variables back to JavaScript layer.
     pp::VarDictionary msg;
     msg.Set( "Type", "gamedata" );
     msg.Set( "TotalEuglena", ((EuglenaProcessor*)processor.get())->totalEuglena );
+    msg.Set( "EuglenaInRect", ((EuglenaProcessor*)processor.get())->getEuglenaInRectReturnVal );
     PostMessage( msg );
 
     // Convert data to CMat

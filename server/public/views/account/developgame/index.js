@@ -140,6 +140,13 @@
     drawTextG: 0, 
     drawTextB: 0,
 
+    // getEuglenaInRect
+    getEuglenaInRectUpperLeftX: 0, 
+    getEuglenaInRectUpperLeftY: 0, 
+    getEuglenaInRectLowerRightX: 0,
+    getEuglenaInRectLowerRightY: 0,
+    gameEuglenaInRectCount: 0,
+
     //Tag-Initialize
     initialize: function() {
       //Get Window Stats
@@ -302,9 +309,12 @@
     },
     getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
       console.log('getEuglenaInRect function called.');
-      /*
-       * UNDER CONSTRUCTION!!!!!
-       */
+      app.mainView.getEuglenaInRectUpperLeftX = upperLeftX;
+      app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
+      app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
+      app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
+      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing.
+      return app.mainView.gameEuglenaInRectCount;
     },
     setJoystickView: function(isOn) {
       console.log('setJoystickView function called.');

@@ -165,6 +165,11 @@ function processNextImage()
                 drawTextR: app.mainView.drawTextR,
                 drawTextG: app.mainView.drawTextG,
                 drawTextB: app.mainView.drawTextB,
+                // getEuglenaInRect
+                getEuglenaInRectUpperLeftX: app.mainView.getEuglenaInRectUpperLeftX,
+                getEuglenaInRectUpperLeftY: app.mainView.getEuglenaInRectUpperLeftY,
+                getEuglenaInRectLowerRightX: app.mainView.getEuglenaInRectLowerRightX,
+                getEuglenaInRectLowerRightY: app.mainView.getEuglenaInRectLowerRightY,
                 processor: "Euglena" };
     startTime = performance.now();
     ImageProcModule.postMessage( cmd );
@@ -191,6 +196,7 @@ function handleMessage(msg) {
   var res = msg.data;
   if ( res.Type == "gamedata" ) {
     app.mainView.gameEuglenaCount = parseInt(res.TotalEuglena);
+    app.mainView.gameEuglenaInRectCount = parseInt(res.EuglenaInRect);
   }
   if ( res.Type == "completed" ) {
     if ( res.Data ) {

@@ -61,6 +61,13 @@ class EuglenaProcessor : public Processor {
         double drawTextR;
         double drawTextG; 
         double drawTextB;
+
+        // getEugenaInRect
+        double getEuglenaInRectUpperLeftX;
+        double getEuglenaInRectUpperLeftY;
+        double getEuglenaInRectLowerRightX;
+        double getEuglenaInRectLowerRightY;
+        double getEuglenaInRectReturnVal = 0;
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
@@ -122,6 +129,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         totalEuglena = totalDetectedEuglena;
 
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
+        getEuglenaInRectReturnVal = 0;
         for (auto &e : euglenas) {
             cv::Point2f pts[4];
             e.points(pts);
@@ -131,6 +139,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     cv::line(im,pts[i], pts[(i+1)%4], cv::Scalar(0,255,0,255), 2);
                 }
                 if (pts[i].x < drawRectLowerRightX && pts[i].x > drawRectUpperLeftX && pts[i].y < drawRectUpperLeftY && pts[i].y > drawRectLowerRightY) withinScoreRect = true;
+                if (pts[i].x < getEuglenaInRectLowerRightX && pts[i].x > getEuglenaInRectUpperLeftX && pts[i].y < getEuglenaInRectUpperLeftY && pts[i].y > getEuglenaInRectLowerRightY) getEuglenaInRectReturnVal++;
             }
             if (withinScoreRect) currEuglenaInBox += 1;
         }
