@@ -67,7 +67,7 @@ class EuglenaProcessor : public Processor {
         double getEuglenaInRectUpperLeftY;
         double getEuglenaInRectLowerRightX;
         double getEuglenaInRectLowerRightY;
-        double getEuglenaInRectReturnVal = 0;
+        double getEuglenaInRectReturnVal;
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
@@ -96,7 +96,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
     cv::Mat dst;
 
-    cv::threshold(fgmask,fgmask, 127,255, cv::THRESH_BINARY);
+    cv::threshold(fgmask,fgmask, 127, 255, cv::THRESH_BINARY);
     cv::morphologyEx( fgmask, fgmask, cv::MORPH_ERODE,  _elementErode );
     cv::morphologyEx( fgmask, fgmask, cv::MORPH_DILATE, _elementDilate );
 
@@ -128,23 +128,38 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         }
         totalEuglena = totalDetectedEuglena;
 
+        
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
         getEuglenaInRectReturnVal = 0;
         for (auto &e : euglenas) {
             cv::Point2f pts[4];
             e.points(pts);
             bool withinScoreRect = false;
+            bool withinBoxRect = false;
             for (int i=0;i<4;i++) {
                 if (drawOnTrackedEuglena) {
-                    cv::line(im,pts[i], pts[(i+1)%4], cv::Scalar(0,255,0,255), 2);
+                    cv::line(im, pts[i], pts[(i+1)%4], cv::Scalar(0,255,0,255), 2);
                 }
-                if (pts[i].x < drawRectLowerRightX && pts[i].x > drawRectUpperLeftX && pts[i].y < drawRectUpperLeftY && pts[i].y > drawRectLowerRightY) withinScoreRect = true;
-                if (pts[i].x < getEuglenaInRectLowerRightX && pts[i].x > getEuglenaInRectUpperLeftX && pts[i].y < getEuglenaInRectUpperLeftY && pts[i].y > getEuglenaInRectLowerRightY) getEuglenaInRectReturnVal++;
+                cv::Rect rRect(cv::Point(drawRectUpperLeftX, drawRectUpperLeftY), cv::Point(drawRectLowerRightX, drawRectLowerRightY));
+                if (rRect.contains(cv::Point(pts[i].x, pts[i].y))) {
+                    withinScoreRect = true;
+                }
+
+                cv::Rect rRectBox(cv::Point(getEuglenaInRectUpperLeftX, getEuglenaInRectUpperLeftY), cv::Point(getEuglenaInRectLowerRightX, getEuglenaInRectLowerRightY));
+                if (rRectBox.contains(cv::Point(pts[i].x, pts[i].y))) {
+                    withinBoxRect = true;
+                }
+                
             }
-            if (withinScoreRect) currEuglenaInBox += 1;
+            if (withinScoreRect) {
+                currEuglenaInBox += 1;
+            }
+            if (withinBoxRect) {
+                getEuglenaInRectReturnVal += 1;
+            }
         }
 
-        // // Display current Euglena in box.
+        // Display current Euglena in box.
         // char scoreStr[80];
         // std::strcpy(scoreStr, "Euglena in box: ");
         // std::strcat(scoreStr, std::to_string(currEuglenaInBox).c_str());
