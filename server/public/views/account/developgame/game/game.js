@@ -197,6 +197,7 @@ function handleMessage(msg) {
   if ( res.Type == "gamedata" ) {
     app.mainView.gameEuglenaCount = parseInt(res.TotalEuglena);
     app.mainView.gameEuglenaInRectCount = parseInt(res.EuglenaInRect);
+    app.mainView.getAllEuglenaPositionsStr = res.EuglenaPositionsStr;
   }
   if ( res.Type == "completed" ) {
     if ( res.Data ) {

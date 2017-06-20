@@ -147,6 +147,9 @@
     getEuglenaInRectLowerRightY: 0,
     gameEuglenaInRectCount: 0,
 
+    // getAllEuglenaPositions
+    getAllEuglenaPositionsStr: "",
+
     //Tag-Initialize
     initialize: function() {
       //Get Window Stats
@@ -299,9 +302,16 @@
     },
     getAllEuglenaPositions: function() {
       console.log('getAllEuglenaPositions function called.');
-      /*
-       * UNDER CONSTRUCTION!!!!!
-       */
+      var allEuglenaPositions = [];
+      var splitPositions = app.mainView.getAllEuglenaPositionsStr.split(";");
+      for (var i = 0; i < splitPositions.length; i++) {
+        var token = splitPositions[i];
+        if (token.length <= 0) continue;
+        var xPos = parseInt(token.split(",")[0].split("(")[1]);
+        var yPos = parseInt(token.split(",")[1].split(")")[0]);
+        allEuglenaPositions.push({x: xPos, y: yPos});
+      }
+      return allEuglenaPositions;
     },
     getEuglenaCount: function() {
       console.log('getEuglenaCount function called.');

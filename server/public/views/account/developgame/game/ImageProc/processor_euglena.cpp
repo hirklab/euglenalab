@@ -68,6 +68,10 @@ class EuglenaProcessor : public Processor {
         double getEuglenaInRectLowerRightX;
         double getEuglenaInRectLowerRightY;
         double getEuglenaInRectReturnVal;
+
+        // getAllEuglenaPositions
+        char getAllEuglenaPositionsStr[10000];
+
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
@@ -112,6 +116,9 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             // Do something with demo mode here, if applicable.
         }
 
+        memset(getAllEuglenaPositionsStr, 0, 10000*sizeof(char));
+        std::strcpy(getAllEuglenaPositionsStr, ";");
+
         cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
 
         // Create goal box.
@@ -136,7 +143,17 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             e.points(pts);
             bool withinScoreRect = false;
             bool withinBoxRect = false;
+            bool haveWeAddedEuglenaPositionYet = false;
             for (int i=0;i<4;i++) {
+                if (!haveWeAddedEuglenaPositionYet) {
+                    haveWeAddedEuglenaPositionYet = true;
+                    std::strcat(getAllEuglenaPositionsStr, "(");
+                    std::strcat(getAllEuglenaPositionsStr, std::to_string(pts[i].x).c_str());
+                    std::strcat(getAllEuglenaPositionsStr, ",");
+                    std::strcat(getAllEuglenaPositionsStr, std::to_string(pts[i].y).c_str());
+                    std::strcat(getAllEuglenaPositionsStr, ");");
+                }
+
                 if (drawOnTrackedEuglena) {
                     cv::line(im, pts[i], pts[(i+1)%4], cv::Scalar(0,255,0,255), 2);
                 }

@@ -100,6 +100,7 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
     msg.Set( "Type", "gamedata" );
     msg.Set( "TotalEuglena", ((EuglenaProcessor*)processor.get())->totalEuglena );
     msg.Set( "EuglenaInRect", ((EuglenaProcessor*)processor.get())->getEuglenaInRectReturnVal );
+    msg.Set( "EuglenaPositionsStr", ((EuglenaProcessor*)processor.get())->getAllEuglenaPositionsStr );
     PostMessage( msg );
 
     // Convert data to CMat
