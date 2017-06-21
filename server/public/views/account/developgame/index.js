@@ -28,38 +28,74 @@
     var codeVariablesEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeVariables'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          codeVariablesEditor.setLineClass(hlLine, null, null);
+          hlLine = codeVariablesEditor.setLineClass(codeVariablesEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLine = codeVariablesEditor.setLineClass(0, "activeline");
 
     var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          runEditor.setLineClass(hlLineRun, null, null);
+          hlLineRun = runEditor.setLineClass(runEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineRun = runEditor.setLineClass(0, "activeline");
 
     var startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          startEditor.setLineClass(hlLineStart, null, null);
+          hlLineStart = startEditor.setLineClass(startEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineStart = startEditor.setLineClass(0, "activeline");
 
     var endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          endEditor.setLineClass(hlLineEnd, null, null);
+          hlLineEnd = endEditor.setLineClass(endEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineEnd = endEditor.setLineClass(0, "activeline");
 
     var joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          joystickEditor.setLineClass(hlLineJoystick, null, null);
+          hlLineJoystick = joystickEditor.setLineClass(joystickEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineJoystick = joystickEditor.setLineClass(0, "activeline");
 
     var keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          keypressEditor.setLineClass(hlLineKeypress, null, null);
+          hlLineKeypress = keypressEditor.setLineClass(keypressEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineKeypress = keypressEditor.setLineClass(0, "activeline");
 
     // Handle new code.
     $('#btnUpdateRun').click(function() {
@@ -73,8 +109,27 @@
 
     $('#btnStartGame').click(function() {
       app.mainView.gameInSession = true;
+      codeVariablesEditor.setOption("readOnly", "nocursor");
+      runEditor.setOption("readOnly", "nocursor");
+      startEditor.setOption("readOnly", "nocursor");
+      endEditor.setOption("readOnly", "nocursor");
+      joystickEditor.setOption("readOnly", "nocursor");
+      keypressEditor.setOption("readOnly", "nocursor");
+      $('#btnUpdateRun').prop("disabled", true);
       app.mainView.parseGlobalVariables(app.mainView.gameGlobalVariables);
       app.mainView.parseStartCode(app.mainView.gameStartCode);
+    });
+
+    $('#btnStopGame').click(function() {
+      app.mainView.gameInSession = false;
+      app.mainView.codeEditorReadOnly = false;
+      codeVariablesEditor.setOption("readOnly", false);
+      runEditor.setOption("readOnly", false);
+      startEditor.setOption("readOnly", false);
+      endEditor.setOption("readOnly", false);
+      joystickEditor.setOption("readOnly", false);
+      keypressEditor.setOption("readOnly", false);
+      $('#btnUpdateRun').prop("disabled", false);
     });
 
   });

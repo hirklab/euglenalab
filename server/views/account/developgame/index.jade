@@ -165,6 +165,7 @@ block neck
       overflow-y: hidden;
       overflow-x: auto;
     }
+    .activeline {background: #e8f2ff !important;}
 
 block feet
   script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
@@ -189,7 +190,7 @@ block body
         div.row
           div.col-xs-12
             div(style='margin-left:3%;')
-              textarea.codeArea#txtCodeVariables
+              textarea.codeArea#txtCodeVariables(disabled)
                 |this.currLED = LED.RIGHT;
                 |this.possibleLEDs = [LED.UP, LED.DOWN, LED.RIGHT, LED.LEFT];
                 |this.instructions = "Guess which LED is currently shining. Press 'W'" +
@@ -356,6 +357,8 @@ block body
         div.row
           div.col-xs-12
             button.btn.btn-success#btnStartGame(type="update",value="update") Play Game
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            button.btn.btn-danger#btnStopGame(type="update",value="update") Stop Game
         br
         div.row
           div.col-xs-5#myAside.unselectable(name='myAside')
