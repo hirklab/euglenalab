@@ -4,13 +4,6 @@ var fs = require('fs');
 
 exports.savefile = function(req, res) {
   console.log("Saving game code...");
-  console.log(req.body.varCode);
-  console.log(req.body.runCode);
-  console.log(req.body.startCode);
-  console.log(req.body.endCode);
-  console.log(req.body.keypressCode);
-  console.log(req.body.joystickCode);
-  console.log(req.body.fileName);
   var filePath = __dirname + "/games/" + req.body.fileName;
   var gameFileToSave = req.body.varCode + "\n-----\n" + req.body.runCode
                                         + "\n-----\n" + req.body.startCode
@@ -21,7 +14,15 @@ exports.savefile = function(req, res) {
       if (err) throw err;
       console.log('game file writing complete');
   });
-  res.json('success');
+  res.json('success writing game');
+};
+
+exports.getgamenames = function(req, res) {
+  //
+};
+
+exports.getgamecode = function(req, res) {
+  //
 };
 
 

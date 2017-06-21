@@ -140,13 +140,17 @@
       var codeJoystick = app.mainView.gameJoystickCode;
       var codeKeypress = app.mainView.gameKeypressCode;
       var nameUser = app.mainView.user;
+      var gameName = $('#gameNameText').val();
       $.post('/account/developgame/savefile/', { varCode: codeVar,
                                                  runCode: codeRun,
                                                  startCode: codeStart,
                                                  endCode: codeEnd,
                                                  joystickCode: codeJoystick,
                                                  keypressCode: codeKeypress,
-                                                 fileName: "test.game" } );
+                                                 fileName: gameName } )
+        .done(function(data) {
+          console.log( "Data Loaded: " + data);
+        });
     });
 
     $('#btnLoadGame').click(function() {

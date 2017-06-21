@@ -375,15 +375,31 @@ block body
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
-        button.btn.btn-primary#btnSaveGame(type="save",value="save") Save Game
+        button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-primary#btnLoadGame(type="save",value="save") Load Game
+        button.btn.btn-primary#btnLoadGame(type="save", value="save") Load Game
         //- h2
         //-   |Status 
         //-   code(id="statusField")
         //-     |Loading...
     
     div.modal.fade(role="dialog")
+
+    div.modal.fade#saveGameModal(role="dialog")
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type="button", data-dismiss="modal")
+            h4.modal-title
+              |Save Game
+          div.modal-body
+            div.form-group
+              label(for="usr") Game file name:
+              input.form-control#gameNameText(type="text")
+            br
+            button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
+          div.modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Close
 
     script(type='text/template',id="tmpl-survey")
       div.modal-dialog(role="document")
