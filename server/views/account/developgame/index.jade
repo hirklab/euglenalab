@@ -375,7 +375,9 @@ block body
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
-        button.btn.btn-success#btnSaveGame(type="save",value="save", disabled) Save Game
+        button.btn.btn-primary#btnSaveGame(type="save",value="save") Save Game
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-primary#btnLoadGame(type="save",value="save") Load Game
         //- h2
         //-   |Status 
         //-   code(id="statusField")

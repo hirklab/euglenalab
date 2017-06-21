@@ -268,6 +268,7 @@ exports = module.exports = function (app, passport) {
 
     // Develop game
     app.get('/account/developgame/', require('./views/account/developgame/index').init);
+    app.post('/account/developgame/savefile/', require('./views/account/developgame/index').savefile);
 
     //route not found
     app.all('*', require('./views/http/index').http404);

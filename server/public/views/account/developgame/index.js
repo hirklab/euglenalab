@@ -132,6 +132,28 @@
       $('#btnUpdateRun').prop("disabled", false);
     });
 
+    $('#btnSaveGame').click(function() {
+      var codeVar = app.mainView.gameGlobalVariables;
+      var codeRun = app.mainView.gameRunCode;
+      var codeStart = app.mainView.gameStartCode;
+      var codeEnd = app.mainView.gameEndCode;
+      var codeJoystick = app.mainView.gameJoystickCode;
+      var codeKeypress = app.mainView.gameKeypressCode;
+      var nameUser = app.mainView.user;
+      $.post('/account/developgame/savefile/', { varCode: codeVar,
+                                                 runCode: codeRun,
+                                                 startCode: codeStart,
+                                                 endCode: codeEnd,
+                                                 joystickCode: codeJoystick,
+                                                 keypressCode: codeKeypress,
+                                                 fileName: "test.game" } );
+    });
+
+    $('#btnLoadGame').click(function() {
+
+    });
+
+
   });
   app.User = Backbone.Model.extend({
     idAttribute: '_id',
