@@ -167,6 +167,8 @@ block neck
     }
     .activeline {background: #e8f2ff !important;}
 
+    .gameFile {padding:10px; cursor:pointer;}
+
 block feet
   script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
   script(src="/views/account/developgame/Canvas_Joystick.js")
@@ -412,13 +414,14 @@ block body
             div.dropdown
               button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown") Select A Game
                 span.caret
-              ul.dropdown-menu
-                li
-                  a(href="#") Game 1
-                li
-                  a(href="#") Game 2
+              ul.dropdown-menu#existingGamesDropdown
+                - for (var j=0; j < data.gameNames.split('%3B').length; j++)
+                  - if (data.gameNames.split('%3B')[j] !== '%22')
+                    li.gameFile
+                      a(href="#") 
+                        | #{data.gameNames.split('%3B')[j]}
             br
-            button.btn.btn-primary#btnLoadGame(type="save", value="save") Open Game
+            //-button.btn.btn-primary#btnLoadGame(type="save", value="save") Open Game
           div.modal-footer
             button.btn.btn-default(type="button" data-dismiss="modal") Close
 

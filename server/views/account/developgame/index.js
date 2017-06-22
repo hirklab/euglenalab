@@ -2,6 +2,8 @@
 var async = require('async');
 var fs = require('fs');
 
+var gameFileNames = '';
+
 exports.savefile = function(req, res) {
   console.log("Saving game code...");
   var filePath = __dirname + "/games/" + req.body.fileName;
@@ -17,12 +19,17 @@ exports.savefile = function(req, res) {
   res.json('success writing game');
 };
 
-exports.getgamenames = function(req, res) {
-  //
-};
-
 exports.getgamecode = function(req, res) {
-  //
+  console.log("Getting game code...");
+  var fileIndex = req.body.gameIndex;
+  var gameFileNamesFixed = gameFileNames.split(';').slice(1, -1);
+  var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
+  var filePath = __dirname + "/games/" + fileToOpen;
+  console.log('Opening file: ' + filePath);
+  fs.readFile(filePath, 'utf8', function (err, data) {
+    if (err) throw err;
+    res.json(data);
+  });
 };
 
 
@@ -115,12 +122,26 @@ exports.init = function(req, res, next) {
       }
     });
   };
+  var getGameNames = function(callback) {
+    console.log("Getting game names...");
+    var gameNames = ';';
+    fs.readdir(__dirname + "/games/", function(err, files) {
+      files.forEach(function(file) {
+        console.log(file);
+        gameNames += file + ';';
+      });
+      outcome.gameNames = gameNames;
+      gameFileNames = gameNames;
+      return callback(null);
+    });
+  };
   var seriesFuncs = [];
   seriesFuncs.push(getSessionData);
   seriesFuncs.push(getUserData);
   seriesFuncs.push(getExperimentData);
   seriesFuncs.push(getBpuData);
   seriesFuncs.push(setupDiv);
+  seriesFuncs.push(getGameNames);
   async.series(seriesFuncs, function(err) {
     if (err) {
       return next(err);
@@ -128,6 +149,7 @@ exports.init = function(req, res, next) {
       var startingAlpha = 0.0;
       res.render(outcome.renderJade, {
         data: {
+          gameNames: escape(JSON.stringify(outcome.gameNames)),
           user: escape(JSON.stringify(outcome.user)),
           bpu: escape(JSON.stringify(outcome.bpu)),
           lengthScale100um: escape(JSON.stringify(outcome.lengthScale100um)) + '%',

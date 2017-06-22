@@ -149,14 +149,25 @@
                                                  keypressCode: codeKeypress,
                                                  fileName: gameName } )
         .done(function(data) {
-          console.log( "Data Loaded: " + data);
+          console.log( "Data Loaded savefile: " + data);
+
         });
     });
 
-    $('#btnLoadGame').click(function() {
-
+    $(".gameFile").click(function(){
+        var codeInd = $(this).index();
+        $.post('/account/developgame/getgamecode/', { gameIndex: codeInd } )
+        .done(function(data) {
+          console.log( "Data Loaded readfile: ");
+            var gameSections = data.split('-----');
+            codeVariablesEditor.setValue(gameSections[0]);
+            runEditor.setValue(gameSections[1]);
+            startEditor.setValue(gameSections[2]);
+            endEditor.setValue(gameSections[3]);
+            joystickEditor.setValue(gameSections[4]);
+            keypressEditor.setValue(gameSections[5]);
+        });
     });
-
 
   });
   app.User = Backbone.Model.extend({
@@ -186,6 +197,7 @@
     updateLoopInterval: null,
 
     // GAME-RELATED-VARIABLES
+    gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
     gameLevel: 3,
     gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
