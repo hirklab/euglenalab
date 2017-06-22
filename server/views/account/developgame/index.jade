@@ -377,7 +377,7 @@ block body
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
         button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-primary#btnLoadGame(type="save", value="save") Load Game
+        button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Game
         //- h2
         //-   |Status 
         //-   code(id="statusField")
@@ -398,6 +398,27 @@ block body
               input.form-control#gameNameText(type="text")
             br
             button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
+          div.modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Close
+
+    div.modal.fade#loadGameModal(role="dialog")
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type="button", data-dismiss="modal")
+            h4.modal-title
+              |Choose Game
+          div.modal-body
+            div.dropdown
+              button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown") Select A Game
+                span.caret
+              ul.dropdown-menu
+                li
+                  a(href="#") Game 1
+                li
+                  a(href="#") Game 2
+            br
+            button.btn.btn-primary#btnLoadGame(type="save", value="save") Open Game
           div.modal-footer
             button.btn.btn-default(type="button" data-dismiss="modal") Close
 
