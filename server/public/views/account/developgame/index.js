@@ -196,6 +196,8 @@
 
     updateLoopInterval: null,
 
+    bpuAddress: "",
+
     // GAME-RELATED-VARIABLES
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
@@ -253,6 +255,13 @@
       app.mainView.user = new app.User(JSON.parse(unescape($('#data-user').html())));
       app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
       app.mainView.bpu = new app.User(JSON.parse(unescape($('#data-bpu').html())));
+      // ["publicAddr"]["webcamPort"] ("localAddr")
+      // ["publicAddr"]["serverPort"]
+      // ["publicAddr"]["ip"]
+      //console.log("BPU webcam port::: " + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["webcamPort"]);
+      //console.log("BPU IP::: " + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["ip"]);
+      app.mainView.bpuAddress = "http://" + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["ip"] + ":" + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["webcamPort"];
+      //console.log("FINAL PUBLIC ADDRESS::: " + app.mainView.bpuAddress);
       app.mainView.ledsSetObj = new app.User(JSON.parse(unescape($('#data-setLedsObj').html())));
       app.mainView.bpuExp = new app.User(JSON.parse(unescape($('#data-bpuExp').html())));
       app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function(objA, objB) {

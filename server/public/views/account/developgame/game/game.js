@@ -73,7 +73,8 @@ function enableDownload()
       var img = new Image();
       img.onload = imageOnLoad;
       //img.src = "http://euglena.stanford.edu:20005/?action=snapshot&n=" + (++imageNr);
-      img.src = "http://192.168.1.220:8080/?action=snapshot&n=" + (++imageNr);
+      img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+      console.log("Game's BPU ADDRESS: " + img.src);
       img.crossOrigin = "Anonymous";
     }
 
@@ -177,7 +178,9 @@ function processNextImage()
 
   var img = new Image();
   img.onload = imageOnLoad;
-  img.src = "http://192.168.1.220:8080/?action=snapshot&n=" + (++imageNr);
+  img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+  //console.log("Game's BPU ADDRESS:: " + app.mainView.bpuAddress);
+  //console.log("Game's BPU ADDRESS::: " + img.src);
   //img.src = "http://euglena.stanford.edu:20005/?action=snapshot&n=" + (++imageNr);
   img.crossOrigin = "Anonymous";
 }
