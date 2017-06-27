@@ -12,7 +12,7 @@ block head
     .myImage {width:20%; height:20%; float:left; margin:0px 5% 0px 0px;}
     .bpuJoinButtonHidden {width:100%; height:100%; display:none; visibility:hidden;}
 
-    .bpuButton {width:100px; height:40px}
+    .bpuButton {width:60px; height:40px}
 block neck
   link(rel='stylesheet', href='/views/account/joinlabwithdata/index.min.css?#{cacheBreaker}')
 block feet
@@ -69,9 +69,11 @@ block body
       - for(var j=0;j<data.eugs.length;j++)
         div.col-md-3.col-sm-6.col-cs-12(style='min-height:340px;border-radius:5px')
           div.row(style='margin-bottom:5px;')
-            div.col-xs-6
+            div.col-xs-4
               button.btn.btn-primary.btn-joinLiveBpu.bpuButton.pull-left(type='button', name=data.eugs[j].joinLiveJadeName, value=data.eugs[j].index, disabled) Live
-            div.col-xs-6
+            div.col-xs-4
+              button.btn.btn-primary.btn-joinGameBpu.bpuButton(type='button', name=data.eugs[j].joinGameJadeName, value=data.eugs[j].index, disabled) Game
+            div.col-xs-4
               button.btn.btn-primary.btn-submitTextBpu.bpuButton.pull-right(type='button', name=data.eugs[j].submitTextJadeName, value=data.eugs[j].index, disabled) Batch
           div.row
             div.col-xs-12

@@ -255,13 +255,7 @@
       app.mainView.user = new app.User(JSON.parse(unescape($('#data-user').html())));
       app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
       app.mainView.bpu = new app.User(JSON.parse(unescape($('#data-bpu').html())));
-      // ["publicAddr"]["webcamPort"] ("localAddr")
-      // ["publicAddr"]["serverPort"]
-      // ["publicAddr"]["ip"]
-      //console.log("BPU webcam port::: " + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["webcamPort"]);
-      //console.log("BPU IP::: " + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["ip"]);
       app.mainView.bpuAddress = "http://" + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["ip"] + ":" + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["webcamPort"];
-      //console.log("FINAL PUBLIC ADDRESS::: " + app.mainView.bpuAddress);
       app.mainView.ledsSetObj = new app.User(JSON.parse(unescape($('#data-setLedsObj').html())));
       app.mainView.bpuExp = new app.User(JSON.parse(unescape($('#data-bpuExp').html())));
       app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function(objA, objB) {
@@ -519,7 +513,7 @@
       }
 
       if (app.mainView.bpuExp != null) {
-        //app.mainView.showSurvey();
+        app.mainView.showSurvey();
         console.log('bpuExp is null');
       } else {
         location.href = '/account/';
@@ -657,14 +651,14 @@
         //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
         if (app.mainView.timeLeftInLab < 0) {
-          // console.log('experiment over , kick user now');
-          // app.mainView.kickUser(null, 'complete');
+          console.log('experiment over , kick user now');
+          app.mainView.kickUser(null, 'complete');
 
-          // clearInterval(app.mainView.updateLoopInterval);
-          // app.mainView.updateLoopInterval = null;
+          clearInterval(app.mainView.updateLoopInterval);
+          app.mainView.updateLoopInterval = null;
 
-          // clearTimeout(app.mainView.keyboardTimeout);
-          // app.mainView.keyboardTimeout = null;
+          clearTimeout(app.mainView.keyboardTimeout);
+          app.mainView.keyboardTimeout = null;
         } else {
           if (app.mainView.isSocketInitialized && !app.mainView.hadJoyActivity) {
             if (timerActivatedJoystick > 1000) {
