@@ -319,6 +319,9 @@
       modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
       modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
       modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
+      modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
+      modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
+      modifiedCode = modifiedCode.split('getTimeLeftInGame').join('app.mainView.getTimeLeftInGame');
       modifiedCode = modifiedCode.split('setJoystickView').join('app.mainView.setJoystickView');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setLevel').join('app.mainView.setLevel');
@@ -422,6 +425,18 @@
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing.
       return app.mainView.gameEuglenaInRectCount;
     },
+    getMaxScreenHeight: function() {
+      console.log('getMaxScreenHeight function called.');
+      return 479;
+    },
+    getMaxScreenWidth: function() {
+      console.log('getMaxScreenWidth function called.');
+      return 639;
+    },
+    getTimeLeftInGame: function() {
+      console.log('getTimeLeftInGame function called.');
+      return Math.floor(app.mainView.timeLeftInLab / 1000.0);
+    },
     setJoystickView: function(isOn) {
       console.log('setJoystickView function called.');
       app.mainView.gameJoystickView = isOn;
@@ -496,8 +511,6 @@
 
       if (err) console.log('kickUser', err, from);
 
-      $('#myVideo')[0].src = $('#myVideo')[0].src.replace('stream', 'snapshot');
-
       if (!app.mainView.alreadyKicked) {
         app.mainView.alreadyKicked = true;
       }
@@ -512,12 +525,13 @@
         app.mainView.keyboardTimeout = null;
       }
 
-      if (app.mainView.bpuExp != null) {
-        app.mainView.showSurvey();
-        console.log('bpuExp is null');
-      } else {
-        location.href = '/account/';
-      }
+      //location.href = '/account/';
+      // if (app.mainView.bpuExp != null) {
+      //   app.mainView.showSurvey();
+      //   console.log('bpuExp is null');
+      // } else {
+      //   location.href = '/account/';
+      // }
     },
     getLedsSetObj: function() {
       if (app.mainView.ledsSetObj === null) {
