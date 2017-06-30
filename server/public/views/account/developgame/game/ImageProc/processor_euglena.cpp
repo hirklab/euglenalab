@@ -72,6 +72,13 @@ class EuglenaProcessor : public Processor {
         // getAllEuglenaPositions
         char getAllEuglenaPositionsStr[10000];
 
+        // getEuglenaDensity
+        double getEuglenaDensityUpperLeftX;
+        double getEuglenaDensityUpperLeftY;
+        double getEuglenaDensityLowerRightX;
+        double getEuglenaDensityLowerRightY;
+        double getEuglenaDensityReturnVal;
+
     private:
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
