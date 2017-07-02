@@ -10,17 +10,17 @@
 
     /** @ngInject */
     function routeConfig($stateProvider) {
-        // $stateProvider
-        //     .state('about', {
-        //         url: '/about',
-        //         title: 'About',
-        //         templateUrl: 'app/pages/about/about.html',
-        //         controller: 'AboutPageCtrl',
-        //         sidebarMeta: {
-        //             icon: 'ion-information-circled',
-        //             order: 99,
-        //         },
-        //     });
+        $stateProvider
+            .state('about', {
+                url: '/about',
+                title: 'About',
+                templateUrl: 'app/pages/about/about.html',
+                controller: 'AboutPageCtrl',
+                sidebarMeta: {
+                    icon: 'ion-information-circled',
+                    order: 99,
+                },
+            });
     }
 
 })();
