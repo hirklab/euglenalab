@@ -110,6 +110,8 @@ exports.find = function(req, res, next) {
 
           bpuJadeObj.joinLiveJadeName = 'bpuJoinLiveButton' + bpu.index; //do not change used in client
 
+          bpuJadeObj.joinGameJadeName = 'bpuJoinGameButton' + bpu.index; //do not change used in client
+
           bpuJadeObj.submitTextJadeName = 'bpuSubmitTextButton' + bpu.index; //do not change used in client
 
           bpuJadeObj.imageSrc = bpu.getWebSnapShotUrl();

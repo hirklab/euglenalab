@@ -28,38 +28,74 @@
     var codeVariablesEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeVariables'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          codeVariablesEditor.setLineClass(hlLine, null, null);
+          hlLine = codeVariablesEditor.setLineClass(codeVariablesEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLine = codeVariablesEditor.setLineClass(0, "activeline");
 
     var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          runEditor.setLineClass(hlLineRun, null, null);
+          hlLineRun = runEditor.setLineClass(runEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineRun = runEditor.setLineClass(0, "activeline");
 
     var startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          startEditor.setLineClass(hlLineStart, null, null);
+          hlLineStart = startEditor.setLineClass(startEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineStart = startEditor.setLineClass(0, "activeline");
 
     var endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          endEditor.setLineClass(hlLineEnd, null, null);
+          hlLineEnd = endEditor.setLineClass(endEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineEnd = endEditor.setLineClass(0, "activeline");
 
     var joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          joystickEditor.setLineClass(hlLineJoystick, null, null);
+          hlLineJoystick = joystickEditor.setLineClass(joystickEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineJoystick = joystickEditor.setLineClass(0, "activeline");
 
     var keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
         lineNumbers: false,
         theme: "default",
-        autoMatchParens: true
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          keypressEditor.setLineClass(hlLineKeypress, null, null);
+          hlLineKeypress = keypressEditor.setLineClass(keypressEditor.getCursor().line, null, "activeline");
+        }
     });
+    var hlLineKeypress = keypressEditor.setLineClass(0, "activeline");
 
     // Handle new code.
     $('#btnUpdateRun').click(function() {
@@ -73,8 +109,64 @@
 
     $('#btnStartGame').click(function() {
       app.mainView.gameInSession = true;
+      codeVariablesEditor.setOption("readOnly", "nocursor");
+      runEditor.setOption("readOnly", "nocursor");
+      startEditor.setOption("readOnly", "nocursor");
+      endEditor.setOption("readOnly", "nocursor");
+      joystickEditor.setOption("readOnly", "nocursor");
+      keypressEditor.setOption("readOnly", "nocursor");
+      $('#btnUpdateRun').prop("disabled", true);
       app.mainView.parseGlobalVariables(app.mainView.gameGlobalVariables);
       app.mainView.parseStartCode(app.mainView.gameStartCode);
+    });
+
+    $('#btnStopGame').click(function() {
+      app.mainView.gameInSession = false;
+      app.mainView.codeEditorReadOnly = false;
+      codeVariablesEditor.setOption("readOnly", false);
+      runEditor.setOption("readOnly", false);
+      startEditor.setOption("readOnly", false);
+      endEditor.setOption("readOnly", false);
+      joystickEditor.setOption("readOnly", false);
+      keypressEditor.setOption("readOnly", false);
+      $('#btnUpdateRun').prop("disabled", false);
+    });
+
+    $('#btnSaveGame').click(function() {
+      var codeVar = app.mainView.gameGlobalVariables;
+      var codeRun = app.mainView.gameRunCode;
+      var codeStart = app.mainView.gameStartCode;
+      var codeEnd = app.mainView.gameEndCode;
+      var codeJoystick = app.mainView.gameJoystickCode;
+      var codeKeypress = app.mainView.gameKeypressCode;
+      var nameUser = app.mainView.user;
+      var gameName = $('#gameNameText').val();
+      $.post('/account/developgame/savefile/', { varCode: codeVar,
+                                                 runCode: codeRun,
+                                                 startCode: codeStart,
+                                                 endCode: codeEnd,
+                                                 joystickCode: codeJoystick,
+                                                 keypressCode: codeKeypress,
+                                                 fileName: gameName } )
+        .done(function(data) {
+          console.log( "Data Loaded savefile: " + data);
+
+        });
+    });
+
+    $(".gameFile").click(function(){
+        var codeInd = $(this).index();
+        $.post('/account/developgame/getgamecode/', { gameIndex: codeInd } )
+        .done(function(data) {
+          console.log( "Data Loaded readfile: ");
+            var gameSections = data.split('-----');
+            codeVariablesEditor.setValue(gameSections[0]);
+            runEditor.setValue(gameSections[1]);
+            startEditor.setValue(gameSections[2]);
+            endEditor.setValue(gameSections[3]);
+            joystickEditor.setValue(gameSections[4]);
+            keypressEditor.setValue(gameSections[5]);
+        });
     });
 
   });
@@ -104,7 +196,10 @@
 
     updateLoopInterval: null,
 
+    bpuAddress: "",
+
     // GAME-RELATED-VARIABLES
+    gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
     gameLevel: 3,
     gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
@@ -160,6 +255,7 @@
       app.mainView.user = new app.User(JSON.parse(unescape($('#data-user').html())));
       app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
       app.mainView.bpu = new app.User(JSON.parse(unescape($('#data-bpu').html())));
+      app.mainView.bpuAddress = "http://" + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["ip"] + ":" + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["webcamPort"];
       app.mainView.ledsSetObj = new app.User(JSON.parse(unescape($('#data-setLedsObj').html())));
       app.mainView.bpuExp = new app.User(JSON.parse(unescape($('#data-bpuExp').html())));
       app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function(objA, objB) {
@@ -223,6 +319,9 @@
       modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
       modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
       modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
+      modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
+      modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
+      modifiedCode = modifiedCode.split('getTimeLeftInGame').join('app.mainView.getTimeLeftInGame');
       modifiedCode = modifiedCode.split('setJoystickView').join('app.mainView.setJoystickView');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setLevel').join('app.mainView.setLevel');
@@ -326,6 +425,18 @@
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing.
       return app.mainView.gameEuglenaInRectCount;
     },
+    getMaxScreenHeight: function() {
+      console.log('getMaxScreenHeight function called.');
+      return 479;
+    },
+    getMaxScreenWidth: function() {
+      console.log('getMaxScreenWidth function called.');
+      return 639;
+    },
+    getTimeLeftInGame: function() {
+      console.log('getTimeLeftInGame function called.');
+      return Math.floor(app.mainView.timeLeftInLab / 1000.0);
+    },
     setJoystickView: function(isOn) {
       console.log('setJoystickView function called.');
       app.mainView.gameJoystickView = isOn;
@@ -400,8 +511,6 @@
 
       if (err) console.log('kickUser', err, from);
 
-      $('#myVideo')[0].src = $('#myVideo')[0].src.replace('stream', 'snapshot');
-
       if (!app.mainView.alreadyKicked) {
         app.mainView.alreadyKicked = true;
       }
@@ -416,12 +525,13 @@
         app.mainView.keyboardTimeout = null;
       }
 
-      if (app.mainView.bpuExp != null) {
-        //app.mainView.showSurvey();
-        console.log('bpuExp is null');
-      } else {
-        location.href = '/account/';
-      }
+      //location.href = '/account/';
+      // if (app.mainView.bpuExp != null) {
+      //   app.mainView.showSurvey();
+      //   console.log('bpuExp is null');
+      // } else {
+      //   location.href = '/account/';
+      // }
     },
     getLedsSetObj: function() {
       if (app.mainView.ledsSetObj === null) {
@@ -555,14 +665,14 @@
         //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
         if (app.mainView.timeLeftInLab < 0) {
-          // console.log('experiment over , kick user now');
-          // app.mainView.kickUser(null, 'complete');
+          console.log('experiment over , kick user now');
+          app.mainView.kickUser(null, 'complete');
 
-          // clearInterval(app.mainView.updateLoopInterval);
-          // app.mainView.updateLoopInterval = null;
+          clearInterval(app.mainView.updateLoopInterval);
+          app.mainView.updateLoopInterval = null;
 
-          // clearTimeout(app.mainView.keyboardTimeout);
-          // app.mainView.keyboardTimeout = null;
+          clearTimeout(app.mainView.keyboardTimeout);
+          app.mainView.keyboardTimeout = null;
         } else {
           if (app.mainView.isSocketInitialized && !app.mainView.hadJoyActivity) {
             if (timerActivatedJoystick > 1000) {

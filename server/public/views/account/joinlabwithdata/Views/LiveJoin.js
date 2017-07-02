@@ -15,7 +15,6 @@
     //Join Button Action
     btnClick_joinLiveNext:function() {
       app.locals.gameSession = true;
-      alert('Live Button Pressed!!!' + app.locals.gameSession);
       var wantsBpuName=null;
       app.mainView.submitExperimentFromViews('live', wantsBpuName);
     },

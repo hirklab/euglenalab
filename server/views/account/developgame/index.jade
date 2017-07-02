@@ -165,6 +165,9 @@ block neck
       overflow-y: hidden;
       overflow-x: auto;
     }
+    .activeline {background: #e8f2ff !important;}
+
+    .gameFile {padding:10px; cursor:pointer;}
 
 block feet
   script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
@@ -189,7 +192,7 @@ block body
         div.row
           div.col-xs-12
             div(style='margin-left:3%;')
-              textarea.codeArea#txtCodeVariables
+              textarea.codeArea#txtCodeVariables(disabled)
                 |this.currLED = LED.RIGHT;
                 |this.possibleLEDs = [LED.UP, LED.DOWN, LED.RIGHT, LED.LEFT];
                 |this.instructions = "Guess which LED is currently shining. Press 'W'" +
@@ -349,13 +352,15 @@ block body
         br
         |};
         br
-        br
-        button.btn.btn-success#btnUpdateRun(type="update",value="update") Update Code
         
       div.col-xs-5
         div.row
           div.col-xs-12
+            button.btn.btn-success#btnUpdateRun(type="update",value="update") Update Code
+            |&nbsp;&nbsp;&nbsp;&nbsp;
             button.btn.btn-success#btnStartGame(type="update",value="update") Play Game
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            button.btn.btn-danger#btnStopGame(type="update",value="update") Stop Game
         br
         div.row
           div.col-xs-5#myAside.unselectable(name='myAside')
@@ -372,13 +377,53 @@ block body
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
-        button.btn.btn-success#btnSaveGame(type="save",value="save", disabled) Save Game
+        button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Game
         //- h2
         //-   |Status 
         //-   code(id="statusField")
         //-     |Loading...
     
     div.modal.fade(role="dialog")
+
+    div.modal.fade#saveGameModal(role="dialog")
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type="button", data-dismiss="modal")
+            h4.modal-title
+              |Save Game
+          div.modal-body
+            div.form-group
+              label(for="usr") Game file name:
+              input.form-control#gameNameText(type="text")
+            br
+            button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
+          div.modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Close
+
+    div.modal.fade#loadGameModal(role="dialog")
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type="button", data-dismiss="modal")
+            h4.modal-title
+              |Choose Game
+          div.modal-body
+            div.dropdown
+              button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown") Select A Game
+                span.caret
+              ul.dropdown-menu#existingGamesDropdown
+                - for (var j=0; j < data.gameNames.split('%3B').length; j++)
+                  - if (data.gameNames.split('%3B')[j] !== '%22')
+                    li.gameFile
+                      a(href="#") 
+                        | #{data.gameNames.split('%3B')[j]}
+            br
+            //-button.btn.btn-primary#btnLoadGame(type="save", value="save") Open Game
+          div.modal-footer
+            button.btn.btn-default(type="button" data-dismiss="modal") Close
 
     script(type='text/template',id="tmpl-survey")
       div.modal-dialog(role="document")
