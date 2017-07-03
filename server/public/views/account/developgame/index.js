@@ -198,11 +198,12 @@
 
     bpuAddress: "",
 
+    sessionOverFirstTime: true,
+
     // GAME-RELATED-VARIABLES
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
-    gameLevel: 3,
-    gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
+    gameInstructionText: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.",
     gameOverText: "",
     gameJoystickView: true,
     gameInSession: false,
@@ -315,17 +316,16 @@
       modifiedCode = modifiedCode.split('drawOnTrackedEuglena').join('app.mainView.drawOnTrackedEuglena');
       modifiedCode = modifiedCode.split('drawRect').join('app.mainView.drawRect');
       modifiedCode = modifiedCode.split('drawText').join('app.mainView.drawText');
-      modifiedCode = modifiedCode.split('finishGame').join('app.mainView.finishGame');
+      modifiedCode = modifiedCode.split('endProgram').join('app.mainView.endProgram');
       modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
       modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
       modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
       modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
       modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
-      modifiedCode = modifiedCode.split('getTimeLeftInGame').join('app.mainView.getTimeLeftInGame');
+      modifiedCode = modifiedCode.split('getTimeLeft').join('app.mainView.getTimeLeft');
       modifiedCode = modifiedCode.split('setJoystickView').join('app.mainView.setJoystickView');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
-      modifiedCode = modifiedCode.split('setLevel').join('app.mainView.setLevel');
-      modifiedCode = modifiedCode.split('setTextPerLevel').join('app.mainView.setTextPerLevel');
+      modifiedCode = modifiedCode.split('setInstructionText').join('app.mainView.setInstructionText');
       
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
@@ -350,8 +350,8 @@
     parseEndCode: function(runCode) {
       app.mainView.generalParser(runCode);
     },
-    parseJoystickCode: function(runCode, angle, intensity) { 
-      var modifiedCode = runCode.split('angle').join(angle);
+    parseJoystickCode: function(runCode, angle, intensity) {
+      var modifiedCode = runCode.split('angle').join((parseInt(angle) + 180).toString());
       modifiedCode = modifiedCode.split('intensity').join('\'' + intensity + '\'');
       app.mainView.generalParser(modifiedCode);
     },
@@ -394,8 +394,8 @@
       app.mainView.drawTextG = G;
       app.mainView.drawTextB = B;
     },
-    finishGame: function() {
-      console.log('finishGame function called.');
+    endProgram: function() {
+      console.log('fendProgram function called.');
       app.mainView.gameInSession = false;
       app.mainView.parseEndCode(app.mainView.gameEndCode);
     },
@@ -433,8 +433,8 @@
       console.log('getMaxScreenWidth function called.');
       return 639;
     },
-    getTimeLeftInGame: function() {
-      console.log('getTimeLeftInGame function called.');
+    getTimeLeft: function() {
+      console.log('getTimeLeft function called.');
       return Math.floor(app.mainView.timeLeftInLab / 1000.0);
     },
     setJoystickView: function(isOn) {
@@ -489,17 +489,11 @@
       ledsSetObj.leftValue = left;
       return ledsSetObj;
     },
-    setTextPerLevel: function(level, levelText) {
+    setInstructionText: function(msgText) {
       console.log('setLevelText function called.');
-      app.mainView.gameLevelText[level] = levelText;
+      app.mainView.gameInstructionText = msgText;
+      $('#instructionText').text(app.mainView.gameInstructionText);
     },
-    setLevel: function(level) {
-      console.log('setLevel function called.');
-      $('#level').text(level);
-      $('#levelText').text(app.mainView.gameLevelText[level]);
-      app.mainView.gameLevel = level;
-    },
-
 
     /*
      * Normal LiveLab functions.
@@ -525,7 +519,7 @@
         app.mainView.keyboardTimeout = null;
       }
 
-      //location.href = '/account/';
+      console.log('kicking user!');
       // if (app.mainView.bpuExp != null) {
       //   app.mainView.showSurvey();
       //   console.log('bpuExp is null');
@@ -623,6 +617,13 @@
           }
         }
       } else {
+        // if (app.mainView.sessionOverFirstTime) {
+        //   $('#btnUpdateRun').prop("disabled", true);
+        //   $('#btnStartGame').prop("disabled", true);
+        //   $('#btnStopGame').prop("disabled", true);
+        //   $('#btnLoadGame').prop("disabled", true);
+        //   app.mainView.sessionOverFirstTime = false;
+        // }
         if (isReal || app.mainView.wasTimeSetFromUpdate) {
           labelMsg += ' Lab Over.';
           // setTimeout(function() {
@@ -648,6 +649,7 @@
       var lastFrameTime = frameTime;
       var deltaFrame = frameTime - lastFrameTime;
       var timerActivatedJoystick = 0;
+
       //Update Loop
       app.mainView.updateLoopInterval = setInterval(function() {
         frameTime = new Date().getTime();
@@ -657,16 +659,15 @@
         //Set time left in lab
         app.mainView.setTimeLeftInLabLabel(null, deltaFrame, false);
 
-        //console.log("timeInLab:" + app.mainView.timeInLab);
-        //console.log("timeForLab:" + app.mainView.timeForLab);
-
+        // console.log("timeInLab:" + app.mainView.timeInLab);
+        // console.log("timeForLab:" + app.mainView.timeForLab);
 
 
         //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
         if (app.mainView.timeLeftInLab < 0) {
-          console.log('experiment over , kick user now');
-          app.mainView.kickUser(null, 'complete');
+          console.log('experiment over , kick user now' + app.mainView.timeLeftInLab);
+          //app.mainView.kickUser(null, 'complete');
 
           clearInterval(app.mainView.updateLoopInterval);
           app.mainView.updateLoopInterval = null;

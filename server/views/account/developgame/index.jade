@@ -185,7 +185,7 @@ block body
       div.col-xs-7
         font(color='purple')
           |function&nbsp;
-        |MyBioticGame() {
+        |BioticProgram() {
         br
         br
 
@@ -216,7 +216,7 @@ block body
             textarea#txtCodeRun
               |setLED(this.currLED, 999);
               |if (this.score >= 10) {
-              |&nbsp;&nbsp;&nbsp;&nbsp;finishGame();
+              |&nbsp;&nbsp;&nbsp;&nbsp;endProgram();
               |}
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
@@ -227,7 +227,7 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='#0F6BA0')
           |this
-        |.startGame = 
+        |.startProgram = 
         font(color='purple')
           |function
         |() {
@@ -238,8 +238,7 @@ block body
           div.col-xs-11
             textarea.codeArea#txtCodeStart
               |setJoystickView(false);
-              |setLevel(1);
-              |setTextPerLevel(1, this.instructions);
+              |setInstructionText("This text can be changed with the API!");
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -249,7 +248,7 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='#0F6BA0')
           |this
-        |.endGame = 
+        |.endProgram = 
         font(color='purple')
           |function
         |() {
@@ -282,7 +281,18 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeJoystick
-              |//console.log('Joystick changed!');
+              |var ledIntensity = intensity / 1000.0;
+              |&nbsp;&nbsp;&nbsp;&nbsp;
+              |if (angle >= 45 && angle < 135) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.UP, ledIntensity);
+              |} else if (angle >= 135 && angle < 225) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.RIGHT, ledIntensity);
+              |} else if (angle >= 225 && angle < 315) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.DOWN, ledIntensity);
+              |} else if (angle >= 315 && angle <= 360 &&
+              |&nbsp;&nbsp;&nbsp;&nbsp;angle < 45 && angle >= 0) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.LEFT, ledIntensity);
+              |} 
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -358,28 +368,24 @@ block body
           div.col-xs-12
             button.btn.btn-success#btnUpdateRun(type="update",value="update") Update Code
             |&nbsp;&nbsp;&nbsp;&nbsp;
-            button.btn.btn-success#btnStartGame(type="update",value="update") Play Game
+            button.btn.btn-success#btnStartGame(type="update",value="update") Run Code
             |&nbsp;&nbsp;&nbsp;&nbsp;
-            button.btn.btn-danger#btnStopGame(type="update",value="update") Stop Game
+            button.btn.btn-danger#btnStopGame(type="update",value="update") Stop Code
         br
         div.row
           div.col-xs-5#myAside.unselectable(name='myAside')
             div#myJoystick.canvas-joystick-off(name='myJoystick')
           div.col-xs-1
           div.col-xs-6
-            |<u>Level 
-            b#level
-              |1
-            |: </u>
-            p#levelText
-              |Call the setLevelText function to change this text!
+            p#instructionText
+              |This text can be changed with the API!
         br
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
-        button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
+        button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Code
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Game
+        button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Code
         //- h2
         //-   |Status 
         //-   code(id="statusField")
