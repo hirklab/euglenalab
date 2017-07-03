@@ -311,7 +311,7 @@
      * Parsing functions.
      */
     generalParser: function(runCode) {
-      // TODO: Remove unnecessary code here.
+      // TODO: Remove unnecessary / potentially sinister code here.
 
       // Replace EuglenaScript functions with appropriate function calls.
       var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
@@ -336,6 +336,11 @@
       modifiedCode = modifiedCode.split('LED.UP').join('\"LED.UP\"');
       modifiedCode = modifiedCode.split('LED.DOWN').join('\"LED.DOWN\"');
 
+      modifiedCode = modifiedCode.split('MAX_SCREEN_WIDTH').join('639');
+      modifiedCode = modifiedCode.split('MAX_SCREEN_HEIGHT').join('479');
+      modifiedCode = modifiedCode.split('MAX_TEXT_SIZE').join('1.5');
+      modifiedCode = modifiedCode.split('MAX_LED_INTENSITY').join('999');
+
       // TODO: CAREFULLY DETERMINE WHEN CODE SHOULD BE EVALUATED LOCALLY VS. GLOBALLY!!!!!
       //eval(modifiedCode);
       try {
@@ -343,7 +348,6 @@
       }
       catch (err) {
         app.mainView.gameErrorMessage = err.message;
-        console.log("ERROR IN USER CODE!");
         $('#btnUpdateRun').prop("disabled", false);
         $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
         $('#instructionText').css('color', 'red');
@@ -375,7 +379,9 @@
       app.mainView.generalParser(runCode);
     },
     parseJoystickCode: function(runCode, angle, intensity) {
-      var modifiedCode = runCode.split('angle').join((parseInt(angle) + 180).toString());
+      var modifiedCode = runCode.split('MAX_ANGLE').join('360');
+      modifiedCode = modifiedCode.split('MAX_INTENSITY').join('1.0');
+      modifiedCode = modifiedCode.split('angle').join((parseInt(angle) + 180).toString());
       modifiedCode = modifiedCode.split('intensity').join('\'' + intensity + '\'');
       app.mainView.generalParser(modifiedCode);
     },
