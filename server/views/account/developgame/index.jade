@@ -386,10 +386,227 @@ block body
         button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Code
         |&nbsp;&nbsp;&nbsp;&nbsp;
         button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Code
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-primary#btnShowAPI(type="save", value="save") Hide API
         //- h2
         //-   |Status 
         //-   code(id="statusField")
         //-     |Loading...
+        br
+        br
+        div#apiCalls
+          font(color="green") 
+            h2 EuglenaScript API Calls
+            u Methods:
+            br
+            br
+            b drawOnTrackedEuglena
+            |(
+            i isDrawing
+            |)
+            br
+            |Input(s):
+            br
+            i isDrawing
+            |, a boolean
+            br
+            |Toggle whether the currently tracked Euglena have a virtual object drawn over them.
+
+            br
+            br
+
+            b drawRect
+            |(
+            i upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B
+            |)
+            br
+            |Input(s):
+            br
+            i upperLeftX
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i upperLeftY
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i lowerRightX
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i lowerRightY
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i R
+            |, a number between 0 and 255
+            br
+            i G
+            |, a number between 0 and 255
+            br
+            i B
+            |, a number between 0 and 255
+            br
+            |Draw a virtual rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordinate (lowerRightX, lowerRightY) with the color (R, G, B).
+
+            br
+            br
+
+            b drawText
+            |(
+            i text, xPos, yPos, size, R, G, B
+            |)
+            br
+            |Input(s):
+            br
+            i text
+            |, a string
+            br
+            i xPos
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i yPos
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i size
+            |, a number between 0 and MAX_TEXT_SIZE
+            br
+            i R
+            |, a number between 0 and 255
+            br
+            i G
+            |, a number between 0 and 255
+            br
+            i B
+            |, a number between 0 and 255
+            br
+            |Draw text as position (xPos, yPos) with the color (R, G, B).
+
+            br
+            br
+
+            b endProgram
+            |()
+            br
+            |Ends the program.
+
+            br
+            br
+
+            b getAllEuglenaPositions
+            |()
+            br
+            |Return an array of objects that contain (x, y) coordinates of all tracked Euglena positions.
+            br
+            |Returns: an array of objects that contain the (x, y) coordinates
+
+            br
+            br
+
+            b getEuglenaCount
+            |()
+            br
+            |Get the total Euglena count.
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b getEuglenaInRect
+            |(
+            i upperLeftX, upperLeftY, lowerRightX, lowerRightY
+            |)
+            br
+            |Input(s):
+            br
+            i upperLeftX
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i upperLeftY
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i lowerRightX
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i lowerRightY
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            |Get the total Euglena count in the rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordiante (lowerRightX, lowerRightY).
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b getTimeLeft
+            |()
+            br
+            |Get the time left in the session, in seconds.
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b setJoystickView
+            |(
+            i isOn
+            |)
+            br
+            |Input(s):
+            br
+            i isOn
+            |, a boolean
+            br
+            |Turn the joystick view on or off.
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b setInstructionText
+            |(
+            i message
+            |)
+            br
+            |Input(s):
+            br
+            i message
+            |, a string
+            br
+            |Change the text in the "instructions" section of the screen.
+
+            br
+            br
+
+            b setLED
+            |(
+            i led, intensity
+            |)
+            br
+            |Input(s):
+            br
+            i led
+            |, one of LED.RIGHT, LED.LEFT, LED.UP, and LED.DOWN
+            br
+            |Set led to the intensity between 0 (completely off) and MAX_LED_INTENSITY (completely on).
+
+            br
+            br
+
+            u Constants:
+
+            br
+            br
+
+            |MAX_ANGLE: The highest angle (360) the joystick can turn.
+            br
+            |MAX_INTENSITY: The highest intensity the joystick can have.
+            br
+            |MAX_SCREEN_WIDTH: The maximum screen width of the microscope video view.
+            br
+            |MAX_SCREEN_HEIGHT: The maximum screen height of the microscope video view.
+
+
+            
     
     div.modal.fade(role="dialog")
 

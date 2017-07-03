@@ -120,6 +120,18 @@
       app.mainView.parseStartCode(app.mainView.gameStartCode);
     });
 
+    $('#btnShowAPI').click(function() {
+      if (app.mainView.isAPIshowing) {
+        $('#btnShowAPI').html('Show API');
+        $('#apiCalls').hide();
+        app.mainView.isAPIshowing = false;
+      } else {
+        $('#btnShowAPI').html('Hide API');
+        $('#apiCalls').show();
+        app.mainView.isAPIshowing = true;
+      }
+    });
+    
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
       app.mainView.codeEditorReadOnly = false;
@@ -199,6 +211,7 @@
     bpuAddress: "",
 
     sessionOverFirstTime: true,
+    isAPIshowing: true,
 
     gameErrorMessage: "",
 
