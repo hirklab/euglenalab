@@ -25,96 +25,96 @@
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
-    var codeVariablesEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeVariables'), {
+    app.mainView.codeVariablesEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeVariables'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          codeVariablesEditor.setLineClass(hlLine, null, null);
-          hlLine = codeVariablesEditor.setLineClass(codeVariablesEditor.getCursor().line, null, "activeline");
+          app.mainView.codeVariablesEditor.setLineClass(hlLine, null, null);
+          hlLine = app.mainView.codeVariablesEditor.setLineClass(app.mainView.codeVariablesEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLine = codeVariablesEditor.setLineClass(0, "activeline");
+    var hlLine = app.mainView.codeVariablesEditor.setLineClass(0, "activeline");
 
-    var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
+    app.mainView.runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          runEditor.setLineClass(hlLineRun, null, null);
-          hlLineRun = runEditor.setLineClass(runEditor.getCursor().line, null, "activeline");
+          app.mainView.runEditor.setLineClass(hlLineRun, null, null);
+          hlLineRun = app.mainView.runEditor.setLineClass(app.mainView.runEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineRun = runEditor.setLineClass(0, "activeline");
+    var hlLineRun = app.mainView.runEditor.setLineClass(0, "activeline");
 
-    var startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
+    app.mainView.startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          startEditor.setLineClass(hlLineStart, null, null);
-          hlLineStart = startEditor.setLineClass(startEditor.getCursor().line, null, "activeline");
+          app.mainView.startEditor.setLineClass(hlLineStart, null, null);
+          hlLineStart = app.mainView.startEditor.setLineClass(app.mainView.startEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineStart = startEditor.setLineClass(0, "activeline");
+    var hlLineStart = app.mainView.startEditor.setLineClass(0, "activeline");
 
-    var endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
+    app.mainView.endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          endEditor.setLineClass(hlLineEnd, null, null);
-          hlLineEnd = endEditor.setLineClass(endEditor.getCursor().line, null, "activeline");
+          app.mainView.endEditor.setLineClass(hlLineEnd, null, null);
+          hlLineEnd = app.mainView.endEditor.setLineClass(app.mainView.endEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineEnd = endEditor.setLineClass(0, "activeline");
+    var hlLineEnd = app.mainView.endEditor.setLineClass(0, "activeline");
 
-    var joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
+    app.mainView.joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          joystickEditor.setLineClass(hlLineJoystick, null, null);
-          hlLineJoystick = joystickEditor.setLineClass(joystickEditor.getCursor().line, null, "activeline");
+          app.mainView.joystickEditor.setLineClass(hlLineJoystick, null, null);
+          hlLineJoystick = app.mainView.joystickEditor.setLineClass(app.mainView.joystickEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineJoystick = joystickEditor.setLineClass(0, "activeline");
+    var hlLineJoystick = app.mainView.joystickEditor.setLineClass(0, "activeline");
 
-    var keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
+    app.mainView.keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          keypressEditor.setLineClass(hlLineKeypress, null, null);
-          hlLineKeypress = keypressEditor.setLineClass(keypressEditor.getCursor().line, null, "activeline");
+          app.mainView.keypressEditor.setLineClass(hlLineKeypress, null, null);
+          hlLineKeypress = app.mainView.keypressEditor.setLineClass(app.mainView.keypressEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineKeypress = keypressEditor.setLineClass(0, "activeline");
+    var hlLineKeypress = app.mainView.keypressEditor.setLineClass(0, "activeline");
 
     // Handle new code.
     $('#btnUpdateRun').click(function() {
-      app.mainView.gameGlobalVariables = codeVariablesEditor.getValue();
-      app.mainView.gameRunCode = runEditor.getValue();
-      app.mainView.gameStartCode = startEditor.getValue();
-      app.mainView.gameEndCode = endEditor.getValue();
-      app.mainView.gameKeypressCode = keypressEditor.getValue();
-      app.mainView.gameJoystickCode = joystickEditor.getValue();
+      app.mainView.gameGlobalVariables = app.mainView.codeVariablesEditor.getValue();
+      app.mainView.gameRunCode = app.mainView.runEditor.getValue();
+      app.mainView.gameStartCode = app.mainView.startEditor.getValue();
+      app.mainView.gameEndCode = app.mainView.endEditor.getValue();
+      app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
+      app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
     });
 
     $('#btnStartGame').click(function() {
       app.mainView.gameInSession = true;
-      codeVariablesEditor.setOption("readOnly", "nocursor");
-      runEditor.setOption("readOnly", "nocursor");
-      startEditor.setOption("readOnly", "nocursor");
-      endEditor.setOption("readOnly", "nocursor");
-      joystickEditor.setOption("readOnly", "nocursor");
-      keypressEditor.setOption("readOnly", "nocursor");
+      app.mainView.codeVariablesEditor.setOption("readOnly", "nocursor");
+      app.mainView.runEditor.setOption("readOnly", "nocursor");
+      app.mainView.startEditor.setOption("readOnly", "nocursor");
+      app.mainView.endEditor.setOption("readOnly", "nocursor");
+      app.mainView.joystickEditor.setOption("readOnly", "nocursor");
+      app.mainView.keypressEditor.setOption("readOnly", "nocursor");
       $('#btnUpdateRun').prop("disabled", true);
       app.mainView.parseGlobalVariables(app.mainView.gameGlobalVariables);
       app.mainView.parseStartCode(app.mainView.gameStartCode);
@@ -123,12 +123,12 @@
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
       app.mainView.codeEditorReadOnly = false;
-      codeVariablesEditor.setOption("readOnly", false);
-      runEditor.setOption("readOnly", false);
-      startEditor.setOption("readOnly", false);
-      endEditor.setOption("readOnly", false);
-      joystickEditor.setOption("readOnly", false);
-      keypressEditor.setOption("readOnly", false);
+      app.mainView.codeVariablesEditor.setOption("readOnly", false);
+      app.mainView.runEditor.setOption("readOnly", false);
+      app.mainView.startEditor.setOption("readOnly", false);
+      app.mainView.endEditor.setOption("readOnly", false);
+      app.mainView.joystickEditor.setOption("readOnly", false);
+      app.mainView.keypressEditor.setOption("readOnly", false);
       $('#btnUpdateRun').prop("disabled", false);
     });
 
@@ -160,12 +160,12 @@
         .done(function(data) {
           console.log( "Data Loaded readfile: ");
             var gameSections = data.split('-----');
-            codeVariablesEditor.setValue(gameSections[0]);
-            runEditor.setValue(gameSections[1]);
-            startEditor.setValue(gameSections[2]);
-            endEditor.setValue(gameSections[3]);
-            joystickEditor.setValue(gameSections[4]);
-            keypressEditor.setValue(gameSections[5]);
+            app.mainView.codeVariablesEditor.setValue(gameSections[0]);
+            app.mainView.runEditor.setValue(gameSections[1]);
+            app.mainView.startEditor.setValue(gameSections[2]);
+            app.mainView.endEditor.setValue(gameSections[3]);
+            app.mainView.joystickEditor.setValue(gameSections[4]);
+            app.mainView.keypressEditor.setValue(gameSections[5]);
         });
     });
 
@@ -199,6 +199,8 @@
     bpuAddress: "",
 
     sessionOverFirstTime: true,
+
+    gameErrorMessage: "",
 
     // GAME-RELATED-VARIABLES
     gameFileNames: [],
@@ -336,7 +338,29 @@
 
       // TODO: CAREFULLY DETERMINE WHEN CODE SHOULD BE EVALUATED LOCALLY VS. GLOBALLY!!!!!
       //eval(modifiedCode);
-      $.globalEval(modifiedCode);
+      try {
+        $.globalEval(modifiedCode);
+      }
+      catch (err) {
+        app.mainView.gameErrorMessage = err.message;
+        console.log("ERROR IN USER CODE!");
+        $('#btnUpdateRun').prop("disabled", false);
+        $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
+        $('#instructionText').css('color', 'red');
+        app.mainView.gameInSession = false;
+        app.mainView.codeEditorReadOnly = false;
+        app.mainView.codeVariablesEditor.setOption("readOnly", false);
+        app.mainView.runEditor.setOption("readOnly", false);
+        app.mainView.startEditor.setOption("readOnly", false);
+        app.mainView.endEditor.setOption("readOnly", false);
+        app.mainView.joystickEditor.setOption("readOnly", false);
+        app.mainView.keypressEditor.setOption("readOnly", false);
+        return;
+      }
+
+      $('#instructionText').text(app.mainView.gameInstructionText);
+      $('#instructionText').css('color', 'black');
+      
     },
     parseGlobalVariables: function(runCode) {
       app.mainView.generalParser(runCode);
