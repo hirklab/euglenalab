@@ -5,5 +5,5 @@ set -o allexport
 source ../.env
 set +o allexport
 
-#forever -l forever.log -c "go run" -e "errors.log" processing.go
-forever -c "node --max-old-space-size=8192" procApp.js
+forever -l forever.log -c "go run" -e "errors.log" processing.go
+#forever -c "node --max-old-space-size=8192" procApp.js

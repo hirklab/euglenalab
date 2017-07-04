@@ -253,7 +253,7 @@
                 bpuName: vm.microscope.name,
                 index: vm.microscope.index,
                 localAddr: vm.microscope.localAddr,
-                flushTime: msec,
+                flushTime: msec
             };
 
             var emitStr = handle + '/#flush';
@@ -324,5 +324,3 @@
 })();
 
 // Display current health information/current state (including if any user is waiting in Queue on this BPU)
-// Historical health information in graphs/chart, with time-slider
-// Add/View/Edit Notes (time stamped, when viewed, show the time-stamps)
