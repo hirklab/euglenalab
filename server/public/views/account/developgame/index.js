@@ -210,7 +210,7 @@
 
     bpuAddress: "",
 
-    sessionOverFirstTime: true,
+    sessionOverFirstTime: false,
     isAPIshowing: true,
 
     gameErrorMessage: "",
@@ -218,7 +218,7 @@
     // GAME-RELATED-VARIABLES
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
-    gameInstructionText: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen.",
+    gameInstructionText: "This text can be changed with the API!",
     gameOverText: "",
     gameJoystickView: true,
     gameInSession: false,
@@ -546,7 +546,10 @@
       console.log('kicked from ' + from);
       // console.log('kick user loop');
 
-      if (err) console.log('kickUser', err, from);
+      if (err) {
+        return;
+        console.log('kickUser', err, from);
+      }
 
       if (!app.mainView.alreadyKicked) {
         app.mainView.alreadyKicked = true;
@@ -567,7 +570,16 @@
       //   app.mainView.showSurvey();
       //   console.log('bpuExp is null');
       // } else {
-      //   location.href = '/account/';
+      $('#btnUpdateRun').prop("disabled", true);
+      $('#btnStartGame').prop("disabled", true);
+      $('#btnStopGame').prop("disabled", true);
+      $('#btnLoadGame').prop("disabled", true);
+      app.mainView.gameInSession = false;
+      app.mainView.gameInstructionText = 'Your session has timed out. So that another user can use a BPU, please save your code and then return to the home page in order to join a new session.';
+      alert(app.mainView.gameInstructionText);
+      $('#instructionText').text(app.mainView.gameInstructionText);
+      $('#instructionText').css('color', 'red');
+      //location.href = '/account/';
       // }
     },
     getLedsSetObj: function() {
@@ -660,13 +672,6 @@
           }
         }
       } else {
-        // if (app.mainView.sessionOverFirstTime) {
-        //   $('#btnUpdateRun').prop("disabled", true);
-        //   $('#btnStartGame').prop("disabled", true);
-        //   $('#btnStopGame').prop("disabled", true);
-        //   $('#btnLoadGame').prop("disabled", true);
-        //   app.mainView.sessionOverFirstTime = false;
-        // }
         if (isReal || app.mainView.wasTimeSetFromUpdate) {
           labelMsg += ' Lab Over.';
           // setTimeout(function() {
@@ -706,17 +711,28 @@
         // console.log("timeForLab:" + app.mainView.timeForLab);
 
 
+
+        // PW HACK: Make sure user isn't kicked from session if the time is negative before the session actually over.
+        if (app.mainView.timeLeftInLab > 10000) {
+          //console.log("SESSION OVER FIRST TIME");
+          app.mainView.sessionOverFirstTime = true;
+        }
+
         //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
         if (app.mainView.timeLeftInLab < 0) {
           console.log('experiment over , kick user now' + app.mainView.timeLeftInLab);
-          //app.mainView.kickUser(null, 'complete');
+          if (app.mainView.sessionOverFirstTime) {
+            console.log('KICKING USER CODE');
+            app.mainView.kickUser(null, 'complete');
 
-          clearInterval(app.mainView.updateLoopInterval);
-          app.mainView.updateLoopInterval = null;
+            clearInterval(app.mainView.updateLoopInterval);
+            app.mainView.updateLoopInterval = null;
 
-          clearTimeout(app.mainView.keyboardTimeout);
-          app.mainView.keyboardTimeout = null;
+            clearTimeout(app.mainView.keyboardTimeout);
+            app.mainView.keyboardTimeout = null;
+          }
+          
         } else {
           if (app.mainView.isSocketInitialized && !app.mainView.hadJoyActivity) {
             if (timerActivatedJoystick > 1000) {
