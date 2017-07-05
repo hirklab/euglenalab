@@ -5,7 +5,7 @@
     'use strict';
 
     angular
-        .module('BlurAdmin.pages.services.microscope', [])
+        .module('BlurAdmin.pages.microscope.services', [])
         .factory('Microscope', Microscope);
 
     Microscope.$inject = ['$cookies', '$http', '$q', '$window'];

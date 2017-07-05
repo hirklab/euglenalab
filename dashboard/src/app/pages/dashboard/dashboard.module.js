@@ -8,7 +8,7 @@
     angular.module('BlurAdmin.pages.dashboard', [
         'BlurAdmin.pages.admin.services',
         'BlurAdmin.pages.services',
-        'BlurAdmin.pages.services.microscope',
+        'BlurAdmin.pages.microscope.services',
     ])
         .config(routeConfig);
 

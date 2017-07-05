@@ -14,12 +14,13 @@
 
         var Auth = {
             isAuthenticated: isAuthenticated,
+            isAdmin: isAdmin,
             login: login,
             logout: logout,
             register: register,
-            // changePassword: changePassword,
-            // forgotPassword: forgotPassword,
-            // resetPassword: resetPassword,
+            changePassword: changePassword,
+            forgotPassword: forgotPassword,
+            resetPassword: resetPassword,
 
             getToken: getToken,
             unauthenticate: unauthenticate
@@ -74,6 +75,14 @@
 
         function isAuthenticated() {
             return !!$cookies.get('token');
+        }
+
+        function isAdmin() {
+            if (!$cookies.get('isAdmin')) {
+                return false;
+            }
+
+            return $cookies.get('isAdmin');
         }
 
         // function set(account) {

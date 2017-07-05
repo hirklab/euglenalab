@@ -26,7 +26,8 @@
                 sidebarMeta: {
                     icon: 'ion-settings',
                     order: 80
-                }
+                },
+                isAdmin:true
             })
             .state('admin.microscopeList', {
                 url: '/microscopes',
@@ -37,7 +38,8 @@
                 title: 'Microscopes',
                 sidebarMeta: {
                     order: 0
-                }
+                },
+                isAdmin:true
             })
             .state('admin.microscopeDetail', {
                 url: '/microscopes/:id',
@@ -45,7 +47,8 @@
                 authenticate: true,
                 controller: 'AdminMicroscopeDetailCtrl',
                 controllerAs: 'vm',
-                title:'Microscope'
+                title:'Microscope',
+                isAdmin:true
             })
             .state('admin.userList', {
                 url: '/users',
@@ -56,7 +59,8 @@
                 title: 'Users',
                 sidebarMeta: {
                     order: 10
-                }
+                },
+                isAdmin:true
             })
             .state('admin.userDetail', {
                 url: '/users/:id',
@@ -64,7 +68,8 @@
                 authenticate: true,
                 controller: 'UserDetailCtrl',
                 controllerAs: 'vm',
-                title:'Users'
+                title:'Users',
+                isAdmin:true
             })
             .state('admin.groupList', {
                 url: '/groups',
@@ -75,7 +80,8 @@
                 title: 'Groups',
                 sidebarMeta: {
                     order: 20
-                }
+                },
+                isAdmin:true
             })
             .state('admin.groupDetail', {
                 url: 'groups/:id',
@@ -83,7 +89,8 @@
                 authenticate: true,
                 controller: 'GroupDetailCtrl',
                 controllerAs: 'vm',
-                title:'Groups'
+                title:'Groups',
+                isAdmin:true
             })
         ;
 

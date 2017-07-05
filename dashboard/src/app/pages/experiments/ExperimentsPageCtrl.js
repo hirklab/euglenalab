@@ -9,7 +9,7 @@
         .controller('ExperimentsPageCtrl', ExperimentsPageCtrl);
 
     /** @ngInject */
-    function ExperimentsPageCtrl($scope, $filter, Experiment) {
+    function ExperimentsPageCtrl($scope, $filter, lodash, Experiment, Microscope) {
         var vm = this;
 
         vm.currentPage = 1;
@@ -26,8 +26,13 @@
             var page = Math.floor(tablestate.pagination.start / tablestate.pagination.number);
 
             Experiment.list(page, vm.pageSize, '').then(function (res) {
-                vm.list.concat(res.data.results);
-                vm.displayed = [].concat(res.data.results);
+                vm.experiments = lodash.map(res.data.results, function(experiment){
+                    experiment.status = Microscope.BPU_STATUS_DISPLAY[experiment.bpuStatus];
+                    return experiment;
+                });
+
+                vm.list.concat(vm.experiments);
+                vm.displayed = [].concat(vm.experiments);
 
                 vm.total = res.data.items.total;
                 vm.pages = res.data.pages.total;

@@ -1315,6 +1315,8 @@ exports.listExperiments = function(req, res) {
             filters['exp_status'] = req.query.status;
         }
 
+        filters['user.name'] = req.user.username;
+
         req.app.db.models.BpuExperiment.pagedFind({
             filters: filters,
             keys: 'name user group_experimentType exp_submissionTime exp_wantsBpuName exp_eventsToRun exp_status' +
