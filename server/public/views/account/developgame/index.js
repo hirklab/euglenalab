@@ -97,17 +97,14 @@
     });
     var hlLineKeypress = app.mainView.keypressEditor.setLineClass(0, "activeline");
 
-    // Handle new code.
-    $('#btnUpdateRun').click(function() {
+    $('#btnStartGame').click(function() {
       app.mainView.gameGlobalVariables = app.mainView.codeVariablesEditor.getValue();
       app.mainView.gameRunCode = app.mainView.runEditor.getValue();
       app.mainView.gameStartCode = app.mainView.startEditor.getValue();
       app.mainView.gameEndCode = app.mainView.endEditor.getValue();
       app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
       app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
-    });
 
-    $('#btnStartGame').click(function() {
       app.mainView.gameInSession = true;
       app.mainView.codeVariablesEditor.setOption("readOnly", "nocursor");
       app.mainView.runEditor.setOption("readOnly", "nocursor");
@@ -145,6 +142,12 @@
     });
 
     $('#btnSaveGame').click(function() {
+      app.mainView.gameGlobalVariables = app.mainView.codeVariablesEditor.getValue();
+      app.mainView.gameRunCode = app.mainView.runEditor.getValue();
+      app.mainView.gameStartCode = app.mainView.startEditor.getValue();
+      app.mainView.gameEndCode = app.mainView.endEditor.getValue();
+      app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
+      app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
       var codeVar = app.mainView.gameGlobalVariables;
       var codeRun = app.mainView.gameRunCode;
       var codeStart = app.mainView.gameStartCode;
@@ -367,18 +370,18 @@
           app.mainView.gameErrorMessage = err.message;
           app.mainView.gameInstructionText = err.message;
         } catch (err2) {}
-        $('#btnUpdateRun').prop("disabled", false);
-        $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
-        $('#instructionText').css('color', 'red');
-        app.mainView.gameInSession = false;
-        app.mainView.codeEditorReadOnly = false;
-        app.mainView.codeVariablesEditor.setOption("readOnly", false);
-        app.mainView.runEditor.setOption("readOnly", false);
-        app.mainView.startEditor.setOption("readOnly", false);
-        app.mainView.endEditor.setOption("readOnly", false);
-        app.mainView.joystickEditor.setOption("readOnly", false);
-        app.mainView.keypressEditor.setOption("readOnly", false);
-        return;
+          $('#btnUpdateRun').prop("disabled", false);
+          $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
+          $('#instructionText').css('color', 'red');
+          app.mainView.gameInSession = false;
+          app.mainView.codeEditorReadOnly = false;
+          app.mainView.codeVariablesEditor.setOption("readOnly", false);
+          app.mainView.runEditor.setOption("readOnly", false);
+          app.mainView.startEditor.setOption("readOnly", false);
+          app.mainView.endEditor.setOption("readOnly", false);
+          app.mainView.joystickEditor.setOption("readOnly", false);
+          app.mainView.keypressEditor.setOption("readOnly", false);
+          return;
       }
 
       $('#instructionText').text(app.mainView.gameInstructionText);
