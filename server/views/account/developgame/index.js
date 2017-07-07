@@ -4,6 +4,8 @@ var fs = require('fs');
 
 var gameFileNames = '';
 
+// Functions for saving game files.
+
 exports.savefile = function(req, res) {
   console.log("Saving game code...");
   var filePath = __dirname + "/games/" + req.body.fileName;
@@ -25,6 +27,39 @@ exports.getgamecode = function(req, res) {
   var gameFileNamesFixed = gameFileNames.split(';').slice(1, -1);
   var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
   var filePath = __dirname + "/games/" + fileToOpen;
+  console.log('Opening file: ' + filePath);
+  fs.readFile(filePath, 'utf8', function (err, data) {
+    if (err) throw err;
+    res.json(data);
+  });
+};
+
+// Functions for saving user-defined files.
+
+exports.writeuserfile = function(req, res) {
+  console.log("Writing user's file...");
+  var filePath = __dirname + "/userfiles/" + req.body.fileName;
+  var userFileToSave = req.body.userText;
+  var fileMode = req.body.fileMode;
+  if (fileMode === 'FILE.OVERWRITE') {
+    fs.writeFile (filePath, userFileToSave, function(err) {
+      if (err) throw err;
+      console.log('user file writing complete');
+    });
+  } else if (fileMode === 'FILE.APPEND') {
+    fs.appendFile (filePath, userFileToSave, function(err) {
+      if (err) throw err;
+      console.log('user file writing complete');
+    });
+  }
+  
+  res.json('success writing user file');
+};
+
+exports.readuserfile = function(req, res) {
+  console.log("Reading user's file...");
+  var fileToOpen = req.body.userFile;
+  var filePath = __dirname + "/userfiles/" + fileToOpen;
   console.log('Opening file: ' + filePath);
   fs.readFile(filePath, 'utf8', function (err, data) {
     if (err) throw err;

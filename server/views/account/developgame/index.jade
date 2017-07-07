@@ -543,6 +543,23 @@ block body
             br
             br
 
+            b readFromFile
+            |(
+            i filename
+            |)
+            br
+            |Input(s):
+            br
+            i filename
+            |, a string
+            br
+            |Get the string contained in filename.
+            br
+            |Returns: a string
+
+            br
+            br
+
             b setJoystickView
             |(
             i isOn
@@ -586,6 +603,27 @@ block body
             |, one of LED.RIGHT, LED.LEFT, LED.UP, and LED.DOWN
             br
             |Set led to the intensity between 0 (completely off) and MAX_LED_INTENSITY (completely on).
+
+            br
+            br
+
+            b writeToFile
+            |(
+            i filename, text, mode
+            |)
+            br
+            |Input(s):
+            br
+            i filename
+            |, a string
+            br
+            i text
+            |, a string
+            br
+            i mode
+            |, one of FILE.OVERWRITE or FILE.APPEND
+            br
+            |Write text into filename, in either overwrite mode (where the old file with the same name has text written over it) or append mode (where text is added to an existing file).
 
             br
             br

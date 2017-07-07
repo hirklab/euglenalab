@@ -215,6 +215,7 @@
 
     sessionOverFirstTime: false,
     isAPIshowing: true,
+    fileWriteMode: 'FILE.APPEND',
 
     gameErrorMessage: "",
 
@@ -341,16 +342,20 @@
       modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
       modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
       modifiedCode = modifiedCode.split('getTimeLeft').join('app.mainView.getTimeLeft');
+      modifiedCode = modifiedCode.split('readFromFile').join('app.mainView.readFromFile');
       modifiedCode = modifiedCode.split('setJoystickView').join('app.mainView.setJoystickView');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setInstructionText').join('app.mainView.setInstructionText');
-      
+      modifiedCode = modifiedCode.split('writeToFile').join('app.mainView.writeToFile');
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
       modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
       modifiedCode = modifiedCode.split('LED.LEFT').join('\"LED.LEFT\"');
       modifiedCode = modifiedCode.split('LED.UP').join('\"LED.UP\"');
       modifiedCode = modifiedCode.split('LED.DOWN').join('\"LED.DOWN\"');
+
+      modifiedCode = modifiedCode.split('FILE.OVERWRITE').join('\"FILE.OVERWRITE\"');
+      modifiedCode = modifiedCode.split('FILE.APPEND').join('\"FILE.APPEND\"');
 
       modifiedCode = modifiedCode.split('MAX_SCREEN_WIDTH').join('639');
       modifiedCode = modifiedCode.split('MAX_SCREEN_HEIGHT').join('479');
@@ -489,6 +494,24 @@
       console.log('getTimeLeft function called.');
       return Math.floor(app.mainView.timeLeftInLab / 1000.0);
     },
+    readFromFile: function(fileName) {
+      console.log('readFromFile function called.');
+
+      var txtData = "unchanged";
+      $.ajax({
+        type: 'POST',
+        url: '/account/developgame/readuserfile/',
+        data: { userFile: fileName },
+        async:false
+      }).done(function(data) {
+          //console.log( "Data Loaded readFromFile: " + data);
+          txtData = data;
+          return txtData;
+        });
+
+      //console.log("Exiting function with data: " + txtData);
+      return txtData;
+    },
     setJoystickView: function(isOn) {
       console.log('setJoystickView function called.');
       app.mainView.gameJoystickView = isOn;
@@ -545,6 +568,15 @@
       console.log('setLevelText function called.');
       app.mainView.gameInstructionText = msgText;
       $('#instructionText').text(app.mainView.gameInstructionText);
+    },
+    writeToFile: function(fileName, txt, mode) {
+      console.log('writeToFile function called.');
+      $.post('/account/developgame/writeuserfile/', { fileName: fileName,
+                                                 userText: txt,
+                                                 fileMode: mode } )
+        .done(function(data) {
+          console.log( "Data Loaded writeToFile: " + data);
+        });
     },
 
     /*
