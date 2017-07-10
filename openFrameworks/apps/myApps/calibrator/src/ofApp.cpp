@@ -20,17 +20,17 @@ void ofApp::setup(){
     // rotZ=2.9;
 
 	// 4x magnification for camera lens
-    posX=274.092;
-    posY=479.405;
+    posX=300.302;
+    posY=377.4;
     posZ=0;
 
-    scaleX=0.178;
-    scaleY=0.233;
+    scaleX=0.169;
+    scaleY=1.03496;
     scaleZ=1.0;
 
-    rotX=181.502;
-    rotY=-0.501;
-    rotZ=-1.4;
+    rotX=-5.9;
+    rotY=-0.299;
+    rotZ=1.5;
 
     ofSetFullscreen(true);
     ofSetVerticalSync(true);
