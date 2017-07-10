@@ -51,3 +51,6 @@ web/frontend/node_modules/*
 \.DS_Store
 
 local/*
+
+openFrameworks/**/*.d
+openFrameworks/**/*.o
