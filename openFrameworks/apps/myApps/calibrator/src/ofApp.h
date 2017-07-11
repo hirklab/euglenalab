@@ -46,8 +46,7 @@ class ofApp : public ofBaseApp{
         void windowResized(int w, int h);
         void dragEvent(ofDragInfo dragInfo);
 
-        void gotMessage(ofMessage msg);        
-
+        void gotMessage(ofMessage msg);
         ofVideoGrabber camera;
 
         ofImage undistorted;
@@ -68,7 +67,7 @@ class ofApp : public ofBaseApp{
 
         // ofxCv::Calibration calibrationCamera;
         // ofxCv::Calibration calibrationProjector;
-        
+
         Mode mode;
 
         ofMatrix4x4 m;
@@ -81,13 +80,13 @@ class ofApp : public ofBaseApp{
         // int cameraHeight;
 
         // float projectionZoom;
-        
+
         // int projectionX;
         // int projectionY;
 
         // int projectionWidth;
         // int projectionHeight;
-        
+
         // float projectionRotation;
 
         float posX;
@@ -118,3 +117,4 @@ class ofApp : public ofBaseApp{
         ofPoint distortedCorners[4];
         ofMatrix4x4 homography;
 };
+

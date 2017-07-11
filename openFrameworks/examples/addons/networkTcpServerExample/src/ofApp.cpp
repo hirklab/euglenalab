@@ -3,8 +3,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-	// setup the server to listen on 3201
-	TCP.setup(3201);
+	// setup the server to listen on 11999
+	TCP.setup(11999);
 	// optionally set the delimiter to something else.  The delimiter in the client and the server have to be the same, default being [/TCP]
 	TCP.setMessageDelimiter("\n");
 	lastSent = 0;
