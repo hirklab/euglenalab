@@ -26,8 +26,8 @@ var web_router = {
 var serverInfo = {
     Identifier: 'C422691AA38F9A86EC02CB7B55D5F542',
     name: 'radiantllama',
-    socketClientServerIP: 'biotic.stanford.edu',
-    socketClientServerPort: 8084
+    socketClientServerIP: 'euglena.stanford.edu',
+    socketClientServerPort: 8200
 };
 
 var user = {

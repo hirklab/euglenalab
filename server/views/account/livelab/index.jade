@@ -48,6 +48,34 @@ block neck
     .canvas-joystick-on {
       background-color:#66b2ff;
     }
+
+    .stylus-container{
+      position: absolute;
+      width: 100%;
+      top:20px;
+      left:20px;
+      //- max-width: 360px;
+      //- max-height:360px;
+      //- height: 0;
+      //- display: table;
+      overflow:hidden;
+      top: 20px;
+      left: 20px;
+      z-index: 999;
+      //- max-height:480px;
+    }
+
+    #stylus {
+      width: 100%;
+    }
+
+    .canvas-stylus-off {
+      background-color:#A0A0A044;
+    }
+
+    .canvas-stylus-on {
+      background-color:#66b2ff44;
+    }
     
     *.unselectable {
         -moz-user-select: -moz-none;
@@ -209,9 +237,15 @@ block neck
       background-color:rgba(255,255,0,#{data.lightData.rightLightAlpha});
     }
 
+    .actions{
+      float:right;
+      margin-top:10px;
+    }
+
 block feet
   script(src='/views/account/livelab/index.min.js?#{cacheBreaker}')
   script(src="/views/account/livelab/Canvas_Joystick.js")
+  script(src="/views/account/livelab/stylus.js")
   script(src='/views/account/livelab/socket-client.js')
 
 block body
@@ -234,6 +268,8 @@ block body
           span #{data.lightData.leftValue}
         div.video-container.unselectable
           img.video.unselectable(src='#{data.mainImageIP}')
+          div.stylus-container.unselectable
+            div#stylus.unselectable(name='stylus')
           div.scale-section.unselectable
             div.scale.unselectable(name='myScale')
             span.scale-text.unselectable 100 &mu;m
@@ -243,6 +279,13 @@ block body
         div.light.bottom.unselectable(name='myBottomLight') 
           span #{data.lightData.bottomValue}
         div.spacer.right.bottom.unselectable(name='spacer')
+      div.actions.unselectable.btn-toolbar
+        div.btn-group
+          //- div.btn-color.color-selector(name="btn_color")
+          button.btn.btn-default.btn-toggle(name="btn_toggle_draw") Toggle Draw
+          //- button.btn.btn-default(name="btn_color") Color
+        div.btn-group
+          button.btn.btn-default.btn-clear(name="btn_clear") Clear
 
     div.col-xs-4.aside.unselectable
       div.joystick-container
@@ -274,3 +317,4 @@ block body
   script(type='text/lab', id='data-bpuExp') !{data.bpuExp}
   script(type='text/template', id='data-session') !{data.session}
   script(type='text/lab', id='data-setLedsObj') !{data.setLedsObj}
+  script(type='text/lab', id='data-setProjectorObj') !{data.setProjectorObj}

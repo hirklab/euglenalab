@@ -80,15 +80,17 @@
                 keyboard: false
             }); // dont show modal on instantiation
         },
-    })
+    });
 
     app.MainView = Backbone.View.extend({
         el: '.page .container',
         events: {},
         hadJoyActivity: false,
+        hadStylusActivity: false,
         roughLabStartDate: null,
         isSocketInitialized: false,
         ledsSetObj: null,
+        projectorSetObj: null,
 
         timeForLab: 0,
         timeInLab: 0,
@@ -108,10 +110,13 @@
             app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
             app.mainView.bpu = new app.User(JSON.parse(unescape($('#data-bpu').html())));
             app.mainView.ledsSetObj = new app.User(JSON.parse(unescape($('#data-setLedsObj').html())));
+            app.mainView.projectorSetObj = new app.User(JSON.parse(unescape($('#data-setProjectorObj').html())));
             app.mainView.bpuExp = new app.User(JSON.parse(unescape($('#data-bpuExp').html())));
             app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function (objA, objB) {
                 return objB.time - objA.time;
             });
+
+            // console.log(app.mainView.bpuExp.attributes);
 
             //Set Lab Times
             app.mainView.timeForLab = app.mainView.bpuExp.attributes.exp_eventsToRun[0].time;
@@ -126,20 +131,39 @@
                     //My Objects
                     app.mainView.myLightsObj.build(function (err, dat) {
                         app.mainView.myJoyStickObj.build(function (err, dat) {
-                            app.mainView.isSocketInitialized = true;
-                            if (app.mainView.myJoyStickObj.doesExist) {
-                                app.mainView.myJoyStick.toggleJoystick('on');
-                                app.mainView.setupMouseEvents(function (err, dat) {
+                            app.mainView.stylusInstance.build(function (err, dat) {
+                                app.mainView.isSocketInitialized = true;
+                                if (app.mainView.myJoyStickObj.doesExist) {
+
+                                    app.mainView.myJoyStick.toggleJoystick('on');
+
+                                    app.mainView.setupMouseEvents(function (err, dat) {
+                                        app.mainView.setupKeyboardEvents(function (err, dat) {
+
+
+                                            app.mainView.startUpdateLoop();
+                                        });
+                                    });
+
+                                } else {
                                     app.mainView.setupKeyboardEvents(function (err, dat) {
                                         app.mainView.startUpdateLoop();
                                     });
-                                });
-                            } else {
-                                app.mainView.setupKeyboardEvents(function (err, dat) {
-                                    app.mainView.startUpdateLoop();
-                                });
-                            }
+                                }
+
+                                document.onreadystatechange = function () {
+                                    if (document.readyState === "complete") {
+                                        window.dispatchEvent(new Event('resize'));
+                                    }
+                                }
+
+                                if (app.mainView.stylusInstance.doesExist) {
+                                    app.mainView.stylus.toggle('on');
+                                }
+                            });
                         });
+
+
                     });
                 }
             });
@@ -167,7 +191,7 @@
                 app.mainView.keyboardTimeout = null;
             }
 
-            if (app.mainView.bpuExp != null) {
+            if (app.mainView.bpuExp !== null && (new Date().getTime() - app.mainView.bpuExp.attributes.exp_submissionTime) < app.mainView.timeForLab + 8000) {
                 app.mainView.showSurvey();
             } else {
                 location.href = '/account/';
@@ -259,12 +283,85 @@
             }
         },
 
+        getProjectorSetObj: function () {
+            if (app.mainView.projectorSetObj === null) {
+                return null;
+            } else {
+                return JSON.parse(JSON.stringify(app.mainView.projectorSetObj));
+            }
+        },
+        setProjectorFromCoordValues: function (coordValues, evtType, previousTouchState) {
+            var point = app.mainView.stylus.getXY(coordValues, previousTouchState + '->setProjectorFromCoordValues');
+
+            if (point.x != null && point.y != null) {
+                var projectorSetObj = app.mainView.getProjectorSetObj();
+
+                projectorSetObj.metaData.clientTime = new Date().getTime();
+
+                projectorSetObj.metaData.layerX = point.x;
+                projectorSetObj.metaData.layerY = point.y;
+                projectorSetObj.metaData.offsetX = point.x;
+                projectorSetObj.metaData.offsetY = point.y;
+                projectorSetObj.metaData.evtType = evtType;
+                projectorSetObj.metaData.color = point.color;
+                projectorSetObj.metaData.clear = point.clear;
+                projectorSetObj.metaData.touchState = app.mainView.stylusInstance.touchState;
+                projectorSetObj.metaData.previousTouchState = previousTouchState;
+
+                app.mainView.setProjectorFromObjectAndSendToServer(projectorSetObj, previousTouchState + '->setProjectorFromCoordValues');
+            }
+        },
+
+        setProjectorFromEvent: function (evt, evtType, previousTouchState) {
+            // console.log('Layer = {' + evt.layerX + ',' + evt.layerY + '}');
+            // console.log('Offset = {' + evt.offsetX + ',' + evt.offsetY + '}');
+            // console.log('Screen = {' + evt.screenX + ',' + evt.screenY + '}');
+
+            var projectorSetObj = app.mainView.getProjectorSetObj();
+            projectorSetObj.metaData.clientTime = new Date().getTime();
+
+            projectorSetObj.metaData.layerX = evt.layerX;
+            projectorSetObj.metaData.layerY = evt.layerY;
+            projectorSetObj.metaData.offsetX = evt.offsetX;
+            projectorSetObj.metaData.offsetY = evt.offsetY;
+            projectorSetObj.metaData.clientX = evt.clientX;
+            projectorSetObj.metaData.clientY = evt.clientY;
+            projectorSetObj.metaData.color = 0;
+            projectorSetObj.metaData.clear = 0;
+            projectorSetObj.metaData.className = evt.target.className;
+
+            projectorSetObj.metaData.evtType = evtType;
+            projectorSetObj.metaData.touchState = app.mainView.stylusInstance.touchState;
+            projectorSetObj.metaData.previousTouchState = previousTouchState;
+
+            app.mainView.setProjectorFromObjectAndSendToServer(projectorSetObj, previousTouchState + '->setProjectorFromEvent');
+        },
+        setProjectorFromObjectAndSendToServer: function (projectorSetObj, from) {
+            //Reset Values
+            var obj = app.mainView.stylus.setXY(projectorSetObj, from + '->setProjectorFromObjectAndSendToServer');
+            app.mainView.stylus.update(obj);
+
+            //only update bpu on interval
+            var newDate = new Date();
+
+            // if ((newDate - app.mainView.lastSetLedsFromEventDate) >= app.mainView.setLedsFromEventInterval) {
+            app.mainView.lastSetLedsFromEventDate = newDate;
+
+            app.userSocketClient.projectorSet(obj, app.mainView.stylus.canvas.width, app.mainView.stylus.canvas.height);
+            // }
+        },
+
         //From Socket
         setTimeLeftInLabLabel: function (timeLeft, dt, isReal) {
             if (isReal) {
                 app.mainView.timeLeftInLab = timeLeft;
             } else {
                 app.mainView.timeLeftInLab -= dt;
+                // app.mainView.timeLeftInLab = (new Date().getTime() - app.mainView.bpuExp.attributes.exp_submissionTime);
+            }
+
+            if ((new Date().getTime() - app.mainView.bpuExp.attributes.exp_submissionTime) > app.mainView.timeForLab) {
+                app.mainView.kickUser(null, 'complete');
             }
 
             app.mainView.timeInLab += dt;
@@ -272,7 +369,7 @@
             var titleMsg = app.mainView.bpu.get('name') + '';
             var timeMsg = '';
 
-            if (app.mainView.timeLeftInLab > 0) {
+            if (app.mainView.timeLeftInLab > 0 && (new Date().getTime() - app.mainView.bpuExp.attributes.exp_submissionTime) < app.mainView.timeForLab) {
                 if (app.mainView.timeLeftInLab === null) {
                     timeMsg += '...';
                 } else {
@@ -313,12 +410,14 @@
             var lastFrameTime = frameTime;
             var deltaFrame = frameTime - lastFrameTime;
             var timerActivatedJoystick = 0;
+            var timerActivatedStylus = 0;
             //Update Loop
             app.mainView.updateLoopInterval = setInterval(function () {
                 frameTime = new Date().getTime();
                 deltaFrame = frameTime - lastFrameTime;
                 lastFrameTime = frameTime;
                 timerActivatedJoystick += deltaFrame;
+                timerActivatedStylus += deltaFrame;
                 //Set time left in lab
                 app.mainView.setTimeLeftInLabLabel(null, deltaFrame, false);
 
@@ -349,8 +448,22 @@
                     } else {
                         timerActivatedJoystick = 0;
                     }
+
+                    if (app.mainView.isSocketInitialized && !app.mainView.hadStylusActivity) {
+                        if (timerActivatedStylus > 1000) {
+                            timerActivatedStylus = 0;
+                            if (app.mainView.stylus.canvas.className === 'canvas-stylus-off') {
+                                app.mainView.stylus.toggle('on');
+                            } else {
+                                app.mainView.stylus.toggle('off');
+                            }
+                        }
+                    } else {
+                        timerActivatedStylus = 0;
+                    }
                 }
                 app.mainView.myJoyStick.update('Joystick');
+                app.mainView.stylus.update('Stylus');
             }, 20);
         },
         //Tag-Joystick
@@ -364,6 +477,22 @@
                     app.mainView.myJoyStick = new Canvas_Joystick(app.mainView.$el.find('[name="' + 'myJoystick' + '"]')[0]);
                 }
                 cb_fn(null, null);
+            },
+        },
+        stylus: null,
+        stylusInstance: {
+            touchState: 'up',
+            doesExist: false,
+            build: function (cb_fn) {
+                if (app.mainView.$el.find('[name="' + 'stylus' + '"]')[0]) {
+                    app.mainView.stylusInstance.doesExist = true;
+                    app.mainView.stylus = new Stylus(app.mainView.$el.find('[name="' + 'stylus' + '"]')[0]);
+
+                    app.mainView.btn_toggle = app.mainView.$el.find('[name="btn_toggle_draw"]')[0];
+                    app.mainView.btn_clear = app.mainView.$el.find('[name="btn_clear"]')[0];
+                }
+                cb_fn(null, null);
+
             },
         },
         //Tag-Lights
@@ -449,6 +578,53 @@
             } else if (evtType === 'myJoyKeys_loop') { //event is light values
                 app.mainView.myJoyStick.toggleJoystick('on');
                 app.mainView.setLedsFromLightValues(evt, evtType, previousTouchState);
+            }
+        },
+
+        setProjectorEventController: function (evt, evtType) {
+            // console.log(evtType + ': {'+evt.offsetX+','+evt.offsetY+'}');
+
+            var previousTouchState = '' + app.mainView.stylusInstance.touchState;
+            if (evtType === 'mousedown') {
+                app.mainView.hadStylusActivity = true;
+
+                app.mainView.stylus.toggle('on');
+                app.mainView.stylusInstance.touchState = 'down';
+                //Set Leds
+                app.mainView.setProjectorFromEvent(evt, evtType, previousTouchState);
+
+            } else if (evtType === 'mousemove') {
+
+                if (app.mainView.stylusInstance.touchState === 'down' && new Date().getTime() - app.mainView.lastMouseMoveTime > 20) {
+                    app.mainView.lastMouseMoveTime = new Date().getTime();
+                    //Set Leds
+                    app.mainView.setProjectorFromEvent(evt, evtType, previousTouchState);
+                }
+
+            } else if (evtType === 'mouseout') {
+                app.mainView.stylusInstance.touchState = 'up';
+                app.mainView.stylus.toggle('off');
+                //Set Leds
+                app.mainView.setProjectorFromCoordValues(app.mainView.zeroLeds, evtType, previousTouchState);
+
+            } else if (evtType === 'mouseup') {
+                app.mainView.stylusInstance.touchState = 'up';
+                app.mainView.stylus.toggle('off');
+                //Set Leds
+                app.mainView.setProjectorFromCoordValues(app.mainView.zeroLeds, evtType, previousTouchState);
+
+            } else if (evtType === 'resize') {
+                app.mainView.stylusInstance.touchState = 'up';
+                app.mainView.stylus.toggle('off');
+                //Set Leds
+                app.mainView.setProjectorFromCoordValues(app.mainView.zeroLeds, evtType, previousTouchState);
+            } else if (evtType === 'clear') {
+                app.mainView.stylusInstance.touchState = 'up';
+                app.mainView.stylus.toggle('off');
+                app.mainView.setProjectorFromCoordValues(evt, evtType, previousTouchState);
+            } else if (evtType === 'myStylusKeys_loop') { //event is light values
+                app.mainView.stylus.toggle('on');
+                app.mainView.setProjectorFromCoordValues(evt, evtType, previousTouchState);
             }
         },
 
@@ -616,11 +792,46 @@
                     app.mainView.myJoyStick.resize(parseFloat(element.getPropertyValue('width')), parseFloat(element.getPropertyValue('height')));
                 }
                 app.mainView.setLedsEventController(evt, 'resize');
+
+
+                var stylusContainer = app.mainView.$el.find('.stylus-container')[0];
+                var stylusCanvas = app.mainView.$el.find('[name="' + 'stylus' + '"]')[0];
+
+                var video = app.mainView.$el.find('.video')[0];
+                var videoElement = window.getComputedStyle(video, null);
+
+                if (stylusContainer && stylusCanvas && app.mainView.stylus) {
+                    var element = null;
+
+                    // stylusContainer.style.top = videoElement.getPropertyValue('top');
+                    // stylusContainer.style.left = videoElement.getPropertyValue('left');
+                    stylusContainer.style.width = videoElement.getPropertyValue('width');
+                    stylusContainer.style.height = videoElement.getPropertyValue('height');
+
+                    try {
+                        element = window.getComputedStyle(stylusContainer, null);
+                    } catch (e) {
+                        element = stylusContainer.currentStyle.height;
+                    }
+
+                    app.mainView.stylus.resize(parseFloat(element.getPropertyValue('width')), parseFloat(element.getPropertyValue('height')));
+                }
+
+                app.mainView.setProjectorEventController(evt, 'resize');
+
+
             });
+
             document.addEventListener('mousemove', function (evt) {
                 if (app.mainView.isSocketInitialized && app.mainView.hadJoyActivity) {
                     if (evt.target.className === 'canvas-joystick-on' || evt.target.className === 'canvas-joystick-off') {
                         app.mainView.setLedsEventController(evt, 'mousemove');
+                    }
+                }
+
+                if (app.mainView.isSocketInitialized && app.mainView.hadStylusActivity) {
+                    if (evt.target.className === 'canvas-stylus-on' || evt.target.className === 'canvas-stylus-off') {
+                        app.mainView.setProjectorEventController(evt, 'mousemove');
                     }
                 }
             }, true);
@@ -629,12 +840,20 @@
                     if (evt.target.className === 'canvas-joystick-on' || evt.target.className === 'canvas-joystick-off') {
                         app.mainView.setLedsEventController(evt, 'mousedown');
                     }
+
+                    if (evt.target.className === 'canvas-stylus-on' || evt.target.className === 'canvas-stylus-off') {
+                        app.mainView.setProjectorEventController(evt, 'mousedown');
+                    }
                 }
             }, true);
             document.addEventListener('mouseup', function (evt) {
                 if (app.mainView.isSocketInitialized && app.mainView.hadJoyActivity) {
                     app.mainView.setLedsEventController(evt, 'mouseup');
                 }
+                if (app.mainView.isSocketInitialized && app.mainView.hadStylusActivity) {
+                    app.mainView.setProjectorEventController(evt, 'mouseup');
+                }
+
             }, true);
             document.addEventListener('mouseout', function (evt) {
                 if (app.mainView.isSocketInitialized && app.mainView.hadJoyActivity) {
@@ -642,9 +861,40 @@
                         app.mainView.setLedsEventController(evt, 'mouseout');
                     }
                 }
+                if (app.mainView.isSocketInitialized && app.mainView.hadStylusActivity) {
+                    if (evt.target.className === 'page') {
+                        app.mainView.setProjectorEventController(evt, 'mouseout');
+                    }
+                }
             }, true);
 
-            window.dispatchEvent(new Event('resize'));
+            document.addEventListener('click', function (evt) {
+                if (app.mainView.isSocketInitialized) {
+                    if (evt.target.className.indexOf('btn-clear') > -1) {
+                        console.log('button clear clicked');
+
+                        var data = {};
+                        data.clientX = 0;
+                        data.clientY = 0;
+                        data.layerX = 0;
+                        data.layerY = 0;
+                        data.offsetX = 0;
+                        data.offsetY = 0;
+                        data.x = -1;
+                        data.y = -1;
+                        data.color = -1;
+                        data.clear = 1;
+                        app.mainView.setProjectorEventController(data, 'clear');
+                    }
+
+                    if (evt.target.className.indexOf('btn-toggle') > -1) {
+                        console.log('button toggle clicked');
+
+                        app.mainView.stylus.toggleVisiblity();
+                    }
+                }
+            }, true);
+
             cb_fn(null, null);
         },
     });

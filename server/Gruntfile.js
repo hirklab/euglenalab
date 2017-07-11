@@ -30,6 +30,11 @@ module.exports = function (grunt) {
                         dest: 'public/vendor/bootstrap-rating/'
                     }, {
                         expand: true,
+                        cwd: nodePath + '/bootstrap-colorpicker/dist/',
+                        src: ['js/**', 'css/**', 'img/**', 'less/**'],
+                        dest: 'public/vendor/bootstrap-colorpicker/'
+                    }, {
+                        expand: true,
                         cwd: nodePath + '/backbone/',
                         src: ['backbone.js'],
                         dest: 'public/vendor/backbone/'
@@ -123,7 +128,7 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 sourceMap: true,
-                sourceMapName: function (filePath) {
+                sourceMapName: function(filePath) {
                     return filePath + '.map';
                 }
             },
@@ -147,6 +152,7 @@ module.exports = function (grunt) {
                         'public/vendor/bootstrap/js/tab.js',
                         'public/vendor/bootstrap/js/transition.js',
                         'public/vendor/bootstrap-rating/bootstrap-rating.min.js',
+                        'public/vendor/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js',
                         'public/vendor/momentjs/moment.js',
                         'public/layouts/core.js',
                         // 'public/layouts/rating.js',
@@ -202,6 +208,7 @@ module.exports = function (grunt) {
                     'public/layouts/core.min.css': [
                         'public/less/bootstrap-build.less',
                         'public/less/font-awesome-build.less',
+                        'public/vendor/bootstrap-colorpicker/less/bootstrap-colorpicker.less',
                         'public/layouts/core.less'
                     ],
                     'public/layouts/admin.min.css': ['public/layouts/admin.less']

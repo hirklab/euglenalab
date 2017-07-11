@@ -38,6 +38,13 @@ var app; //the main declaration
       });
     });
 
+    // $('.color-selector').colorpicker({
+    //   color: '0000ff',
+    //   container: true,
+    //   inline: true,
+    //   hexNumberSignPrefix: false
+    // });
+
 
   });
 }());

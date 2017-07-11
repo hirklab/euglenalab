@@ -1,0 +1,3 @@
+ofxCv
+ofxNetwork
+ofxJSON
