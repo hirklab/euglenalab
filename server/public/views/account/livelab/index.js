@@ -1,8 +1,8 @@
 /* global app:true */
-(function() {
+(function () {
     'use strict';
     app = app || {};
-    $(document).ready(function() {
+    $(document).ready(function () {
         app.mainView = new app.MainView();
     });
     app.User = Backbone.Model.extend({
@@ -27,28 +27,28 @@
             'click #btn-close': 'hide',
         },
         isOpen: false,
-        initialize: function(options, callback) {
+        initialize: function (options, callback) {
             this.model = new app.Survey(options.survey || {});
             this.model.set('experiment', options.id);
             this.callback = callback;
             this.render();
         },
-        show: function() {
+        show: function () {
             this.isOpen = true;
             this.$el.modal('show');
         },
-        hide: function() {
+        hide: function () {
             this.isOpen = false;
             this.$el.data('modal', null);
             this.$el.modal('hide');
         },
-        close: function() {
+        close: function () {
             this.callback();
 
             this.unbind();
             this.$el.remove();
         },
-        update: function() {
+        update: function () {
             this.model.save({
                 rating: this.$el.find('[name="rating"]').val(),
                 notes: this.$el.find('[name="notes"]').val(),
@@ -56,10 +56,10 @@
 
             this.$el.modal('hide');
         },
-        render: function() {
+        render: function () {
             this.$el.html(this.template(this.model));
 
-            this.$el.on('hidden.bs.modal', _.bind(function() {
+            this.$el.on('hidden.bs.modal', _.bind(function () {
                 this.close();
             }, this));
 
@@ -100,7 +100,7 @@
         updateLoopInterval: null,
 
         //Tag-Initialize
-        initialize: function() {
+        initialize: function () {
             //Get Window Stats
             window.dispatchEvent(new Event('resize'));
 
@@ -112,41 +112,49 @@
             app.mainView.ledsSetObj = new app.User(JSON.parse(unescape($('#data-setLedsObj').html())));
             app.mainView.projectorSetObj = new app.User(JSON.parse(unescape($('#data-setProjectorObj').html())));
             app.mainView.bpuExp = new app.User(JSON.parse(unescape($('#data-bpuExp').html())));
-            app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function(objA, objB) {
+            app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function (objA, objB) {
                 return objB.time - objA.time;
             });
 
-            console.log(app.mainView.bpuExp.attributes);
+            // console.log(app.mainView.bpuExp.attributes);
 
             //Set Lab Times
             app.mainView.timeForLab = app.mainView.bpuExp.attributes.exp_eventsToRun[0].time;
             app.mainView.setTimeLeftInLabLabel(app.mainView.timeForLab, 0, true);
 
-            app.userSocketClient.setConnection(function(err, setLedsObj) {
+            app.userSocketClient.setConnection(function (err, setLedsObj) {
                 if (err) {
                     app.mainView.isSocketInitialized = false;
                     app.mainView.kickUser(err, 'initialize setConnection');
                 } else {
 
                     //My Objects
-                    app.mainView.myLightsObj.build(function(err, dat) {
-                        app.mainView.myJoyStickObj.build(function(err, dat) {
-                            app.mainView.stylusInstance.build(function(err, dat) {
+                    app.mainView.myLightsObj.build(function (err, dat) {
+                        app.mainView.myJoyStickObj.build(function (err, dat) {
+                            app.mainView.stylusInstance.build(function (err, dat) {
                                 app.mainView.isSocketInitialized = true;
                                 if (app.mainView.myJoyStickObj.doesExist) {
 
                                     app.mainView.myJoyStick.toggleJoystick('on');
 
-                                    app.mainView.setupMouseEvents(function(err, dat) {
-                                        app.mainView.setupKeyboardEvents(function(err, dat) {
+                                    app.mainView.setupMouseEvents(function (err, dat) {
+                                        app.mainView.setupKeyboardEvents(function (err, dat) {
+
+
                                             app.mainView.startUpdateLoop();
                                         });
                                     });
 
                                 } else {
-                                    app.mainView.setupKeyboardEvents(function(err, dat) {
+                                    app.mainView.setupKeyboardEvents(function (err, dat) {
                                         app.mainView.startUpdateLoop();
                                     });
+                                }
+
+                                document.onreadystatechange = function () {
+                                    if (document.readyState === "complete") {
+                                        window.dispatchEvent(new Event('resize'));
+                                    }
                                 }
 
                                 if (app.mainView.stylusInstance.doesExist) {
@@ -156,13 +164,12 @@
                         });
 
 
-
                     });
                 }
             });
         },
         alreadyKicked: false,
-        kickUser: function(err, from) {
+        kickUser: function (err, from) {
             console.log('kicked from ' + from);
             // console.log('kick user loop');
 
@@ -190,24 +197,24 @@
                 location.href = '/account/';
             }
         },
-        showSurvey: function() {
+        showSurvey: function () {
             // console.log('show survey loop');
 
-            app.surveyView = new app.SurveyView(app.mainView.bpuExp, function() {
+            app.surveyView = new app.SurveyView(app.mainView.bpuExp, function () {
                 console.log('survey submitted');
                 location.href = '/account/';
             });
             app.surveyView.show();
 
         },
-        getLedsSetObj: function() {
+        getLedsSetObj: function () {
             if (app.mainView.ledsSetObj === null) {
                 return null;
             } else {
                 return JSON.parse(JSON.stringify(app.mainView.ledsSetObj));
             }
         },
-        setLedsFromLightValues: function(lightValues, evtType, previousTouchState) {
+        setLedsFromLightValues: function (lightValues, evtType, previousTouchState) {
             var point = app.mainView.myJoyStick.getXyFromLightValues(lightValues, previousTouchState + '->setLedsFromLightValues');
 
             var ledsSetObj = app.mainView.getLedsSetObj();
@@ -233,7 +240,7 @@
         },
         lastSetLedsFromEventDate: new Date().getTime(),
         setLedsFromEventInterval: 30,
-        setLedsFromEvent: function(evt, evtType, previousTouchState) {
+        setLedsFromEvent: function (evt, evtType, previousTouchState) {
             // console.log('Layer = {' + evt.layerX + ',' + evt.layerY + '}');
             // console.log('Offset = {' + evt.offsetX + ',' + evt.offsetY + '}');
             // console.log('Screen = {' + evt.screenX + ',' + evt.screenY + '}');
@@ -255,7 +262,7 @@
 
             app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, previousTouchState + '->setLedsFromEvent');
         },
-        setLedsFromObjectAndSendToServer: function(ledsSetObj, from) {
+        setLedsFromObjectAndSendToServer: function (ledsSetObj, from) {
 
             //Rest Values
             ledsSetObj.metaData.radius = 0;
@@ -276,14 +283,14 @@
             }
         },
 
-        getProjectorSetObj: function() {
+        getProjectorSetObj: function () {
             if (app.mainView.projectorSetObj === null) {
                 return null;
             } else {
                 return JSON.parse(JSON.stringify(app.mainView.projectorSetObj));
             }
         },
-        setProjectorFromCoordValues: function(coordValues, evtType, previousTouchState) {
+        setProjectorFromCoordValues: function (coordValues, evtType, previousTouchState) {
             var point = app.mainView.stylus.getXY(coordValues, previousTouchState + '->setProjectorFromCoordValues');
 
             if (point.x != null && point.y != null) {
@@ -305,7 +312,7 @@
             }
         },
 
-        setProjectorFromEvent: function(evt, evtType, previousTouchState) {
+        setProjectorFromEvent: function (evt, evtType, previousTouchState) {
             // console.log('Layer = {' + evt.layerX + ',' + evt.layerY + '}');
             // console.log('Offset = {' + evt.offsetX + ',' + evt.offsetY + '}');
             // console.log('Screen = {' + evt.screenX + ',' + evt.screenY + '}');
@@ -329,7 +336,7 @@
 
             app.mainView.setProjectorFromObjectAndSendToServer(projectorSetObj, previousTouchState + '->setProjectorFromEvent');
         },
-        setProjectorFromObjectAndSendToServer: function(projectorSetObj, from) {
+        setProjectorFromObjectAndSendToServer: function (projectorSetObj, from) {
             //Reset Values
             var obj = app.mainView.stylus.setXY(projectorSetObj, from + '->setProjectorFromObjectAndSendToServer');
             app.mainView.stylus.update(obj);
@@ -345,7 +352,7 @@
         },
 
         //From Socket
-        setTimeLeftInLabLabel: function(timeLeft, dt, isReal) {
+        setTimeLeftInLabLabel: function (timeLeft, dt, isReal) {
             if (isReal) {
                 app.mainView.timeLeftInLab = timeLeft;
             } else {
@@ -398,14 +405,14 @@
         },
 
         //Tag-UpdateLoop
-        startUpdateLoop: function() {
+        startUpdateLoop: function () {
             var frameTime = new Date().getTime();
             var lastFrameTime = frameTime;
             var deltaFrame = frameTime - lastFrameTime;
             var timerActivatedJoystick = 0;
             var timerActivatedStylus = 0;
             //Update Loop
-            app.mainView.updateLoopInterval = setInterval(function() {
+            app.mainView.updateLoopInterval = setInterval(function () {
                 frameTime = new Date().getTime();
                 deltaFrame = frameTime - lastFrameTime;
                 lastFrameTime = frameTime;
@@ -464,7 +471,7 @@
         myJoyStickObj: {
             touchState: 'up',
             doesExist: false,
-            build: function(cb_fn) {
+            build: function (cb_fn) {
                 if (app.mainView.$el.find('[name="' + 'myJoystick' + '"]')[0]) {
                     app.mainView.myJoyStickObj.doesExist = true;
                     app.mainView.myJoyStick = new Canvas_Joystick(app.mainView.$el.find('[name="' + 'myJoystick' + '"]')[0]);
@@ -476,7 +483,7 @@
         stylusInstance: {
             touchState: 'up',
             doesExist: false,
-            build: function(cb_fn) {
+            build: function (cb_fn) {
                 if (app.mainView.$el.find('[name="' + 'stylus' + '"]')[0]) {
                     app.mainView.stylusInstance.doesExist = true;
                     app.mainView.stylus = new Stylus(app.mainView.$el.find('[name="' + 'stylus' + '"]')[0]);
@@ -492,7 +499,7 @@
         myLights: null,
         myLightsObj: {
             doesExist: false,
-            build: function(cb_fn) {
+            build: function (cb_fn) {
                 if (app.mainView.$el.find('[name="' + 'myTopLight' + '"]')[0] && app.mainView.$el.find('[name="' + 'myRightLight' + '"]')[0] &&
                     app.mainView.$el.find('[name="' + 'myBottomLight' + '"]')[0] && app.mainView.$el.find('[name="' + 'myLeftLight' + '"]')[0]) {
                     app.mainView.myLightsObj.doesExist = true;
@@ -508,7 +515,7 @@
                 }
                 cb_fn(null, null);
             },
-            update: function(data) {
+            update: function (data) {
                 if (app.mainView.myLightsObj.doesExist) {
                     app.mainView.myLights.top.style.backgroundColor = 'rgba(255,255,0,' + data.topValue / 100 + ')';
                     app.mainView.myLights.right.style.backgroundColor = 'rgba(255,255,0,' + data.rightValue / 100 + ')';
@@ -532,7 +539,7 @@
         lastMouseMoveTime: new Date().getTime(),
 
         //Events Router
-        setLedsEventController: function(evt, evtType) {
+        setLedsEventController: function (evt, evtType) {
             var previousTouchState = '' + app.mainView.myJoyStickObj.touchState;
             if (evtType === 'mousedown') {
                 app.mainView.hadJoyActivity = true;
@@ -574,7 +581,7 @@
             }
         },
 
-        setProjectorEventController: function(evt, evtType) {
+        setProjectorEventController: function (evt, evtType) {
             // console.log(evtType + ': {'+evt.offsetX+','+evt.offsetY+'}');
 
             var previousTouchState = '' + app.mainView.stylusInstance.touchState;
@@ -623,17 +630,17 @@
 
         //Tag-Keyboard
         myJoyKeys: null,
-        setupKeyboardEvents: function(cb_fn) {
+        setupKeyboardEvents: function (cb_fn) {
             app.mainView.myJoyKeys = {
                 updateTime: 20,
                 deltaValue: 2,
                 areKeysRunning: false,
-                runKeys: function() {
+                runKeys: function () {
                     var me = app.mainView.myJoyKeys;
                     if (!this.areKeysRunning) {
                         this.areKeysRunning = true;
-                        var loop = function() {
-                            app.mainView.keyboardTimeout = setTimeout(function() {
+                        var loop = function () {
+                            app.mainView.keyboardTimeout = setTimeout(function () {
                                 if (me.keys.space.isDown) {
                                     loop();
                                 } else {
@@ -742,9 +749,9 @@
                     },
                 }
             };
-            document.addEventListener('keydown', function(event) {
+            document.addEventListener('keydown', function (event) {
                 if (app.mainView.myJoyStickObj.touchState !== 'down') {
-                    Object.keys(app.mainView.myJoyKeys.keys).forEach(function(item) {
+                    Object.keys(app.mainView.myJoyKeys.keys).forEach(function (item) {
                         if (event.keyCode == app.mainView.myJoyKeys.keys[item].code) {
                             app.mainView.myJoyKeys.keys[item].isDown = true;
                             app.mainView.myJoyKeys.runKeys();
@@ -752,9 +759,9 @@
                     });
                 }
             });
-            document.addEventListener('keyup', function(event) {
+            document.addEventListener('keyup', function (event) {
                 if (app.mainView.myJoyStickObj.touchState !== 'down') {
-                    Object.keys(app.mainView.myJoyKeys.keys).forEach(function(item) {
+                    Object.keys(app.mainView.myJoyKeys.keys).forEach(function (item) {
                         if (event.keyCode == app.mainView.myJoyKeys.keys[item].code) {
                             app.mainView.myJoyKeys.keys[item].isDown = false;
                             app.mainView.myJoyKeys.runKeys();
@@ -765,9 +772,9 @@
             cb_fn(null, null);
         },
         //Tag-Mouse
-        setupMouseEvents: function(cb_fn) {
+        setupMouseEvents: function (cb_fn) {
             //Events
-            window.addEventListener('resize', function(evt) {
+            window.addEventListener('resize', function (evt) {
                 // console.log(evt);
                 //Resize Joystick Canvas
                 var joystickContainer = app.mainView.$el.find('#camera')[0];
@@ -814,7 +821,8 @@
 
 
             });
-            document.addEventListener('mousemove', function(evt) {
+
+            document.addEventListener('mousemove', function (evt) {
                 if (app.mainView.isSocketInitialized && app.mainView.hadJoyActivity) {
                     if (evt.target.className === 'canvas-joystick-on' || evt.target.className === 'canvas-joystick-off') {
                         app.mainView.setLedsEventController(evt, 'mousemove');
@@ -827,7 +835,7 @@
                     }
                 }
             }, true);
-            document.addEventListener('mousedown', function(evt) {
+            document.addEventListener('mousedown', function (evt) {
                 if (app.mainView.isSocketInitialized) {
                     if (evt.target.className === 'canvas-joystick-on' || evt.target.className === 'canvas-joystick-off') {
                         app.mainView.setLedsEventController(evt, 'mousedown');
@@ -838,7 +846,7 @@
                     }
                 }
             }, true);
-            document.addEventListener('mouseup', function(evt) {
+            document.addEventListener('mouseup', function (evt) {
                 if (app.mainView.isSocketInitialized && app.mainView.hadJoyActivity) {
                     app.mainView.setLedsEventController(evt, 'mouseup');
                 }
@@ -847,7 +855,7 @@
                 }
 
             }, true);
-            document.addEventListener('mouseout', function(evt) {
+            document.addEventListener('mouseout', function (evt) {
                 if (app.mainView.isSocketInitialized && app.mainView.hadJoyActivity) {
                     if (evt.target.className === 'page') {
                         app.mainView.setLedsEventController(evt, 'mouseout');
@@ -860,7 +868,7 @@
                 }
             }, true);
 
-            document.addEventListener('click', function(evt) {
+            document.addEventListener('click', function (evt) {
                 if (app.mainView.isSocketInitialized) {
                     if (evt.target.className.indexOf('btn-clear') > -1) {
                         console.log('button clear clicked');
@@ -887,7 +895,6 @@
                 }
             }, true);
 
-            window.dispatchEvent(new Event('resize'));
             cb_fn(null, null);
         },
     });
