@@ -27,7 +27,7 @@
 
             Experiment.list(page, vm.pageSize, '').then(function (res) {
                 vm.experiments = lodash.map(res.data.results, function(experiment){
-                    experiment.status = Microscope.BPU_STATUS_DISPLAY[experiment.bpuStatus];
+                    // experiment.status = Microscope.BPU_STATUS_DISPLAY[experiment.bpuStatus];
                     return experiment;
                 });
 

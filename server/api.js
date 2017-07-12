@@ -18,15 +18,32 @@ function ensureAdmin(req, res, next) {
     }
 }
 
+function checkGoLabz(req, res, next) {
+    var isGoLabz = false;
+    var goLabzGroup = 'golabz';
+    for (var ind = 0; ind < req.user.groups.length; ind++) {
+        if (req.user.groups[ind] === goLabzGroup) isGoLabz = true;
+    }
+    if (isGoLabz) {
+        res.redirect('/basicuser');
+    } else {
+        return next();
+    }
+}
+
 function ensureAccount(req, res, next) {
+    // console.log(req.user.username);
+
     if (req.user.canPlayRoleOf('account')) {
         if (req.app.config.requireAccountVerification) {
             if (req.user.roles.account.isVerified !== 'yes' && !/^\/account\/verification\//.test(req.url)) {
                 return res.redirect('/account/verification/');
             } else {
+                // return next();
                 checkGoLabz(req, res, next);
             }
         } else {
+            // return next();
             checkGoLabz(req, res, next);
         }
     } else {
@@ -60,11 +77,11 @@ exports = module.exports = function (app, passport) {
         require('./views/api/index').remove_note
     );
 
-    app.get('/api/experiments/', passport.authenticate('jwt', {session: false}), require('./views/api/index').listExperiments);
+    app.get('/api/experiments/', passport.authenticate('jwt', {session: false}), ensureAccount, require('./views/api/index').listExperiments);
     // app.post('/api/experiments/', passport.authenticate('jwt', {session: false}),
     // require('./views/api/index').create_experiment);
-    app.get('/api/experiments/:id/status/', passport.authenticate('jwt', {session: false}), require('./views/api/index').get_experiment_status);
-    app.get('/api/experiments/:id/', passport.authenticate('jwt', {session: false}), require('./views/api/index').get_experiment_detail);
-    app.get('/api/bio-units/', passport.authenticate('jwt', {session: false}), require('./views/api/index').get_bio_units);
+    app.get('/api/experiments/:id/status/', passport.authenticate('jwt', {session: false}), ensureAccount, require('./views/api/index').get_experiment_status);
+    app.get('/api/experiments/:id/', passport.authenticate('jwt', {session: false}), ensureAccount, require('./views/api/index').get_experiment_detail);
+    app.get('/api/bio-units/', passport.authenticate('jwt', {session: false}), ensureAccount, require('./views/api/index').get_bio_units);
     // app.post('/api/experiment/', passport.authenticate('jwt', {session: false}), require('./views/api/index').create_experiment);
 };

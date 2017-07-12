@@ -195,13 +195,15 @@ exports.login = function(req, res) {
                 return workflow.emit('exception', err);
             }
 
+            console.log(user.username);
+
             req.login(user, function(err) {
                 if (err) {
                     return workflow.emit('exception', err);
                 }
 
                 var payload = {
-                    id: user.id
+                    id: user._id
                 };
 
                 var secretOrKey = req.app.jwtOptions.secretOrKey;
@@ -1300,11 +1302,11 @@ exports.listExperiments = function(req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
     workflow.on('find', function() {
-        req.query.search = req.query.search ? req.query.search : '';
-        req.query.status = req.query.status ? req.query.status : '';
+        req.query.search = req.query.search ? req.query.search : null;
+        req.query.status = req.query.status ? req.query.status : null;
         req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
         req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
-        req.query.sort = req.query.sort ? req.query.sort : '_id';
+        req.query.sort = req.query.sort ? req.query.sort : '-_id';
 
         var filters = {};
         if (req.query.search) {
@@ -1316,6 +1318,7 @@ exports.listExperiments = function(req, res) {
         }
 
         filters['user.name'] = req.user.username;
+        console.log(filters);
 
         req.app.db.models.BpuExperiment.pagedFind({
             filters: filters,

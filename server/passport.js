@@ -42,7 +42,7 @@ exports = module.exports = function (app, passport) {
                         user.roles.admin.populate("groups", function (err, admin) {
                             return done(err, user);
                         });
-                    }else{
+                    } else {
                         return done(err, user);
                     }
                 });
@@ -56,11 +56,13 @@ exports = module.exports = function (app, passport) {
     };
 
     passport.use(new JwtStrategy(app.jwtOptions, function (jwt_payload, done) {
-        app.db.models.User.findOne({id: jwt_payload.sub}).populate('roles.admin').populate('roles.account').exec(function (err, user) {
+        app.db.models.User.findOne({_id: jwt_payload.id}).populate('roles.admin').populate('roles.account').exec(function (err, user) {
             if (err) {
                 return done(err, false);
             }
             if (user) {
+                // console.log(user);
+                // console.log(jwt_payload.sub);
                 if (user.roles && user.roles.admin) {
                     user.roles.admin.populate("groups", function (err, admin) {
                         done(err, user);
@@ -73,6 +75,7 @@ exports = module.exports = function (app, passport) {
             }
         });
     }));
+
 
     if (app.config.oauth.twitter.key) {
         passport.use(new TwitterStrategy({
@@ -88,39 +91,6 @@ exports = module.exports = function (app, passport) {
             }
         ));
     }
-  app.jwtOptions = {
-    secretOrKey: '%Q#$%#$BTERVWW^BSYERYRUFJUYDERBYR$VSTET%#$^^#(*(%&#ERSGW$',
-    jwtFromRequest: ExtractJwt.fromAuthHeader()
-  };
-
-passport.use(new JwtStrategy(app.jwtOptions, function(jwt_payload, done) {
-  app.db.models.User.findOne({id: jwt_payload.sub}, function(err, user) {
-    if (err) {
-        return done(err, false);
-    }
-    if (user) {
-        done(null, user);
-    } else {
-        done(null, false);
-        // or you could create a new account
-    }
-  });
-}));
-
-  if (app.config.oauth.twitter.key) {
-    passport.use(new TwitterStrategy({
-        consumerKey: app.config.oauth.twitter.key,
-        consumerSecret: app.config.oauth.twitter.secret
-      },
-      function(token, tokenSecret, profile, done) {
-        done(null, false, {
-          token: token,
-          tokenSecret: tokenSecret,
-          profile: profile
-        });
-      }
-    ));
-  }
 
     if (app.config.oauth.github.key) {
         passport.use(new GitHubStrategy({

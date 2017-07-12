@@ -208,14 +208,10 @@
 
             socket.on('connect', connect);
 
-            socket.reconnect();
-            // // socket.on('reconnect', connect);
-            //
-            // // console.log(socket);
-            //
-            // // socket.connect(function(){
-            // //
-            // // });
+            if(!socket.connected){
+                socket.connect();
+            }
+
         };
 
 
@@ -228,8 +224,6 @@
 
         $scope.$on("$stateChangeStart",
             function (event, toState, toParams, fromState, fromParams) {
-                console.log(toState);
-
                 if(fromState.name==='dashboard'){
                     socket.disconnect();
                 }

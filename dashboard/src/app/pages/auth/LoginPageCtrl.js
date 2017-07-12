@@ -34,7 +34,7 @@
             if (isValid) {
                 Auth.login($scope.account).then(function () {
                     // $mdToast.showSimple('Email with an activation link has been sent.');
-                    $state.go('admin.microscopeList');
+                    $state.go('dashboard');
                 }, function (response, status) {
                     angular.forEach(response.data.errors, function (errors, field_name) {
                         //Field level errors

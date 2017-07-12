@@ -12,35 +12,35 @@
                         <th st-sort="status" st-sort-default="true">Status</th>
                         <th >Actions</th>
                     </tr>
-                    <tr>
-                        <th><input st-search="id" placeholder="Search Experiment ID"
-                                   class="input-sm form-control search-input"
-                                   type="search"/></th>
-                        <th><input st-search="bpu" placeholder="Search microscope"
-                                   class="input-sm form-control search-input"
-                                   type="search"/></th>
-                        <th>
-                            <!--<input st-search="submittedAt" placeholder="Search created time"-->
+                    <!--<tr>-->
+                        <!--<th><input st-search="id" placeholder="Search Experiment ID"-->
                                    <!--class="input-sm form-control search-input"-->
-                                   <!--type="search"/>-->
-                        </th>
+                                   <!--type="search"/></th>-->
+                        <!--<th><input st-search="bpu" placeholder="Search microscope"-->
+                                   <!--class="input-sm form-control search-input"-->
+                                   <!--type="search"/></th>-->
                         <!--<th>-->
-                            <!--<input st-search="username" placeholder="Search user name"-->
-                                   <!--class="input-sm form-control search-input"-->
-                                   <!--type="search"/>-->
+                            <!--&lt;!&ndash;<input st-search="submittedAt" placeholder="Search created time"&ndash;&gt;-->
+                                   <!--&lt;!&ndash;class="input-sm form-control search-input"&ndash;&gt;-->
+                                   <!--&lt;!&ndash;type="search"/>&ndash;&gt;-->
                         <!--</th>-->
-                        <th>
-                            <input st-search="status" placeholder="Search status"
-                                   class="input-sm form-control search-input" type="search"/>
-                        </th>
-                        <th></th>
-                    </tr>
+                        <!--&lt;!&ndash;<th>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<input st-search="username" placeholder="Search user name"&ndash;&gt;-->
+                                   <!--&lt;!&ndash;class="input-sm form-control search-input"&ndash;&gt;-->
+                                   <!--&lt;!&ndash;type="search"/>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</th>&ndash;&gt;-->
+                        <!--<th>-->
+                            <!--<input st-search="status" placeholder="Search status"-->
+                                   <!--class="input-sm form-control search-input" type="search"/>-->
+                        <!--</th>-->
+                        <!--<th></th>-->
+                    <!--</tr>-->
                     </thead>
                     <tbody>
                     <tr ng-repeat="experiment in vm.displayed">
                         <td class="table-id">{{experiment.id}}</td>
                         <td>{{experiment.bpu}}</td>
-                        <td>{{ experiment.submittedAt}}</td>
+                        <td>{{ experiment.submittedAt | date:'short'}}</td>
                         <!--<td>{{experiment.username}}</td>-->
                         <td>{{experiment.status}}</td>
                         <td></td>

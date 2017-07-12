@@ -35,13 +35,17 @@
         function login(account) {
             return $http.post('/api/auth/login/', account)
                 .success(function(response, status, headers, config){
-                    console.log(response);
-                    if(response.user.isAdmin) {
-                        $cookies.put("token", response.token);
-                        $cookies.put("user", response);
-                    }else{
+                    // console.log(response);
 
-                    }
+                    $cookies.put("token", response.token);
+                    $cookies.put("user", response);
+
+                    // if(response.user.isAdmin) {
+                    //     $cookies.put("token", response.token);
+                    //     $cookies.put("user", response);
+                    // }else{
+                    //
+                    // }
                 });
         }
 
