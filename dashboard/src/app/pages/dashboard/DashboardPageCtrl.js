@@ -95,6 +95,8 @@
         vm.initializeSocket = function (callback) {
             var connect = function () {
                 console.log('connecting...');
+                console.log(socket);
+
                 // var connectionInfo = {
                 //     // bpuName: bpuName,
                 //     socketID: socket.id
@@ -115,6 +117,8 @@
                 // socket.emit(emitStr, connectionInfo);
 
                 socket.on('update', function (bpuUpdates, queues, timeLeftPerBPU) {
+
+
                     // console.log(bpuUpdates);
                     // console.log(queues);
                     // console.log(timeLeftPerBPU);
