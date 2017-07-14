@@ -54,6 +54,7 @@
     "socket.io-client": "^1.4.6",
     "temp": "^0.8.3",
     "tmp": "0.0.28",
+    "tracer": "^0.8.9",
     "underscore": "^1.x.x",
     "yarn": "^0.24.5"
   },
