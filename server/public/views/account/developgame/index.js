@@ -115,6 +115,13 @@
       $('#btnUpdateRun').prop("disabled", true);
       app.mainView.parseGlobalVariables(app.mainView.gameGlobalVariables);
       app.mainView.parseStartCode(app.mainView.gameStartCode);
+
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " started program ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
     });
 
     $('#btnShowAPI').click(function() {
@@ -122,10 +129,22 @@
         $('#btnShowAPI').html('Show API');
         $('#apiCalls').hide();
         app.mainView.isAPIshowing = false;
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " hiding API ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
       } else {
         $('#btnShowAPI').html('Hide API');
         $('#apiCalls').show();
         app.mainView.isAPIshowing = true;
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " showing API ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
       }
     });
     
@@ -140,6 +159,13 @@
       app.mainView.keypressEditor.setOption("readOnly", false);
       $('#btnUpdateRun').prop("disabled", false);
       app.mainView.parseStartCode(app.mainView.gameEndCode);
+
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " stopped program ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
     });
 
     $('#btnSaveGame').click(function() {
@@ -168,6 +194,13 @@
           console.log( "Data Loaded savefile: " + data);
 
         });
+
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " saved program as " + gameName + " ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
     });
 
     $(".gameFile").click(function(){
@@ -175,13 +208,21 @@
         $.post('/account/developgame/getgamecode/', { gameIndex: codeInd } )
         .done(function(data) {
           console.log( "Data Loaded readfile: ");
-            var gameSections = data.split('-----');
-            app.mainView.codeVariablesEditor.setValue(gameSections[0]);
-            app.mainView.runEditor.setValue(gameSections[1]);
-            app.mainView.startEditor.setValue(gameSections[2]);
-            app.mainView.endEditor.setValue(gameSections[3]);
-            app.mainView.joystickEditor.setValue(gameSections[4]);
-            app.mainView.keypressEditor.setValue(gameSections[5]);
+          var gameSections = data.split('-----');
+          app.mainView.codeVariablesEditor.setValue(gameSections[0]);
+          app.mainView.runEditor.setValue(gameSections[1]);
+          app.mainView.startEditor.setValue(gameSections[2]);
+          app.mainView.endEditor.setValue(gameSections[3]);
+          app.mainView.joystickEditor.setValue(gameSections[4]);
+          app.mainView.keypressEditor.setValue(gameSections[5]);
+
+          var gameName = gameSections[6];
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                        logTimestamp: Date.now().toString(),
+                                                        logText: "User " + app.mainView.userName + " loaded program " + gameName + "----- \n" } )
+            .done(function(data) {
+              console.log( "Data Loaded log user data: " + data);
+            });
         });
     });
 
@@ -214,13 +255,15 @@
 
     bpuAddress: "",
 
+    gameSessionName: "no_name_assigned",
     sessionOverFirstTime: false,
     isAPIshowing: true,
     fileWriteMode: 'FILE.APPEND',
+    userName: "",
 
     gameErrorMessage: "",
 
-    // GAME-RELATED-VARIABLES
+    // GAME-RELATED VARIABLES
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
     gameInstructionText: "This text can be changed with the API!",
@@ -272,6 +315,16 @@
       window.dispatchEvent(new Event('resize'));
 
       app.mainView = this;
+
+      app.mainView.gameSessionName = JSON.parse(unescape($('#data-session').html()))["liveBpuExperiment"]["id"];
+      app.mainView.userName = JSON.parse(unescape($('#data-user').html()))["username"];
+
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " started session ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
 
       app.mainView.user = new app.User(JSON.parse(unescape($('#data-user').html())));
       app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
@@ -619,6 +672,12 @@
       alert(app.mainView.gameInstructionText);
       $('#instructionText').text(app.mainView.gameInstructionText);
       $('#instructionText').css('color', 'red');
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User session expired ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
       //location.href = '/account/';
       // }
     },

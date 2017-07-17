@@ -30,7 +30,8 @@ exports.getgamecode = function(req, res) {
   console.log('Opening file: ' + filePath);
   fs.readFile(filePath, 'utf8', function (err, data) {
     if (err) throw err;
-    res.json(data);
+    var returnVal = data + "-----" + fileToOpen;
+    res.json(returnVal);
   });
 };
 
@@ -65,6 +66,20 @@ exports.readuserfile = function(req, res) {
     if (err) throw err;
     res.json(data);
   });
+};
+
+// Functions for user logging.
+
+exports.loguserdata = function(req, res) {
+  var filePath = __dirname + "/userdata/" + req.body.fileName;
+  var userFileToSave = req.body.logTimestamp + "::: " + req.body.logText;
+
+  fs.appendFile (filePath, userFileToSave, function(err) {
+    if (err) throw err;
+    console.log('logging file writing complete');
+  });
+  
+  res.json('success writing logging data');
 };
 
 
