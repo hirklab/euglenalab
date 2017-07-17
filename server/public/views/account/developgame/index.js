@@ -139,6 +139,7 @@
       app.mainView.joystickEditor.setOption("readOnly", false);
       app.mainView.keypressEditor.setOption("readOnly", false);
       $('#btnUpdateRun').prop("disabled", false);
+      app.mainView.parseStartCode(app.mainView.gameEndCode);
     });
 
     $('#btnSaveGame').click(function() {
@@ -362,8 +363,6 @@
       modifiedCode = modifiedCode.split('MAX_TEXT_SIZE').join('1.5');
       modifiedCode = modifiedCode.split('MAX_LED_INTENSITY').join('999');
 
-      // TODO: CAREFULLY DETERMINE WHEN CODE SHOULD BE EVALUATED LOCALLY VS. GLOBALLY!!!!!
-      //eval(modifiedCode);
       try {
         $.globalEval(modifiedCode);
       }
