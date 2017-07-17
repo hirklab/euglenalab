@@ -1,126 +1,135 @@
-var http = require('http');
+var http           = require('http');
 var socketIo       = require('socket.io');
 var socketIoClient = require('socket.io-client');
 
 var config = require('../config');
 
 function _objectHasAuthKey(obj, key) {
-	if (obj[key] !== null && obj[key] !== undefined &&
-		typeof obj[key] === 'string' && obj[key].length === 32) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-function _verifyServerSocketConnection (serverInfo, callback) {
-	var err = null;
-	if (typeof serverInfo === 'object') {
-		if (serverInfo.Identifier && typeof serverInfo.Identifier === 'string') {
-			if (app.Auth[serverInfo.Identifier] && app.Auth[serverInfo.Identifier].Identifier === serverInfo.Identifier) {
-			} else {
-				err = 'serverInfo Identifier is incorrect';
-			}
-		} else {
-			err = 'serverInfo Identifier DNE';
-		}
-	} else {
-		err = 'serverInfo is not object';
-	}
-	callback(err);
+    if (obj[key] !== null && obj[key] !== undefined &&
+        typeof obj[key] === 'string' && obj[key].length === 32) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 module.exports = function (app, callback) {
-	"use strict";
+    "use strict";
 
-	var server = http.createServer(function(req,res){
-	});
+    function _verifyServerSocketConnection(serverInfo, callback) {
+        var err = null;
+        if (typeof serverInfo === 'object') {
+            if (serverInfo.Identifier && typeof serverInfo.Identifier === 'string') {
+                if (app.Auth[serverInfo.Identifier] && app.Auth[serverInfo.Identifier].Identifier === serverInfo.Identifier) {
+                } else {
+                    err = 'serverInfo Identifier is incorrect';
+                }
+            } else {
+                err = 'serverInfo Identifier DNE';
+            }
+        } else {
+            err = 'serverInfo is not object';
+        }
+        callback(err);
+    }
 
-	server.on('listening',function(){
-		app.logger.info('socket server => http://' + config.SERVER_IP + ':' + config.SERVER_PORT);
-	});
+    app.server = http.createServer(function(req, res){
+        res.writeHead(200, {
+            'Content-Type': 'application/json',
+        });
+        res.end();
+    });
 
-	server.listen(config.SERVER_IP, config.SERVER_PORT);
+    app.server.listen(config.SERVER_PORT, function () {
+        app.logger.info('socket server => http://' + config.SERVER_IP + ':' + config.SERVER_PORT);
+    });
 
-	app.socketClientIo = socketIo(server);
+    process.on('SIGTERM', function () {
+        app.logger.warn("shutting down server...");
+        app.server.close();
+        app.logger.warn("server shutdown!");
+        process.exit(1);
+    });
 
-	app.socketClientIo.on('connection', function (socket) {
-		app.logger.info('socketClientIo:' + 'connection:' + 'socketid:' + socket.id);
+    app.socketClientIo = socketIo(app.server);
 
-		app.socketConnections.push(socket);
+    app.socketClientIo.on('connection', function (socket) {
+        app.logger.info('socketClientIo:' + 'connection:' + 'socketid:' + socket.id);
 
-		socket.on('setConnection', function (serverInfo, cbfn_setConn) {
-			_verifyServerSocketConnection(serverInfo, function (err) {
-				if (err) {
-					app.logger.error(err);
-					socket.disconnect();
-					socket.close();
-					cbfn_setConn(err, null);
-				} else {
-					if (app.Auth[serverInfo.Identifier].socketID !== null) {
-						app.logger.warn('remove old socket for Auth');
-						if (app.socketConnections.length > 0) {
-							app.socketConnections.forEach(function (otherSocket) {
-								if (otherSocket.id === app.Auth[serverInfo.Identifier].socketID) {
-									app.logger.warn('duplicate server info: disconnecting');
-									otherSocket.disconnect();
-								}
-							});
-						}
-					}
+        app.clients.push(socket);
 
-					app.Auth[serverInfo.Identifier].socketID = socket.id;
-					var retData                              = {};
-					retData.Identifier                       = app.Auth[serverInfo.Identifier].Identifier;
-					retData.Name                             = app.Auth[serverInfo.Identifier].Name;
-					retData.arePassKeysOpen                  = app.Auth[serverInfo.Identifier].arePassKeysOpen;
-					retData.PassKeys                         = app.Auth[serverInfo.Identifier].PassKeys;
+        socket.on('setConnection', function (serverInfo, cbfn_setConn) {
+            _verifyServerSocketConnection(serverInfo, function (err) {
+                if (err) {
+                    app.logger.error(err);
+                    socket.disconnect();
+                    socket.close();
+                    cbfn_setConn(err, null);
+                } else {
+                    if (app.Auth[serverInfo.Identifier].socketID !== null) {
+                        app.logger.warn('remove old socket for Auth');
+                        if (app.clients.length > 0) {
+                            app.clients.forEach(function (otherSocket) {
+                                if (otherSocket.id === app.Auth[serverInfo.Identifier].socketID) {
+                                    app.logger.warn('duplicate server info: disconnecting');
+                                    otherSocket.disconnect();
+                                }
+                            });
+                        }
+                    }
 
-					cbfn_setConn(null, retData);
+                    app.Auth[serverInfo.Identifier].socketID = socket.id;
+                    var retData                              = {};
+                    retData.Identifier                       = app.Auth[serverInfo.Identifier].Identifier;
+                    retData.Name                             = app.Auth[serverInfo.Identifier].Name;
+                    retData.arePassKeysOpen                  = app.Auth[serverInfo.Identifier].arePassKeysOpen;
+                    retData.PassKeys                         = app.Auth[serverInfo.Identifier].PassKeys;
 
-					socket.on('getJoinQueueDataObj', function (serverInfo, cb) {
-						_verifyServerSocketConnection(serverInfo, function (err) {
-							if (err) {
-								app.logger.error('getJoinQueueDataObj _verifyServerSocketConnection end err', err);
-								socket.disconnect();
-								socket.close();
-								socket = null;
-								cbfn_setConn(err, null);
-							} else {
-								cb(null, app.db.models.BpuExperiment.getDataObjToJoinQueue());
-							}
-						});
-					});
+                    cbfn_setConn(null, retData);
 
-					socket.on(app.mainConfig.socketStrs.bpu_runExpLedsSet, function (lightData) {
-						if (app.bpuLedsSetMatch[lightData.sessionID]) {
-							// console.log(lightData);
-							app.bpuLedsSetMatch[lightData.sessionID](lightData);
-						}
-					});
+                    socket.on('getJoinQueueDataObj', function (serverInfo, cb) {
+                        _verifyServerSocketConnection(serverInfo, function (err) {
+                            if (err) {
+                                app.logger.error('getJoinQueueDataObj _verifyServerSocketConnection end err', err);
+                                socket.disconnect();
+                                socket.close();
+                                socket = null;
+                                cbfn_setConn(err, null);
+                            } else {
+                                cb(null, app.db.models.BpuExperiment.getDataObjToJoinQueue());
+                            }
+                        });
+                    });
 
-					socket.on('getExp', function (serverInfo, expId, cb) {
-						cb('not implemented', null);
-					});
+                    socket.on(app.mainConfig.socketStrs.bpu_runExpLedsSet, function (lightData) {
+                        if (app.bpuLedsSetMatch[lightData.sessionID]) {
+                            // console.log(lightData);
+                            app.bpuLedsSetMatch[lightData.sessionID](lightData);
+                        }
+                    });
 
-					socket.on(app.mainConfig.socketStrs.bpuCont_submitExperimentRequest, function (serverInfo, joinQueueDataArray, cb) {
-						_verifyServerSocketConnection(serverInfo, function (err) {
-							if (err) {
-								app.logger.error('submitExperimentRequest _verifyServerSocketConnection end err', err);
-								socket.disconnect();
-								socket.close();
-								socket = null;
-								cbfn_setConn(err, null);
-							} else {
-								app.submitExperimentRequestHandler(app, serverInfo, joinQueueDataArray, cb);
-							}
-						});
-					});
-				}
-			});
-		});
-	});
+                    socket.on('getExp', function (serverInfo, expId, cb) {
+                        cb('not implemented', null);
+                    });
 
-	callback(null);
+                    socket.on(app.mainConfig.socketStrs.bpuCont_submitExperimentRequest, function (serverInfo, joinQueueDataArray, cb) {
+                        _verifyServerSocketConnection(serverInfo, function (err) {
+                            if (err) {
+                                app.logger.error('submitExperimentRequest _verifyServerSocketConnection end err', err);
+                                socket.disconnect();
+                                socket.close();
+                                socket = null;
+                                cbfn_setConn(err, null);
+                            } else {
+                                app.submitExperimentRequestHandler(app, serverInfo, joinQueueDataArray, cb);
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    });
+
+    callback(null);
 };
 

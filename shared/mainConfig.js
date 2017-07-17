@@ -58,7 +58,7 @@ var exports = module.exports = {
 		user_submitExperimentRequest: '/#submitExperimentRequest',
 		user_activateLiveUser: '/#activateLiveUser',
 		user_sendUserToLiveLab: '/#sendUserToLiveLab',
-		user_kickFromLab: '/#kickFromLab', //General Purpose
+		user_kickFromLab: '/#kickFromLab'
 	},
 
 	clearUserListOnStart: false,
@@ -80,7 +80,7 @@ var exports = module.exports = {
 		bpuDbFolder: '/myData/bpu/readyMongo',
 		bpuTarFolder: '/myData/bpu/tars',
 		localBpuDbDump: '/home/mserver/git/euglenalab/datadump',
-		localTarFolder: '/myData/mServer',
+		localTarFolder: '/myData/mServer'
 	},
 
 	LoggerLevels: {
@@ -108,8 +108,9 @@ var exports = module.exports = {
 		reseting: 'reseting',
 		resetingDone: 'resetingDone',
 		resetingFailed: 'resetingFailed',
-		offline: 'offline',
+		offline: 'offline'
 	},
+
 	betterStatus: {
 		initializing: 'Initializing...',
 		initializingDone: 'Ready',
@@ -124,18 +125,18 @@ var exports = module.exports = {
 		reseting: 'Cleaning...',
 		resetingDone: 'Ready',
 		resetingFailed: 'Cleaning failed',
-		offline: 'Offline',
+		offline: 'Offline'
 	},
 	mServer: {
 		name: 'open_main_server',
 		localAddr: {
 			ip: '192.168.1.100',
-			serverPort: 3100,
+			serverPort: 3100
 		},
 		publicAddr: {
 			ip: g_publicIP,
 			ip2: '171.65.102.112',
-			serverPort: 80,
+			serverPort: 80
 		},
 	},
 	bpus: [{
@@ -154,7 +155,7 @@ var exports = module.exports = {
 		localAddr: {
 			ip: '192.168.1.200',
 			serverPort: 8090,
-			webcamPort: 8080,
+			webcamPort: 8080
 		},
 		publicAddr: {
 			ip: g_publicIP,

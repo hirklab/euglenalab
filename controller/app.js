@@ -4,1280 +4,148 @@ var async          = require('async');
 var mongoose       = require('mongoose');
 var path           = require('path');
 
-var config         = require('./config');
+var config = require('./config');
 
 var filename = path.basename(__filename);
 
 
-//Constants
-var StartDate = new Date();
-
-
-
-
 //Main Object
 var app = {
+    startDate: new Date(),
 
-	runData: {
-		firstMemObj:                 null,
-		currMemObj:                  null,
-		addExpToBpuErrors:           [],
-		activateLiveUserErrors:      [],
-		checkBpusErrors:             [],
-		runningQueueTimesPerBpuName: {},
-	},
+    utils:                          require('../shared/myFunctions.js'),
+    mainConfig:                     require('../shared/mainConfig.js'),
+    submitExperimentRequestHandler: require('./libs/submitExperimentRequestHandler.js'),
 
-	utils: require('../shared/myFunctions.js'),
-	mainConfig: require('../shared/mainConfig.js'),
-	submitExperimentRequestHandler: require('./libs/submitExperimentRequestHandler.js'),
+    // object list of connected microscopes
+    microscopesIndex: {},
 
-	microscopes:        {},
-	socketConnections: [],
+    // list of connected servers
+    clients: [],
 
-	listExperimentDoc: null,
-	newExpTagObj:      {},
-	keeperExpDocs:     [],
+    // object list of experiments from database
+    experiments: null,
 
-	//Store Session Memory
-	//memDoc: {
-	//	last:    {},
-	//	diff:    {},
-	//	highMem: 0
-	//},
+    //list of experiments in memory (mostly pending, running)
+    experimentsCache: [],
 
-	bpuLedsSetFuncs: {},
-	bpuLedsSetMatch: {},
+    // any new experiment is collected here before being added to cache
+    newExperimentsIndex: {},
 
-	Auth: {
-		C422691AA38F9A86EC02CB7B55D5F542: {
-			Name:            'radiantllama',
-			Identifier:      'C422691AA38F9A86EC02CB7B55D5F542',
-			arePassKeysOpen: false,
-			PassKeys:        ['R-OpYLbT6Kk-GXyEmX1SOOOHDw157mJc'],
-			socketID:        null,
-			serverInfo:      null
-		},
-		b3cagcde2684ebd2cba325555ec2703b: {
-			Name:            'InternalWeb1',
-			Identifier:      'b3cagcde2684ebd2cba325555ec2703b',
-			arePassKeysOpen: true,
-			PassKeys:        [],
-			socketID:        null,
-			serverInfo:      null
-		},
-		b3cagcde2684ebd2cba325555ec2703c: {
-			Name:            'InternalWeb2',
-			Identifier:      'b3cagcde2684ebd2cba325555ec2703c',
-			arePassKeysOpen: true,
-			PassKeys:        [],
-			socketID:        null,
-			serverInfo:      null
-		}
-	}
+    errors: {
+        experiment: [],
+        live:       [],
+        bpu:        []
+    },
+
+    bpuLedsSetMatch: {},
+
+    Auth: {
+        C422691AA38F9A86EC02CB7B55D5F542: {
+            Name:            'radiantllama',
+            Identifier:      'C422691AA38F9A86EC02CB7B55D5F542',
+            arePassKeysOpen: false,
+            PassKeys:        ['R-OpYLbT6Kk-GXyEmX1SOOOHDw157mJc'],
+            socketID:        null,
+            serverInfo:      null
+        },
+        b3cagcde2684ebd2cba325555ec2703b: {
+            Name:            'InternalWeb1',
+            Identifier:      'b3cagcde2684ebd2cba325555ec2703b',
+            arePassKeysOpen: true,
+            PassKeys:        [],
+            socketID:        null,
+            serverInfo:      null
+        },
+        b3cagcde2684ebd2cba325555ec2703c: {
+            Name:            'InternalWeb2',
+            Identifier:      'b3cagcde2684ebd2cba325555ec2703c',
+            arePassKeysOpen: true,
+            PassKeys:        [],
+            socketID:        null,
+            serverInfo:      null
+        }
+    }
 };
 
-//Init Series Functions
 var setupLogger = function (callback) {
-	require('./libs/logging')(app);
-	callback(null);
+    require('./libs/logging')(app);
+    callback(null);
 };
 
 var setupMongoose = function (callback) {
-	app.logger.debug('setting database...');
-	require('./libs/database')(app, callback);
+    app.logger.debug('setting database...');
+    require('./libs/database')(app, callback);
 };
 
 var setupSocketClientServer = function (callback) {
-	app.logger.debug('setting socket server...');
-	require('./libs/socketServer')(app, callback);
+    app.logger.debug('setting socket server...');
+    require('./libs/socketServer')(app, callback);
 };
 
-var getListExperiment = function (callback) {
-	app.logger.debug('fetching experiments...');
+var getExperiments = function (callback) {
+    app.logger.debug('fetching experiments...');
 
-	app.db.models.ListExperiment.getInstanceDocument(function (err, listDoc) {
-		if (err) {
-			app.logger.error(err);
-			callback('init getListExperiment error:' + err);
-		} else {
-			app.logger.info('got experiments');
+    app.db.getExperiments(function (err, experiments) {
+        if (err) {
+            app.logger.error(err);
+            callback(err);
+        } else {
+            app.logger.debug('got experiments');
 
-			app.listExperimentDoc = listDoc;
-			callback(null);
-		}
-	});
+            app.experiments = experiments;
+            callback(null);
+        }
+    });
 };
-
 
 var init = function (callback) {
-	async.series([
-		setupLogger,
-		setupMongoose,
-		setupSocketClientServer,
-		getListExperiment
-	], function (err) {
-		if (err) {
-			app.logger.error(err);
-			callback(err);
-		} else {
-			app.logger.info('app initialized');
-			callback(null);
-		}
-	});
+    async.series([
+        setupLogger,
+        setupMongoose,
+        setupSocketClientServer,
+        getExperiments
+    ], function (err) {
+        if (err) {
+            app.logger.error(err);
+            callback(err);
+        } else {
+            app.logger.info('app initialized');
+            callback(null);
+        }
+    });
 };
 
 var loop = function () {
-	app.utils.clearConsole();
-
-	var startDate = new Date();
-
-	var saveMemInfo = function (callback) {
-		//Temp Current Mem Info
-		//app.runData.currMemObj = process.memoryUsage();
-		//Socket Connections
-		//app.memDoc.socketConns = app.socketConnections.length;
-		//
-		////High Mem
-		//if (app.memDoc.last.heapUsed > app.memDoc.highMem) app.memDoc.highMem = app.memDoc.last.heapUsed;
-		////Set Diff between first and current
-		//app.memDoc.diff.rss = app.runData.currMemObj.rss - app.runData.firstMemObj.rss;
-		//app.memDoc.diff.heapTotal = app.runData.currMemObj.heapTotal - app.runData.firstMemObj.heapTotal;
-		//app.memDoc.diff.heapUsed = app.runData.currMemObj.heapUsed - app.runData.firstMemObj.heapUsed;
-		////Save current
-		//app.memDoc.last.rss = app.runData.currMemObj.rss;
-		//app.memDoc.last.heapTotal = app.runData.currMemObj.heapTotal;
-		//app.memDoc.last.heapUsed = app.runData.currMemObj.heapUsed;
-		////Set Time
-		//app.memDoc.lastDate = startDate;
-
-		return callback(null);
-	};
-
-	var printMemHeader = function (callback) {
-		//var memDiv = 1024 * 1024;
-
-		app.logger.info('================================================================');
-		//app.logger.info('             Date:\t' + app.memDoc.lastDate);
-		app.logger.info('      Connections:\t' + app.socketConnections.length);
-		//app.logger.info('         Up  Time:\t' + (Math.round((app.memDoc.lastDate - StartDate) / 60000)) + ' min');
-		//app.logger.info('         High Mem:\t' + Math.round((app.memDoc.highMem) / (memDiv)) + ' mb');
-		//app.logger.info('Curr(rss,tot,use):\t' + '(' +
-		//	Math.round(app.memDoc.last.rss / (memDiv)) +
-		//	',' + Math.round(app.memDoc.last.heapTotal / (memDiv)) +
-		//	',' + Math.round(app.memDoc.last.heapUsed / (memDiv)) +
-		//	')');
-		// app.logger.info('Diff(rss,tot,use):\t' + '(' +
-		//   Math.round((app.memDoc.diff.rss) / (memDiv)) +
-		//   ',' + Math.round((app.memDoc.diff.heapTotal) / (memDiv)) +
-		//   ',' + Math.round((app.memDoc.diff.heapUsed) / (memDiv)) +
-		//   ')' + '\n');
-		app.logger.info('================================================================');
-		return callback(null);
-	};
-
-	var printExpErrors = function (callback) {
-		//Sort, oldest first
-		app.runData.addExpToBpuErrors.sort(function (objA, objB) {
-			return objA.time - objB.time;
-		});
-		if (app.runData.addExpToBpuErrors.length === 0) {
-			// app.logger.info(' addExp errors:\t' + app.runData.addExpToBpuErrors.length + '\n');
-		} else {
-			app.logger.error(' addExp errors:\t' + app.runData.addExpToBpuErrors.length);
-			//Errors for adding exp to bpu-- this process is async with loop
-			for (var ind = 0; ind < app.runData.addExpToBpuErrors.length; ind++) {
-				var errObj = app.runData.addExpToBpuErrors[ind];
-				if (ind < config.maxErrorPrint || true) {
-					var ageMs = startDate - errObj.time;
-					if (ageMs < config.errorRemoveMs) {
-						if (app.runData.addExpToBpuErrors.length - 1 === ind || config.maxErrorPrint - 1 === ind && app.runData.addExpToBpuErrors.length !== 1) {
-							app.logger.error(' Error addExp:' + (Math.floor(ageMs / 1000)) + ' ' + errObj.err);
-						} else {
-							app.logger.error(' Error addExp:' + (Math.floor(ageMs / 1000)) + ' ' + errObj.err + '\n');
-						}
-					} else {
-						app.runData.addExpToBpuErrors.splice(ind, 1);
-						ind--;
-					}
-				} else {
-					break;
-				}
-			}
-		}
-		return callback(null);
-	};
-
-	var printLiveActivateErrors = function (callback) {
-		//Sort, oldest first
-		app.runData.activateLiveUserErrors.sort(function (objA, objB) {
-			return objA.time - objB.time;
-		});
-		if (app.runData.activateLiveUserErrors.length === 0) {
-			// app.logger.info(' liveAct errors:\t' + app.runData.activateLiveUserErrors.length + '\n');
-		} else {
-			app.logger.error('liveAct errors:\t' + app.runData.activateLiveUserErrors.length);
-			//Errors for adding exp to bpu-- this process is async with loop
-			for (var ind = 0; ind < app.runData.activateLiveUserErrors.length; ind++) {
-				var errObj = app.runData.activateLiveUserErrors[ind];
-				if (ind < config.maxErrorPrint || true) {
-					var ageMs = startDate - errObj.time;
-					if (ageMs < config.errorRemoveMs) {
-						if (app.runData.activateLiveUserErrors.length - 1 === ind || config.maxErrorPrint - 1 === ind) {
-							app.logger.error('H Error liveAct:' + (Math.floor(ageMs / 1000)) + ' ' + errObj.err + '\n');
-						} else {
-							app.logger.error('H Error liveAct:' + (Math.floor(ageMs / 1000)) + ' ' + errObj.err + '\n');
-						}
-
-					} else {
-						app.runData.activateLiveUserErrors.splice(ind, 1);
-						ind--;
-					}
-
-				} else {
-					break;
-				}
-			}
-		}
-		return callback(null);
-	};
-
-	var printCheckBpusErrors = function (callback) {
-		//Sort, oldest first
-		app.runData.checkBpusErrors.sort(function (objA, objB) {
-			return objA.time - objB.time;
-		});
-		if (app.runData.checkBpusErrors.length === 0) {
-			// app.logger.info(' chkBpu errors:\t' + app.runData.checkBpusErrors.length + '\n');
-		} else {
-			app.logger.error('chkBpu errors:\t' + app.runData.checkBpusErrors.length);
-			//Errors for adding exp to bpu-- this process is async with loop
-			for (var ind = 0; ind < app.runData.checkBpusErrors.length; ind++) {
-				var errObj = app.runData.checkBpusErrors[ind];
-				if (ind < config.maxErrorPrint || true) {
-					var ageMs = startDate - errObj.time;
-					if (ageMs < config.errorRemoveMs) {
-						if (app.runData.checkBpusErrors.length - 1 === ind || config.maxErrorPrint - 1 === ind) {
-							app.logger.error('H Error chkBpu:' + (Math.floor(ageMs / 1000)) + ' ' + errObj.err + '\n');
-						} else {
-							app.logger.error('H Error chkBpu:' + (Math.floor(ageMs / 1000)) + ' ' + errObj.err + '\n');
-						}
-
-					} else {
-						app.runData.checkBpusErrors.splice(ind, 1);
-						ind--;
-					}
-
-				} else {
-					break;
-				}
-			}
-		}
-		return callback(null);
-	};
-
-	var getBpus = function (callback) {
-		app.logger.debug('fetching BPUs...');
-
-		var query = app.db.models.Bpu.find({
-			isOn: true
-		});
-
-		query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
-		query.exec(function (err, docs) {
-			if (err) {
-				app.logger.error(err);
-				return callback(err);
-			} else {
-				docs.forEach(function (bpuDoc) {
-					if (app.microscopes[bpuDoc.name]) {
-						app.microscopes[bpuDoc.name].doc = bpuDoc;
-					} else {
-						app.microscopes[bpuDoc.name] = {
-							doc:            bpuDoc,
-							socket:         null,
-							socketTimeouts: 0,
-							queueTime:      0,
-							checkMsgs:      [],
-							isSocketOkay:   false,
-						};
-					}
-
-				});
-				return callback(null);
-			}
-		});
-	};
-
-	var checkBpus = function (callback) {
-		app.logger.debug('checking BPUs...');
-
-		var fn_connectBpu  = function (bpuObj, cb_connectBpu) {
-			// new connection to BPU
-			if (bpuObj.socket === null) {
-				bpuObj.socket = socketIoClient('http://' + bpuObj.doc.localAddr.ip + ':' + bpuObj.doc.localAddr.serverPort, {
-					multiplex:    false,
-					reconnection: true
-				});
-				bpuObj.socket.on('connect', function () {
-				});
-				bpuObj.socket.on('disconnect', function (msg) {
-					bpuObj.socket.disconnect();
-					bpuObj.socket.close();
-					delete bpuObj.socket;
-					bpuObj.socketTimeouts = 0;
-					bpuObj.socket         = null;
-				});
-				app.bpuLedsSetFuncs[bpuObj.doc.name] = function (setLedsData) {
-					//console.log(setLedsData);
-					bpuObj.socket.emit(app.mainConfig.socketStrs.bpu_runExpLedsSet, setLedsData);
-				};
-				setTimeout(function () {
-					cb_connectBpu(null);
-				}, 500);
-			} else {
-				// connection to BPU timed out
-				if (bpuObj.socketTimeouts > config.SocketTimeoutTillReset) {
-					bpuObj.socket.disconnect();
-					delete bpuObj.socket;
-					bpuObj.socketTimeouts = 0;
-					bpuObj.socket         = null;
-					cb_connectBpu('reset socket');
-				} else {
-					// connection looks fine
-					cb_connectBpu(null);
-				}
-			}
-		};
-
-		var fn_clearBpuExp = function (bpuObj, cb_clearBpuExp) {
-			if (bpuObj.getStatusResObj.expOverId !== null && bpuObj.getStatusResObj.expOverId !== undefined) {
-				if (bpuObj.doc.bpuStatus === app.mainConfig.bpuStatusTypes.finalizingDone) {
-					var updateObj = {
-						exp_serverClearTime: new Date().getTime(),
-						exp_status:          'servercleared',
-					};
-					app.db.models.BpuExperiment.findByIdAndUpdate(bpuObj.getStatusResObj.expOverId, updateObj, function (err, savedExpDoc) {
-						if (err) {
-							app.runData.addExpToBpuErrors.push({
-								time: new Date(),
-								err:  bpuObj.doc.name + ' fn_clearBpuExp BpuExperiment.findByIdAndUpdate ' + err
-							});
-							cb_clearBpuExp(bpuObj.doc.name + ' fn_clearBpuExp BpuExperiment.findByIdAndUpdate ' + err);
-						} else {
-							cb_clearBpuExp(null);
-						}
-					});
-				} else {
-					app.runData.addExpToBpuErrors.push({
-						time: new Date(),
-						err:  bpuObj.doc.name + ' fn_clearBpuExp ' + 'has expOverId:' + bpuObj.getStatusResObj.expOverId + ' but status is ' + bpuObj.doc.bpuStatus + '!=' + app.mainConfig.bpuStatusTypes.finalizingDone
-					});
-					cb_clearBpuExp(bpuObj.doc.name + ' fn_clearBpuExp ' + 'has expOverId:' + bpuObj.getStatusResObj.expOverId + ' but status is ' + bpuObj.doc.bpuStatus + '!=' + app.mainConfig.bpuStatusTypes.finalizingDone);
-				}
-			} else {
-				cb_clearBpuExp(null);
-			}
-		};
-
-		var checkBpu = function (checkBpuCallback) {
-			var bpuObj      = this;
-			//Timeout
-			var didCallback = false;
-			setTimeout(function () {
-				if (!didCallback) {
-					didCallback = true;
-					bpuObj.socketTimeouts++;
-					app.logger.error('timed out ' + bpuObj.socketTimeouts);
-					app.runData.addExpToBpuErrors.push({
-						time: new Date(),
-						err:  bpuObj.doc.name + ' fn_connectBpu ' + 'timed out ' + bpuObj.socketTimeouts
-					});
-					return checkBpuCallback(null);
-				}
-			}, 1000);
-
-			bpuObj.checkMsgs = [];
-			//Check Socket Connnection
-			bpuObj.checkMsgs.push({
-				isErr: false,
-				time:  new Date().getTime(),
-				msg:   'Connected:\t' + (bpuObj.socket !== null)
-			});
-			bpuObj.checkMsgs.push({
-				isErr: false,
-				time:  new Date().getTime(),
-				msg:   'Timeout:\t' + bpuObj.socketTimeouts
-			});
-
-			fn_connectBpu(bpuObj, function (err) {
-				if (!didCallback) {
-					if (err) {
-						didCallback = true;
-						bpuObj.socketTimeouts++;
-						bpuObj.checkMsgs.push({
-							isErr: true,
-							time:  new Date().getTime(),
-							msg:   'fn_connectBpu ' + err
-						});
-						bpuObj.doc.bpuStatus = app.mainConfig.bpuStatusTypes.offline;
-						app.runData.addExpToBpuErrors.push({
-							time: new Date(),
-							err:  bpuObj.doc.name + ' fn_connectBpu ' + err
-						});
-						return checkBpuCallback(null);
-
-					} else if (!bpuObj.socket.connected) {
-						didCallback = true;
-						bpuObj.socketTimeouts++;
-						bpuObj.doc.bpuStatus = app.mainConfig.bpuStatusTypes.offline;
-						bpuObj.checkMsgs.push({
-							isErr: true,
-							time:  new Date().getTime(),
-							msg:   'Connection:\toffline'
-						});
-						app.runData.addExpToBpuErrors.push({
-							time: new Date(),
-							err:  bpuObj.doc.name + 'Connection:\toffline'
-						});
-						return checkBpuCallback(null);
-					} else {
-
-						//Get Status
-						bpuObj.socket.emit(app.mainConfig.socketStrs.bpu_getStatus, function (resObj) {
-							if (!didCallback) {
-								didCallback         = true;
-								bpuObj.isSocketOkay = true;
-								bpuObj.checkMsgs.push({
-									isErr: false,
-									time:  new Date().getTime(),
-									msg:   'Status:\t\t' + app.mainConfig.betterStatus[bpuObj.doc.bpuStatus]
-								});
-
-								bpuObj.socketTimeouts = 0;
-								bpuObj.queueTime      = 0;
-
-								//Save Res Obj on temp obj
-								bpuObj.getStatusResObj = resObj;
-
-								//bpuStatus
-								bpuObj.doc.bpuStatus = resObj.bpuStatus;
-
-								//Check for active Exp
-								if (resObj.exp !== null && resObj.exp !== undefined) {
-									var expOverIdNull = (bpuObj.getStatusResObj.expOverId !== null && bpuObj.getStatusResObj.expOverId !== undefined);
-									bpuObj.checkMsgs.push({
-										isErr: false,
-										time:  new Date().getTime(),
-										msg:   'id:' + resObj.exp._id + ', Exp=(user:' + resObj.exp.user.name + ', timeLeft:' + resObj.expTimeLeft + ', expOverIdNull?' + expOverIdNull + ')'
-									});
-									bpuObj.doc.liveBpuExperiment.id                   = resObj.exp._id;
-									bpuObj.doc.liveBpuExperiment.group_experimentType = resObj.exp.group_experimentType;
-									bpuObj.doc.liveBpuExperiment.bc_timeLeft          = resObj.expTimeLeft;
-									bpuObj.doc.liveBpuExperiment.username             = resObj.exp.user.name;
-									bpuObj.doc.liveBpuExperiment.sessionID            = resObj.exp.session.sessionID;
-
-									//Include current experiment in queue time
-									bpuObj.queueTime = bpuObj.doc.liveBpuExperiment.bc_timeLeft;
-
-									//Clear set leds function
-									if (app.bpuLedsSetMatch[bpuObj.doc.liveBpuExperiment.sessionID] &&
-										bpuObj.doc.bpuStatus !== app.mainConfig.bpuStatusTypes.running && bpuObj.doc.bpuStatus !== app.mainConfig.bpuStatusTypes.pendingRun) {
-										delete app.bpuLedsSetMatch[bpuObj.doc.liveBpuExperiment.sessionID];
-									}
-
-									//No Active exp
-								} else {
-									bpuObj.doc.liveBpuExperiment.id                   = null;
-									bpuObj.doc.liveBpuExperiment.group_experimentType = 'text';
-									bpuObj.doc.liveBpuExperiment.bc_timeLeft          = 0;
-									bpuObj.doc.liveBpuExperiment.sessionID            = null;
-									bpuObj.doc.liveBpuExperiment.username             = null;
-								}
-
-								//Check for exp over
-								fn_clearBpuExp(bpuObj, function (err) {
-									if (err) {
-										bpuObj.checkMsgs.push({
-											isErr: true,
-											time:  new Date().getTime(),
-											msg:   'fn_clearBpuExp ' + err
-										});
-									}
-
-									//Check if scripter needs to run
-									var statMsg = [];
-
-									statMsg.push({
-										name: 'scripterPopulation',
-										age:  startDate.getTime() - bpuObj.doc.performanceScores.scripterPopulationDate,
-										msg:  'Population:\t' + Math.round(bpuObj.doc.performanceScores.scripterPopulation, 2) + ' '
-									});
-
-									statMsg.push({
-										name: 'scripterActivity',
-										age:  startDate.getTime() - bpuObj.doc.performanceScores.scripterActivityDate,
-										msg:  'Activity:\t' + Math.round(bpuObj.doc.performanceScores.scripterActivity, 2) + ' '
-									});
-
-									statMsg.push({
-										name: 'scripterResponse',
-										age:  startDate.getTime() - bpuObj.doc.performanceScores.scripterResponseDate,
-										msg:  'Response:\t' + Math.round(bpuObj.doc.performanceScores.scripterResponse, 2) + ' '
-									});
-
-									statMsg.sort(function (objA, objB) {
-										return objA.age - objB.age;
-									});
-
-									var cnt = 0;
-
-									statMsg.forEach(function (stat) {
-										bpuObj.checkMsgs.push({
-											isErr: false,
-											time:  new Date().getTime() + cnt * 100,
-											msg:   stat.msg + '\t(' + Math.round(stat.age / 60000) + ' mins ago)'
-										});
-									});
-
-
-									var lastSend = startDate.getTime() - bpuObj.doc.performanceScores.bc_lastSendDate;
-
-									var nextSendMS = config.ScripterSendInterval - statMsg[statMsg.length - 1].age;
-
-									if (nextSendMS < 0 && lastSend > config.ScripterSendInterval) {
-
-										if (config.doSendScripters) {
-											app.db.models.Bpu.submitTextExpWithUser({
-												name: bpuObj.doc.name
-											}, {
-												name:   statMsg[statMsg.length - 1].name,
-												groups: ['scripter']
-											}, function (err, expTag) {
-												if (err) {
-													bpuObj.checkMsgs.push({
-														isErr: true,
-														time:  new Date().getTime(),
-														msg:   'submitTextExpWithUser err:' + err
-													});
-												}
-												bpuObj.doc.performanceScores.bc_lastSendDate = startDate.getTime();
-												bpuObj.doc.save(function (err, newDoc) {
-													if (err) {
-														bpuObj.checkMsgs.push({
-															isErr: true,
-															time:  new Date().getTime(),
-															msg:   'save err:' + err
-														});
-													}
-													return checkBpuCallback(null);
-												});
-											});
-										} else {
-											return checkBpuCallback(null);
-										}
-									} else {
-										return checkBpuCallback(null);
-									}
-								});
-							} else {
-								app.runData.addExpToBpuErrors.push({
-									time: new Date(),
-									err:  bpuObj.doc.name + ' fn_connectBpu ' + 'getstatus called back but already timed out'
-								});
-							} //end of !didCallback
-						}); //socket get status
-					}
-				} //end of !didCallback
-			}); //connect bpu
-		}; //end of main func
-
-		//Build Parallel
-		var runParallelFuncs = [];
-		var keys             = Object.keys(app.microscopes);
-		keys.sort(function (objA, objB) {
-			return app.microscopes[objA].doc.index - app.microscopes[objB].doc.index;
-		});
-		keys.forEach(function (key) {
-			app.microscopes[key].isSocketOkay = false;
-			runParallelFuncs.push(checkBpu.bind(app.microscopes[key]));
-		});
-
-		async.parallel(runParallelFuncs, function (err) {
-
-			var keys = Object.keys(app.microscopes);
-
-			keys.sort(function (objA, objB) {
-				return app.microscopes[objA].doc.index - app.microscopes[objB].doc.index;
-			});
-
-			keys.forEach(function (key) {
-				app.logger.info(app.microscopes[key].doc.name);
-
-				app.microscopes[key].checkMsgs.sort(function (objA, objB) {
-					return objA.time - objB.time;
-				});
-
-				app.microscopes[key].checkMsgs.forEach(function (msgObj) {
-					if (msgObj.isErr) {
-						app.logger.error('\t' + msgObj.msg);
-					} else {
-						app.logger.info('\t' + msgObj.msg);
-					}
-				});
-			});
-			if (err) {
-				app.logger.error(err);
-			} else {
-				 app.logger.info('Checking ' + runParallelFuncs.length + ' BPU(s) in ' + (new Date() - startDate) + 's');
-			}
-			return callback(null);
-		});
-	};
-
-	//Pulls ListExperiment doc each time
-	var checkExpsAndResort = function (callback) {
-
-		//Checks each experiment tag in listExperiment doc
-		var ExpRejectMax                        = 10;
-		var cnt                                 = 0; //cnts expTags for cnsole logging
-		app.keeperExpDocs                       = []; //BpuExperiments are pulled from db for each expTag, they are kept though the rest of the loop
-		app.runData.runningQueueTimesPerBpuName = {}; //Experiments are sorted into bpus, running bpu time is need for scoring, not used outside of this function
-		//Set Bpus runtime in runningQueueTimesPerBpuName  to zero
-		Object.keys(app.microscopes).forEach(function (key) {
-			var bpuObj = app.microscopes[key];
-			//Set Queue Time
-			if (app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name] === null || app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name] === undefined) {
-				if (bpuObj.doc.liveBpuExperiment) {
-					app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name] = bpuObj.doc.liveBpuExperiment.bc_timeLeft;
-				} else {
-					app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name] = 0;
-				}
-
-				if (!bpuObj.isSocketOkay) {
-					delete app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name];
-				}
-			}
-		});
-
-		var checkExpAndResort = function (checkExpCallback) {
-			cnt++;
-			var expTag = this;
-			app.logger.trace(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(age:' + (startDate.getTime() - expTag.exp_submissionTime) + ')');
-			app.logger.trace(cnt + ':checkExpAndResort:(user:' + expTag.user.name + ', bpu:' + expTag.exp_wantsBpuName + ')');
-			app.db.models.BpuExperiment.findById(expTag.id, function (err, expDoc) {
-
-				//Failed
-				if (err) {
-					err = cnt + ':checkExpAndResort BpuExperiment.findById :' + err;
-					app.logger.error(err);
-					expTag.exp_lastResort.rejectionCounter++;
-					expTag.exp_lastResort.rejectionReason = err;
-					checkExpCallback(null);
-
-					//Failed
-				} else if (expDoc === null || expDoc === undefined) {
-					err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'expDoc===null || expDoc===undefined';
-					app.logger.error(err);
-					expTag.exp_lastResort.rejectionCounter++;
-					expTag.exp_lastResort.rejectionReason = err;
-					checkExpCallback(null);
-
-					//Canceled
-				} else if (expDoc.exp_isCanceled) {
-					err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'expDoc.exp_isCanceled';
-					app.logger.error(err);
-					expTag.exp_lastResort.rejectionCounter = ExpRejectMax;
-					expTag.exp_lastResort.rejectionReason  = err;
-					checkExpCallback(null);
-
-					//Incorrect status, should alreay be out of queue
-				} else if (expDoc.exp_status !== 'queued' && expDoc.exp_status !== 'submited' && expDoc.exp_status !== 'created') {
-					err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'Incorrect status:' + expDoc.exp_status + ', should alreay be out of queue';
-					app.logger.error(err);
-					expTag.exp_lastResort.rejectionCounter = ExpRejectMax;
-					expTag.exp_lastResort.rejectionReason  = err;
-					checkExpCallback(null);
-
-					//Okay -- we have the doc, expTag is removed and the expDoc is used from now on
-				} else {
-					//add exptag to expDoc
-					expDoc.tag = app.newExpTagObj[expDoc._id];
-					//Remove expTag from main object
-					delete app.newExpTagObj[expDoc._id];
-
-					//reset expDoc last resort
-					expDoc.exp_lastResort.canidateBpus = [];
-					expDoc.exp_lastResort.bpuName      = null;
-					expDoc.exp_lastResort.waitTime     = 0;
-					expDoc.exp_resortTime              = startDate.getTime();
-					//Get Bpus In Groups
-					Object.keys(app.microscopes).forEach(function (key) {
-						var bpuObj = app.microscopes[key];
-						if (bpuObj.isSocketOkay) {
-							//Filter bpus by experiment user groups
-							for (var bgnd = 0; bgnd < bpuObj.doc.allowedGroups.length; bgnd++) {
-								for (var ugnd = 0; ugnd < expDoc.user.groups.length; ugnd++) {
-									if (bpuObj.doc.allowedGroups[bgnd] === expDoc.user.groups[ugnd]) {
-										//Score Bpu
-										var scoreObj           = bpuObj.doc.scoreBpu(app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name]);
-										scoreObj.bpuName       = bpuObj.doc.name;
-										scoreObj.totalWaitTime = app.runData.runningQueueTimesPerBpuName[bpuObj.doc.name];
-										//Check Specific Bpu and add to exps canidate bpus list
-										if (expDoc.exp_wantsBpuName !== null) {
-											if (bpuObj.doc.name === expTag.exp_wantsBpuName) {
-												expDoc.exp_lastResort.canidateBpus.push(scoreObj);
-											}
-										} else {
-											expDoc.exp_lastResort.canidateBpus.push(scoreObj);
-										}
-									}
-								}
-							}
-						}
-					});
-
-					//Only one canidated bpu
-					if (expDoc.exp_lastResort.canidateBpus.length === 1) {
-						//choose bpu from score and wait time
-						expDoc.exp_lastResort.bpuName       = expDoc.exp_lastResort.canidateBpus[0].bpuName;
-						expDoc.exp_lastResort.totalWaitTime = expDoc.exp_lastResort.canidateBpus[0].totalWaitTime;
-						//Update running bpu queue time
-						app.runData.runningQueueTimesPerBpuName[expDoc.exp_lastResort.canidateBpus[0].bpuName] += expDoc.exp_eventsRunTime;
-
-						//Many Canidates, do secondary check for bpus with similar score and sort by waittime instead
-
-					} else if (expDoc.exp_lastResort.canidateBpus.length > 1) {
-						//Sort By final Score
-						expDoc.exp_lastResort.canidateBpus.sort(function (objA, objB) {
-							return objB.finalScore - objA.finalScore;
-						});
-						//choose bpu from score and wait time
-						var zeroScore     = expDoc.exp_lastResort.canidateBpus[0].finalScore;
-						var scoreInt      = 0.2;
-						var sameScoreObjs = expDoc.exp_lastResort.canidateBpus.filter(function (scoreObj) {
-							if (scoreObj.finalScore <= zeroScore + scoreInt && scoreObj.finalScore >= zeroScore - scoreInt) return true;
-							else return false;
-						});
-						if (sameScoreObjs.length > 0) {
-							//Sort similar final scores by wait time.
-							sameScoreObjs.sort(function (objA, objB) {
-								return objA.totalWaitTime - objB.totalWaitTime;
-							});
-							expDoc.exp_lastResort.bpuName       = sameScoreObjs[0].bpuName;
-							expDoc.exp_lastResort.totalWaitTime = sameScoreObjs[0].totalWaitTime;
-
-							app.runData.runningQueueTimesPerBpuName[sameScoreObjs[0].bpuName] += expDoc.exp_eventsRunTime;
-						} else {
-							//Sort similar final scores by wait time.
-							expDoc.exp_lastResort.bpuName       = expDoc.exp_lastResort.canidateBpus[0].bpuName;
-							expDoc.exp_lastResort.totalWaitTime = expDoc.exp_lastResort.canidateBpus[0].totalWaitTime;
-
-							app.runData.runningQueueTimesPerBpuName[expDoc.exp_lastResort.canidateBpus[0].bpuName] += expDoc.exp_eventsRunTime;
-						}
-					}
-
-					if (true) {
-						app.logger.trace(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(cans:' + expDoc.exp_lastResort.canidateBpus.length + ')');
-						expDoc.exp_lastResort.canidateBpus.forEach(function (canBpu) {
-							app.logger.trace(canBpu.bpuName + ' ' + canBpu.finalScore + ' ' + canBpu.totalWaitTime);
-						});
-					}
-
-					if (expDoc.exp_lastResort.bpuName === null) {
-						expDoc.exp_lastResort.rejectionCounter++;
-						expTag.exp_lastResort.rejectionReason = 'No candidate BPU found';
-					}
-
-					app.keeperExpDocs.push(expDoc);
-					checkExpCallback(null);
-				}
-
-			}); //end for BpuExperiment.findById
-		};
-
-		//Get new Exps from database and build series function array
-		app.db.models.ListExperiment.findById(app.listExperimentDoc._id, {
-			newExps: 1
-		}, function (err, newListExperimentDoc) {
-			if (err) {
-				app.logger.error('checkExpsAndResort ListExperiment.findById error:' + err);
-				return callback('checkExpsAndResort ListExperiment.findById error:' + err);
-			} else if (err) {
-				app.logger.error('checkExpsAndResort ListExperiment.findById error:' + 'newListExperimentDoc dne');
-				return callback('checkExpsAndResort ListExperiment.findById error:' + 'newListExperimentDoc dne');
-			} else {
-
-				//Create Master expTag obj
-				app.newExpTagObj          = {};
-				var bpuScripterTracker    = {};
-				var idSubmissionTimeArray = [];
-
-				//Pull New Experiments from db
-				while (newListExperimentDoc.newExps.length > 0) {
-					var expTag = newListExperimentDoc.newExps.shift();
-					if (expTag.user.name === 'scripterPopulation' || expTag.user.name === 'scripterActivity' || expTag.user.name === 'scripterResponse') {
-						if (expTag.exp_wantsBpuName !== null && expTag.exp_wantsBpuName !== undefined) {
-							if (bpuScripterTracker[expTag.exp_wantsBpuName] === null || bpuScripterTracker[expTag.exp_wantsBpuName] === undefined) {
-								bpuScripterTracker[expTag.exp_wantsBpuName] = expTag;
-							} else if (bpuScripterTracker[expTag.exp_wantsBpuName].submissionTime < expTag.submissionTime) {
-								bpuScripterTracker[expTag.exp_wantsBpuName] = expTag;
-							}
-						}
-					} else {
-						app.newExpTagObj[expTag.id] = expTag;
-						idSubmissionTimeArray.push({
-							id:       expTag.id,
-							subTime:  expTag.exp_submissionTime,
-							username: expTag.user.name
-						});
-					}
-				}
-
-				//Save db doc with removed new experiments
-				newListExperimentDoc.save(function (err, saveDoc) {
-
-					//Pull New Experiments from current docuemnt
-					while (app.listExperimentDoc.newExps.length > 0) {
-						var expTag = app.listExperimentDoc.newExps.shift();
-						if (expTag.user.name === 'scripterPopulation' || expTag.user.name === 'scripterActivity' || expTag.user.name === 'scripterResponse') {
-							if (expTag.exp_lastResort.bpuName !== null && expTag.exp_lastResort.bpuName !== undefined) {
-								if (bpuScripterTracker[expTag.exp_wantsBpuName] === null || bpuScripterTracker[expTag.exp_wantsBpuName] === undefined) {
-									bpuScripterTracker[expTag.exp_wantsBpuName] = expTag;
-								} else if (bpuScripterTracker[expTag.exp_wantsBpuName].submissionTime < expTag.submissionTime) {
-									bpuScripterTracker[expTag.exp_wantsBpuName] = expTag;
-								}
-							}
-						} else {
-							app.newExpTagObj[expTag.id] = expTag;
-							idSubmissionTimeArray.push({
-								id:       expTag.id,
-								subTime:  expTag.exp_submissionTime,
-								username: expTag.user.name
-							});
-						}
-					}
-
-					//add bpu exps from this doc to expTag Obj
-					Object.keys(app.listExperimentDoc._doc).forEach(function (key) {
-						if (key[0] !== '_' && (key.search('eug') > -1)) {
-							while (app.listExperimentDoc[key].length > 0) {
-								var expTag = app.listExperimentDoc[key].shift();
-								if ((expTag.user.name === 'scripterPopulation' || expTag.user.name === 'scripterActivity' || expTag.user.name === 'scripterResponse') &&
-									expTag.exp_lastResort.bpuName !== null && expTag.exp_lastResort.bpuName !== undefined) {
-									if (bpuScripterTracker[expTag.exp_wantsBpuName] === null || bpuScripterTracker[expTag.exp_wantsBpuName] === undefined) {
-										bpuScripterTracker[expTag.exp_wantsBpuName] = expTag;
-									} else if (bpuScripterTracker[expTag.exp_wantsBpuName].submissionTime < expTag.submissionTime) {
-										bpuScripterTracker[expTag.exp_wantsBpuName] = expTag;
-									}
-								} else {
-									app.newExpTagObj[expTag.id] = expTag;
-									idSubmissionTimeArray.push({
-										id:       expTag.id,
-										subTime:  expTag.exp_submissionTime,
-										username: expTag.user.name
-									});
-								}
-							}
-						}
-					});
-					//check lost list for removal
-					for (var ind = 0; ind < app.listExperimentDoc._lostList.length; ind++) {
-						if ((startDate.getTime() - app.listExperimentDoc._lostList[ind].exp_submissionTime) - (1 * 24 * 60 * 60 * 1000) > 0) {
-							app.listExperimentDoc._lostList.splice(ind, 1);
-							ind--;
-						}
-					}
-
-					idSubmissionTimeArray.sort(function (objA, objB) {
-						return objA.subTime - objB.subTime;
-					});
-					var initialTime = null;
-					if (idSubmissionTimeArray.length > 0) {
-						initialTime = idSubmissionTimeArray[0].subTime;
-					}
-					//Add Scripters and move to front
-					Object.keys(bpuScripterTracker).forEach(function (key) {
-						var expTag = bpuScripterTracker[key];
-						if (initialTime !== null) {
-							expTag.exp_submissionTime = initialTime;
-						}
-						app.newExpTagObj[expTag.id] = expTag;
-						idSubmissionTimeArray.push({
-							id:       expTag.id,
-							subTime:  expTag.exp_submissionTime,
-							username: expTag.user.name
-						});
-					});
-
-					//Build Series
-					idSubmissionTimeArray.sort(function (objA, objB) {
-						return objA.subTime - objB.subTime;
-					});
-					var runSeriesFuncs = [];
-					var Limit          = 10;
-					var limiter        = 0;
-					for (var jnd = 0; jnd < idSubmissionTimeArray.length; jnd++) {
-						if (limiter < Limit) {
-							runSeriesFuncs.push(checkExpAndResort.bind(app.newExpTagObj[idSubmissionTimeArray[jnd].id]));
-						} else {
-							break;
-						}
-						limiter++;
-					}
-					//Run series
-					// app.logger.info('runSeries start checkExpsAndResort on ' + runSeriesFuncs.length);
-					async.series(runSeriesFuncs, function (err) {
-						// app.logger.trace('runSeries end checkExpsAndResort tags:' + Object.keys(app.newExpTagObj).length + ', exps:' + app.keeperExpDocs.length);
-						if (err) {
-							app.logger.error('runSeries end checkExpsAndResort on ' + runSeriesFuncs.length + ' in ' + (new Date() - startDate) + ' err:' + err + '\n');
-						} else {
-							// app.logger.info('runSeries end checkExpsAndResort on ' + runSeriesFuncs.length + ' in ' + (new Date() - startDate) + '\n');
-						}
-						return callback(null);
-					});
-				});
-			}
-		});
-	};
-
-	var sendExpsToBpus = function (callback) {
-		var cnt          = 0;
-		var sendExpToBpu = function (sendExpToBpuCallback) {
-			cnt++;
-			var exp    = this.exp;
-			var bpuObj = this.bpuObj;
-			app.logger.trace(cnt + ':sendExpToBpu ' + bpuObj.doc.name + ':' + exp.group_experimentType + ':' + exp.id + ' on Socket?null:' + (bpuObj.socket === null));
-			_addExpToBpu(app, exp, bpuObj.doc, bpuObj.socket, function (err, session) {
-				if (err) {
-					err = cnt + ':sendExpsToBpus _addExpToBpu error:' + err;
-					app.runData.addExpToBpuErrors.push({
-						time: new Date(),
-						err:  err
-					});
-					app.logger.error(err);
-				} else {
-					bpuObj.doc.session.id        = session.id;
-					bpuObj.doc.session.sessionID = session.sessionID;
-					bpuObj.doc.session.socketID  = session.socketID;
-				}
-			});
-			sendExpToBpuCallback(null);
-		};
-
-		//Find next Experiment per bpu
-		app.keeperExpDocs.sort(function (objA, objB) {
-			return objA.exp_submissionTime - objB.exp_submissionTime;
-		});
-		var expPerBpu = {};
-		for (var ind = 0; ind < app.keeperExpDocs.length; ind++) {
-			if (expPerBpu[app.keeperExpDocs[ind].exp_lastResort.bpuName] === null || expPerBpu[app.keeperExpDocs[ind].exp_lastResort.bpuName] === undefined) {
-				var bpuExp = app.keeperExpDocs.splice(ind, 1)[0];
-				ind--;
-				expPerBpu[bpuExp.exp_lastResort.bpuName] = bpuExp;
-				if (Object.keys(expPerBpu).length >= Object.keys(app.microscopes).length) break;
-			}
-		}
-		//Build Parallel - Match Available Bpus with Queue Experiments
-		var runParallelFuncs = [];
-		Object.keys(app.microscopes).forEach(function (key) {
-			//bpu has exp in queue?
-			if (expPerBpu[key]) {
-				//can send to bpu
-				if (app.microscopes[key].doc.bpuStatus === app.mainConfig.bpuStatusTypes.resetingDone && app.microscopes[key].isSocketOkay) {
-					runParallelFuncs.push(sendExpToBpu.bind({
-						bpuObj: app.microscopes[key],
-						exp:    expPerBpu[key]
-					}));
-
-					//put back in keeper docs to return to queue
-				} else {
-					app.keeperExpDocs.push(expPerBpu[key]);
-				}
-			}
-		});
-		expPerBpu = null;
-
-		//Run Parallel
-		// app.logger.info('runParallel start sendExpsToBpus on ' + runParallelFuncs.length);
-		async.parallel(runParallelFuncs, function (err) {
-			if (err) {
-				app.logger.error('runParallel end sendExpsToBpus on ' + runParallelFuncs.length + ' in ' + (new Date() - startDate) + ' err:' + err + '\n');
-			} else {
-				// app.logger.info('runParallel end sendExpsToBpus on ' + runParallelFuncs.length + ' in ' + (new Date() - startDate) + '\n');
-			}
-			return callback(null);
-		});
-	};
-
-	var checkUpdateListExperiment = function (callback) {
-		//Add left over newExpTags into this listExpDoc
-		while (Object.keys(app.newExpTagObj).length > 0) {
-			var expTag = app.newExpTagObj[Object.keys(app.newExpTagObj)[0]];
-			app.listExperimentDoc.newExps.push(expTag);
-			delete app.newExpTagObj[Object.keys(app.newExpTagObj)[0]];
-		}
-
-		//Add sorted pub docs to this listExpDoc
-		while (app.keeperExpDocs.length > 0) {
-			var expDoc = app.keeperExpDocs.shift();
-			var newTag = expDoc.getExperimentTag();
-			if (newTag.exp_lastResort.bpuName in app.listExperimentDoc) {
-				app.listExperimentDoc[newTag.exp_lastResort.bpuName].push(newTag);
-			} else {
-				app.logger.error('BPU Name in experiment: ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not preset in app.listExperiment');
-			}
-		}
-		//Save to database
-		app.listExperimentDoc.save(function (err, savedDoc) {
-			return callback(null);
-		});
-	};
-
-	var updateClientSocketConnections = function (callback) {
-		var timeNow = new Date().getTime();
-		// app.logger.debug('updateClientSock:' + app.socketConnections.length);
-		if (app.socketConnections.length > 0) {
-			var bpuDocs = [];
-			Object.keys(app.microscopes).forEach(function (key) {
-				if (app.microscopes[key].isSocketOkay) {
-					bpuDocs.push(app.microscopes[key].doc.toJSON());
-				}
-			});
-			app.socketConnections.forEach(function (socket) {
-				if (socket.connected) {
-					socket.emit('update', bpuDocs, app.listExperimentDoc.toJSON(), app.runData.runningQueueTimesPerBpuName);
-				}
-
-			});
-			previousUpdateEmit = timeNow;
-		}
-		return callback(null);
-	};
-
-	//Build Series
-	var runSeriesFuncs = [];
-	runSeriesFuncs.push(saveMemInfo);
-	if (config.doPrintMemHeader) runSeriesFuncs.push(printMemHeader);
-	if (config.doPrintExpErrors) runSeriesFuncs.push(printExpErrors);
-	if (config.doPrintLiveActivateErrors) runSeriesFuncs.push(printLiveActivateErrors);
-	if (config.doPrintCheckBpusErrors) runSeriesFuncs.push(printCheckBpusErrors);
-
-	runSeriesFuncs.push(getBpus);
-	runSeriesFuncs.push(checkBpus);
-	runSeriesFuncs.push(checkExpsAndResort);
-	runSeriesFuncs.push(sendExpsToBpus);
-	runSeriesFuncs.push(checkUpdateListExperiment);
-	runSeriesFuncs.push(updateClientSocketConnections);
-	//Run Series
-	async.series(runSeriesFuncs, function (err) {
-		config.runCounter++;
-		if (err) {
-			app.logger.error('runSeries end in ' + (new Date() - startDate) + ' err:' + err);
-		} else {
-			// app.logger.debug('runSeries end in ' + (new Date() - startDate));
-			setTimeout(function () {
-				loop();
-			}, config.runLoopInterval);
-		}
-	});
+    app.utils.clearConsole();
+    app.startDate = new Date();
+
+    var microscopeUtils = require('./libs/microscope')(app);
+    var experimentUtils = require('./libs/experiment')(app);
+
+    async.series([
+        microscopeUtils.getMicroscopes,
+        microscopeUtils.checkIfConnected,
+
+        experimentUtils.checkExperiments,
+        experimentUtils.scheduleExperiments,
+        experimentUtils.updateExperimentsQueue,
+        experimentUtils.notifyClients
+    ], function (err) {
+        if (err) {
+            app.logger.error(err);
+        } else {
+            setTimeout(function () {
+                loop();
+            }, config.LOOP_INTERVAL);
+        }
+    });
 };
 
 init(function (err) {
-	if (err) {
-		app.logger.error(err);
-	} else {
-		//if (config.runCounter === 0) {
-		//	app.runData.firstMemObj = process.memoryUsage();
-		//}
-
-		loop();
-	}
+    if (err) {
+        app.logger.error(err);
+    } else {
+        loop();
+    }
 });
-
-
-var _addExpToBpu = function (app, exp, bpuDoc, bpuSocket, mainCallback) {
-	var confirmTimeout = 15000;
-	var outcome        = {};
-	outcome.sess       = null;
-
-	var getSession = function (cb_fn) {
-
-		app.db.models.Session.findById(exp.session.id, function (err, sessDoc) {
-			if (err) {
-				cb_fn('getSession err:' + err);
-			} else if (sessDoc === null) {
-				cb_fn('getSession err:' + 'sessDoc is null');
-			} else {
-				outcome.sess = sessDoc;
-				cb_fn(null);
-			}
-		});
-	};
-
-	var sendExperimentToBpu = function (cb_fn) {
-		var didCallback = false;
-		setTimeout(function () {
-			if (!didCallback) {
-				didCallback = true;
-				cb_fn('sendExperimentToBpu timed out');
-			}
-		}, 1500);
-		if (bpuSocket === null || bpuSocket === undefined) {
-			if (!didCallback) {
-				didCallback = true;
-				cb_fn('bpu socket is null');
-			}
-		} else {
-			exp.exp_metaData.magnification = bpuDoc.magnification;
-			app.logger.info('events to run', exp.exp_eventsToRun);
-			bpuSocket.emit(app.mainConfig.socketStrs.bpu_setExp, exp, confirmTimeout + 1000, function (err) {
-				if (!didCallback) {
-					didCallback = true;
-					if (err) {
-						cb_fn('sendExperimentToBpu err:' + err);
-					} else {
-						//Save Exp
-						var expUpdateObj = {
-							liveBpu:               {
-								id:       bpuDoc._id,
-								name:     bpuDoc.name,
-								index:    bpuDoc.index,
-								socketId: bpuDoc.soc,
-							},
-							exp_lastResort:        exp.exp_lastResort,
-							bc_startSendTime:      exp.bc_startSendTime,
-							bc_isLiveSendingToLab: true,
-							exp_status:            'addingtobpu',
-							exp_metaData:          exp.exp_metaData,
-						};
-						app.db.models.BpuExperiment.findByIdAndUpdate(exp.id, expUpdateObj, {
-							new: true
-						}, function (err, savedExp) {
-							if (err) {
-								app.logger.error('sendExperimentToBpu BpuExperiment.findByIdAndUpdate err:' + err);
-								cb_fn(null);
-							} else if (savedExp === null) {
-								app.logger.error('sendExperimentToBpu BpuExperiment.findByIdAndUpdate err:' + 'savedExp is null');
-								cb_fn(null);
-							} else {
-								expDoc            = savedExp;
-								var sessUpdateObj = {
-									liveBpuExperiment:     {
-										id:  expDoc.id,
-										tag: expDoc.getExperimentTag(),
-									},
-									bc_startSendTime:      expDoc.bc_startSendTime,
-									bc_isLiveSendingToLab: true,
-								};
-								app.db.models.Session.findByIdAndUpdate(exp.session.id, sessUpdateObj, {
-									new: true
-								}, function (err, sessDoc) {
-									if (err) {
-										app.logger.error('sendExperimentToBpu Session.findByIdAndUpdate err:' + err);
-										cb_fn(null);
-									} else if (expDoc === null) {
-										app.logger.error('sendExperimentToBpu Session.findByIdAndUpdate err:' + 'sessDoc is null');
-										cb_fn(null);
-									} else {
-										outcome.sess = sessDoc;
-										cb_fn(null);
-									}
-								});
-							}
-						});
-					}
-				}
-			});
-		} //end of socket null check
-	};
-
-	var activateLiveUser = function (cb_fn) {
-
-		async.some(app.socketConnections, function (clientSocket, callback) {
-
-			if (clientSocket.connected) {
-				app.logger.info('Activating live user to: ' + clientSocket.id);
-
-				clientSocket.emit('activateLiveUser', outcome.sess, config.liveUserConfirmTimeout, function (userActivateResData) {
-					if (userActivateResData.err || !userActivateResData.didConfirm) {
-						return callback(false);
-					} else {
-
-						app.bpuLedsSetMatch[outcome.sess.sessionID] = app.bpuLedsSetFuncs[bpuDoc.name];
-
-						bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuRunResObj) {
-							if (bpuRunResObj.err) {
-								app.runData.activateLiveUserErrors.push({
-									time: new Date(),
-									err:  'app.mainConfig.socketStrs.bpu_runExp callback err:' + bpuRunResObj.err
-								});
-								return callback(false);
-							} else {
-								clientSocket.emit('sendUserToLiveLab', outcome.sess, function (userSendResObj) {
-									if (userSendResObj.err) {
-										app.runData.activateLiveUserErrors.push({
-											time: new Date(),
-											err:  'app.mainConfig.socketStrs.bpu_runExp sendUserToLiveLab callback err:' + userSendResObj.err
-										});
-										return callback(false);
-									} else {
-										app.logger.info('Someone confirmed and user sent to live lab');
-										return callback(true);
-									}
-								});
-							}
-						});
-					}
-				});
-			} else {
-				return callback(false);
-			}
-
-		}, function (someoneConfirmed) {
-
-			if (someoneConfirmed === false) {
-				app.logger.debug('********* Nobody Confirmed **********');
-				// app.runData.activateLiveUserErrors.push({time:new Date(), err:'activateLiveUser sess:'+outcome.sess.sessionID+
-				//   ', user:'+outcome.sess.user.name
-				//   });
-
-				var isUserCancel = true;
-				bpuSocket.emit(app.mainConfig.socketStrs.bpu_resetBpu, isUserCancel, outcome.sess.sessionID, function (err) {
-					app.runData.activateLiveUserErrors.push({
-						time: new Date(),
-						err:  'activateLiveUser bpu callback on reset'
-					});
-				});
-			}
-			cb_fn(null);
-		});
-
-
-	};
-
-	var runExpForNonLiveUser = function (cb_fn) {
-		bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuResObj) {
-			if (bpuResObj.err) {
-				app.logger.error(bpuResObj.err);
-			}
-		});
-		cb_fn(null);
-	};
-
-	//Build utils
-	var seriesFuncs = [];
-	seriesFuncs.push(getSession);
-	seriesFuncs.push(sendExperimentToBpu);
-	if (exp.group_experimentType === 'live') seriesFuncs.push(activateLiveUser);
-	else seriesFuncs.push(runExpForNonLiveUser);
-
-	// Start Series
-	async.series(seriesFuncs, function (err) {
-		if (err) {
-			mainCallback('_addExpToBpu ' + err, null);
-		} else {
-			mainCallback(null, outcome.sess);
-		}
-	});
-};
-

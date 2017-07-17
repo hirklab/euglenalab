@@ -5,4 +5,4 @@
 #forever app.js -c "node --max-old-space-size=8192 "
 
 npm install -g pm2
-pm2 start app.js
+pm2 start app.js --watch && pm2 monit
