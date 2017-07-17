@@ -1,5 +1,7 @@
 //Modules
-var rpi = require("wiring-pi");
+const MACHINE = process.env.MACHINE;
+
+var rpi = require(MACHINE === 'raspberrypi' ? 'wiring-pi' : './fakeRaspi');
 
 //Variables
 var _valveState = 'valveClosed';
@@ -35,7 +37,7 @@ var _init = function(options, callback) {
     };
 
     board.ledSet = function(pin, value) {
-        if (typeof pin != 'number' && options.LedPins[pin]) {
+        if (typeof pin !== 'number' && options.LedPins[pin]) {
             pin = options.LedPins[pin];
         }
         if (pin && value) {
@@ -70,16 +72,16 @@ var _init = function(options, callback) {
     };
 
     board.projectorSet = function(projector, x, y, color, clear) {
-        console.log('projector = {' + x + ', ' + y + ', ' + color + ', ' + clear + '}');
+        //console.log('projector = {' + x + ', ' + y + ', ' + color + ', ' + clear + '}');
 
-        if (projector != null && x != null && y != null && color != null && clear != null) {
+        if (projector && x !== null && y !== null && color !== null && clear !== null) {
             projector.write('{\"x\": ' + x + ', \"y\": ' + y + ', \"color\": ' + color + ', \"clear\": ' + clear + '}\n');
         }
     };
 
     //Valve
     board.valveToggle = function() {
-        if (_valveState == 'valveClosed') {
+        if (_valveState === 'valveClosed') {
             board.valveOpen();
             return _valveState;
         } else {

@@ -1,6 +1,6 @@
 'use strict';
 
-var schemaPath='../shared/mongoDb/schema';
+var schemaPath='../../shared/mongoDb/schema';
 
 exports = module.exports = function(app, mongoose) {
   require(schemaPath+'/Note')(app, mongoose);

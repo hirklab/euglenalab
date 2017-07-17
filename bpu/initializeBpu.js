@@ -1,37 +1,63 @@
-exports=module.exports=function(app, deps, mainCallback) {
-  var moduleName='initializeBpu.js';
-  
-  //Assert Deps 
-  if(app===null) {mainCallback('need app object');
-  
-  } else if(app.mainConfig===null) {mainCallback('need app.mainConfig object');
-  
-  } else if(app.script_socketBpu===null) {mainCallback('need app.script_socketBpu object');
-  } else if(app.script_fakeMongo===null) {mainCallback('need app.script_fakeMongo object');
-  } else if(app.script_resetBpu===null) {mainCallback('need app.script_resetBpu object');
-  } else if(app.script_runExperiment===null) {mainCallback('need app.script_runExperiment object');
-  
-  } else if(app.async===null) {mainCallback('need app.async module');
+var assert = require('assert');
+var path = require('path');
+var filename = path.basename(__filename);
+const MACHINE = process.env.MACHINE;
+var isFake = MACHINE !== 'raspberrypi';
 
-  } else if(deps.exec===null) {mainCallback('need exec module');
-  } else if(deps.socketIo===null) {mainCallback('need socketIo module');
-  } else if(deps.fs===null) {mainCallback('need fs module');
-  } else if(deps.os===null) {mainCallback('need os object');
-  
-  } else {
+exports=module.exports=function(app, deps, mainCallback) {
+  var moduleName=filename;
+
+  assert(app!==null,'missing app');
+  assert(app.mainConfig!==null,'missing mainConfig');
+  assert(app.script_socketBpu!==null,'missing script_socketBpu');
+  assert(app.script_fakeMongo!==null,'missing script_fakeMongo');
+  assert(app.script_resetBpu!==null,'missing script_resetBpu');
+  assert(app.script_runExperiment!==null,'missing script_runExperiment');
+  assert(app.script_runExperiment!==null,'missing script_runExperiment');
+
+  //Assert Deps 
+  //if(app===null) {mainCallback('need app object');
+  //
+  //} else if(app.mainConfig===null) {mainCallback('need app.mainConfig object');
+  //
+  //} else if(app.script_socketBpu===null) {mainCallback('need app.script_socketBpu object');
+  //} else if(app.script_fakeMongo===null) {mainCallback('need app.script_fakeMongo object');
+  //} else if(app.script_resetBpu===null) {mainCallback('need app.script_resetBpu object');
+  //} else if(app.script_runExperiment===null) {mainCallback('need app.script_runExperiment object');
+  //
+  //} else if(app.async===null) {mainCallback('need app.async module');
+  //
+  //} else if(deps.exec===null) {mainCallback('need exec module');
+  //} else if(deps.socketIo===null) {mainCallback('need socketIo module');
+  //} else if(deps.fs===null) {mainCallback('need fs module');
+  //} else if(deps.os===null) {mainCallback('need os object');
+  //} else if(deps.lodash===null) {mainCallback('need lodash object');
+  //
+  //} else {
+
     
     var num=0;
-    
-    //Get Bpu Config From Main Config
-    //Get Bpu Config From Main Config
+
     //Get Bpu Config From Main Config
     var getConfig=function(callback) {
+      var _ = deps.lodash;
+
       num++;
       var fName=num+' getConfig';
       app.logger.debug(moduleName+' '+fName+' '+'start');
+      //app.logger.debug(deps.os.networkInterfaces());
+
       //Find bpu config by ip
-      var thisIP=deps.os.networkInterfaces().eth0[0].address;
+      //var thisIP=deps.os.networkInterfaces().eth0[0].address;
+      var thisIP=_.first(_.map(_.filter(_.flatten(_.values(deps.os.networkInterfaces())), { family: 'IPv4', internal: false }), 'address'));
+
+      if(isFake){
+        thisIP='127.0.0.1';
+      }
+
       for(var ind=0;ind<app.MainConfig.bpus.length;ind++) {
+	      //app.logger.debug(app.MainConfig.bpus[ind].localAddr.ip + ' == ' + thisIP);
+
         if(app.MainConfig.bpus[ind].localAddr.ip===thisIP) {
           app.bpuStatusTypes=app.MainConfig.bpuStatusTypes;
           app.bpuStatus=app.bpuStatusTypes.initializing;
@@ -40,7 +66,7 @@ exports=module.exports=function(app, deps, mainCallback) {
           app.logger.trace(moduleName+' '+fName+' '+app.MainConfig.bpus[ind].name+', '+app.MainConfig.bpus[ind].localAddr.ip+' FOUND');
           break;
         } else {
-          app.logger.trace(moduleName+' '+fName+' '+app.MainConfig.bpus[ind].name+', '+app.MainConfig.bpus[ind].localAddr.ip);
+          //app.logger.trace(moduleName+' '+fName+' '+app.MainConfig.bpus[ind].name+', '+app.MainConfig.bpus[ind].localAddr.ip+' IGNORED');
         }
       } 
       //Finish
@@ -51,8 +77,6 @@ exports=module.exports=function(app, deps, mainCallback) {
       }
     };
 
-    //Create Socket Server
-    //Create Socket Server
     //Create Socket Server
     var createSocket=function(callback) {
       num++;
@@ -68,9 +92,7 @@ exports=module.exports=function(app, deps, mainCallback) {
         }
       });
     };
-   
-    //Build Fake Mongo
-    //Build Fake Mongo
+
     //Build Fake Mongo
     var buildFakeMongo=function(callback) {
       num++;
@@ -109,5 +131,5 @@ exports=module.exports=function(app, deps, mainCallback) {
         mainCallback(null);
       }
     }); 
-  }
+
 };

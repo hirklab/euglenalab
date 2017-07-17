@@ -1,4 +1,5 @@
 var async=require('async');
+
 exports=module.exports=function(app, socketServerInfo, joinQueueDataArray, callbackToClient) {
   var outcome={};
   outcome.session=null;
@@ -84,7 +85,7 @@ exports=module.exports=function(app, socketServerInfo, joinQueueDataArray, callb
       //User
       if(outcome.session.user) {
         if(typeof outcome.session.user.id==='string') {
-          newBpuExp.user.id=new app.runParams.mongooseObjID(outcome.session.user.id);
+          newBpuExp.user.id=new config.mongooseObjID(outcome.session.user.id);
         } else {
           newBpuExp.user.id=outcome.session.user.id;
         }
@@ -99,7 +100,7 @@ exports=module.exports=function(app, socketServerInfo, joinQueueDataArray, callb
 
         if(outcome.session.id) {
           if(typeof outcome.session.id==='string') {
-            newBpuExp.session.id=new app.runParams.mongooseObjID(outcome.session.id);
+            newBpuExp.session.id=new config.mongooseObjID(outcome.session.id);
           } else {
             newBpuExp.session.id=outcome.session.id;
           }
