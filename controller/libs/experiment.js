@@ -186,7 +186,6 @@ module.exports = function (app) {
             cb_fn(null);
         };
 
-        //Build utils
         var seriesFuncs = [];
         seriesFuncs.push(getSession);
         seriesFuncs.push(sendExperimentToBpu);
@@ -390,11 +389,11 @@ module.exports = function (app) {
                 newExps: 1
             }, function (err, newListExperimentDoc) {
                 if (err) {
-                    app.logger.error('checkExpsAndResort ListExperiment.findById error:' + err);
-                    return callback('checkExpsAndResort ListExperiment.findById error:' + err);
-                } else if (err) {
-                    app.logger.error('checkExpsAndResort ListExperiment.findById error:' + 'newListExperimentDoc dne');
-                    return callback('checkExpsAndResort ListExperiment.findById error:' + 'newListExperimentDoc dne');
+                    app.logger.error(err);
+                    return callback(err);
+                } else if (newListExperimentDoc === null || newListExperimentDoc === undefined) {
+                    app.logger.error('newListExperimentDoc dne');
+                    return callback('newListExperimentDoc dne');
                 } else {
 
                     //Create Master expTag obj
@@ -411,7 +410,7 @@ module.exports = function (app) {
                     //Save db doc with removed new experiments
                     newListExperimentDoc.save(function (err, saveDoc) {
 
-                        //Pull New Experiments from current docuemnt
+                        //Pull New Experiments from current document
                         while (app.experiments.newExps.length > 0) {
                             var expTag = app.experiments.newExps.shift();
                             updateProfilerExperiments(expTag, profilingExperimentsIndex, experimentSchedule);
@@ -493,12 +492,15 @@ module.exports = function (app) {
             var cnt          = 0;
             var sendExpToBpu = function (sendExpToBpuCallback) {
                 cnt++;
+
                 var exp    = this.exp;
                 var bpuObj = this.bpuObj;
+
                 app.logger.debug(cnt + ':sendExpToBpu ' + bpuObj.doc.name + ':' + exp.group_experimentType + ':' + exp.id + ' on Socket?null:' + (bpuObj.socket === null));
+
                 addExpToBpu(app, exp, bpuObj.doc, bpuObj.socket, function (err, session) {
                     if (err) {
-                        err = cnt + ':sendExpsToBpus _addExpToBpu error:' + err;
+                        err = cnt + err;
                         app.errors.experiment.push({
                             time: new Date(),
                             err:  err
@@ -528,9 +530,12 @@ module.exports = function (app) {
             }
             //Build Parallel - Match Available Bpus with Queue Experiments
             var runParallelFuncs = [];
+
             Object.keys(app.microscopesIndex).forEach(function (key) {
+
                 //bpu has exp in queue?
                 if (expPerBpu[key]) {
+
                     //can send to bpu
                     if (app.microscopesIndex[key].doc.bpuStatus === app.mainConfig.bpuStatusTypes.resetingDone && app.microscopesIndex[key].isConnected) {
                         runParallelFuncs.push(sendExpToBpu.bind({
@@ -538,22 +543,20 @@ module.exports = function (app) {
                             exp:    expPerBpu[key]
                         }));
 
-                        //put back in keeper docs to return to queue
                     } else {
+                        //put back in keeper docs to return to queue
                         app.experimentsCache.push(expPerBpu[key]);
                     }
                 }
             });
+
             expPerBpu = null;
 
-            //Run Parallel
-            // app.logger.info('runParallel start sendExpsToBpus on ' + runParallelFuncs.length);
             async.parallel(runParallelFuncs, function (err) {
                 if (err) {
                     app.logger.error('runParallel end sendExpsToBpus on ' + runParallelFuncs.length + ' in ' + (new Date() - app.startDate) + ' err:' + err + '\n');
-                } else {
-                    // app.logger.info('runParallel end sendExpsToBpus on ' + runParallelFuncs.length + ' in ' + (new Date() - startDate) + '\n');
                 }
+
                 return callback(null);
             });
         },
@@ -574,7 +577,7 @@ module.exports = function (app) {
                 if (newTag.exp_lastResort.bpuName in app.experiments) {
                     app.experiments[newTag.exp_lastResort.bpuName].push(newTag);
                 } else {
-                    app.logger.error('BPU Name in experiment: ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not preset in app.listExperiment');
+                    app.logger.error('BPU Name in experiment: ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not present in app.listExperiment');
                 }
             }
 
