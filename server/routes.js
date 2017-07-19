@@ -1,5 +1,5 @@
 'use strict';
-//Admin and Account Checks
+
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
@@ -33,7 +33,7 @@ function ensureAccount(req, res, next) {
         res.redirect('/');
     }
 }
-//Should remove once done with golabz
+
 function checkGoLabz(req, res, next) {
     var isGoLabz = false;
     var goLabzGroup = 'golabz';

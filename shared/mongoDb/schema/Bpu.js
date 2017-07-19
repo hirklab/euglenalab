@@ -30,7 +30,7 @@ var _app=null;
 exports=module.exports=function(app, mongoose) {
   _app=app;
   //Setup Logger
-  var logInfo={name:_SchemaName+'.js', loggerLevel:app.bpuLogLevel};
+  // var logInfo={name:_SchemaName+'.js', loggerLevel:app.bpuLogLevel};
   //Schema Base
   var _mySchema=require('./_'+_SchemaName+'/'+'schemaBase'+'.js')(app, mongoose);
   //Script Additions
