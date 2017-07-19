@@ -3,10 +3,10 @@ var socketClient = require('socket.io-client');
 var myFunctions = require('../../shared/myFunctions.js');
 
 // Constructor
-function Controller(config, logger, io) {
+function Controller(config, logger, userManager) {
     this.config = config;
     this.logger = logger;
-    this.io     = io;
+    this.userManager     = userManager;
 }
 
 // class methods
@@ -99,11 +99,11 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
     });
 
     //Connect session ids with sockets
-    Object.keys(that.io.sockets.sockets).forEach(function (socketKey) {
+    Object.keys(that.userManager.io.sockets.sockets).forEach(function (socketKey) {
         var socketID = socketKey;
         if (socketKey.split('#').length > 0) socketID = socketKey.split('#')[1];
 
-        var socket = that.io.sockets.sockets[socketKey];
+        var socket = that.userManager.io.sockets.sockets[socketKey];
         if (socket.sessionDoc) {
             var socketUpdateObj = {
                 bpuExps:      [],
@@ -161,10 +161,11 @@ Controller.prototype.connect = function (cb) {
         that.socket.emit('setConnection', serverInfo, function (err, auth) {
             if (err) {
                 that.logger.error('controller authentication failed: ' + err);
+                cb(err, that);
             } else {
                 that.logger.info('controller authenticated: ' + auth.Name);
                 that.auth = auth;
-                cb(that.auth);
+                cb(null, that);
             }
         });
     });
@@ -176,7 +177,7 @@ Controller.prototype.connect = function (cb) {
 
     //Routes calls to user sockets if found
     that.socket.on('activateLiveUser', function (session, liveUserConfirmTimeout, callbackToBpuController) {
-        var userSocket = myFunctions.getSocket(that.io, session.socketID);
+        var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
 
         if (userSocket) {
             that.logger.debug('activateLiveUser: sessionID: ' + session.sessionID + " socketID: " + session.socketID);
@@ -193,7 +194,7 @@ Controller.prototype.connect = function (cb) {
     });
 
     that.socket.on('sendUserToLiveLab', function (session, callbackToBpuController) {
-        var userSocket = myFunctions.getSocket(that.io, session.socketID);
+        var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
 
         if (userSocket) {
             that.logger.debug('sendUserToLiveLab sessionID: ' + session.sessionID + " socketID: " + session.socketID);
@@ -207,6 +208,7 @@ Controller.prototype.connect = function (cb) {
         }
     });
 
+    cb(null);
 };
 
 Controller.prototype.submitExperiment = function (queue, cb) {

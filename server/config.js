@@ -1,17 +1,16 @@
 'use strict';
 
+var mainConfig=require('../shared/mainConfig.js');
+
 var _systemEmail='euglena.hirk@gmail.com';
 
 var zeroLeds={
   topValue:0,
   rightValue:0,
   bottomValue:0,
-  leftValue:0,
+  leftValue:0
 }; 
 
-
-
-var mainConfig=require('../shared/mainConfig.js');
 var myMongoUri=mainConfig.adminFlags.getMongoUri();
 var myServerPort=mainConfig.adminFlags.getWebServerPort();
 var myServerAddr=mainConfig.adminFlags.getWebServerAddr();
