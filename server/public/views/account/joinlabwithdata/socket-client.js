@@ -8,57 +8,13 @@
         serverError: '/#serverError',
         submitExperimentRequest: '/#submitExperimentRequest',
         activateLiveUser: '/#activateLiveUser',
-        sendUserToLiveLab: '/#sendUserToLiveLab',
+        sendUserToLiveLab: '/#sendUserToLiveLab'
     };
 
     var _joinLabConfirmAlertCalled = false;
 
-
-    //parent app
     app = app || {};
 
-    /*
-     * ============================================================================
-     * KONAMI CODE TO ACTIVATE "DEMO MODE" from http://stackoverflow.com/questions/31626852/how-to-add-konami-code-in-a-website-based-on-html
-     * This will allow users to play the biotic game dev mode. This is a quick hack for lab presentation demo; a real button
-     * will be added when this feature is no longer secret / in development. This is done because we have real users using the
-     * staging server, but I want to demo the feature so far on staging. - Peter
-     * ============================================================================
-     */
-    var demoMode = false;
-    var allowedKeys = {
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down',
-        65: 'a',
-        66: 'b'
-    };
-    var konamiCode = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right', 'b', 'a'];
-    var konamiCodePosition = 0;
-    document.addEventListener('keydown', function (e) {
-        var key = allowedKeys[e.keyCode];
-        var requiredKey = konamiCode[konamiCodePosition];
-        if (key == requiredKey) {
-            konamiCodePosition++;
-            if (konamiCodePosition == konamiCode.length)
-                activateCheats();
-        } else
-            konamiCodePosition = 0;
-    });
-
-    function activateCheats() {
-        alert("DEMO MODE ACTIVATED!!!");
-        demoMode = true;
-    }
-
-    /*
-     * ============================================================================
-     * END OF KONAMI CODE HACK; TODO(peter): Place this in appropriate file or remove
-     * ============================================================================
-     */
-
-    //This Object
     var me = {};
     me.isInitialized = null;
 
@@ -69,6 +25,7 @@
     me.setConnection = function (setConnectionCallbackToParent) {
         //Timeout for socket connection
         var didCallback = false;
+
         setTimeout(function () {
             if (!didCallback) {
                 didCallback = true;
@@ -76,12 +33,22 @@
             }
         }, 10000);
 
-        //Primary Connection
-        //Primary Connection
-        //Primary Connection
         var socket = io.connect();
+
+        socket.on('connect', function () {
+            console.log('connecting...');
+            // if (!didCallback) {
+            //     didCallback = true;
+            //     app.mainView.session.attributes.socketID = socket.id;
+            //     app.mainView.session.attributes.socketHandle = _Handle;
+            //     // serverCallback(app.mainView.session);
+            //     // setConnectionCallbackToParent(null);
+            // }
+        });
+
         //Wait for Set Connection
         socket.on(socketStrs.setConnection, function (serverCallback) {
+            console.log('set connection...');
             if (!didCallback) {
                 didCallback = true;
                 app.mainView.session.attributes.socketID = socket.id;
@@ -90,11 +57,12 @@
                 setConnectionCallbackToParent(null);
             }
         });
+
         socket.on(socketStrs.serverError, function (errMsg) {
             console.log(socketStrs.serverError, errMsg);
         });
-        socket.on('connect', function () {
-        });
+
+
 
         //Activate Live User/Prompt for Join Confirm
         socket.on(socketStrs.activateLiveUser, function (sessDoc, confirmTimeout, callbackToServer) {
@@ -105,6 +73,7 @@
                 if (callbackToServer) callbackToServer(resData);
             });
         });
+
         //Send Live User to lab
         socket.on(socketStrs.sendUserToLiveLab, function (reqObj, callbackToServer) {
             if (callbackToServer) callbackToServer({err: null});
@@ -112,6 +81,7 @@
             if (app.gameSession) location.href = '/account/developgame/';
             else location.href = '/account/livelab/';
         });
+
         //Update Info
         socket.on('/#update', function (updateObj) {
             var clientUpdateObj = {};
@@ -186,6 +156,7 @@
                 obj.session.socketHandle = _Handle;
                 obj.session.socketID = app.mainView.session.get('socketID');
             });
+
             //Send to webserve
             socket.emit(socketStrs.submitExperimentRequest, joinQueueDataArray, function (err, validationObjs) {
                 if (!didCallback) {

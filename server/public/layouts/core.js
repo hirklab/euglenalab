@@ -31,12 +31,12 @@ var app; //the main declaration
     });
 
     //ajax spinner follows mouse
-    $(document).bind('mousemove', function(e) {
-      $('.ajax-spinner').css({
-        left: e.pageX + 15,
-        top: e.pageY
-      });
-    });
+    // $(document).bind('mousemove', function(e) {
+    //   $('.ajax-spinner').css({
+    //     left: e.pageX + 15,
+    //     top: e.pageY
+    //   });
+    // });
 
     // $('.color-selector').colorpicker({
     //   color: '0000ff',

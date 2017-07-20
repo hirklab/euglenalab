@@ -1,8 +1,7 @@
-var socketIO     = require('socket.io');
-var socketClient = require('socket.io-client');
-var _ = require('underscore');
+"use strict";
 
-var myFunctions = require('../../shared/myFunctions.js');
+var socketIO     = require('socket.io');
+var _ = require('underscore');
 
 // constructor
 function UserManager(config, logger, server, sessionMiddleware, db) {
@@ -16,11 +15,10 @@ function UserManager(config, logger, server, sessionMiddleware, db) {
 
 // class methods
 UserManager.prototype.connect = function (controller, cb) {
-    "use strict";
     var that = this;
 
-    this.controller = controller;
-    this.io         = socketIO.listen(this.server);
+    that.controller = controller;
+    that.io         = socketIO.listen(that.server);
 
     that.logger.debug('starting socket server...');
 
@@ -63,6 +61,21 @@ UserManager.prototype.connect = function (controller, cb) {
                 that.listConnectedUsers();
             }
         });
+
+        socket.on('error', function(error)  {
+            that.logger.error(error);
+        });
+
+        //Allow clients to send experiment requests to bpu controller
+        // socket.on(that.config.mainConfig.userSocketStrs.user_submitExperimentRequest, function (joinQueueDataArray, callbackToClient) {
+        //     that.logger.debug("submitting experiment to controller...");
+        //     that.controller.submitExperiment(joinQueueDataArray, callbackToClient);
+        // });
+        //
+        // socket.on(that.config.mainConfig.userSocketStrs.user_ledsSet, function (data) {
+        //     that.logger.debug("sending data to controller...");
+        //     that.controller.setStimulus(data);
+        // });
 
         socket.emit(that.config.mainConfig.userSocketStrs.user_setConnection, function (sessDocJson) {
             //Update and find session
@@ -124,7 +137,6 @@ UserManager.prototype.connect = function (controller, cb) {
 };
 
 UserManager.prototype.listConnectedUsers = function(){
-    "use strict";
     var that = this;
 
     _.map(that.users, function(user){

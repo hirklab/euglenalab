@@ -155,7 +155,7 @@
                                     if (document.readyState === "complete") {
                                         window.dispatchEvent(new Event('resize'));
                                     }
-                                }
+                                };
 
                                 if (app.mainView.stylusInstance.doesExist) {
                                     app.mainView.stylus.toggle('on');
