@@ -54,3 +54,4 @@ local/*
 
 openFrameworks/**/*.d
 openFrameworks/**/*.o
+/node_modules/

@@ -7,6 +7,7 @@ var lodash = require('lodash');
 var tracer = require('tracer');
 var colors = require('colors');
 var path = require('path');
+
 var script_initializeBpu = require('./initializeBpu.js');
 
 var filename = path.basename(__filename);
@@ -68,10 +69,6 @@ var app = {
 	bpuStatusError: null,
 
 };
-
-//Initialize Logger
-//app.logger = log4js.getLogger(app.name);
-//app.logger.setLevel(app.loggerLevel);
 
 app.tracer = tracer;
 

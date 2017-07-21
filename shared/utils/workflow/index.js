@@ -1,7 +1,9 @@
 'use strict';
 
+var events = require('events');
+
 exports = module.exports = function(req, res) {
-  var workflow = new (require('events').EventEmitter)();
+  var workflow = new events.EventEmitter();
 
   workflow.outcome = {
     success: false,
@@ -10,11 +12,11 @@ exports = module.exports = function(req, res) {
   };
 
   workflow.hasErrors = function() {
-    return Object.keys(workflow.outcome.errfor).length !== 0 || workflow.outcome.errors.length !== 0;
+    return Object.keys(workflow.outcome.errfor).length > 0 || workflow.outcome.errors.length > 0;
   };
 
   workflow.on('exception', function(err) {
-    workflow.outcome.errors.push('Exception: '+ err);
+    workflow.outcome.errors.push(err);
     return workflow.emit('response');
   });
 

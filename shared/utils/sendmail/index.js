@@ -1,5 +1,7 @@
 'use strict';
 
+var emailjs = require('emailjs/email');
+
 exports = module.exports = function(req, res, options) {
   /* options = {
     from: String,
@@ -68,7 +70,7 @@ exports = module.exports = function(req, res, options) {
         }
       }
 
-      var emailjs = require('emailjs/email');
+
       var emailer = emailjs.server.connect( req.app.config.smtp.credentials );
       emailer.send({
         from: options.from,

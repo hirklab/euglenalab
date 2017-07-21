@@ -18,6 +18,7 @@ var config           = require('./config'),
     csrf             = require('csurf'),
     colors           = require('colors'),
     tracer           = require('tracer'),
+    socketIO         = require('socket.io'),
     socketClient     = require('socket.io-client'),
     async            = require('async'),
     Controller       = require('./libs/controller'),
@@ -26,7 +27,6 @@ var config           = require('./config'),
 
 var LOGGER_LEVELS = ['log', 'trace', 'debug', 'info', 'warn', 'error'];
 
-//create express app
 var app = express();
 
 app.tracer = tracer;
@@ -46,16 +46,18 @@ app.logger = app.tracer.colorConsole({
 });
 app.tracer.setLevel(LOGGER_LEVELS[2]);
 
-app.myFunctions      = myFunctions;
+app.myFunctions = myFunctions;
+
 app.utility          = {};
-app.utility.sendmail = require('./util/sendmail');
-app.utility.slugify  = require('./util/slugify');
-app.utility.workflow = require('./util/workflow');
+app.utility.sendmail = require('../shared/utils/sendmail');
+app.utility.slugify  = require('../shared/utils/slugify');
+app.utility.workflow = require('../shared/utils/workflow');
 
 app.config = config;
 
-//setup webserver
-app.server = http.createServer(app);
+app.server      = http.createServer(app);
+app.controller  = null;
+app.userManager = null;
 
 //setup server base path
 var parts = __dirname.split('/');
@@ -70,7 +72,7 @@ app.mainConfig = app.config.mainConfig;
 app.db = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', console.error.bind(console, 'db connection error: '));
 
-var sessionMiddleware = session({
+app.sessionMiddleware = session({
     resave:            true,
     saveUninitialized: true,
     secret:            config.cryptoKey,
@@ -95,7 +97,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.use(cookieParser(config.cryptoKey));
 
-app.use(sessionMiddleware);
+app.use(app.sessionMiddleware);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -141,16 +143,16 @@ app.logger.debug('starting server...');
 
 app.server.listen(app.config.port, function () {
 
-    app.controller = null;
-
     app.logger.info('server => ' + 'http://localhost:' + app.config.port);
 
     app.logger.debug('connecting database...');
 
+    app.io = socketIO.listen(app.server, {'pingInterval': 5000, 'pingTimeout': 5000});
+
     app.db.once('open', function () {
         app.logger.info('database => ' + config.mongodb.uri);
 
-        app.userManager = new UserManager(app.config, app.logger, app.server, sessionMiddleware, app.db);
+        app.userManager = new UserManager(app.config, app.logger, app.io, app.sessionMiddleware, app.db);
         app.controller  = new Controller(app.config, app.logger, app.userManager);
 
         app.controller.connect(function () {

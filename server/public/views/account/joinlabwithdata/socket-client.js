@@ -37,26 +37,27 @@
 
         socket.on('connect', function () {
             console.log('connecting...');
-            // if (!didCallback) {
-            //     didCallback = true;
+            if (!didCallback) {
+                didCallback = true;
             //     app.mainView.session.attributes.socketID = socket.id;
             //     app.mainView.session.attributes.socketHandle = _Handle;
             //     // serverCallback(app.mainView.session);
-            //     // setConnectionCallbackToParent(null);
-            // }
-        });
-
-        //Wait for Set Connection
-        socket.on(socketStrs.setConnection, function (serverCallback) {
-            console.log('set connection...');
-            if (!didCallback) {
-                didCallback = true;
-                app.mainView.session.attributes.socketID = socket.id;
-                app.mainView.session.attributes.socketHandle = _Handle;
-                serverCallback(app.mainView.session);
+                console.log('connected');
                 setConnectionCallbackToParent(null);
             }
         });
+
+        //Wait for Set Connection
+        // socket.on(socketStrs.setConnection, function (serverCallback) {
+        //     console.log('set connection...');
+        //     if (!didCallback) {
+        //         didCallback = true;
+        //         app.mainView.session.attributes.socketID = socket.id;
+        //         app.mainView.session.attributes.socketHandle = _Handle;
+        //         serverCallback(app.mainView.session);
+        //         setConnectionCallbackToParent(null);
+        //     }
+        // });
 
         socket.on(socketStrs.serverError, function (errMsg) {
             console.log(socketStrs.serverError, errMsg);

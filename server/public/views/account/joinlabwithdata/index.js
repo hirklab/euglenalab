@@ -247,6 +247,7 @@
             queueTextRunTime: 0,
             queueTextFiles: 0,
         },
+
         //Only Path to start join Queue Seq, called from one location in each, BpuImage, LiveJoin, TextSubmit
         submitExperimentFromViews: function(type, wantsBpuName) {
             //Disable UI
@@ -488,6 +489,7 @@
                         textMsg += 'Processing...';
                     }
                 }
+
                 app.textSubmitView.setSubmitTextNextLabel(textMsg);
 
                 //Save Queue Text
@@ -504,6 +506,7 @@
                     isLiveDisabled = false;
                     isTextDisabled = false;
                 }
+
                 app.liveJoinView.disableJoinLiveNextButton(isLiveDisabled, 'app.mainView.server update');
 
                 //Set text join button
@@ -516,11 +519,13 @@
                 });
             }
         }, //end of update ui function
+
         //Join Label Update
         setHeaderLabel: function(msg) {
             var elem = app.mainView.$el.find('[name="' + 'headerLabel' + '"]')[0];
             if (elem) elem.innerHTML = msg;
         },
+
         //Init Displays and Socket
         initialize: function() {
             app.mainView = this;
@@ -550,7 +555,7 @@
 
 
 
-        },
+        }
     });
     //Start
     $(document).ready(function() {

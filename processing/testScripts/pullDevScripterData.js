@@ -7,7 +7,7 @@ var mongoUri='mongodb://localhost:27017/'+'masterV2';
 var app={
   //Object Requires
   mainConfig:require('../../shared/mainConfig.js'),
-  genFuncs:require('../../genFuncs/general.js'),
+  genFuncs:require('../../shared/utils/general.js'),
   //Function Requires
 
   //Modules

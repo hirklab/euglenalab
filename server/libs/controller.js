@@ -142,11 +142,10 @@ Controller.prototype.connect = function (cb) {
     var serverInfo = {
         Identifier:             that.config.myWebServerIdentifier,
         name:                   that.config.myWebServerName,
-        socketClientServerIP:   'localhost',
         socketClientServerPort: that.config.myControllerPort
     };
 
-    var addr = 'http://' + serverInfo.socketClientServerIP + ':' + serverInfo.socketClientServerPort;
+    var addr = that.config.controllerAddress;
     that.logger.debug('connecting controller...');
 
     that.socket = socketClient(addr, {multiplex: false, reconnection: true});
@@ -185,6 +184,7 @@ Controller.prototype.connect = function (cb) {
             userSocket.emit(that.config.mainConfig.userSocketStrs.user_activateLiveUser, session, liveUserConfirmTimeout, function (resObj) {
                 //this.logger.info('activateLiveUser', session.sessionID, session.socketID, resObj.didConfirm, resObj.err);
                 that.logger.debug('activeLiveUser Reply: ' + session.sessionID + " socketID: " + session.socketID + ', with: ' + resObj.didConfirm + ' err:' + resObj.err);
+
                 callbackToBpuController(resObj);
             });
         } else {
@@ -198,9 +198,10 @@ Controller.prototype.connect = function (cb) {
 
         if (userSocket) {
             that.logger.debug('sendUserToLiveLab sessionID: ' + session.sessionID + " socketID: " + session.socketID);
+
             userSocket.emit(that.config.mainConfig.userSocketStrs.user_sendUserToLiveLab, function (resObj) {
-                //this.logger.info('sendUserToLiveLab', session.sessionID, session.socketID, resObj.didConfirm, resObj.err);
                 that.logger.debug('sendUserToLiveLab Reply: ' + session.sessionID + " socketID: " + session.socketID + ', err:' + resObj.err);
+
                 callbackToBpuController(resObj);
             });
         } else {
@@ -208,7 +209,7 @@ Controller.prototype.connect = function (cb) {
         }
     });
 
-    cb(null);
+    return cb();
 };
 
 Controller.prototype.submitExperiment = function (queue, cb) {

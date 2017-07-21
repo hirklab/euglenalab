@@ -18,7 +18,7 @@
     resetingDone: 'Ready',
     resetingFailed: 'Cleaning failed',
     offline: 'Offline',
-    Unknown: 'Unknown',
+    Unknown: 'Unknown'
   };
 
   app.BpuImageView = Backbone.View.extend({

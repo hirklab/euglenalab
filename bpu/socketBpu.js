@@ -1,5 +1,6 @@
 var assert = require('assert');
 var path = require('path');
+var http =require('http');
 var filename = path.basename(__filename);
 
 exports = module.exports = function (app, deps, opts, mainCallback) {
@@ -21,7 +22,7 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 	} else {
 
 		//Create Socket Server
-		var server = require('http').createServer(function (req, res) {
+		var server = http.createServer(function (req, res) {
 			app.logger.warn(moduleName + ' fn_serverHandler');
 		});
 		app.logger.debug(moduleName + ' create server on ' + app.bpuConfig.localAddr.ip + ':' + app.bpuConfig.localAddr.serverPort);
@@ -65,7 +66,7 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 					expOverId: null,
 					//Exp
 					exp: null,
-					expTimeLeft: 0,
+					expTimeLeft: 0
 				};
 
 				//Log

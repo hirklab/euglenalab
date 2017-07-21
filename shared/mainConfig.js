@@ -17,6 +17,9 @@ var exports = module.exports = {
 		getWebServerPort: function () {
 			return g_WebserverPort;
 		},
+        getControllerAddress: function () {
+            return 'http://' + '0.0.0.0' + ':' + this.getControllerPort();
+        },
 		getControllerPort: function () {
 			return g_ControllerPort;
 		},

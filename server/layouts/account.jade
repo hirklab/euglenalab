@@ -4,9 +4,11 @@ html
     block head
       title #{title}
     meta(name='viewport', content='width=device-width, initial-scale=1.0')
-    script(src='/socket.io/socket.io.js')
+
     link(rel='stylesheet', href='/layouts/core.min.css?#{cacheBreaker}')
+
     block neck
+
   body
     div.navbar.navbar-default.navbar-fixed-top
       div.container
@@ -45,6 +47,7 @@ html
     div.ajax-spinner
       img(src='/media/ajax-pulse.gif')
 
+    script(src='/socket.io/socket.io.js')
     script(src='/layouts/core.min.js')
     script(src='/layouts/googleanalytics.js')
 

@@ -15,6 +15,7 @@ var myMongoUri=mainConfig.adminFlags.getMongoUri();
 var myServerPort=mainConfig.adminFlags.getWebServerPort();
 var myServerAddr=mainConfig.adminFlags.getWebServerAddr();
 var myControllerPort = mainConfig.adminFlags.getControllerPort();
+var controllerAddress = mainConfig.adminFlags.getControllerAddress();
 var myWebServerName = mainConfig.adminFlags.getWebServerName();
 var myWebServerIdentifier = mainConfig.adminFlags.getWebServerIdentifier();
 
@@ -22,6 +23,7 @@ exports.mainConfig=mainConfig;
 exports.port = process.env.PORT || myServerPort;
 exports.myServerPort = myServerPort;
 exports.myServerAddr = myServerAddr;
+exports.controllerAddress = controllerAddress;
 exports.myControllerPort = myControllerPort;
 exports.myWebServerIdentifier = myWebServerIdentifier;
 exports.myWebServerName = myWebServerName;
