@@ -141,7 +141,7 @@ UserManager.prototype.connect = function (controller, cb) {
 
     });
 
-    return cb();
+    cb(null);
 };
 
 UserManager.prototype.listConnectedUsers = function () {

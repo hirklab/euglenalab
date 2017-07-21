@@ -152,19 +152,30 @@ app.server.listen(app.config.port, function () {
     app.db.once('open', function () {
         app.logger.info('database => ' + config.mongodb.uri);
 
-        app.userManager = new UserManager(app.config, app.logger, app.io, app.sessionMiddleware, app.db);
-        app.controller  = new Controller(app.config, app.logger, app.userManager);
+	    async.waterfall([
+		    function(callback) {
+			    app.userManager = new UserManager(app.config, app.logger, app.io, app.sessionMiddleware, app.db);
+			    callback(null);
+		    },
+		    function(callback) {
+			    app.controller  = new Controller(app.config, app.logger, app.userManager);
+			    callback(null);
+		    },
+		    function(callback) {
+			    app.controller.connect(callback);
+		    },
+		    function(controller, callback) {
+			    app.userManager.connect(controller, callback);
+		    }
+	    ], function (err) {
+		    if (err) {
+			    app.logger.error(err);
+		    } else {
+			    app.logger.info('app initialized');
+			    app.isInitialized = true;
+		    }
+	    });
 
-        app.controller.connect(function () {
-            app.userManager.connect(app.controller, function (err) {
-                if (err) {
-                    app.logger.error(err);
-                } else {
-                    app.logger.info('app initialized');
-                    app.isInitialized = true;
-                }
-            });
-        });
     });
 });
 
