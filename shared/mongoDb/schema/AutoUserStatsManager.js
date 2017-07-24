@@ -20,9 +20,9 @@ exports = module.exports = function(app, mongoose) {
   var LOGGER_LEVELS=[ 'ALL',              'TRACE',                        'DEBUG',                  'INFO',               'WARN',                       'ERROR', 'FATAL', 'OFF'];
   var LLDESC=[        'cannot print to',  'sub functions',  'sub function info', 'function start end', 'non stopping issues/errors', 'errors', 'FATAL', 'OFF'];
   var logInfo={name:_SchemaName+'.js', loggerLevel:LOGGER_LEVELS[3]};
-  _schemaLogger=app.log4js.getLogger(logInfo.name); 
-  _schemaLogger.setLevel(logInfo.loggerLevel);
-  _schemaLogger.info('initialized');
+  // _schemaLogger=app.log4js.getLogger(logInfo.name);
+  // _schemaLogger.setLevel(logInfo.loggerLevel);
+  // _schemaLogger.info('initialized');
   //Schema Base
   var _mySchema = new mongoose.Schema({
     autoUsers: { type: Array, default: [] },
@@ -537,7 +537,7 @@ var _getStatsRePull=function(app, user, options, callback) {
         var isBpuScriptStat=findBpuNameInExp(exp, returnObj.bpuName);
         var statObj={
           isComplete:false, scriptType:returnObj.scriptType, 
-          bpu:null, time:nullvalue:null,
+          bpu:null, time:null, value:null,
         };
         var expBpuName=findBpuNameInExp(exp);
         if(expBpuName!==null) {

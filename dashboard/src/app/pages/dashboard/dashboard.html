@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-6 col-xs-12"
+    <div class="col-xlg-4 col-lg-4 col-md-4 col-sm-6 col-xs-12"
          ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering ">
 
         <div class="panel" ng-class="microscope.panelClass">
@@ -13,7 +13,7 @@
             <div class="panel-body">
                 <div class="microscope-wrapper">
                     <div class="microscope-main-info">
-                        <img ng-src="{{microscope.address}}" style="width:100%">
+                        <img ng-src="{{microscope.address}}" err-src="/assets/img/bpu-disabled.jpg" style="width:100%">
                     </div>
                     <!--<div class="microscope-footer">-->
                         <!--<div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">-->

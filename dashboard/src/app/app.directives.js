@@ -6,6 +6,7 @@
         .directive('backendValidity', backendValidity)
         .directive('compareTo', compareTo)
         .directive('hoverClass', hoverClass)
+        .directive('errSrc', errSrc)
         .directive('autoFocus', autoFocus);
 
     /**
@@ -80,6 +81,18 @@
                 }, 0);
             }
         };
+    }
+
+    function errSrc() {
+        return {
+            link: function(scope, element, attrs) {
+                element.bind('error', function() {
+                    if (attrs.src != attrs.errSrc) {
+                        attrs.$set('src', attrs.errSrc);
+                    }
+                });
+            }
+        }
     }
 
 })();

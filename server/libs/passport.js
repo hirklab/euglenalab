@@ -1,15 +1,14 @@
 'use strict';
+var LocalStrategy = require('passport-local').Strategy,
+    JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt;
+    //TwitterStrategy = require('passport-twitter').Strategy,
+    //GitHubStrategy = require('passport-github').Strategy,
+    //FacebookStrategy = require('passport-facebook').Strategy,
+    //GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
+    //TumblrStrategy = require('passport-tumblr').Strategy;
 
-exports = module.exports = function (app, passport) {
-    var LocalStrategy = require('passport-local').Strategy,
-        JwtStrategy = require('passport-jwt').Strategy,
-        ExtractJwt = require('passport-jwt').ExtractJwt;
-        //TwitterStrategy = require('passport-twitter').Strategy,
-        //GitHubStrategy = require('passport-github').Strategy,
-        //FacebookStrategy = require('passport-facebook').Strategy,
-        //GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
-        //TumblrStrategy = require('passport-tumblr').Strategy;
-
+module.exports = function (app, passport) {
     passport.use(new LocalStrategy(
         function (username, password, done) {
             var conditions = {isActive: 'yes'};

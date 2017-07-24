@@ -63,6 +63,6 @@ exports = module.exports = function(app, mongoose) {
   myShema.plugin(require('./plugins/pagedFind'));
   myShema.index({ user: 1 });
   myShema.index({ name: 1 });
-  myShema.set('autoIndex', (app.get('env') === 'development'));
+  // myShema.set('autoIndex', (app.get('env') === 'development'));
   app.db.model('Experiment', myShema);
 };

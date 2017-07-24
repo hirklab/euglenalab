@@ -7,7 +7,8 @@
 
     angular.module('BlurAdmin.pages.admin', [
         'BlurAdmin.pages.admin.services',
-        'BlurAdmin.pages.services'
+        'BlurAdmin.pages.services',
+        'BlurAdmin.directives'
     ])
         .config(routeConfig);
 

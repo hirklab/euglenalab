@@ -136,7 +136,7 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
 					socketUpdateObj.groupBpus.push(bpuDocJson);
 				}
 			});
-			socket.emit('/#update', socketUpdateObj);
+			socket.emit('update', socketUpdateObj);
 		}
 	});
 };

@@ -26,7 +26,7 @@ exports = module.exports = function(app, mongoose) {
   //Default Additions
   _mySchema.plugin(require('./plugins/pagedFind'));
   _mySchema.index({ search: 1 });
-  if(app.config) _mySchema.set('autoIndex', (app.get('env') === 'development'));
+  if(app.config) _mySchema.set('autoIndex', app.config.isDevelopment);
   
   //How to get document
   _mySchema.statics.getInstanceDocument=function(mainCallback) {

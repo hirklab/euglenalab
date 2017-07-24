@@ -25,7 +25,7 @@ exports = module.exports = function(_app, mongoose) {
     },
   });
 
-  mySchema.set('autoIndex', (app.get('env') === 'development'));
+  // mySchema.set('autoIndex', (app.get('env') === 'development'));
   addStatics(mySchema);
   addMethods(mySchema);
   app.db.model('SoapReq', mySchema);

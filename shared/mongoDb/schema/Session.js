@@ -32,7 +32,7 @@ exports = module.exports = function(app, mongoose) {
   mySchema.statics.makeNewSession=function(sessInfo, callback) {
     _makeNewSession(app, sessInfo, callback);
   };
-  if(app.get) mySchema.set('autoIndex', (app.get('env') === 'development'));
+  if(app.get) mySchema.set('autoIndex',app.config.isDevelopment);
   else mySchema.set('autoIndex', true);
   app.db.model('Session', mySchema);
 };

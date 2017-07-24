@@ -10,6 +10,6 @@ exports = module.exports = function(app, mongoose) {
   });
   schema.plugin(require('./plugins/pagedFind'));
   schema.index({ search: 1 });
-  schema.set('autoIndex', (app.get('env') === 'development'));
+  schema.set('autoIndex', app.config.isDevelopment);
   app.db.model('ListExperiment', schema);
 };

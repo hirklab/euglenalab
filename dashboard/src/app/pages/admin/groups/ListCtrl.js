@@ -27,6 +27,7 @@
             var page = Math.floor(tablestate.pagination.start / tablestate.pagination.number);
 
             Group.list(page, vm.pageSize, '').then(function (res) {
+                console.log(res.data);
                 vm.list.concat(res.data.results);
                 vm.displayed = [].concat(res.data.results);
 

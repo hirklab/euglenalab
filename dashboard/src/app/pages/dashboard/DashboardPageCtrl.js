@@ -95,118 +95,99 @@
         vm.initializeSocket = function (callback) {
             var connect = function () {
                 console.log('connecting...');
-                console.log(socket);
-
-                // var connectionInfo = {
-                //     // bpuName: bpuName,
-                //     socketID: socket.id
-                // };
-                //
-                // var emitStr = handle + '/#setConnection';
-                //
-                // var resStr = emitStr + 'Res';
-                //
-                // var resFunc = function (resData) {
-                //     console.log(resData);
-                //
-                //     socket.removeListener(resStr, resFunc);
-                //     vm.ping();
-                //     callback(null, resData);
-                // };
-                // socket.on(resStr, resFunc);
-                // socket.emit(emitStr, connectionInfo);
 
                 socket.on('update', function (bpuUpdates, queues, timeLeftPerBPU) {
 
 
-                    // console.log(bpuUpdates);
-                    // console.log(queues);
+                    console.log(bpuUpdates);
+                    console.log(queues);
                     // console.log(timeLeftPerBPU);
                     // console.log(vm.activeMicroscopes);
+                    $scope.$apply(function() {
+                        lodash.map(vm.activeMicroscopes, function (microscope) {
 
-                    lodash.map(vm.activeMicroscopes, function (microscope) {
+                            var bpu = _.find(bpuUpdates, function (bpu) {
+                                return bpu._id === microscope.id;
+                            });
 
-                        var bpu = _.find(bpuUpdates, function (bpu) {
-                            return bpu._id === microscope.id;
+                            if (bpu !== null) {
+                                microscope.status = Microscope.BPU_STATUS_DISPLAY[bpu.bpuStatus];
+
+                                // vm.microscope.allowedGroups = bpu.allowedGroups;
+                                // vm.microscope.processingTimePerExperiment = bpu.bpu_processingTime;
+                                // vm.microscope.performanceScores = bpu.performanceScores;
+
+
+                                // if (bpu.hasOwnProperty('liveBpuExperiment') && bpu.liveBpuExperiment != null && bpu.liveBpuExperiment.hasOwnProperty('id') && bpu.liveBpuExperiment.id != null) {
+                                //     vm.microscope.currentExperiment = bpu.liveBpuExperiment;
+                                //
+                                //     setTimeout(function(){
+                                //         var experimentIndex = _.findIndex(vm.microscope.queue, function (experiment) {
+                                //             return experiment.id = bpu.liveBpuExperiment.id;
+                                //         });
+
+                                // if (experimentIndex < 0) {
+                                //     vm.microscope.queue.push({
+                                //         'index':vm.microscope.queue.length,
+                                //         'id': bpu.liveBpuExperiment.id,
+                                //         'user': bpu.liveBpuExperiment.username,
+                                //         'type': bpu.liveBpuExperiment.group_experimentType,
+                                //         'submittedAt': moment().subtract(bpu.bpu_processingTime / 1000, 'seconds').add(60 - (bpu.liveBpuExperiment.bc_timeLeft / 1000), 'seconds'),
+                                //         'runTime': bpu.liveBpuExperiment.bc_timeLeft / 1000,
+                                //         'status': 'in progress'
+                                //     });
+                                // }
+                                // else {
+                                //         vm.microscope.queue[experimentIndex] = {
+                                //             'id': bpu.liveBpuExperiment.id,
+                                //             'user': bpu.liveBpuExperiment.username,
+                                //             'type': bpu.liveBpuExperiment.group_experimentType,
+                                //             'submittedAt': moment().subtract(bpu.bpu_processingTime / 1000, 'seconds').add(60 - (bpu.liveBpuExperiment.bc_timeLeft / 1000), 'seconds'),
+                                //             'runTime': bpu.bpu_processingTime / 1000,
+                                //             'status': 'in progress'
+                                //         };
+                                //     }
+                                // }, 10000);
+
+
+                                /*
+                                 "currentExperiment": {
+                                 "id": "58d49efb4e2de22a9f5caf46",
+                                 "username": "scripterActivity",
+                                 "sessionID": null,
+                                 "bc_timeLeft": 3844,
+                                 "group_experimentType": "text"
+                                 },
+                                 * */
+
+                                //
+                                // workflow.outcome.pending = (experiments[req.params.name] || [])
+                                //     .filter(function (experiment) {
+                                //         return experiment.exp_wantsBpuName == req.params.name;
+                                //     })
+                                //     .map(function (experiment) {
+                                //         return {
+                                //             'bpu': req.params.name,
+                                //             'user': experiment.user.name,
+                                //             'type': experiment.group_experimentType,
+                                //             'submittedAt': experiment.exp_submissionTime,
+                                //             'runTime': experiment.exp_eventsRunTime,
+                                //             'status': 'pending'
+                                //         }
+                                //     });
+                            }
+
+                            if (microscope.name in timeLeftPerBPU) {
+                                microscope.timePending = timeLeftPerBPU[microscope.name] > 0 ? timeLeftPerBPU[microscope.name] : 0
+                            } else {
+                                microscope.timePending = 0;
+                            }
+
+
                         });
 
-                        if (bpu !== null) {
-                            microscope.status = Microscope.BPU_STATUS_DISPLAY[bpu.bpuStatus];
-
-                            // vm.microscope.allowedGroups = bpu.allowedGroups;
-                            // vm.microscope.processingTimePerExperiment = bpu.bpu_processingTime;
-                            // vm.microscope.performanceScores = bpu.performanceScores;
-
-
-                            // if (bpu.hasOwnProperty('liveBpuExperiment') && bpu.liveBpuExperiment != null && bpu.liveBpuExperiment.hasOwnProperty('id') && bpu.liveBpuExperiment.id != null) {
-                            //     vm.microscope.currentExperiment = bpu.liveBpuExperiment;
-                            //
-                            //     setTimeout(function(){
-                            //         var experimentIndex = _.findIndex(vm.microscope.queue, function (experiment) {
-                            //             return experiment.id = bpu.liveBpuExperiment.id;
-                            //         });
-
-                            // if (experimentIndex < 0) {
-                            //     vm.microscope.queue.push({
-                            //         'index':vm.microscope.queue.length,
-                            //         'id': bpu.liveBpuExperiment.id,
-                            //         'user': bpu.liveBpuExperiment.username,
-                            //         'type': bpu.liveBpuExperiment.group_experimentType,
-                            //         'submittedAt': moment().subtract(bpu.bpu_processingTime / 1000, 'seconds').add(60 - (bpu.liveBpuExperiment.bc_timeLeft / 1000), 'seconds'),
-                            //         'runTime': bpu.liveBpuExperiment.bc_timeLeft / 1000,
-                            //         'status': 'in progress'
-                            //     });
-                            // }
-                            // else {
-                            //         vm.microscope.queue[experimentIndex] = {
-                            //             'id': bpu.liveBpuExperiment.id,
-                            //             'user': bpu.liveBpuExperiment.username,
-                            //             'type': bpu.liveBpuExperiment.group_experimentType,
-                            //             'submittedAt': moment().subtract(bpu.bpu_processingTime / 1000, 'seconds').add(60 - (bpu.liveBpuExperiment.bc_timeLeft / 1000), 'seconds'),
-                            //             'runTime': bpu.bpu_processingTime / 1000,
-                            //             'status': 'in progress'
-                            //         };
-                            //     }
-                            // }, 10000);
-
-
-                            /*
-                             "currentExperiment": {
-                             "id": "58d49efb4e2de22a9f5caf46",
-                             "username": "scripterActivity",
-                             "sessionID": null,
-                             "bc_timeLeft": 3844,
-                             "group_experimentType": "text"
-                             },
-                             * */
-
-                            //
-                            // workflow.outcome.pending = (experiments[req.params.name] || [])
-                            //     .filter(function (experiment) {
-                            //         return experiment.exp_wantsBpuName == req.params.name;
-                            //     })
-                            //     .map(function (experiment) {
-                            //         return {
-                            //             'bpu': req.params.name,
-                            //             'user': experiment.user.name,
-                            //             'type': experiment.group_experimentType,
-                            //             'submittedAt': experiment.exp_submissionTime,
-                            //             'runTime': experiment.exp_eventsRunTime,
-                            //             'status': 'pending'
-                            //         }
-                            //     });
-                        }
-
-                        if (microscope.name in timeLeftPerBPU) {
-                            microscope.timePending = timeLeftPerBPU[microscope.name] > 0 ? timeLeftPerBPU[microscope.name] : 0
-                        } else {
-                            microscope.timePending = 0;
-                        }
-
-
+                        vm.queues = queues;
                     });
-
-                    vm.queues = queues;
                 })
             };
 

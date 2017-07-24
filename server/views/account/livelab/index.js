@@ -219,8 +219,10 @@ var _setupDiv = function (username, callback) {
             joystickHeight: '50%',
         };
     }
+
     if (!divInfo.hasAside) {
         divInfo.mainColWidth = '100%';
     }
+
     callback(null, divInfo, renderJade);
 };

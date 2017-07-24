@@ -23,11 +23,12 @@
 
 
         function list(page, count, search) {
+            console.log('getting list of groups');
             return $http.get('/api/groups/?page=' + page + "&limit=" + count + "&search=" + search);
         }
 
         function detail(id) {
-            return $http.get('/api/groups/' + id);
+            return $http.get('/api/groups/' + id+'/');
         }
 
         function add(id, message) {

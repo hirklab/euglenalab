@@ -34,8 +34,8 @@ block body
 
       div#bpuimage
       //div#filters
-      div#results-table
-      div#results-paging
+      //div#results-table
+      //div#results-paging
 
   script(type='text/template', id='tmpl-joinlive')
     h3 Live Experiment
@@ -64,6 +64,7 @@ block body
       //  div.alert.alert-warning
       //    strong
       //      |Note: You can only run one live experiment at a time
+
     div.row
       - for(var j=0;j<data.eugs.length;j++)
         div.col-md-3.col-sm-6.col-cs-12(style='min-height:340px;border-radius:5px')
@@ -127,6 +128,7 @@ block body
 
   script(type='text/template', id='tmpl-results-table')
     h2(style='text-align:center;') Completed Experiments
+
     table.table.table-striped
       thead
         tr

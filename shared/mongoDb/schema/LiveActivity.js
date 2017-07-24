@@ -19,6 +19,6 @@ exports = module.exports = function(app, mongoose) {
   mySchema.index({ username: 1 }, { unique: true });
   mySchema.index({ timeCreated: 1 });
   mySchema.index({ search: 1 });
-  mySchema.set('autoIndex', (app.get('env') === 'development'));
+  mySchema.set('autoIndex', app.config.isDevelopment);
   app.db.model('User', mySchema);
 };

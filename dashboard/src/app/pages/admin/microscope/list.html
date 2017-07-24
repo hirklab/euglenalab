@@ -11,7 +11,7 @@
              ui-sref="admin.microscopeDetail({id:microscope.id})">
             <div class="microscope-wrapper">
                 <div class="microscope-main-info">
-                    <img ng-src="{{microscope.address}}" style="width:100%">
+                    <img ng-src="{{microscope.address}}" err-src="/assets/img/bpu-disabled.jpg" style="width:100%">
                 </div>
                 <div class="microscope-footer">
                     <div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">

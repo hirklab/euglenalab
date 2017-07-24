@@ -1,16 +1,15 @@
 "use strict";
 
-var socketIO = require('socket.io');
-var _        = require('underscore');
+var _ = require('underscore');
 
 // constructor
 function UserManager(config, logger, io, sessionMiddleware, db) {
-    this.config            = config;
-    this.logger            = logger;
-    this.io            = io;
+    this.config = config;
+    this.logger = logger;
+    this.io = io;
     this.sessionMiddleware = sessionMiddleware;
-    this.db                = db;
-    this.users             = {};
+    this.db = db;
+    this.users = {};
 }
 
 // class methods
@@ -41,8 +40,8 @@ UserManager.prototype.connect = function (controller, cb) {
             });
         } else {
             that.users[socket.request.session.passport.user] = {
-                userID:    socket.request.session.passport.user,
-                sockets:   [],
+                userID: socket.request.session.passport.user,
+                sockets: [],
                 sessionID: socket.request.sessionID
             }
         }

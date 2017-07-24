@@ -143,7 +143,9 @@ exports.find = function(req, res, next) {
   };
 
   outcome.bpuWithExp = null;
+
   outcome.liveBpuExperiment = null;
+
   var checkBpusAgainstLiveSessionExperiment = function(callback) {
     for (var ind = 0; ind < outcome.bpus.length; ind++) {
       var bpu = outcome.bpus[ind];
@@ -171,6 +173,7 @@ exports.find = function(req, res, next) {
     var filters = {}; //filters is the first object givne to the db.model.collection.find(filters, ..);
     filters['user.name'] = req.user.username;
     filters['exp_status'] = 'finished';
+
     req.app.db.models.BpuExperiment.pagedFind({
       filters: filters,
       keys: '',
@@ -188,6 +191,7 @@ exports.find = function(req, res, next) {
   };
 
   outcome.data = null;
+
   var buildClientSideData = function(callback) {
     outcome.data = {
       results: JSON.stringify(outcome.results),
@@ -199,6 +203,7 @@ exports.find = function(req, res, next) {
     };
     return callback(null);
   };
+
   //Build Init Series
   var initSeriesFuncs = [];
   initSeriesFuncs.push(getSession);
@@ -207,6 +212,7 @@ exports.find = function(req, res, next) {
   initSeriesFuncs.push(checkBpusAgainstLiveSessionExperiment);
   initSeriesFuncs.push(getExperimentData);
   initSeriesFuncs.push(buildClientSideData);
+
   //Run Init Series
   async.series(initSeriesFuncs, function(err) {
     if (err) {
@@ -222,12 +228,13 @@ exports.find = function(req, res, next) {
       }
     }
   });
+
 };
 
 var _createXLSXFile = function(userExp, expId, trackIdStr, res, cb) {
   temp.mkdir('trackdata', function(err, path) {
     if (err) {
-      console.log('Failed to create temporary mkdir');
+      // console.log('Failed to create temporary mkdir');
       return cb('Failed to create temporary mkdir');
     } else {
       var dest = path + '/' + expId + '_tracks.xlsx';
@@ -249,7 +256,7 @@ var _createXLSXFile = function(userExp, expId, trackIdStr, res, cb) {
 };
 
 exports.downloadTrack = function(req, res, next) {
-  console.log('GET: ' + req);
+  // console.log('GET: ' + req);
 
   var expId = req.params.id;
   var trackId = req.params.trackId;
@@ -312,6 +319,7 @@ exports.download = function(req, res, next) {
       return next('Download Experiment sendTar Error:' + 'path and filename dne');
     }
   };
+
   req.app.db.models.BpuExperiment.findById(req.params.id, {}, function(err, userExp) {
     if (err) {
       return next('Find Experiment Error:' + err);
@@ -338,13 +346,16 @@ exports.download = function(req, res, next) {
     }
   });
 };
+
+
 var _runRepackaging = function(userExp, callback) {
   var destPath = __dirname.split('/server/')[0] + '/' + 'server/public/media/tars';
   var outcome = {
     destPath: destPath,
     srcPath: null,
-    filename: null,
+    filename: null
   };
+
   var checkProcessingFolderPath = function(cb_fn) {
     fs.stat(userExp.proc_endPath, function(err, stat) {
       if (err) {
@@ -356,6 +367,7 @@ var _runRepackaging = function(userExp, callback) {
       }
     });
   };
+
   var tarFolderToServerPublicMedia = function(cb_fn) {
     //untar and move
     var src = outcome.srcPath;
@@ -412,8 +424,9 @@ var _runRepackaging = function(userExp, callback) {
   var funcs = [
     checkProcessingFolderPath,
     //tarFolderToServerPublicMedia,
-    zipFolderToServerPublicMedia,
+    zipFolderToServerPublicMedia
   ];
+
   //Start Run Init
   async.series(funcs, function(err) {
     //outcome.tmpCleanupCallback();
@@ -510,6 +523,7 @@ exports.create = function(req, res, next) {
 
 exports.update = function(req, res, next) {
   var workflow = req.app.utility.workflow(req, res);
+  
   workflow.on('patchBpuExperiment', function(user) {
     var fieldsToSet = {
       note: req.body.note

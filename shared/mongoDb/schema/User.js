@@ -135,7 +135,7 @@ exports = module.exports = function(app, mongoose) {
   mySchema.index({ 'facebook.id': 1 });
   mySchema.index({ 'google.id': 1 });
   mySchema.index({ search: 1 });
-  if(app.get) mySchema.set('autoIndex', (app.get('env') === 'development'));
+  if(app.get) mySchema.set('autoIndex', app.config.isDevelopment);
   else mySchema.set('autoIndex', true);
   app.db.model(_SchemaName, mySchema);
 };

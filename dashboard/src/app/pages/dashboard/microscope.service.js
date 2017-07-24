@@ -87,24 +87,24 @@
 
 
         function list() {
-            return $http.get('/api/bio-units/');
+            return $http.get('/api/microscopes/');
         }
 
         function detail(id) {
-            return $http.get('/api/bio-units/' + id);
+            return $http.get('/api/microscopes/' + id + '/');
         }
 
         function health(id, startDate, endDate) {
-            return $http.get('/api/bio-units/' + id + '/health/?start=' + startDate + "&end=" + endDate);
+            return $http.get('/api/microscopes/' + id + '/health/?start=' + startDate + "&end=" + endDate);
         }
 
         function queue(name) {
-            return $http.get('/api/bio-units/' + name + '/queue/');
+            return $http.get('/api/microscopes/' + name + '/queue/');
         }
 
         function addNote(id, message) {
             return $http({
-                url: '/api/bio-units/' + id + '/notes/',
+                url: '/api/microscopes/' + id + '/notes/',
                 method: 'POST',
                 data: {
                     message: message
@@ -114,7 +114,7 @@
 
         function removeNote(id, message) {
             return $http({
-                url: '/api/bio-units/' + id + '/notes/' + message._id,
+                url: '/api/microscopes/' + id + '/notes/' + message._id,
                 method: 'DELETE'
             });
         }
