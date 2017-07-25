@@ -270,6 +270,11 @@ exports = module.exports = function (app, passport) {
     app.get('/account/developgame/', require('./views/account/developgame/index').init);
     app.post('/account/developgame/savefile/', require('./views/account/developgame/index').savefile);
     app.post('/account/developgame/getgamecode/', require('./views/account/developgame/index').getgamecode);
+    app.post('/account/developgame/writeuserfile/', require('./views/account/developgame/index').writeuserfile);
+    app.post('/account/developgame/readuserfile/', require('./views/account/developgame/index').readuserfile);
+    app.post('/account/developgame/loguserdata/', require('./views/account/developgame/index').loguserdata);
+    app.post('/account/developgame/isuserdemographicsaved/', require('./views/account/developgame/index').isuserdemographicsaved);
+    app.post('/account/developgame/saveuserdemographicinfo/', require('./views/account/developgame/index').saveuserdemographicinfo);
 
     //route not found
     app.all('*', require('./views/http/index').http404);

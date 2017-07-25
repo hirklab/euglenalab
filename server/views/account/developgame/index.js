@@ -1,8 +1,11 @@
 'use strict';
 var async = require('async');
 var fs = require('fs');
+var glob = require('glob');
 
 var gameFileNames = '';
+
+// Functions for saving game files.
 
 exports.savefile = function(req, res) {
   console.log("Saving game code...");
@@ -28,12 +31,91 @@ exports.getgamecode = function(req, res) {
   console.log('Opening file: ' + filePath);
   fs.readFile(filePath, 'utf8', function (err, data) {
     if (err) throw err;
+    var returnVal = data + "-----" + fileToOpen;
+    res.json(returnVal);
+  });
+};
+
+// Functions for saving user-defined files.
+
+exports.writeuserfile = function(req, res) {
+  console.log("Writing user's file...");
+  var filePath = __dirname + "/userfiles/" + req.body.fileName;
+  var userFileToSave = req.body.userText;
+  var fileMode = req.body.fileMode;
+  if (fileMode === 'FILE.OVERWRITE') {
+    fs.writeFile (filePath, userFileToSave, function(err) {
+      if (err) throw err;
+      console.log('user file writing complete');
+    });
+  } else if (fileMode === 'FILE.APPEND') {
+    fs.appendFile (filePath, userFileToSave, function(err) {
+      if (err) throw err;
+      console.log('user file writing complete');
+    });
+  }
+  
+  res.json('success writing user file');
+};
+
+exports.readuserfile = function(req, res) {
+  console.log("Reading user's file...");
+  var fileToOpen = req.body.userFile;
+  var filePath = __dirname + "/userfiles/" + fileToOpen;
+  console.log('Opening file: ' + filePath);
+  fs.readFile(filePath, 'utf8', function (err, data) {
+    if (err) throw err;
     res.json(data);
   });
 };
 
+// Functions for getting user demographic data.
+
+exports.isuserdemographicsaved = function(req, res) {
+  console.log("Checking if user has demographic info saved...");
+  glob(__dirname + "/userdata/" + req.body.userName + "_demographics.txt", function (er, files) {
+    console.log("MATCHING FILES: " + files);
+    if (files.length > 0) {
+      res.json('true');
+    } else {
+      res.json('false');
+    }
+  });
+};
+
+exports.saveuserdemographicinfo = function(req, res) {
+  console.log("Saving user's demographic info...");
+  var filePath = __dirname + "/userdata/" + req.body.userName + "_demographics.txt";
+  var fileToSave = "Name: " + req.body.fullName +
+                    "\nAge: " + req.body.age + 
+                    "\nProgramming: " + req.body.programExp + 
+                    "\nJavaScript: " + req.body.jsExp + 
+                    "\nBiology: " + req.body.bioExp;
+  fs.writeFile (filePath, fileToSave, function(err) {
+      if (err) throw err;
+      console.log('game file writing complete');
+  });
+  res.json('success');
+};
+
+// Functions for user logging.
+
+exports.loguserdata = function(req, res) {
+  var filePath = __dirname + "/userdata/" + req.body.fileName;
+  var userFileToSave = req.body.logTimestamp + "::: " + req.body.logText;
+
+  fs.appendFile (filePath, userFileToSave, function(err) {
+    if (err) throw err;
+    console.log('logging file writing complete');
+  });
+  
+  res.json('success writing logging data');
+};
+
 
 exports.init = function(req, res, next) {
+
+
   var outcome = {};
   outcome.session = null;
   var getSessionData = function(callback) {
@@ -58,6 +140,7 @@ exports.init = function(req, res, next) {
   outcome.user = null;
   var getUserData = function(callback) {
     req.app.db.models.User.findById(outcome.sess.user.id, {}, function(err, userDoc) {
+      console.log("USER DATA::: " + userDoc);
       if (err) {
         return callback('getUser err:' + err);
       } else if (userDoc === null) {

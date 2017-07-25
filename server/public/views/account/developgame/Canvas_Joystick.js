@@ -61,12 +61,12 @@ var Canvas_Joystick=function(canvasDiv) {
     context.clearRect(0, 0, thisJoy.canvas.width, thisJoy.canvas.height);
 
     //Resize Joystick Parameters
-    //thisJoy.maxJoyRadius=thisJoy.canvas.width*0.300;
-    //if(thisJoy.canvas.height<thisJoy.canvas.width) {thisJoy.maxJoyRadius=thisJoy.canvas.height*0.300;}
-    //thisJoy.joyHeadRadius=thisJoy.maxJoyRadius*0.200;
-    //thisJoy.centerPoint={x:thisJoy.canvas.width*0.500, y:thisJoy.canvas.height*0.550};
-    //thisJoy.textIntensity={x:10, y:44};
-    //thisJoy.textAngle={x:0, y:20};
+    // thisJoy.maxJoyRadius=thisJoy.canvas.width*0.300;
+    // if(thisJoy.canvas.height<thisJoy.canvas.width) {thisJoy.maxJoyRadius=thisJoy.canvas.height*0.300;}
+    // thisJoy.joyHeadRadius=thisJoy.maxJoyRadius*0.200;
+    // thisJoy.centerPoint={x:thisJoy.canvas.width*0.500, y:thisJoy.canvas.height*0.550};
+    // thisJoy.textIntensity={x:10, y:44};
+    // thisJoy.textAngle={x:0, y:20};
 
     //Draw Sequence
 

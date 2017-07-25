@@ -1,6 +1,6 @@
 var path = require('path');
 var nodePath = process.env.NODE_PATH;
-var nodePath = 'node_modules';
+var nodePath = './node_modules';
 module.exports = function (grunt) {
 
     var env = grunt.option('env') || process.env.GRUNT_ENV || 'development';
@@ -10,12 +10,13 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('./package.json'),
         copy: {
             vendor: {
-                files: [{
-                    expand: true,
-                    cwd: nodePath + '/bootstrap/',
-                    src: ['js/**', 'less/**'],
-                    dest: 'public/vendor/bootstrap/'
-                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: nodePath + '/bootstrap/',
+                        src: ['js/**', 'less/**'],
+                        dest: 'public/vendor/bootstrap/'
+                    },
                     // For glyphicons
                     {
                         expand: true,

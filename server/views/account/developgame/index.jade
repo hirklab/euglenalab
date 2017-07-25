@@ -185,7 +185,7 @@ block body
       div.col-xs-7
         font(color='purple')
           |function&nbsp;
-        |MyBioticGame() {
+        |BioticProgram() {
         br
         br
 
@@ -216,7 +216,7 @@ block body
             textarea#txtCodeRun
               |setLED(this.currLED, 999);
               |if (this.score >= 10) {
-              |&nbsp;&nbsp;&nbsp;&nbsp;finishGame();
+              |&nbsp;&nbsp;&nbsp;&nbsp;endProgram();
               |}
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
@@ -227,7 +227,7 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='#0F6BA0')
           |this
-        |.startGame = 
+        |.startProgram = 
         font(color='purple')
           |function
         |() {
@@ -237,9 +237,8 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeStart
-              |setJoystickView(false);
-              |setLevel(1);
-              |setTextPerLevel(1, this.instructions);
+              |//setJoystickView(false);
+              |setInstructionText("This text can be changed with the API!");
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -249,7 +248,7 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='#0F6BA0')
           |this
-        |.endGame = 
+        |.endProgram = 
         font(color='purple')
           |function
         |() {
@@ -282,7 +281,18 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeJoystick
-              |//console.log('Joystick changed!');
+              |var ledIntensity = intensity / 1000.0;
+              |&nbsp;&nbsp;&nbsp;&nbsp;
+              |if (angle >= 45 && angle < 135) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.UP, ledIntensity);
+              |} else if (angle >= 135 && angle < 225) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.RIGHT, ledIntensity);
+              |} else if (angle >= 225 && angle < 315) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.DOWN, ledIntensity);
+              |} else if (angle >= 315 && angle <= 360 &&
+              |&nbsp;&nbsp;&nbsp;&nbsp;angle < 45 && angle >= 0) {
+              |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.LEFT, ledIntensity);
+              |} 
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -356,36 +366,374 @@ block body
       div.col-xs-5
         div.row
           div.col-xs-12
-            button.btn.btn-success#btnUpdateRun(type="update",value="update") Update Code
+            button.btn.btn-success#btnStartGame(type="update",value="update") Run Code
             |&nbsp;&nbsp;&nbsp;&nbsp;
-            button.btn.btn-success#btnStartGame(type="update",value="update") Play Game
-            |&nbsp;&nbsp;&nbsp;&nbsp;
-            button.btn.btn-danger#btnStopGame(type="update",value="update") Stop Game
+            button.btn.btn-danger#btnStopGame(type="update",value="update") Stop Code
         br
         div.row
           div.col-xs-5#myAside.unselectable(name='myAside')
             div#myJoystick.canvas-joystick-off(name='myJoystick')
           div.col-xs-1
           div.col-xs-6
-            |<u>Level 
-            b#level
-              |1
-            |: </u>
-            p#levelText
-              |Call the setLevelText function to change this text!
+            p#instructionText
+              |This text can be changed with the API!
         br
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
-        button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
+        button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Code
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Game
+        button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Code
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-primary#btnShowAPI(type="save", value="save") Hide API
         //- h2
         //-   |Status 
         //-   code(id="statusField")
         //-     |Loading...
+        br
+        br
+        div#apiCalls
+          font(color="green") 
+            h2 EuglenaScript API Calls
+            u Methods:
+            br
+            br
+            b drawOnTrackedEuglena
+            |(
+            i isDrawing
+            |)
+            br
+            |Input(s):
+            br
+            i isDrawing
+            |, a boolean
+            br
+            |Toggle whether the currently tracked Euglena have a virtual object drawn over them.
+
+            br
+            br
+
+            b drawRect
+            |(
+            i upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B
+            |)
+            br
+            |Input(s):
+            br
+            i upperLeftX
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i upperLeftY
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i lowerRightX
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i lowerRightY
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i R
+            |, a number between 0 and 255
+            br
+            i G
+            |, a number between 0 and 255
+            br
+            i B
+            |, a number between 0 and 255
+            br
+            |Draw a virtual rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordinate (lowerRightX, lowerRightY) with the color (R, G, B).
+
+            br
+            br
+
+            b drawText
+            |(
+            i text, xPos, yPos, size, R, G, B
+            |)
+            br
+            |Input(s):
+            br
+            i text
+            |, a string
+            br
+            i xPos
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i yPos
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i size
+            |, a number between 0 and MAX_TEXT_SIZE
+            br
+            i R
+            |, a number between 0 and 255
+            br
+            i G
+            |, a number between 0 and 255
+            br
+            i B
+            |, a number between 0 and 255
+            br
+            |Draw text as position (xPos, yPos) with the color (R, G, B).
+
+            br
+            br
+
+            b endProgram
+            |()
+            br
+            |Ends the program.
+
+            br
+            br
+
+            b getAllEuglenaPositions
+            |()
+            br
+            |Return an array of objects that contain (x, y) coordinates of all tracked Euglena positions.
+            br
+            |Returns: an array of objects that contain the (x, y) coordinates
+
+            br
+            br
+
+            b getEuglenaCount
+            |()
+            br
+            |Get the total Euglena count.
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b getEuglenaInRect
+            |(
+            i upperLeftX, upperLeftY, lowerRightX, lowerRightY
+            |)
+            br
+            |Input(s):
+            br
+            i upperLeftX
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i upperLeftY
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i lowerRightX
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i lowerRightY
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            |Get the total Euglena count in the rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordiante (lowerRightX, lowerRightY).
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b getTimeLeft
+            |()
+            br
+            |Get the time left in the session, in seconds.
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b readFromFile
+            |(
+            i filename
+            |)
+            br
+            |Input(s):
+            br
+            i filename
+            |, a string
+            br
+            |Get the string contained in filename.
+            br
+            |Returns: a string
+
+            br
+            br
+
+            b setJoystickView
+            |(
+            i isOn
+            |)
+            br
+            |Input(s):
+            br
+            i isOn
+            |, a boolean
+            br
+            |Turn the joystick view on or off.
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b setInstructionText
+            |(
+            i message
+            |)
+            br
+            |Input(s):
+            br
+            i message
+            |, a string
+            br
+            |Change the text in the "instructions" section of the screen.
+
+            br
+            br
+
+            b setLED
+            |(
+            i led, intensity
+            |)
+            br
+            |Input(s):
+            br
+            i led
+            |, one of LED.RIGHT, LED.LEFT, LED.UP, and LED.DOWN
+            br
+            |Set led to the intensity between 0 (completely off) and MAX_LED_INTENSITY (completely on).
+
+            br
+            br
+
+            b writeToFile
+            |(
+            i filename, text, mode
+            |)
+            br
+            |Input(s):
+            br
+            i filename
+            |, a string
+            br
+            i text
+            |, a string
+            br
+            i mode
+            |, one of FILE.OVERWRITE or FILE.APPEND
+            br
+            |Write text into filename, in either overwrite mode (where the old file with the same name has text written over it) or append mode (where text is added to an existing file).
+
+            br
+            br
+
+            u Constants:
+
+            br
+            br
+
+            |MAX_ANGLE: The highest angle (360) the joystick can turn.
+            br
+            |MAX_INTENSITY: The highest intensity the joystick can have.
+            br
+            |MAX_SCREEN_WIDTH: The maximum screen width of the microscope video view.
+            br
+            |MAX_SCREEN_HEIGHT: The maximum screen height of the microscope video view.
+
+
+            
     
     div.modal.fade(role="dialog")
+
+    div.modal.fade#demographicDataModal(role="dialog")
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type="button", data-dismiss="modal")
+            h4.modal-title
+              |EuglenaScript Study Survey
+          div.modal-body
+            div.form-group
+              label(for="usr") Your full name:
+              input.form-control.demographicData#userNameText(type="text")
+              br
+              label(for="usr") Your age:
+              input.form-control.demographicData#userAgeText(type="number")
+              br
+              label(for="usr") What is your programming experience on a scale of 0 (no experience) to 5 (expert)?
+              br
+              div.control-group
+                div.controls.radio-group
+                  label.radio-inline.control-label
+                    input#prog0.demographicData(type="radio" name="optradio" value="0")
+                    |0&nbsp;
+                  label.radio-inline.control-label
+                    input#prog1.demographicData(type="radio" name="optradio" value="1")
+                    |1&nbsp;
+                  label.radio-inline.control-label
+                    input#prog2.demographicData(type="radio" name="optradio" value="2")
+                    |2&nbsp;
+                  label.radio-inline.control-label
+                    input#prog3.demographicData(type="radio" name="optradio" value="3")
+                    |3&nbsp;
+                  label.radio-inline.control-label
+                    input#prog4.demographicData(type="radio" name="optradio" value="4")
+                    |4&nbsp;
+                  label.radio-inline.control-label
+                    input#prog5.demographicData(type="radio" name="optradio" value="5")
+                    |5&nbsp;
+              br
+              br
+              label(for="usr") What is your JavaScript experience on a scale of 0 (no experience) to 5 (expert)?
+              br
+              div.control-group
+                div.controls.radio-group
+                  label.radio-inline.control-label
+                    input#js0.demographicData(type="radio" name="optradio2" value="0")
+                    |0&nbsp;
+                  label.radio-inline.control-label
+                    input#js1.demographicData(type="radio" name="optradio2" value="1")
+                    |1&nbsp;
+                  label.radio-inline.control-label
+                    input#js2.demographicData(type="radio" name="optradio2" value="2")
+                    |2&nbsp;
+                  label.radio-inline.control-label
+                    input#js3.demographicData(type="radio" name="optradio2" value="3")
+                    |3&nbsp;
+                  label.radio-inline.control-label
+                    input#js4.demographicData(type="radio" name="optradio2" value="4")
+                    |4&nbsp;
+                  label.radio-inline.control-label
+                    input#js5.demographicData(type="radio" name="optradio2" value="5")
+                    |5&nbsp;
+              br
+              br
+              label(for="usr") What is your biology experience on a scale of 0 (no experience) to 5 (expert)?
+              br
+              div.control-group
+                div.controls.radio-group
+                  label.radio-inline.control-label
+                    input#bio0.demographicData(type="radio" name="optradio3" value="0")
+                    |0&nbsp;
+                  label.radio-inline.control-label
+                    input#bio1.demographicData(type="radio" name="optradio3" value="1")
+                    |1&nbsp;
+                  label.radio-inline.control-label
+                    input#bio2.demographicData(type="radio" name="optradio3" value="2")
+                    |2&nbsp;
+                  label.radio-inline.control-label
+                    input#bio3.demographicData(type="radio" name="optradio3" value="3")
+                    |3&nbsp;
+                  label.radio-inline.control-label
+                    input#bio4.demographicData(type="radio" name="optradio3" value="4")
+                    |4&nbsp;
+                  label.radio-inline.control-label
+                    input#bio5.demographicData(type="radio" name="optradio3" value="5")
+                    |5&nbsp;
+            br
+            button.btn.btn-primary#btnSaveDemographics(type="save", value="save", data-dismiss="modal", disabled) Submit Data
+
 
     div.modal.fade#saveGameModal(role="dialog")
       div.modal-dialog
@@ -401,7 +749,7 @@ block body
             br
             button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
           div.modal-footer
-            button.btn.btn-default(type="button" data-dismiss="modal") Close
+            button.btn.btn-default(type="button", data-dismiss="modal") Close
 
     div.modal.fade#loadGameModal(role="dialog")
       div.modal-dialog
@@ -423,7 +771,7 @@ block body
             br
             //-button.btn.btn-primary#btnLoadGame(type="save", value="save") Open Game
           div.modal-footer
-            button.btn.btn-default(type="button" data-dismiss="modal") Close
+            button.btn.btn-default(type="button", data-dismiss="modal") Close
 
     script(type='text/template',id="tmpl-survey")
       div.modal-dialog(role="document")

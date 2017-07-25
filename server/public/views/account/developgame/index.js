@@ -25,114 +25,178 @@
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
-    var codeVariablesEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeVariables'), {
+    app.mainView.codeVariablesEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeVariables'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          codeVariablesEditor.setLineClass(hlLine, null, null);
-          hlLine = codeVariablesEditor.setLineClass(codeVariablesEditor.getCursor().line, null, "activeline");
+          app.mainView.codeVariablesEditor.setLineClass(hlLine, null, null);
+          hlLine = app.mainView.codeVariablesEditor.setLineClass(app.mainView.codeVariablesEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLine = codeVariablesEditor.setLineClass(0, "activeline");
+    var hlLine = app.mainView.codeVariablesEditor.setLineClass(0, "activeline");
 
-    var runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
+    app.mainView.runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          runEditor.setLineClass(hlLineRun, null, null);
-          hlLineRun = runEditor.setLineClass(runEditor.getCursor().line, null, "activeline");
+          app.mainView.runEditor.setLineClass(hlLineRun, null, null);
+          hlLineRun = app.mainView.runEditor.setLineClass(app.mainView.runEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineRun = runEditor.setLineClass(0, "activeline");
+    var hlLineRun = app.mainView.runEditor.setLineClass(0, "activeline");
 
-    var startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
+    app.mainView.startEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeStart'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          startEditor.setLineClass(hlLineStart, null, null);
-          hlLineStart = startEditor.setLineClass(startEditor.getCursor().line, null, "activeline");
+          app.mainView.startEditor.setLineClass(hlLineStart, null, null);
+          hlLineStart = app.mainView.startEditor.setLineClass(app.mainView.startEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineStart = startEditor.setLineClass(0, "activeline");
+    var hlLineStart = app.mainView.startEditor.setLineClass(0, "activeline");
 
-    var endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
+    app.mainView.endEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeEnd'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          endEditor.setLineClass(hlLineEnd, null, null);
-          hlLineEnd = endEditor.setLineClass(endEditor.getCursor().line, null, "activeline");
+          app.mainView.endEditor.setLineClass(hlLineEnd, null, null);
+          hlLineEnd = app.mainView.endEditor.setLineClass(app.mainView.endEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineEnd = endEditor.setLineClass(0, "activeline");
+    var hlLineEnd = app.mainView.endEditor.setLineClass(0, "activeline");
 
-    var joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
+    app.mainView.joystickEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeJoystick'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          joystickEditor.setLineClass(hlLineJoystick, null, null);
-          hlLineJoystick = joystickEditor.setLineClass(joystickEditor.getCursor().line, null, "activeline");
+          app.mainView.joystickEditor.setLineClass(hlLineJoystick, null, null);
+          hlLineJoystick = app.mainView.joystickEditor.setLineClass(app.mainView.joystickEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineJoystick = joystickEditor.setLineClass(0, "activeline");
+    var hlLineJoystick = app.mainView.joystickEditor.setLineClass(0, "activeline");
 
-    var keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
+    app.mainView.keypressEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeKeypress'), {
         lineNumbers: false,
         theme: "default",
         autoMatchParens: true,
         lineWrapping: true,
         onCursorActivity: function() {
-          keypressEditor.setLineClass(hlLineKeypress, null, null);
-          hlLineKeypress = keypressEditor.setLineClass(keypressEditor.getCursor().line, null, "activeline");
+          app.mainView.keypressEditor.setLineClass(hlLineKeypress, null, null);
+          hlLineKeypress = app.mainView.keypressEditor.setLineClass(app.mainView.keypressEditor.getCursor().line, null, "activeline");
         }
     });
-    var hlLineKeypress = keypressEditor.setLineClass(0, "activeline");
-
-    // Handle new code.
-    $('#btnUpdateRun').click(function() {
-      app.mainView.gameGlobalVariables = codeVariablesEditor.getValue();
-      app.mainView.gameRunCode = runEditor.getValue();
-      app.mainView.gameStartCode = startEditor.getValue();
-      app.mainView.gameEndCode = endEditor.getValue();
-      app.mainView.gameKeypressCode = keypressEditor.getValue();
-      app.mainView.gameJoystickCode = joystickEditor.getValue();
-    });
+    var hlLineKeypress = app.mainView.keypressEditor.setLineClass(0, "activeline");
 
     $('#btnStartGame').click(function() {
+      app.mainView.gameGlobalVariables = app.mainView.codeVariablesEditor.getValue();
+      app.mainView.gameRunCode = app.mainView.runEditor.getValue();
+      app.mainView.gameStartCode = app.mainView.startEditor.getValue();
+      app.mainView.gameEndCode = app.mainView.endEditor.getValue();
+      app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
+      app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
+
       app.mainView.gameInSession = true;
-      codeVariablesEditor.setOption("readOnly", "nocursor");
-      runEditor.setOption("readOnly", "nocursor");
-      startEditor.setOption("readOnly", "nocursor");
-      endEditor.setOption("readOnly", "nocursor");
-      joystickEditor.setOption("readOnly", "nocursor");
-      keypressEditor.setOption("readOnly", "nocursor");
+      app.mainView.codeVariablesEditor.setOption("readOnly", "nocursor");
+      app.mainView.runEditor.setOption("readOnly", "nocursor");
+      app.mainView.startEditor.setOption("readOnly", "nocursor");
+      app.mainView.endEditor.setOption("readOnly", "nocursor");
+      app.mainView.joystickEditor.setOption("readOnly", "nocursor");
+      app.mainView.keypressEditor.setOption("readOnly", "nocursor");
       $('#btnUpdateRun').prop("disabled", true);
       app.mainView.parseGlobalVariables(app.mainView.gameGlobalVariables);
       app.mainView.parseStartCode(app.mainView.gameStartCode);
+
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " started program ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
     });
 
+    $(".demographicData").change(function() {
+      app.mainView.validateDemographicInfo();
+    });
+
+    $('#btnSaveDemographics').click(function() {
+      app.mainView.validateDemographicInfo();
+      app.mainView.fullName = $('#userNameText').val();
+      app.mainView.age = $('#userAgeText').val();
+      app.mainView.programExp = $("input:radio[name='optradio']:checked").val();
+      app.mainView.jsExp = $("input:radio[name='optradio2']:checked").val();
+      app.mainView.bioExp = $("input:radio[name='optradio3']:checked").val();
+      $.post('/account/developgame/saveuserdemographicinfo/', { userName: app.mainView.userName,
+                                                                fullName: app.mainView.fullName,
+                                                                age: app.mainView.age,
+                                                                programExp: app.mainView.programExp,
+                                                                jsExp: app.mainView.jsExp,
+                                                                bioExp: app.mainView.bioExp } )
+        .done(function(data) {
+          console.log( "Data Loaded demographic data: " + data);
+        });
+    });
+
+    $('#btnShowAPI').click(function() {
+      if (app.mainView.isAPIshowing) {
+        $('#btnShowAPI').html('Show API');
+        $('#apiCalls').hide();
+        app.mainView.isAPIshowing = false;
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " hiding API ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
+      } else {
+        $('#btnShowAPI').html('Hide API');
+        $('#apiCalls').show();
+        app.mainView.isAPIshowing = true;
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " showing API ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
+      }
+    });
+    
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
       app.mainView.codeEditorReadOnly = false;
-      codeVariablesEditor.setOption("readOnly", false);
-      runEditor.setOption("readOnly", false);
-      startEditor.setOption("readOnly", false);
-      endEditor.setOption("readOnly", false);
-      joystickEditor.setOption("readOnly", false);
-      keypressEditor.setOption("readOnly", false);
+      app.mainView.codeVariablesEditor.setOption("readOnly", false);
+      app.mainView.runEditor.setOption("readOnly", false);
+      app.mainView.startEditor.setOption("readOnly", false);
+      app.mainView.endEditor.setOption("readOnly", false);
+      app.mainView.joystickEditor.setOption("readOnly", false);
+      app.mainView.keypressEditor.setOption("readOnly", false);
       $('#btnUpdateRun').prop("disabled", false);
+      app.mainView.parseStartCode(app.mainView.gameEndCode);
+
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " stopped program ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
     });
 
     $('#btnSaveGame').click(function() {
+      app.mainView.gameGlobalVariables = app.mainView.codeVariablesEditor.getValue();
+      app.mainView.gameRunCode = app.mainView.runEditor.getValue();
+      app.mainView.gameStartCode = app.mainView.startEditor.getValue();
+      app.mainView.gameEndCode = app.mainView.endEditor.getValue();
+      app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
+      app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
       var codeVar = app.mainView.gameGlobalVariables;
       var codeRun = app.mainView.gameRunCode;
       var codeStart = app.mainView.gameStartCode;
@@ -152,6 +216,13 @@
           console.log( "Data Loaded savefile: " + data);
 
         });
+
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " saved program as " + gameName + " ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
     });
 
     $(".gameFile").click(function(){
@@ -159,13 +230,21 @@
         $.post('/account/developgame/getgamecode/', { gameIndex: codeInd } )
         .done(function(data) {
           console.log( "Data Loaded readfile: ");
-            var gameSections = data.split('-----');
-            codeVariablesEditor.setValue(gameSections[0]);
-            runEditor.setValue(gameSections[1]);
-            startEditor.setValue(gameSections[2]);
-            endEditor.setValue(gameSections[3]);
-            joystickEditor.setValue(gameSections[4]);
-            keypressEditor.setValue(gameSections[5]);
+          var gameSections = data.split('-----');
+          app.mainView.codeVariablesEditor.setValue(gameSections[0]);
+          app.mainView.runEditor.setValue(gameSections[1]);
+          app.mainView.startEditor.setValue(gameSections[2]);
+          app.mainView.endEditor.setValue(gameSections[3]);
+          app.mainView.joystickEditor.setValue(gameSections[4]);
+          app.mainView.keypressEditor.setValue(gameSections[5]);
+
+          var gameName = gameSections[6];
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                        logTimestamp: Date.now().toString(),
+                                                        logText: "User " + app.mainView.userName + " loaded program " + gameName + "----- \n" } )
+            .done(function(data) {
+              console.log( "Data Loaded log user data: " + data);
+            });
         });
     });
 
@@ -198,11 +277,23 @@
 
     bpuAddress: "",
 
-    // GAME-RELATED-VARIABLES
+    gameSessionName: "no_name_assigned",
+    sessionOverFirstTime: false,
+    isAPIshowing: true,
+    fileWriteMode: 'FILE.APPEND',
+    userName: "",
+    fullName: "",
+    age: "",
+    programExp: "",
+    jsExp: "",
+    bioExp: "",
+
+    gameErrorMessage: "",
+
+    // GAME-RELATED VARIABLES
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
-    gameLevel: 3,
-    gameLevelText: {3: "Get 20% of the Euglena on the screen into the moving blue box at any given moment in time. The blue box will randomly move around the screen."},
+    gameInstructionText: "This text can be changed with the API!",
     gameOverText: "",
     gameJoystickView: true,
     gameInSession: false,
@@ -251,6 +342,28 @@
       window.dispatchEvent(new Event('resize'));
 
       app.mainView = this;
+
+      app.mainView.gameSessionName = JSON.parse(unescape($('#data-session').html()))["liveBpuExperiment"]["id"];
+      app.mainView.userName = JSON.parse(unescape($('#data-user').html()))["username"];
+
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " started session ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
+
+
+      $.post('/account/developgame/isuserdemographicsaved/', { userName: app.mainView.userName } )
+        .done(function(data) {
+          if (data === "false") {
+            $('#demographicDataModal').modal({
+              backdrop: 'static',
+              keyboard: false,
+              show: true
+            });
+          }
+        });
 
       app.mainView.user = new app.User(JSON.parse(unescape($('#data-user').html())));
       app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
@@ -308,25 +421,25 @@
      * Parsing functions.
      */
     generalParser: function(runCode) {
-      // TODO: Remove unnecessary code here.
+      // TODO: Remove unnecessary / potentially sinister code here.
 
       // Replace EuglenaScript functions with appropriate function calls.
       var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
       modifiedCode = modifiedCode.split('drawOnTrackedEuglena').join('app.mainView.drawOnTrackedEuglena');
       modifiedCode = modifiedCode.split('drawRect').join('app.mainView.drawRect');
       modifiedCode = modifiedCode.split('drawText').join('app.mainView.drawText');
-      modifiedCode = modifiedCode.split('finishGame').join('app.mainView.finishGame');
+      modifiedCode = modifiedCode.split('endProgram').join('app.mainView.endProgram');
       modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
       modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
       modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
       modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
       modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
-      modifiedCode = modifiedCode.split('getTimeLeftInGame').join('app.mainView.getTimeLeftInGame');
+      modifiedCode = modifiedCode.split('getTimeLeft').join('app.mainView.getTimeLeft');
+      modifiedCode = modifiedCode.split('readFromFile').join('app.mainView.readFromFile');
       modifiedCode = modifiedCode.split('setJoystickView').join('app.mainView.setJoystickView');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
-      modifiedCode = modifiedCode.split('setLevel').join('app.mainView.setLevel');
-      modifiedCode = modifiedCode.split('setTextPerLevel').join('app.mainView.setTextPerLevel');
-      
+      modifiedCode = modifiedCode.split('setInstructionText').join('app.mainView.setInstructionText');
+      modifiedCode = modifiedCode.split('writeToFile').join('app.mainView.writeToFile');
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
       modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
@@ -334,9 +447,42 @@
       modifiedCode = modifiedCode.split('LED.UP').join('\"LED.UP\"');
       modifiedCode = modifiedCode.split('LED.DOWN').join('\"LED.DOWN\"');
 
-      // TODO: CAREFULLY DETERMINE WHEN CODE SHOULD BE EVALUATED LOCALLY VS. GLOBALLY!!!!!
-      //eval(modifiedCode);
-      $.globalEval(modifiedCode);
+      modifiedCode = modifiedCode.split('FILE.OVERWRITE').join('\"FILE.OVERWRITE\"');
+      modifiedCode = modifiedCode.split('FILE.APPEND').join('\"FILE.APPEND\"');
+
+      modifiedCode = modifiedCode.split('MAX_SCREEN_WIDTH').join('639');
+      modifiedCode = modifiedCode.split('MAX_SCREEN_HEIGHT').join('479');
+      modifiedCode = modifiedCode.split('MAX_TEXT_SIZE').join('1.5');
+      modifiedCode = modifiedCode.split('MAX_LED_INTENSITY').join('999');
+
+      try {
+        $.globalEval(modifiedCode);
+      }
+      catch (err) {
+        app.mainView.gameInstructionText = 'There was an error in your code.';
+        app.mainView.gameErrorMessage = 'There was an error in your code.';
+        // TODO(PW): Find out why 'err' is not always accessible (race condition somewhere probably).
+        try {
+          app.mainView.gameErrorMessage = err.message;
+          app.mainView.gameInstructionText = err.message;
+        } catch (err2) {}
+          $('#btnUpdateRun').prop("disabled", false);
+          $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
+          $('#instructionText').css('color', 'red');
+          app.mainView.gameInSession = false;
+          app.mainView.codeEditorReadOnly = false;
+          app.mainView.codeVariablesEditor.setOption("readOnly", false);
+          app.mainView.runEditor.setOption("readOnly", false);
+          app.mainView.startEditor.setOption("readOnly", false);
+          app.mainView.endEditor.setOption("readOnly", false);
+          app.mainView.joystickEditor.setOption("readOnly", false);
+          app.mainView.keypressEditor.setOption("readOnly", false);
+          return;
+      }
+
+      $('#instructionText').text(app.mainView.gameInstructionText);
+      $('#instructionText').css('color', 'black');
+      
     },
     parseGlobalVariables: function(runCode) {
       app.mainView.generalParser(runCode);
@@ -350,8 +496,10 @@
     parseEndCode: function(runCode) {
       app.mainView.generalParser(runCode);
     },
-    parseJoystickCode: function(runCode, angle, intensity) { 
-      var modifiedCode = runCode.split('angle').join(angle);
+    parseJoystickCode: function(runCode, angle, intensity) {
+      var modifiedCode = runCode.split('MAX_ANGLE').join('360');
+      modifiedCode = modifiedCode.split('MAX_INTENSITY').join('1.0');
+      modifiedCode = modifiedCode.split('angle').join((parseInt(angle) + 180).toString());
       modifiedCode = modifiedCode.split('intensity').join('\'' + intensity + '\'');
       app.mainView.generalParser(modifiedCode);
     },
@@ -394,8 +542,8 @@
       app.mainView.drawTextG = G;
       app.mainView.drawTextB = B;
     },
-    finishGame: function() {
-      console.log('finishGame function called.');
+    endProgram: function() {
+      console.log('fendProgram function called.');
       app.mainView.gameInSession = false;
       app.mainView.parseEndCode(app.mainView.gameEndCode);
     },
@@ -433,9 +581,27 @@
       console.log('getMaxScreenWidth function called.');
       return 639;
     },
-    getTimeLeftInGame: function() {
-      console.log('getTimeLeftInGame function called.');
+    getTimeLeft: function() {
+      console.log('getTimeLeft function called.');
       return Math.floor(app.mainView.timeLeftInLab / 1000.0);
+    },
+    readFromFile: function(fileName) {
+      console.log('readFromFile function called.');
+
+      var txtData = "unchanged";
+      $.ajax({
+        type: 'POST',
+        url: '/account/developgame/readuserfile/',
+        data: { userFile: fileName },
+        async:false
+      }).done(function(data) {
+          //console.log( "Data Loaded readFromFile: " + data);
+          txtData = data;
+          return txtData;
+        });
+
+      //console.log("Exiting function with data: " + txtData);
+      return txtData;
     },
     setJoystickView: function(isOn) {
       console.log('setJoystickView function called.');
@@ -489,17 +655,35 @@
       ledsSetObj.leftValue = left;
       return ledsSetObj;
     },
-    setTextPerLevel: function(level, levelText) {
+    setInstructionText: function(msgText) {
       console.log('setLevelText function called.');
-      app.mainView.gameLevelText[level] = levelText;
+      app.mainView.gameInstructionText = msgText;
+      $('#instructionText').text(app.mainView.gameInstructionText);
     },
-    setLevel: function(level) {
-      console.log('setLevel function called.');
-      $('#level').text(level);
-      $('#levelText').text(app.mainView.gameLevelText[level]);
-      app.mainView.gameLevel = level;
+    writeToFile: function(fileName, txt, mode) {
+      console.log('writeToFile function called.');
+      $.post('/account/developgame/writeuserfile/', { fileName: fileName,
+                                                 userText: txt,
+                                                 fileMode: mode } )
+        .done(function(data) {
+          console.log( "Data Loaded writeToFile: " + data);
+        });
     },
 
+    /*
+     * Helper functions.
+     */
+    validateDemographicInfo: function() {
+      var radio_buttons = $("input[name='optradio']");
+      var radio_buttons2 = $("input[name='optradio2']");
+      var radio_buttons3 = $("input[name='optradio3']");
+      if ($('#userNameText').val() !== '' && $('#userAgeText').val() !== ''
+        && radio_buttons.filter(':checked').length !== 0 
+              && radio_buttons2.filter(':checked').length !== 0 
+              && radio_buttons3.filter(':checked').length !== 0) {
+        $("#btnSaveDemographics").prop("disabled", false);
+      }
+    },
 
     /*
      * Normal LiveLab functions.
@@ -509,7 +693,10 @@
       console.log('kicked from ' + from);
       // console.log('kick user loop');
 
-      if (err) console.log('kickUser', err, from);
+      if (err) {
+        return;
+        console.log('kickUser', err, from);
+      }
 
       if (!app.mainView.alreadyKicked) {
         app.mainView.alreadyKicked = true;
@@ -525,12 +712,27 @@
         app.mainView.keyboardTimeout = null;
       }
 
-      //location.href = '/account/';
+      console.log('kicking user!');
       // if (app.mainView.bpuExp != null) {
       //   app.mainView.showSurvey();
       //   console.log('bpuExp is null');
       // } else {
-      //   location.href = '/account/';
+      $('#btnUpdateRun').prop("disabled", true);
+      $('#btnStartGame').prop("disabled", true);
+      $('#btnStopGame').prop("disabled", true);
+      $('#btnLoadGame').prop("disabled", true);
+      app.mainView.gameInSession = false;
+      app.mainView.gameInstructionText = 'Your session has timed out. So that another user can use a BPU, please save your code and then return to the home page in order to join a new session.';
+      alert(app.mainView.gameInstructionText);
+      $('#instructionText').text(app.mainView.gameInstructionText);
+      $('#instructionText').css('color', 'red');
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User session expired ----- \n" } )
+        .done(function(data) {
+          console.log( "Data Loaded log user data: " + data);
+        });
+      //location.href = '/account/';
       // }
     },
     getLedsSetObj: function() {
@@ -648,6 +850,7 @@
       var lastFrameTime = frameTime;
       var deltaFrame = frameTime - lastFrameTime;
       var timerActivatedJoystick = 0;
+
       //Update Loop
       app.mainView.updateLoopInterval = setInterval(function() {
         frameTime = new Date().getTime();
@@ -657,22 +860,32 @@
         //Set time left in lab
         app.mainView.setTimeLeftInLabLabel(null, deltaFrame, false);
 
-        //console.log("timeInLab:" + app.mainView.timeInLab);
-        //console.log("timeForLab:" + app.mainView.timeForLab);
+        // console.log("timeInLab:" + app.mainView.timeInLab);
+        // console.log("timeForLab:" + app.mainView.timeForLab);
 
 
+
+        // PW HACK: Make sure user isn't kicked from session if the time is negative before the session actually over.
+        if (app.mainView.timeLeftInLab > 10000) {
+          //console.log("SESSION OVER FIRST TIME");
+          app.mainView.sessionOverFirstTime = true;
+        }
 
         //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
         if (app.mainView.timeLeftInLab < 0) {
-          console.log('experiment over , kick user now');
-          app.mainView.kickUser(null, 'complete');
+          console.log('experiment over , kick user now' + app.mainView.timeLeftInLab);
+          if (app.mainView.sessionOverFirstTime) {
+            console.log('KICKING USER CODE');
+            app.mainView.kickUser(null, 'complete');
 
-          clearInterval(app.mainView.updateLoopInterval);
-          app.mainView.updateLoopInterval = null;
+            clearInterval(app.mainView.updateLoopInterval);
+            app.mainView.updateLoopInterval = null;
 
-          clearTimeout(app.mainView.keyboardTimeout);
-          app.mainView.keyboardTimeout = null;
+            clearTimeout(app.mainView.keyboardTimeout);
+            app.mainView.keyboardTimeout = null;
+          }
+          
         } else {
           if (app.mainView.isSocketInitialized && !app.mainView.hadJoyActivity) {
             if (timerActivatedJoystick > 1000) {
