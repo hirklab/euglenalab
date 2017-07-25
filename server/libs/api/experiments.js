@@ -244,7 +244,7 @@ var listExperiments = function(req, res) {
         }
 
         filters['user.name'] = req.user.username;
-        console.log(filters);
+        // console.log(filters);
 
         req.app.db.models.BpuExperiment.pagedFind({
             filters: filters,

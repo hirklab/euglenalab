@@ -198,7 +198,7 @@ var login = function(req, res) {
                 return workflow.emit('exception', err);
             }
 
-            console.log(user.username);
+            // console.log(user.username);
 
             req.login(user, function(err) {
                 if (err) {

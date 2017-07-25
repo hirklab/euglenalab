@@ -58,7 +58,7 @@ var statusList = {
 
 var webserver = "http://" + serverInfo.socketClientServerIP;
 
-var domain = "http://" + serverInfo.socketClientServerIP + ":" + serverInfo.socketClientServerPort;
+var domain = "http://" + serverInfo.socketClientServerIP +":" + serverInfo.socketClientServerPort;;
 //*** DO NOT MODIFY THIS SECTION **********
 
 

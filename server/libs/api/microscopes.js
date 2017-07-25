@@ -13,7 +13,7 @@ var ensureAccount = utils.ensureAccount;
 // c) MP -> API : GET / (List of bio processing units)
 // 	Response: list of units
 var get_bio_units = function (req, res) {
-    console.log('get microsco');
+    // console.log('get microsco');
     var workflow = req.app.utility.workflow(req, res);
 
     workflow.on('find', function () {
@@ -539,7 +539,7 @@ var bio_unit_queue = function (req, res) {
 var add_note = function (req, res) {
     var workflow = req.app.utility.workflow(req, res);
 
-    console.log(req.user);
+    // console.log(req.user);
 
     workflow.on('validate', function () {
         if (!req.body.message) {

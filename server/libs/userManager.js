@@ -26,8 +26,6 @@ UserManager.prototype.connect = function (controller, cb) {
         });
 
     that.io.sockets.on('connection', function (socket) {
-        that.logger.debug('client ' + socket.id + ' connected');
-
         var found = false;
 
         if (socket.request.session.passport.user in that.users) {
@@ -47,6 +45,7 @@ UserManager.prototype.connect = function (controller, cb) {
         }
 
         if (!found) {
+            that.logger.debug('client ' + socket.id + ' connected');
             that.users[socket.request.session.passport.user].sockets.push(socket);
             that.listConnectedUsers();
         }

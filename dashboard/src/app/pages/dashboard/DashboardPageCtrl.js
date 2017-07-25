@@ -9,9 +9,16 @@
         .controller('DashboardPageCtrl', DashboardPageCtrl);
 
     /** @ngInject */
-    function DashboardPageCtrl($scope, $rootScope, $http, $timeout, $element, lodash, Microscope, socket) {
+    function DashboardPageCtrl($scope, $rootScope, $http, $timeout, $element, lodash, Microscope) {
 
-        var vm = this;
+        var vm       = this;
+        vm.connected = false;
+
+        var socket = io.connect('http://localhost:5000', {
+            forceNew: false,
+            autoConnect:false,
+            reconnection: true
+        });
 
         var thresholds = Microscope.thresholds;
 
@@ -48,20 +55,20 @@
 
                     microscope.statistics = microscope.stats.map(function (stat) {
                         var newValue = {
-                            'name': stat.statType,
+                            'name':  stat.statType,
                             'value': stat.data.inverseTimeWeightedAvg,
-                            'max': stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
+                            'max':   stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
                         };
 
                         newValue['percent'] = newValue['value'] * 100 / newValue['max'];
-                        newValue['class'] = findClass(stat.statType, newValue['percent']);
+                        newValue['class']   = findClass(stat.statType, newValue['percent']);
 
                         return newValue;
                     });
 
                     if (microscope.statistics.length === 0) {
                         microscope.statistics = [{}, {}, {}];
-                        microscope.quality = 0;
+                        microscope.quality    = 0;
                     } else {
                         var response = lodash.find(microscope.statistics, function (stat) {
                             return stat.name === 'response';
@@ -82,35 +89,47 @@
                 });
 
             var microscopeByStatus = lodash.groupBy(microscopes, 'isOn');
-            vm.activeMicroscopes = microscopeByStatus[true];
+            vm.activeMicroscopes   = microscopeByStatus[true];
             // vm.inactiveMicroscopes = microscopeByStatus[false];
 
             vm.initializeSocket(function () {
-
+                if (!vm.connected) {
+                    socket.connect();
+                }
             });
         });
 
-        var handle = '/bpu';
+
+        // var handle = '/bpu';
 
         vm.initializeSocket = function (callback) {
             var connect = function () {
-                console.log('connecting...');
+                console.log('connected ' + socket.id);
+                vm.connected = true;
 
-                socket.on('update', function (bpuUpdates, queues, timeLeftPerBPU) {
+
+                socket.on('update', function (updates) {
+
+                    console.log('updating ' + this.id);
+
+                    var bpuUpdates     = angular.copy(updates.bpuExps);
+                    var queues         = angular.copy(updates.queueExpTags);
+                    var timeLeftPerBPU = angular.copy(updates.groupBpus);
 
 
-                    console.log(bpuUpdates);
-                    console.log(queues);
+                    // console.log(bpuUpdates);
+                    // console.log(queues);
                     // console.log(timeLeftPerBPU);
                     // console.log(vm.activeMicroscopes);
-                    $scope.$apply(function() {
+
+                    $scope.$apply(function () {
                         lodash.map(vm.activeMicroscopes, function (microscope) {
 
                             var bpu = _.find(bpuUpdates, function (bpu) {
-                                return bpu._id === microscope.id;
+                                return bpu.id === microscope.id;
                             });
 
-                            if (bpu !== null) {
+                            if (bpu != null) {
                                 microscope.status = Microscope.BPU_STATUS_DISPLAY[bpu.bpuStatus];
 
                                 // vm.microscope.allowedGroups = bpu.allowedGroups;
@@ -188,19 +207,23 @@
 
                         vm.queues = queues;
                     });
+
+
                 })
             };
 
             socket.on('connect', connect);
 
-            if(!socket.connected){
-                socket.connect();
-            }
+            socket.on('disconnect', function () {
+                console.log('disconnected');
+            });
+
+            callback();
 
         };
 
 
-        vm.max = 5;
+        vm.max        = 5;
         vm.isReadonly = true;
 
         vm.join = function (microscope) {
@@ -209,8 +232,11 @@
 
         $scope.$on("$stateChangeStart",
             function (event, toState, toParams, fromState, fromParams) {
-                if(fromState.name==='dashboard'){
+                if (fromState.name === 'dashboard') {
                     socket.disconnect();
+                    socket.removeAllListeners('connect');
+                    socket.removeAllListeners('update');
+
                 }
             });
 

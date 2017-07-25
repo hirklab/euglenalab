@@ -1,15 +1,14 @@
 (function () {
     'use strict';
 
-    // var io = require('socket.io-client');
-
     angular
         .module('BlurAdmin.pages.services', [])
         .factory('socket', function ($rootScope, $location) {
-            var socket = io.connect('localhost:' + ($location.$$port + 200 - 1), {
-                forceNew: true,
+            var socket = io.connect('http://localhost:5000', {
+                forceNew: false,
+                autoConnect:false,
                 reconnection: true
-            }); // controller is on Webserver + 200
+            });
 
             return socket;
 
