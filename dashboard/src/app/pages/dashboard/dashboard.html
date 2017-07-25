@@ -1,10 +1,11 @@
 <div class="row">
     <div class="col-xlg-3 col-lg-4 col-md-4 col-sm-6 col-xs-12"
-         ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering ">
+         ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering">
 
         <div class="panel" ng-class="microscope.panelClass">
             <div class="panel-heading clearfix" style="height: 94px;">
-                <button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button>
+                <button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start/Queue/Join</button>
+
                 <h3 class="panel-title" style="margin-bottom: 8px;">{{microscope.name}} ({{microscope.magnification}}X)   {{microscope.status}} </h3>
                 <h4 style="font-size: 16px;margin-bottom: 6px;">Time left: <span>{{microscope.timePending/1000|number:0}} sec</span></h4>
                 <h4 style="font-size: 16px;margin-bottom: 8px;">Quality: <uib-rating ng-model="microscope.quality" max="vm.max" read-only="vm.isReadonly" aria-labelledby="default-rating"></uib-rating></h4>
@@ -28,5 +29,19 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="col-xlg-3 col-lg-4 col-md-4 col-sm-3 col-xs-12 pull-right">
+        <div class="panel">
+            <div class="panel-heading">
+                <h3 class="panel-title" style="margin-bottom: 8px;">Users online</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="list-unstyled" ng-repeat="user in vm.users">
+                    <li><i class="fa fa-male"></i> {{user.id}}</li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 </div>

@@ -86,6 +86,13 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
                     addBpuToSessionID(bpuDoc.liveBpuExperiment.sessionID, JSON.parse(JSON.stringify(bpuObj)));
                 }
                 bpuObj.allowedGroups = bpuDoc.allowedGroups;                 //should be deleted before going out
+
+                if (bpuDoc.name in runningQueueTimesPerBpuName) {
+                    bpuObj.timePending = runningQueueTimesPerBpuName[bpuDoc.name];
+                } else {
+                    bpuObj.timePending = 0;
+                }
+
                 //Add to bpu Update
                 bpusUpdate.push(bpuObj);
             }
@@ -105,6 +112,11 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
         }
     });
 
+    var users = _.map(Object.values(that.userManager.users), function (user) {
+        "use strict";
+        return {id: user.userID};
+    });
+
     Object.values(that.userManager.users).forEach(function (user) {
 
         // var socketID = socketKey;
@@ -113,9 +125,10 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
         _.map(user.sockets, function (socket) {
 
             var socketUpdateObj = {
-                bpuExps:      bpusUpdate,
-                queueExpTags: [],
-                groupBpus:    []
+                microscopes: bpusUpdate,
+                // queueExpTags: [],
+                // groupBpus:    [],
+                users:       users
             };
 
             // if (updatePerSessionID[socket.sessionDoc.sessionID]) {
@@ -127,21 +140,21 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
             // 	}
             // }
 
-            bpuDocs.forEach(function (bpuDoc) {
-                //Check if bpu is in session user groups
-                // if (bpuGroupsCrossCheckWithUser({groups: socket.sessionDoc.user.groups}, bpuDoc)) {
-                var bpuDocJson = JSON.parse(JSON.stringify(bpuDoc));
-                if (runningQueueTimesPerBpuName[bpuDoc.name]) {
-                    bpuDocJson.runningQueueTime = runningQueueTimesPerBpuName[bpuDoc.name];
-                } else {
-                    bpuDocJson.runningQueueTime = 0;
-                }
-                delete bpuDocJson.allowedGroups;
-                socketUpdateObj.groupBpus.push(bpuDocJson);
-                // }
-            });
+            // bpuDocs.forEach(function (bpuDoc) {
+            //     //Check if bpu is in session user groups
+            //     // if (bpuGroupsCrossCheckWithUser({groups: socket.sessionDoc.user.groups}, bpuDoc)) {
+            //     var bpuDocJson = JSON.parse(JSON.stringify(bpuDoc));
+            //     if (runningQueueTimesPerBpuName[bpuDoc.name]) {
+            //         bpuDocJson.runningQueueTime = runningQueueTimesPerBpuName[bpuDoc.name];
+            //     } else {
+            //         bpuDocJson.runningQueueTime = 0;
+            //     }
+            //     delete bpuDocJson.allowedGroups;
+            //     socketUpdateObj.groupBpus.push(bpuDocJson);
+            //     // }
+            // });
 
-            socket.emit('update', socketUpdateObj);
+            socket.emit('message', socketUpdateObj);
         });
     });
 };

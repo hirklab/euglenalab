@@ -6,7 +6,7 @@
 
     angular
         .module('BlurAdmin.pages.auth.services')
-        .factory('Auth', Auth);
+        .service('Auth', Auth);
 
     Auth.$inject = ['$cookies', '$http', '$q', '$window'];
 
