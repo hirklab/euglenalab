@@ -1,6 +1,7 @@
 'use strict';
 var async = require('async');
 var fs = require('fs');
+var glob = require('glob');
 
 var gameFileNames = '';
 
@@ -68,6 +69,24 @@ exports.readuserfile = function(req, res) {
   });
 };
 
+// Functions for getting user demographic data.
+
+exports.isuserdemographicsaved = function(req, res) {
+  console.log("Checking if user has demographic info saved...");
+  glob(__dirname + "/userfiles/" + req.body.userName + "*.txt", function (er, files) {
+    console.log("MATCHING FILES: " + files);
+    if (files.length > 0) {
+      res.json('true');
+    } else {
+      res.json('false');
+    }
+  });
+};
+
+exports.saveuserdemographicinfo = function(req, res) {
+  console.log("Saving user's demographic info...");
+};
+
 // Functions for user logging.
 
 exports.loguserdata = function(req, res) {
@@ -84,6 +103,8 @@ exports.loguserdata = function(req, res) {
 
 
 exports.init = function(req, res, next) {
+
+
   var outcome = {};
   outcome.session = null;
   var getSessionData = function(callback) {
@@ -108,6 +129,7 @@ exports.init = function(req, res, next) {
   outcome.user = null;
   var getUserData = function(callback) {
     req.app.db.models.User.findById(outcome.sess.user.id, {}, function(err, userDoc) {
+      console.log("USER DATA::: " + userDoc);
       if (err) {
         return callback('getUser err:' + err);
       } else if (userDoc === null) {

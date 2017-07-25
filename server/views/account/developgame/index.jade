@@ -646,6 +646,140 @@ block body
     
     div.modal.fade(role="dialog")
 
+    div.modal.fade#demographicDataModal(role="dialog")
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type="button", data-dismiss="modal")
+            h4.modal-title
+              |EuglenaScript Study Survey
+          div.modal-body
+            div.form-group
+              label(for="usr") Your full name:
+              input.form-control.demographicData#userNameText(type="text")
+              br
+              label(for="usr") Your age:
+              input.form-control.demographicData#userAgeText(type="text")
+              br
+              label(for="usr") What is your programming experience on a scale of 0 to 10?
+              br
+              div.control-group
+                div.controls.radio-group
+                  label.radio-inline.control-label
+                    input#prog0.demographicData(type="radio" name="optradio")
+                    |0&nbsp;
+                  label.radio-inline.control-label
+                    input#prog1.demographicData(type="radio" name="optradio")
+                    |1&nbsp;
+                  label.radio-inline.control-label
+                    input#prog2.demographicData(type="radio" name="optradio")
+                    |2&nbsp;
+                  label.radio-inline.control-label
+                    input#prog3.demographicData(type="radio" name="optradio")
+                    |3&nbsp;
+                  label.radio-inline.control-label
+                    input#prog4.demographicData(type="radio" name="optradio")
+                    |4&nbsp;
+                  label.radio-inline.control-label
+                    input#prog5.demographicData(type="radio" name="optradio")
+                    |5&nbsp;
+                  label.radio-inline.control-label
+                    input#prog6.demographicData(type="radio" name="optradio")
+                    |6&nbsp;
+                  label.radio-inline.control-label
+                    input#prog7.demographicData(type="radio" name="optradio")
+                    |7&nbsp;
+                  label.radio-inline.control-label
+                    input#prog8.demographicData(type="radio" name="optradio")
+                    |8&nbsp;
+                  label.radio-inline.control-label
+                    input#prog9.demographicData(type="radio" name="optradio")
+                    |9&nbsp;
+                  label.radio-inline.control-label
+                    input#prog10.demographicData(type="radio" name="optradio")
+                    |10&nbsp;
+              br
+              br
+              label(for="usr") What is your JavaScript experience on a scale of 0 to 10?
+              br
+              div.control-group
+                div.controls.radio-group
+                  label.radio-inline.control-label
+                    input#js0.demographicData(type="radio" name="optradio2")
+                    |0&nbsp;
+                  label.radio-inline.control-label
+                    input#js1.demographicData(type="radio" name="optradio2")
+                    |1&nbsp;
+                  label.radio-inline.control-label
+                    input#js2.demographicData(type="radio" name="optradio2")
+                    |2&nbsp;
+                  label.radio-inline.control-label
+                    input#js3.demographicData(type="radio" name="optradio2")
+                    |3&nbsp;
+                  label.radio-inline.control-label
+                    input#js4.demographicData(type="radio" name="optradio2")
+                    |4&nbsp;
+                  label.radio-inline.control-label
+                    input#js5.demographicData(type="radio" name="optradio2")
+                    |5&nbsp;
+                  label.radio-inline.control-label
+                    input#js6.demographicData(type="radio" name="optradio2")
+                    |6&nbsp;
+                  label.radio-inline.control-label
+                    input#js7.demographicData(type="radio" name="optradio2")
+                    |7&nbsp;
+                  label.radio-inline.control-label
+                    input#js8.demographicData(type="radio" name="optradio2")
+                    |8&nbsp;
+                  label.radio-inline.control-label
+                    input#js9.demographicData(type="radio" name="optradio2")
+                    |9&nbsp;
+                  label.radio-inline.control-label
+                    input#js10.demographicData(type="radio" name="optradio2")
+                    |10&nbsp;
+              br
+              br
+              label(for="usr") What is your biology experience on a scale of 0 to 10?
+              br
+              div.control-group
+                div.controls.radio-group
+                  label.radio-inline.control-label
+                    input#bio0.demographicData(type="radio" name="optradio3")
+                    |0&nbsp;
+                  label.radio-inline.control-label
+                    input#bio1.demographicData(type="radio" name="optradio3")
+                    |1&nbsp;
+                  label.radio-inline.control-label
+                    input#bio2.demographicData(type="radio" name="optradio3")
+                    |2&nbsp;
+                  label.radio-inline.control-label
+                    input#bio3.demographicData(type="radio" name="optradio3")
+                    |3&nbsp;
+                  label.radio-inline.control-label
+                    input#bio4.demographicData(type="radio" name="optradio3")
+                    |4&nbsp;
+                  label.radio-inline.control-label
+                    input#bio5.demographicData(type="radio" name="optradio3")
+                    |5&nbsp;
+                  label.radio-inline.control-label
+                    input#bio6.demographicData(type="radio" name="optradio3")
+                    |6&nbsp;
+                  label.radio-inline.control-label
+                    input#bio7.demographicData(type="radio" name="optradio3")
+                    |7&nbsp;
+                  label.radio-inline.control-label
+                    input#bio8.demographicData(type="radio" name="optradio3")
+                    |8&nbsp;
+                  label.radio-inline.control-label
+                    input#bio9.demographicData(type="radio" name="optradio3")
+                    |9&nbsp;
+                  label.radio-inline.control-label
+                    input#bio10.demographicData(type="radio" name="optradio3")
+                    |10&nbsp;
+            br
+            button.btn.btn-primary#btnSaveDemographics(type="save", value="save", data-dismiss="modal", disabled) Submit Data
+
+
     div.modal.fade#saveGameModal(role="dialog")
       div.modal-dialog
         div.modal-content
@@ -660,7 +794,7 @@ block body
             br
             button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
           div.modal-footer
-            button.btn.btn-default(type="button" data-dismiss="modal") Close
+            button.btn.btn-default(type="button", data-dismiss="modal") Close
 
     div.modal.fade#loadGameModal(role="dialog")
       div.modal-dialog
@@ -682,7 +816,7 @@ block body
             br
             //-button.btn.btn-primary#btnLoadGame(type="save", value="save") Open Game
           div.modal-footer
-            button.btn.btn-default(type="button" data-dismiss="modal") Close
+            button.btn.btn-default(type="button", data-dismiss="modal") Close
 
     script(type='text/template',id="tmpl-survey")
       div.modal-dialog(role="document")

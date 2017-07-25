@@ -124,6 +124,10 @@
         });
     });
 
+    $(".demographicData").change(function() {
+      app.mainView.validateDemographicInfo();
+    });
+
     $('#btnShowAPI').click(function() {
       if (app.mainView.isAPIshowing) {
         $('#btnShowAPI').html('Show API');
@@ -325,6 +329,15 @@
         .done(function(data) {
           console.log( "Data Loaded log user data: " + data);
         });
+
+      if (true) {
+        $('#demographicDataModal').modal({
+          backdrop: 'static',
+          keyboard: false,
+          show: true
+        });
+        //$('#demographicDataModal').modal();
+      }
 
       app.mainView.user = new app.User(JSON.parse(unescape($('#data-user').html())));
       app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
@@ -629,6 +642,21 @@
         .done(function(data) {
           console.log( "Data Loaded writeToFile: " + data);
         });
+    },
+
+    /*
+     * Helper functions.
+     */
+    validateDemographicInfo: function() {
+      var radio_buttons = $("input[name='optradio']");
+      var radio_buttons2 = $("input[name='optradio2']");
+      var radio_buttons3 = $("input[name='optradio3']");
+      if ($('#userNameText').val() !== '' && $('#userAgeText').val() !== ''
+        && radio_buttons.filter(':checked').length !== 0 
+              && radio_buttons2.filter(':checked').length !== 0 
+              && radio_buttons3.filter(':checked').length !== 0) {
+        $("#btnSaveDemographics").prop("disabled", false);
+      }
     },
 
     /*
