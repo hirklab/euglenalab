@@ -336,6 +336,21 @@
     // getAllEuglenaPositions
     getAllEuglenaPositionsStr: "",
 
+    // getAllEuglenaIDs
+    getAllEuglenaIDsStr: "",
+
+    // getEuglenaPositionByID
+    getEuglenaPositionID: 0,
+    getEuglenaPositionReturn: "",
+
+    // getEuglenaVelocityByID
+    getEuglenaVelocityID: 0,
+    getEuglenaVelocityReturn: "",
+
+    // getEuglenaRotationByID
+    getEuglenaRotationID: 0,
+    getEuglenaRotationReturn: "",
+
     //Tag-Initialize
     initialize: function() {
       //Get Window Stats
@@ -429,9 +444,13 @@
       modifiedCode = modifiedCode.split('drawRect').join('app.mainView.drawRect');
       modifiedCode = modifiedCode.split('drawText').join('app.mainView.drawText');
       modifiedCode = modifiedCode.split('endProgram').join('app.mainView.endProgram');
+      modifiedCode = modifiedCode.split('getAllEuglenaIDs').join('app.mainView.getAllEuglenaIDs');
       modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
       modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
       modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
+      modifiedCode = modifiedCode.split('getEuglenaPositionByID').join('app.mainView.getEuglenaPositionByID');
+      modifiedCode = modifiedCode.split('getEuglenaRotationByID').join('app.mainView.getEuglenaRotationByID');
+      modifiedCode = modifiedCode.split('getEuglenaVelocityByID').join('app.mainView.getEuglenaVelocityByID');
       modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
       modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
       modifiedCode = modifiedCode.split('getTimeLeft').join('app.mainView.getTimeLeft');
@@ -543,9 +562,14 @@
       app.mainView.drawTextB = B;
     },
     endProgram: function() {
-      console.log('fendProgram function called.');
+      console.log('endProgram function called.');
       app.mainView.gameInSession = false;
       app.mainView.parseEndCode(app.mainView.gameEndCode);
+    },
+    getAllEuglenaIDs: function() {
+      console.log('getAllEuglenaIDs function called.');
+      //console.log('IDs::: ' + app.mainView.getAllEuglenaIDsStr);
+      return app.mainView.getAllEuglenaIDsStr;
     },
     getAllEuglenaPositions: function() {
       console.log('getAllEuglenaPositions function called.');
@@ -570,8 +594,26 @@
       app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
       app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
       app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
-      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing.
+      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
       return app.mainView.gameEuglenaInRectCount;
+    },
+    getEuglenaPositionByID: function(id) {
+      console.log('getEuglenaPositionByID function called.');
+      app.mainView.getEuglenaPositionID = id;
+      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
+      return app.mainView.getEuglenaPositionReturn;
+    },
+    getEuglenaRotationByID: function(id) {
+      console.log('getEuglenaRotationByID function called.');
+      app.mainView.getEuglenaRotationID = id;
+      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
+      return app.mainView.getEuglenaRotationReturn;
+    },
+    getEuglenaVelocityByID: function(id) {
+      console.log('getEuglenaVelocityByID function called.');
+      app.mainView.getEuglenaVelocityID = id;
+      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
+      return app.mainView.getEuglenaVelocityReturn;
     },
     getMaxScreenHeight: function() {
       console.log('getMaxScreenHeight function called.');

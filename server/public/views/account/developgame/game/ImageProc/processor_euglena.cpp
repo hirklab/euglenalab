@@ -99,12 +99,15 @@ class EuglenaProcessor : public Processor {
         char getAllEuglenaIDsStr[10000];
 
         //getEuglenaPositionByID
+        int getEuglenaPositionID;
         char targetEuglenaPositionStr[10];
 
         //getEuglenaVelocityByID
+        int getEuglenaVelocityID;
         float targetEuglenaVelocity;
 
         //getEuglenaRotationByID
+        int getEuglenaRotationID;
         float targetEuglenaRotation;
 
     private:
@@ -235,6 +238,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     int totalDetectedEuglena = 0;
     double elapsedTime;
 
+    std::strcpy(getAllEuglenaIDsStr, "test");
+
     if (gameInSession) {
         if (demoMode) {
             // Do something with demo mode here, if applicable.
@@ -346,7 +351,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     cv::putText(im, std::to_string(e.ID), e.rect.center, cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
                 }
                 std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
-                if (e.ID == euglenaID) {
+                std::strcat(getAllEuglenaIDsStr, "-t3$t-");
+                if (e.ID == getEuglenaPositionID) {
                     std::strcat(targetEuglenaPositionStr, "(");
                     std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
                     std::strcat(targetEuglenaPositionStr, ",");
@@ -359,7 +365,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 } else if (frameCounts%15 == 0) {
                     endTime = time(nullptr);
                     elapsedTime = std::difftime(endTime, startTime)*1000;
-                    if (prevEuglenaPositions.count(e.ID)) {
+                    if (prevEuglenaPositions.count(getEuglenaVelocityID)) {
                         float deltaDistance = cv::norm(currPosition - prevEuglenaPositions[e.ID]);
                         float distanceInMicrons = (((deltaDistance*magnification)/4.0)*100.0)/640.0;
                         float velocityMicronsPerMillisecond = distanceInMicrons/elapsedTime;

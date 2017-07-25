@@ -101,6 +101,10 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
     msg.Set( "TotalEuglena", ((EuglenaProcessor*)processor.get())->totalEuglena );
     msg.Set( "EuglenaInRect", ((EuglenaProcessor*)processor.get())->getEuglenaInRectReturnVal );
     msg.Set( "EuglenaPositionsStr", ((EuglenaProcessor*)processor.get())->getAllEuglenaPositionsStr );
+    msg.Set( "EuglenaIDsStr", ((EuglenaProcessor*)processor.get())->getAllEuglenaIDsStr );
+    msg.Set( "EuglenaPositionReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaPositionStr );
+    msg.Set( "EuglenaVelocityReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaVelocity );
+    msg.Set( "EuglenaRotationReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaRotation );
     PostMessage( msg );
 
     // Convert data to CMat
