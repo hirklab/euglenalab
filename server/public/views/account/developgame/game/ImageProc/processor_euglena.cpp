@@ -390,8 +390,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         // cv::putText(im, drawTextdrawTxt, cv::Point(drawTextXPos, drawTextYPos), cv::FONT_HERSHEY_DUPLEX, drawTextSize, cv::Scalar(drawTextR,drawTextG,drawTextB,255));
     }
 
-    // kalmanTracker.kalmanVector.clear();
-    //e.tracker.kalmanVector.clear();
     // Display game over if that's the case.
     if (currEuglenaInBox >= 0.1*totalDetectedEuglena || gameInSession == false) {
         gameInSession = false;
