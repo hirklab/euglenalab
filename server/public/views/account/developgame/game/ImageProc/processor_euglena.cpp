@@ -19,7 +19,7 @@ class KFTracker {
         cv::Mat systemState;
         cv::Mat precessNoise;
         cv::Mat systemMeasurement;
-        std::vector<cv::Point>pointsVector, kalmanVector; 
+        std::vector<cv::Point>pointsVector, kalmanVector;
         bool init;
 
         KFTracker();
@@ -27,6 +27,7 @@ class KFTracker {
         void track(float x, float y);
         void initializeKF(float x, float y);
         void draw(cv::Mat img);
+        void drawPath(cv::Mat img);
     private:
 };
 
@@ -47,7 +48,17 @@ class EuglenaProcessor : public Processor {
         int totalEuglena;
         bool demoMode;
         bool drawOnTrackedEuglena;
+        bool viewEuglenaPaths;
+        
+        // Euglena tracking variables
         std::vector<EuglenaObject> trackedEuglenas;
+        int euglenaID;
+        std::time_t startTime;
+        std::time_t endTime;
+        int frameCounts = 0;
+        int magnification;
+        std::map<int, cv::Point2f> prevEuglenaPositions;
+        std::map<int, float> euglenaVelocities;
 
         // drawRect
         double drawRectUpperLeftX;
@@ -83,6 +94,18 @@ class EuglenaProcessor : public Processor {
         double getEuglenaDensityLowerRightX;
         double getEuglenaDensityLowerRightY;
         double getEuglenaDensityReturnVal;
+
+        //getAllEuglenaIDs
+        char getAllEuglenaIDsStr[10000];
+
+        //getEuglenaPositionByID
+        char targetEuglenaPositionStr[10];
+
+        //getEuglenaVelocityByID
+        float targetEuglenaVelocity;
+
+        //getEuglenaRotationByID
+        float targetEuglenaRotation;
 
     private:
         cv::BackgroundSubtractor* _fgbg;
@@ -178,15 +201,23 @@ void KFTracker::track(float x, float y) {
 
 void KFTracker::draw(cv::Mat img) {
     if (kalmanVector.size() >= 2) {
-        for (int i=kalmanVector.size()-5; i<kalmanVector.size()-1; i++) {
+        for (int i=kalmanVector.size()-4; i<kalmanVector.size()-1; i++) {
             line(img, kalmanVector[i], kalmanVector[i+1], cv::Scalar(0,255,0), 1);
         }
+        line(img, kalmanVector[kalmanVector.size()-1], kalmanVector[kalmanVector.size()-4], cv::Scalar(0,255,0),1);
+    }
+}
+
+void KFTracker::drawPath(cv::Mat img) {
+    for (int i=0; i<kalmanVector.size()-1; i++) {
+            line(img, kalmanVector[i], kalmanVector[i+1], cv::Scalar(0,255,0), 1);
     }
 }
 
 cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     printf("Processing images..."); 
 
+    frameCounts += 1;
     cv::Mat fgmask;
     (*_fgbg)(im,fgmask,-1);
 
@@ -202,6 +233,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
     int currEuglenaInBox = 0;
     int totalDetectedEuglena = 0;
+    double elapsedTime;
 
     if (gameInSession) {
         if (demoMode) {
@@ -295,24 +327,51 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 }
             }
         }
-
-        if (drawOnTrackedEuglena) {
-            int position = -1;
-            for (auto &e : trackedEuglenas) {
-                position += 1;
-                if (e.tracked) {
+            
+        int position = -1;
+        float xPosition;
+        float yPosition;
+        for (auto &e : trackedEuglenas) {
+            position += 1;
+            if (e.tracked) {
+                e.tracked = false;
+                xPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].x + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].x)/2;
+                yPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].y + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].y)/2;
+                cv::Point2f currPosition(xPosition, yPosition);
+                if (viewEuglenaPaths) {
+                    e.tracker.drawPath(im);
                     cv::putText(im, std::to_string(e.ID), e.rect.center, cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
-                    e.tracked = false;
+                } else if (drawOnTrackedEuglena) {
                     e.tracker.draw(im);
-                    // cv::Point2f drawPts[4];
-                    // e.rect.points(drawPts);
-                    // for (int i=0;i<4;i++) {
-                    // cv::line(im, drawPts[i], drawPts[(i+1)%4], cv::Scalar(0,255,0,255), 2);
-                    // }
-                } else {
-                    trackedEuglenas.erase(trackedEuglenas.begin() + position);
-                    position -= 1;
+                    cv::putText(im, std::to_string(e.ID), e.rect.center, cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
                 }
+                std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
+                if (e.ID == euglenaID) {
+                    std::strcat(targetEuglenaPositionStr, "(");
+                    std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
+                    std::strcat(targetEuglenaPositionStr, ",");
+                    std::strcat(targetEuglenaPositionStr, std::to_string(yPosition).c_str());
+                    std::strcat(targetEuglenaPositionStr, ");");
+                }
+                if (frameCounts%10 == 0) {
+                    startTime = time(nullptr);
+                    prevEuglenaPositions[e.ID] = currPosition;
+                } else if (frameCounts%15 == 0) {
+                    endTime = time(nullptr);
+                    elapsedTime = std::difftime(endTime, startTime)*1000;
+                    if (prevEuglenaPositions.count(e.ID)) {
+                        float deltaDistance = cv::norm(currPosition - prevEuglenaPositions[e.ID]);
+                        float distanceInMicrons = (((deltaDistance*magnification)/4.0)*100.0)/640.0;
+                        float velocityMicronsPerMillisecond = distanceInMicrons/elapsedTime;
+                        euglenaVelocities[e.ID] = velocityMicronsPerMillisecond;
+                        targetEuglenaVelocity = euglenaVelocities[e.ID];
+                    } else {
+                        targetEuglenaVelocity = -1.0;
+                    }
+                }
+            } else {
+                trackedEuglenas.erase(trackedEuglenas.begin() + position);
+                position -= 1;
             }
         }
 

@@ -72,7 +72,7 @@ function enableDownload()
       }
       var img = new Image();
       img.onload = imageOnLoad;
-      img.src = "http://171.65.102.104:20005/?action=snapshot&n=" + (++imageNr);
+      img.src = "http://171.65.103.23:20005/?action=snapshot" + (++imageNr);
       console.log("Game's BPU ADDRESS: " + img.src);
       img.crossOrigin = "Anonymous";
     }
@@ -148,7 +148,7 @@ function processNextImage()
                 gameEndMsg: "Game Over",
                 gameInSession: true,
                 gameDemoMode: false,
-                gameDrawOnTrackedEuglena: false,
+                gameDrawOnTrackedEuglena: true,
                 // drawRect
                 drawRectUpperLeftX: 100, 
                 drawRectUpperLeftY: 100, 
@@ -158,7 +158,7 @@ function processNextImage()
                 drawRectG: 100, 
                 drawRectB: 100,
                 // drawText
-                drawTextdrawTxt: "hi",
+                drawTextdrawTxt: "Karina",
                 drawTextXPos: 200,
                 drawTextYPos: 200,
                 drawTextSize: 0.6,
@@ -171,13 +171,14 @@ function processNextImage()
                 getEuglenaInRectLowerRightX: 300,
                 getEuglenaInRectLowerRightY: 300,
                 processor: "Euglena" };
+
     startTime = performance.now();
     ImageProcModule.postMessage( cmd );
   }
 
   var img = new Image();
   img.onload = imageOnLoad;
-  img.src = "http://171.65.102.104:20005/?action=snapshot&n=" + (++imageNr);
+  img.src = "http://171.65.103.23:20005/?action=snapshot" + (++imageNr);
   img.crossOrigin = "Anonymous";
 }
 
