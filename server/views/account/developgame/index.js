@@ -73,7 +73,7 @@ exports.readuserfile = function(req, res) {
 
 exports.isuserdemographicsaved = function(req, res) {
   console.log("Checking if user has demographic info saved...");
-  glob(__dirname + "/userfiles/" + req.body.userName + "*.txt", function (er, files) {
+  glob(__dirname + "/userdata/" + req.body.userName + "_demographics.txt", function (er, files) {
     console.log("MATCHING FILES: " + files);
     if (files.length > 0) {
       res.json('true');
@@ -85,6 +85,17 @@ exports.isuserdemographicsaved = function(req, res) {
 
 exports.saveuserdemographicinfo = function(req, res) {
   console.log("Saving user's demographic info...");
+  var filePath = __dirname + "/userdata/" + req.body.userName + "_demographics.txt";
+  var fileToSave = "Name: " + req.body.fullName +
+                    "\nAge: " + req.body.age + 
+                    "\nProgramming: " + req.body.programExp + 
+                    "\nJavaScript: " + req.body.jsExp + 
+                    "\nBiology: " + req.body.bioExp;
+  fs.writeFile (filePath, fileToSave, function(err) {
+      if (err) throw err;
+      console.log('game file writing complete');
+  });
+  res.json('success');
 };
 
 // Functions for user logging.

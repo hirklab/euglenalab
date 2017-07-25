@@ -659,123 +659,78 @@ block body
               input.form-control.demographicData#userNameText(type="text")
               br
               label(for="usr") Your age:
-              input.form-control.demographicData#userAgeText(type="text")
+              input.form-control.demographicData#userAgeText(type="number")
               br
-              label(for="usr") What is your programming experience on a scale of 0 to 10?
-              br
-              div.control-group
-                div.controls.radio-group
-                  label.radio-inline.control-label
-                    input#prog0.demographicData(type="radio" name="optradio")
-                    |0&nbsp;
-                  label.radio-inline.control-label
-                    input#prog1.demographicData(type="radio" name="optradio")
-                    |1&nbsp;
-                  label.radio-inline.control-label
-                    input#prog2.demographicData(type="radio" name="optradio")
-                    |2&nbsp;
-                  label.radio-inline.control-label
-                    input#prog3.demographicData(type="radio" name="optradio")
-                    |3&nbsp;
-                  label.radio-inline.control-label
-                    input#prog4.demographicData(type="radio" name="optradio")
-                    |4&nbsp;
-                  label.radio-inline.control-label
-                    input#prog5.demographicData(type="radio" name="optradio")
-                    |5&nbsp;
-                  label.radio-inline.control-label
-                    input#prog6.demographicData(type="radio" name="optradio")
-                    |6&nbsp;
-                  label.radio-inline.control-label
-                    input#prog7.demographicData(type="radio" name="optradio")
-                    |7&nbsp;
-                  label.radio-inline.control-label
-                    input#prog8.demographicData(type="radio" name="optradio")
-                    |8&nbsp;
-                  label.radio-inline.control-label
-                    input#prog9.demographicData(type="radio" name="optradio")
-                    |9&nbsp;
-                  label.radio-inline.control-label
-                    input#prog10.demographicData(type="radio" name="optradio")
-                    |10&nbsp;
-              br
-              br
-              label(for="usr") What is your JavaScript experience on a scale of 0 to 10?
+              label(for="usr") What is your programming experience on a scale of 0 (no experience) to 5 (expert)?
               br
               div.control-group
                 div.controls.radio-group
                   label.radio-inline.control-label
-                    input#js0.demographicData(type="radio" name="optradio2")
+                    input#prog0.demographicData(type="radio" name="optradio" value="0")
                     |0&nbsp;
                   label.radio-inline.control-label
-                    input#js1.demographicData(type="radio" name="optradio2")
+                    input#prog1.demographicData(type="radio" name="optradio" value="1")
                     |1&nbsp;
                   label.radio-inline.control-label
-                    input#js2.demographicData(type="radio" name="optradio2")
+                    input#prog2.demographicData(type="radio" name="optradio" value="2")
                     |2&nbsp;
                   label.radio-inline.control-label
-                    input#js3.demographicData(type="radio" name="optradio2")
+                    input#prog3.demographicData(type="radio" name="optradio" value="3")
                     |3&nbsp;
                   label.radio-inline.control-label
-                    input#js4.demographicData(type="radio" name="optradio2")
+                    input#prog4.demographicData(type="radio" name="optradio" value="4")
                     |4&nbsp;
                   label.radio-inline.control-label
-                    input#js5.demographicData(type="radio" name="optradio2")
+                    input#prog5.demographicData(type="radio" name="optradio" value="5")
                     |5&nbsp;
-                  label.radio-inline.control-label
-                    input#js6.demographicData(type="radio" name="optradio2")
-                    |6&nbsp;
-                  label.radio-inline.control-label
-                    input#js7.demographicData(type="radio" name="optradio2")
-                    |7&nbsp;
-                  label.radio-inline.control-label
-                    input#js8.demographicData(type="radio" name="optradio2")
-                    |8&nbsp;
-                  label.radio-inline.control-label
-                    input#js9.demographicData(type="radio" name="optradio2")
-                    |9&nbsp;
-                  label.radio-inline.control-label
-                    input#js10.demographicData(type="radio" name="optradio2")
-                    |10&nbsp;
               br
               br
-              label(for="usr") What is your biology experience on a scale of 0 to 10?
+              label(for="usr") What is your JavaScript experience on a scale of 0 (no experience) to 5 (expert)?
               br
               div.control-group
                 div.controls.radio-group
                   label.radio-inline.control-label
-                    input#bio0.demographicData(type="radio" name="optradio3")
+                    input#js0.demographicData(type="radio" name="optradio2" value="0")
                     |0&nbsp;
                   label.radio-inline.control-label
-                    input#bio1.demographicData(type="radio" name="optradio3")
+                    input#js1.demographicData(type="radio" name="optradio2" value="1")
                     |1&nbsp;
                   label.radio-inline.control-label
-                    input#bio2.demographicData(type="radio" name="optradio3")
+                    input#js2.demographicData(type="radio" name="optradio2" value="2")
                     |2&nbsp;
                   label.radio-inline.control-label
-                    input#bio3.demographicData(type="radio" name="optradio3")
+                    input#js3.demographicData(type="radio" name="optradio2" value="3")
                     |3&nbsp;
                   label.radio-inline.control-label
-                    input#bio4.demographicData(type="radio" name="optradio3")
+                    input#js4.demographicData(type="radio" name="optradio2" value="4")
                     |4&nbsp;
                   label.radio-inline.control-label
-                    input#bio5.demographicData(type="radio" name="optradio3")
+                    input#js5.demographicData(type="radio" name="optradio2" value="5")
                     |5&nbsp;
+              br
+              br
+              label(for="usr") What is your biology experience on a scale of 0 (no experience) to 5 (expert)?
+              br
+              div.control-group
+                div.controls.radio-group
                   label.radio-inline.control-label
-                    input#bio6.demographicData(type="radio" name="optradio3")
-                    |6&nbsp;
+                    input#bio0.demographicData(type="radio" name="optradio3" value="0")
+                    |0&nbsp;
                   label.radio-inline.control-label
-                    input#bio7.demographicData(type="radio" name="optradio3")
-                    |7&nbsp;
+                    input#bio1.demographicData(type="radio" name="optradio3" value="1")
+                    |1&nbsp;
                   label.radio-inline.control-label
-                    input#bio8.demographicData(type="radio" name="optradio3")
-                    |8&nbsp;
+                    input#bio2.demographicData(type="radio" name="optradio3" value="2")
+                    |2&nbsp;
                   label.radio-inline.control-label
-                    input#bio9.demographicData(type="radio" name="optradio3")
-                    |9&nbsp;
+                    input#bio3.demographicData(type="radio" name="optradio3" value="3")
+                    |3&nbsp;
                   label.radio-inline.control-label
-                    input#bio10.demographicData(type="radio" name="optradio3")
-                    |10&nbsp;
+                    input#bio4.demographicData(type="radio" name="optradio3" value="4")
+                    |4&nbsp;
+                  label.radio-inline.control-label
+                    input#bio5.demographicData(type="radio" name="optradio3" value="5")
+                    |5&nbsp;
             br
             button.btn.btn-primary#btnSaveDemographics(type="save", value="save", data-dismiss="modal", disabled) Submit Data
 

@@ -128,6 +128,24 @@
       app.mainView.validateDemographicInfo();
     });
 
+    $('#btnSaveDemographics').click(function() {
+      app.mainView.validateDemographicInfo();
+      app.mainView.fullName = $('#userNameText').val();
+      app.mainView.age = $('#userAgeText').val();
+      app.mainView.programExp = $("input:radio[name='optradio']:checked").val();
+      app.mainView.jsExp = $("input:radio[name='optradio2']:checked").val();
+      app.mainView.bioExp = $("input:radio[name='optradio3']:checked").val();
+      $.post('/account/developgame/saveuserdemographicinfo/', { userName: app.mainView.userName,
+                                                                fullName: app.mainView.fullName,
+                                                                age: app.mainView.age,
+                                                                programExp: app.mainView.programExp,
+                                                                jsExp: app.mainView.jsExp,
+                                                                bioExp: app.mainView.bioExp } )
+        .done(function(data) {
+          console.log( "Data Loaded demographic data: " + data);
+        });
+    });
+
     $('#btnShowAPI').click(function() {
       if (app.mainView.isAPIshowing) {
         $('#btnShowAPI').html('Show API');
@@ -264,6 +282,11 @@
     isAPIshowing: true,
     fileWriteMode: 'FILE.APPEND',
     userName: "",
+    fullName: "",
+    age: "",
+    programExp: "",
+    jsExp: "",
+    bioExp: "",
 
     gameErrorMessage: "",
 
@@ -330,14 +353,17 @@
           console.log( "Data Loaded log user data: " + data);
         });
 
-      if (true) {
-        $('#demographicDataModal').modal({
-          backdrop: 'static',
-          keyboard: false,
-          show: true
+
+      $.post('/account/developgame/isuserdemographicsaved/', { userName: app.mainView.userName } )
+        .done(function(data) {
+          if (data === "false") {
+            $('#demographicDataModal').modal({
+              backdrop: 'static',
+              keyboard: false,
+              show: true
+            });
+          }
         });
-        //$('#demographicDataModal').modal();
-      }
 
       app.mainView.user = new app.User(JSON.parse(unescape($('#data-user').html())));
       app.mainView.session = new app.Session(JSON.parse(unescape($('#data-session').html())));
