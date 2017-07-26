@@ -1,37 +1,55 @@
 <div class="row">
-    <div class="col-xlg-3 col-lg-4 col-md-4 col-sm-6 col-xs-12"
+    <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-6 col-xs-12"
          ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering">
 
         <div class="panel" ng-class="microscope.panelClass">
             <div class="panel-heading clearfix" style="height: 94px;">
-                <button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start/Queue/Join</button>
+                <button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button>
 
-                <h3 class="panel-title" style="margin-bottom: 8px;">{{microscope.name}} ({{microscope.magnification}}X)   {{microscope.status}} </h3>
-                <h4 style="font-size: 16px;margin-bottom: 6px;">Time left: <span>{{microscope.timePending/1000|number:0}} sec</span></h4>
-                <h4 style="font-size: 16px;margin-bottom: 8px;">Quality: <uib-rating ng-model="microscope.quality" max="vm.max" read-only="vm.isReadonly" aria-labelledby="default-rating"></uib-rating></h4>
+                <!--<div class="btn-group" role="group">-->
+                    <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+                        <!--Options-->
+                        <!--<span class="caret"></span>-->
+                    <!--</button>-->
+                    <!--<ul class="dropdown-menu">-->
+                        <!--<li><button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button></li>-->
+                        <!--<li><button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Collaborate</button></li>-->
+                    <!--</ul>-->
+                <!--</div>-->
+
+                <h3 class="panel-title" style="margin-bottom: 8px;">{{microscope.name}} {{microscope.status}}</h3>
+                <h4 style="font-size: 16px;margin-bottom: 6px;">Time left: <span>{{microscope.timePending/1000|number:0}} sec</span>
+                </h4>
+                <h4 style="font-size: 16px;margin-bottom: 8px;">Quality:
+                    <uib-rating ng-model="microscope.quality" max="vm.max" read-only="vm.isReadonly"
+                                aria-labelledby="default-rating"></uib-rating>
+                </h4>
 
             </div>
             <div class="panel-body">
                 <div class="microscope-wrapper">
                     <div class="microscope-main-info">
+                        <div style="color: #fff;font-weight: 600;font-size: 24px;float: right;position: relative;right: 12px;top: 12px;margin-bottom: -24px;    text-shadow: black;    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);">
+                            {{microscope.magnification}}X
+                        </div>
                         <img ng-src="{{microscope.address}}" err-src="/assets/img/bpu-disabled.jpg" style="width:100%">
                     </div>
-                    <!--<div class="microscope-footer">-->
-                        <!--<div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">-->
-                            <!--<div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}"-->
-                                 <!--aria-valuemin="0"-->
-                                 <!--aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"-->
-                                 <!--ng-class="stat.class">-->
-                                <!--<span>{{stat.name | uppercase}}</span>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
+                    <div class="microscope-footer">
+                        <div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"
+                                 ng-class="stat.class">
+                                <span>{{stat.name | uppercase}}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xlg-3 col-lg-4 col-md-4 col-sm-3 col-xs-12 pull-right">
+    <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-3 col-xs-12 pull-right">
         <div class="panel">
             <div class="panel-heading">
                 <h3 class="panel-title" style="margin-bottom: 8px;">Users online</h3>

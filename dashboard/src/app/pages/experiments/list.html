@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-12">
-        <div ba-panel ba-panel-title="My Experiments" ba-panel-class="with-scroll">
+        <div ba-panel ba-panel-class="with-scroll">
             <div class="horizontal-scroll">
                 <table class="table" st-table="vm.displayed" st-safe-src="vm.list" st-pipe="vm.filter">
                 <thead>
@@ -38,7 +38,7 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="experiment in vm.displayed">
-                        <td class="table-id">{{experiment.id}}</td>
+                        <td class="table-id"><a ui-sref="experimentDetail({id:experiment.id})">{{experiment.id}}</a></td>
                         <td>{{experiment.bpu}}</td>
                         <td>{{ experiment.submittedAt | date:'short'}}</td>
                         <!--<td>{{experiment.username}}</td>-->

@@ -24,6 +24,10 @@
 
     }
 
+    & .panel-heading, .panel-footer{
+      padding: 12px 12px
+    }
+
     &> .panel-body {
       padding: 0;
       height: 100%;
@@ -91,3 +95,8 @@ live-status .admin-chart{
     line-height: 18px;
   }
 }
+
+div > iframe{
+  bottom: 40px !important;
+}
+

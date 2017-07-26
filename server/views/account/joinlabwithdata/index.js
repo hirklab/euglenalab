@@ -127,14 +127,6 @@ exports.find = function(req, res, next) {
           var populationScore = 1.0 * population / magnification > 3 && 1.0 * population / magnification < 45 ? 5 : 0;
           bpuJadeObj.performanceScore = (5 * responseScore + 2 * activityScore + 3 * populationScore) / 10;
 
-          // console.log("Activity: " + activity);
-          // console.log("Response: " + response);
-          // console.log("Population: " + population);
-          // console.log("Activity s: " + activityScore);
-          // console.log("Response s: " + responseScore);
-          // console.log("Population s: " + populationScore);
-          // console.log("Performance score: " + bpuJadeObj.performanceScore);
-
           outcome.bpuJadeObjects.push(bpuJadeObj);
         });
         return callback(null);

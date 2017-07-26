@@ -84,13 +84,12 @@
 
             var microscopeByStatus = lodash.groupBy(microscopes, 'isOn');
             vm.activeMicroscopes   = microscopeByStatus[true];
-            // vm.inactiveMicroscopes = microscopeByStatus[false];
 
         });
 
         unhook = $rootScope.$on("message", function (e, updates) {
 
-            console.log('got message');
+            // console.log('got message');
 
             var bpuUpdates     = angular.copy(updates.microscopes);
             var users = angular.copy(updates.users);

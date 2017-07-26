@@ -27,6 +27,13 @@ var get_experiment_status = function(req, res) {
 // 	Response: zip file with all filtered data
 var get_experiment_detail = function(req, res) {
     // /account/joinlabwithdata/download/58014fd349a92e241293f04c/
+	req.app.db.models.BpuExperiment.findById(req.params.id).populate('roles.admin', 'name.full').populate('roles.account', 'name.full').exec(function(err, userExp) {
+		if (err) {
+			return next(err);
+		}
+
+		res.send(userExp);
+	});
 };
 
 var find = function(req, res) {
@@ -203,7 +210,7 @@ var find = function(req, res) {
         };
         return callback(null);
     };
-    //Build Init Series
+
     var initSeriesFuncs = [];
     initSeriesFuncs.push(getSession);
     initSeriesFuncs.push(getUser);
@@ -211,7 +218,7 @@ var find = function(req, res) {
     initSeriesFuncs.push(checkBpusAgainstLiveSessionExperiment);
     initSeriesFuncs.push(getExperimentData);
     initSeriesFuncs.push(buildClientSideData);
-    //Run Init Series
+
     async.series(initSeriesFuncs, function(err) {
         if (err) {
             return next(err);
@@ -287,8 +294,8 @@ var listExperiments = function(req, res) {
 };
 
 router.get('/', ensureAuthenticated, ensureAccount, listExperiments);
-router.get('/:id/status/', ensureAuthenticated, ensureAccount, get_experiment_status);
 router.get('/:id/', ensureAuthenticated, ensureAccount, get_experiment_detail);
-// app.post('/', ensureAuthenticated, require('./views/index').create_experiment);
+router.get('/:id/status/', ensureAuthenticated, ensureAccount, get_experiment_status);
+// router.post('/', ensureAuthenticated, require('./views/index').create_experiment);
 
 module.exports = router;

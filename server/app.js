@@ -138,7 +138,7 @@ require('./libs/passport')(app, passport);
 
 // require('./routes')(app, passport);
 
-app.use(require('./views/http/index').http500);
+// app.use(require('./views/http/index').http500);
 
 app.logger.debug('starting server...');
 

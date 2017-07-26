@@ -6,10 +6,10 @@
     'use strict';
 
     angular.module('BlurAdmin.pages.experiments')
-        .controller('ExperimentDetailPageCtrl', ExperimentDetailPageCtrl);
+        .controller('ExperimentsListCtrl', ExperimentsListCtrl);
 
     /** @ngInject */
-    function ExperimentDetailPageCtrl($scope, $filter, $stateParams, lodash, Experiment, Microscope) {
+    function ExperimentsListCtrl($scope, $filter, lodash, Experiment, Microscope) {
         var vm = this;
 
         vm.currentPage = 1;
@@ -25,7 +25,7 @@
 
             var page = Math.floor(tablestate.pagination.start / tablestate.pagination.number);
 
-            Experiment.detail(page, vm.pageSize, '').then(function (res) {
+            Experiment.list(page, vm.pageSize, '').then(function (res) {
                 vm.experiments = lodash.map(res.data.results, function(experiment){
                     // experiment.status = Microscope.BPU_STATUS_DISPLAY[experiment.bpuStatus];
                     return experiment;

@@ -84,5 +84,9 @@
 
                 isListeningAt: isListeningAt
             };
-        });
+        })
+        .service('ip', function($http){
+            return $http.get('http://ipinfo.io/json');
+        })
+
 })();

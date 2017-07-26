@@ -7,7 +7,8 @@
 
     angular.module('BlurAdmin.pages.experiments', [
         'BlurAdmin.pages.experiments.services',
-        'BlurAdmin.pages.microscope.services'
+        'BlurAdmin.pages.microscope.services',
+	    'BlurAdmin.directives'
     ])
         .config(routeConfig);
 
@@ -21,7 +22,7 @@
                 templateUrl: 'app/pages/experiments/list.html',
                 authenticate: true,
                 title: 'Experiments',
-                controller: 'ExperimentsPageCtrl',
+                controller: 'ExperimentsListCtrl',
                 controllerAs:'vm',
                 sidebarMeta: {
                     icon: 'ion-erlenmeyer-flask',
@@ -33,7 +34,7 @@
                 templateUrl: 'app/pages/experiments/detail.html',
                 authenticate: true,
                 title: 'Experiments',
-                controller: 'ExperimentDetailPageCtrl',
+                controller: 'ExperimentsDetailCtrl',
                 controllerAs:'vm'
             });
     }
