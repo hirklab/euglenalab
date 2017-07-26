@@ -237,7 +237,7 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeStart
-              |//setJoystickView(false);
+              |setJoystickView(false);
               |setInstructionText("This text can be changed with the API!");
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
@@ -258,7 +258,8 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeEnd
-              |alert('Guess correctly 10 times, congrats!');
+              |setJoystickView(true);
+              |if (this.score >= 10) alert('Guess correctly 10 times, congrats!');
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br

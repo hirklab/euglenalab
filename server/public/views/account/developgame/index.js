@@ -584,8 +584,14 @@
     },
     getAllEuglenaIDs: function() {
       console.log('getAllEuglenaIDs function called.');
-      //console.log('IDs::: ' + app.mainView.getAllEuglenaIDsStr);
-      return app.mainView.getAllEuglenaIDsStr;
+      var idSet = new Set();
+      var idList = app.mainView.getAllEuglenaIDsStr.split(';');
+      for (var i = 0; i < idList.length; i++) {
+        var token = idList[i];
+        if (token.length <= 0 || isNaN(token)) continue;
+        idSet.add(parseInt(token));
+      }
+      return Array.from(idSet);
     },
     getAllEuglenaPositions: function() {
       console.log('getAllEuglenaPositions function called.');
