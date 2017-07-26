@@ -309,22 +309,22 @@
     gameDemoMode: false,
 
     // drawRect
-    drawRectUpperLeftX: 0, 
-    drawRectUpperLeftY: 0, 
-    drawRectLowerRightX: 0, 
-    drawRectLowerRightY: 0, 
-    drawRectR: 0, 
-    drawRectG: 0, 
-    drawRectB: 0,
+    drawRectUpperLeftX: [], 
+    drawRectUpperLeftY: [], 
+    drawRectLowerRightX: [], 
+    drawRectLowerRightY: [], 
+    drawRectR: [], 
+    drawRectG: [], 
+    drawRectB: [],
 
     // drawText
-    drawTextdrawTxt: "", 
-    drawTextXPos: 0, 
-    drawTextYPos: 0, 
-    drawTextSize: 0, 
-    drawTextR: 0, 
-    drawTextG: 0, 
-    drawTextB: 0,
+    drawTextdrawTxt: [], 
+    drawTextXPos: [], 
+    drawTextYPos: [], 
+    drawTextSize: [], 
+    drawTextR: [], 
+    drawTextG: [], 
+    drawTextB: [],
 
     // getEuglenaInRect
     getEuglenaInRectUpperLeftX: 0, 
@@ -428,6 +428,22 @@
      */
     runLoop: function() {
       if (app.mainView.gameInSession) {
+        app.mainView.drawRectUpperLeftX = ""; 
+        app.mainView.drawRectUpperLeftY = "";
+        app.mainView.drawRectLowerRightX = "";
+        app.mainView.drawRectLowerRightY = ""; 
+        app.mainView.drawRectR = "";
+        app.mainView.drawRectG = "";
+        app.mainView.drawRectB = "";
+
+        app.mainView.drawTextdrawTxt = "";
+        app.mainView.drawTextXPos = "";
+        app.mainView.drawTextYPos = "";
+        app.mainView.drawTextSize = "";
+        app.mainView.drawTextR = "";
+        app.mainView.drawTextG = "";
+        app.mainView.drawTextB = "";
+
         app.mainView.parseRunCode(app.mainView.gameRunCode);
       }
     },
@@ -543,23 +559,23 @@
     },
     drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B) {
       console.log('drawRect function called.');
-      app.mainView.drawRectUpperLeftX = upperLeftX;
-      app.mainView.drawRectUpperLeftY = upperLeftY;
-      app.mainView.drawRectLowerRightX = lowerRightX;
-      app.mainView.drawRectLowerRightY = lowerRightY;
-      app.mainView.drawRectR = R;
-      app.mainView.drawRectG = G;
-      app.mainView.drawRectB = B;
+      app.mainView.drawRectUpperLeftX = app.mainView.drawRectUpperLeftX + upperLeftX + "*";
+      app.mainView.drawRectUpperLeftY = app.mainView.drawRectUpperLeftY + upperLeftY + "*";
+      app.mainView.drawRectLowerRightX = app.mainView.drawRectLowerRightX + lowerRightX + "*";
+      app.mainView.drawRectLowerRightY = app.mainView.drawRectLowerRightY + lowerRightY + "*";
+      app.mainView.drawRectR = app.mainView.drawRectR + R + "*";
+      app.mainView.drawRectG = app.mainView.drawRectG + G + "*";
+      app.mainView.drawRectB = app.mainView.drawRectB + B + "*";
     },
     drawText: function(drawTxt, xPos, yPos, size, R, G, B) {
       console.log('drawText function called.');
-      app.mainView.drawTextdrawTxt = drawTxt;
-      app.mainView.drawTextXPos = xPos;
-      app.mainView.drawTextYPos = yPos;
-      app.mainView.drawTextSize = size;
-      app.mainView.drawTextR = R;
-      app.mainView.drawTextG = G;
-      app.mainView.drawTextB = B;
+      app.mainView.drawTextdrawTxt = app.mainView.drawTextdrawTxt + drawTxt + "*";
+      app.mainView.drawTextXPos = app.mainView.drawTextXPos + xPos + "*";
+      app.mainView.drawTextYPos = app.mainView.drawTextYPos + yPos + "*";
+      app.mainView.drawTextSize = app.mainView.drawTextSize + size + "*";
+      app.mainView.drawTextR = app.mainView.drawTextR + R + "*";
+      app.mainView.drawTextG = app.mainView.drawTextG + G + "*";
+      app.mainView.drawTextB = app.mainView.drawTextB + B + "*";
     },
     endProgram: function() {
       console.log('endProgram function called.');
@@ -654,9 +670,9 @@
       app.mainView.gameOverText = gameOverText;
     },
     setLED: function(led, intensity) {
-      console.log('setLED function called');
-      console.log(led);
-      console.log(intensity);
+      //console.log('setLED function called');
+      //console.log(led);
+      //console.log(intensity);
       switch (led.split('.')[1]) {
         case 'RIGHT':
           var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
