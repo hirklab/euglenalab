@@ -61,22 +61,22 @@ class EuglenaProcessor : public Processor {
         std::map<int, float> euglenaVelocities;
 
         // drawRect
-        double drawRectUpperLeftX;
-        double drawRectUpperLeftY;
-        double drawRectLowerRightX;
-        double drawRectLowerRightY; 
-        double drawRectR;
-        double drawRectG; 
-        double drawRectB;
+        char drawRectUpperLeftX[300];
+        char drawRectUpperLeftY[300];
+        char drawRectLowerRightX[300];
+        char drawRectLowerRightY[300]; 
+        char drawRectR[300];
+        char drawRectG[300]; 
+        char drawRectB[300];
 
         // drawText
-        char drawTextdrawTxt[80];
-        double drawTextXPos;
-        double drawTextYPos;
-        double drawTextSize;
-        double drawTextR;
-        double drawTextG; 
-        double drawTextB;
+        char drawTextdrawTxt[300];
+        char drawTextXPos[300];
+        char drawTextYPos[300];
+        char drawTextSize[300];
+        char drawTextR[300];
+        char drawTextG[300]; 
+        char drawTextB[300];
 
         // getEugenaInRect
         double getEuglenaInRectUpperLeftX;
@@ -111,6 +111,7 @@ class EuglenaProcessor : public Processor {
         float targetEuglenaRotation;
 
     private:
+        std::vector<std::string> split(const std::string &text, char sep);
         cv::BackgroundSubtractor* _fgbg;
         cv::Mat _elementErode;
         cv::Mat _elementDilate;
@@ -160,6 +161,18 @@ EuglenaProcessor::EuglenaProcessor() : _fgbg(0) {
 EuglenaProcessor::~EuglenaProcessor() {
     if (_fgbg)
         delete _fgbg;
+}
+
+// Helper functions.
+std::vector<std::string> EuglenaProcessor::split(const std::string &text, char sep) {
+  std::vector<std::string> tokens;
+  std::size_t start = 0, end = 0;
+  while ((end = text.find(sep, start)) != std::string::npos) {
+    tokens.push_back(text.substr(start, end - start));
+    start = end + 1;
+  }
+  tokens.push_back(text.substr(start));
+  return tokens;
 }
 
 KFTracker::KFTracker() {
@@ -250,8 +263,31 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
         cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
 
-        // Create goal box.
-        cv::rectangle(im, cv::Point(drawRectUpperLeftX, drawRectUpperLeftY), cv::Point(drawRectLowerRightX, drawRectLowerRightY), cv::Scalar(drawRectR,drawRectG,drawRectB,255), 2);      
+        // Create rectangles.
+        std::vector<std::string> drawRectUpperLeftXVector = split(drawRectUpperLeftX, '*');
+        std::vector<std::string> drawRectUpperLeftYVector = split(drawRectUpperLeftY, '*');
+        std::vector<std::string> drawRectLowerRightXVector = split(drawRectLowerRightX, '*');
+        std::vector<std::string> drawRectLowerRightYVector = split(drawRectLowerRightY, '*');
+        std::vector<std::string> drawRectRVector = split(drawRectR, '*');
+        std::vector<std::string> drawRectGVector = split(drawRectG, '*');
+        std::vector<std::string> drawRectBVector = split(drawRectB, '*');
+        for (int i = 0; i < drawRectUpperLeftXVector.size()-1; i++) {
+            //cv::rectangle(im, cv::Point(i*5.0, i*10.0), cv::Point(i*15.0+20, i*20.0+20), cv::Scalar(200, 0, 0, 255), 2);
+            cv::rectangle(im, cv::Point(std::stod(drawRectUpperLeftXVector.at(i)), std::stod(drawRectUpperLeftYVector.at(i))), cv::Point(std::stod(drawRectLowerRightXVector.at(i)), std::stod(drawRectLowerRightYVector.at(i))), cv::Scalar(std::stod(drawRectRVector.at(i)), std::stod(drawRectGVector.at(i)), std::stod(drawRectBVector.at(i)), 255), 2);      
+        }
+
+        // Create text renderings.
+        std::vector<std::string> drawTextdrawTxtVector = split(drawTextdrawTxt, '*');
+        std::vector<std::string> drawTextXPosVector = split(drawTextXPos, '*');
+        std::vector<std::string> drawTextYPosVector = split(drawTextYPos, '*');
+        std::vector<std::string> drawTextSizeVector = split(drawTextSize, '*');
+        std::vector<std::string> drawTextRVector = split(drawTextR, '*');
+        std::vector<std::string> drawTextGVector = split(drawTextG, '*');
+        std::vector<std::string> drawTextBVector = split(drawTextB, '*');
+        for (int i = 0; i < drawTextdrawTxtVector.size()-1; i++) {
+            //cv::putText(im, "test text!", cv::Point(i*30.0+20, i*30.0+20), cv::FONT_HERSHEY_DUPLEX, 0.3, cv::Scalar(0, 255, 0, 255));
+            cv::putText(im, drawTextdrawTxtVector.at(i), cv::Point(std::stod(drawTextXPosVector.at(i)), std::stod(drawTextYPosVector.at(i))), cv::FONT_HERSHEY_DUPLEX, std::stod(drawTextSizeVector.at(i)), cv::Scalar(std::stod(drawTextRVector.at(i)), std::stod(drawTextGVector.at(i)), std::stod(drawTextBVector.at(i)), 255));
+        }
 
         totalEuglena = totalDetectedEuglena;
 
@@ -264,7 +300,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 cv::RotatedRect e = cv::minAreaRect(c);
                 cv::Point2f pts[4];
                 e.points(pts);
-                bool withinScoreRect = false;
+                //bool withinScoreRect = false;
                 bool withinBoxRect = false;
                 bool haveWeAddedEuglenaPositionYet = false;
                 bool matched = false;
@@ -313,10 +349,10 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
                     trackedEuglenas[index].tracker.track(pts[i].x, pts[i].y);
 
-                    cv::Rect rRect(cv::Point(drawRectUpperLeftX, drawRectUpperLeftY), cv::Point(drawRectLowerRightX, drawRectLowerRightY));
-                    if (rRect.contains(cv::Point(pts[i].x, pts[i].y))) {
-                        withinScoreRect = true;
-                    }
+                    // cv::Rect rRect(cv::Point(drawRectUpperLeftX, drawRectUpperLeftY), cv::Point(drawRectLowerRightX, drawRectLowerRightY));
+                    // if (rRect.contains(cv::Point(pts[i].x, pts[i].y))) {
+                    //     withinScoreRect = true;
+                    // }
 
                     cv::Rect rRectBox(cv::Point(getEuglenaInRectUpperLeftX, getEuglenaInRectUpperLeftY), cv::Point(getEuglenaInRectLowerRightX, getEuglenaInRectLowerRightY));
                     if (rRectBox.contains(cv::Point(pts[i].x, pts[i].y))) {
@@ -324,9 +360,9 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     }
                     
                 }
-                if (withinScoreRect) {
-                    currEuglenaInBox += 1;
-                }
+                // if (withinScoreRect) {
+                //     currEuglenaInBox += 1;
+                // }
                 if (withinBoxRect) {
                     getEuglenaInRectReturnVal += 1;
                 }
@@ -392,8 +428,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         // std::strcpy(reqScoreStr, "Euglena needed: ");
         // std::strcat(reqScoreStr, std::to_string((int)(0.1*totalDetectedEuglena)).c_str());
         // cv::putText(im, reqScoreStr, cv::Point(2.0, 30.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
-
-        // cv::putText(im, drawTextdrawTxt, cv::Point(drawTextXPos, drawTextYPos), cv::FONT_HERSHEY_DUPLEX, drawTextSize, cv::Scalar(drawTextR,drawTextG,drawTextB,255));
     }
 
     // kalmanTracker.kalmanVector.clear();

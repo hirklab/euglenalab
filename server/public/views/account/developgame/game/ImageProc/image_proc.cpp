@@ -73,21 +73,21 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->demoMode = var_dict.Get("gameDemoMode").AsBool();
       ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = var_dict.Get("gameDrawOnTrackedEuglena").AsBool();
       // drawRect
-      ((EuglenaProcessor*)processor.get())->drawRectUpperLeftX = var_dict.Get("drawRectUpperLeftX").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawRectUpperLeftY = var_dict.Get("drawRectUpperLeftY").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawRectLowerRightX = var_dict.Get("drawRectLowerRightX").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawRectLowerRightY = var_dict.Get("drawRectLowerRightY").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawRectR = var_dict.Get("drawRectR").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawRectG = var_dict.Get("drawRectG").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawRectB = var_dict.Get("drawRectB").AsDouble();
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftX, var_dict.Get("drawRectUpperLeftX").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftY, var_dict.Get("drawRectUpperLeftY").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawRectLowerRightX, var_dict.Get("drawRectLowerRightX").AsString().c_str()); 
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawRectLowerRightY, var_dict.Get("drawRectLowerRightY").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawRectR, var_dict.Get("drawRectR").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawRectG, var_dict.Get("drawRectG").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawRectB, var_dict.Get("drawRectB").AsString().c_str());
       // drawText
       std::strcpy(((EuglenaProcessor*)processor.get())->drawTextdrawTxt, var_dict.Get("drawTextdrawTxt").AsString().c_str());
-      ((EuglenaProcessor*)processor.get())->drawTextXPos = var_dict.Get("drawTextXPos").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawTextYPos = var_dict.Get("drawTextYPos").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawTextSize = var_dict.Get("drawTextSize").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawTextR = var_dict.Get("drawTextR").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawTextG = var_dict.Get("drawTextG").AsDouble();
-      ((EuglenaProcessor*)processor.get())->drawTextB = var_dict.Get("drawTextB").AsDouble();
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawTextXPos, var_dict.Get("drawTextXPos").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawTextYPos, var_dict.Get("drawTextYPos").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawTextSize, var_dict.Get("drawTextSize").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawTextR, var_dict.Get("drawTextR").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawTextG, var_dict.Get("drawTextG").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawTextB, var_dict.Get("drawTextB").AsString().c_str());
       // getEuglenaInRect
       ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftX = var_dict.Get("getEuglenaInRectUpperLeftX").AsDouble();
       ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftY = var_dict.Get("getEuglenaInRectUpperLeftY").AsDouble();
