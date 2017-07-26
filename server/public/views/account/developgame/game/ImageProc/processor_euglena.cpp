@@ -371,7 +371,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 }
             }
         }
-            
+        
+        memset(getAllEuglenaIDsStr, 0, 10000*sizeof(char));
         int position = -1;
         float xPosition;
         float yPosition;
