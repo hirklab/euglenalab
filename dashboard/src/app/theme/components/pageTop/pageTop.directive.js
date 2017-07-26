@@ -21,6 +21,18 @@
 
                     $state.go('dashboard');
                 };
+
+                // scope.socket = socket;
+                //
+                // scope.$watch(socket.isConnected, function(newVal, oldVal){
+                // 	console.log(socket);
+                // 	console.log(newVal);
+                //
+                // 	if(newVal!==oldVal && newVal!= null){
+		         //        scope.isConnected = newVal;
+	             //    }
+                // })
+
             }
         };
     }

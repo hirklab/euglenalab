@@ -1,92 +1,104 @@
 (function () {
-    'use strict';
+	'use strict';
 
-    angular
-        .module('BlurAdmin.pages.services', [])
-        .service('socket', function ($rootScope, $location) {
-            var socket = io.connect('http://localhost:5000', {
-                forceNew: false,
-                autoConnect:true,
-                reconnection: true
-            });
+	angular
+		.module('BlurAdmin.pages.services', [])
+		.service('socket', function ($rootScope, $location) {
+			var socket = io.connect('http://localhost:5000', {
+				forceNew:     false,
+				autoConnect:  true,
+				reconnection: true
+			});
 
-            socket.on('error', function(error) {
-                console.log(error);
-            });
+			// socket.on('connecting', function () {
+			// 	$rootScope.$broadcast("connected");
+			// });
+			//
+			// socket.on('disconnect', function () {
+			// 	$rootScope.$broadcast("disconnected");
+			// });
 
-            socket.on('message', function(data) {
-                $rootScope.$broadcast("message", data);
-            });
+			socket.on('error', function (error) {
+				console.log(error);
+			});
 
-            var users = [];
+			socket.on('message', function (data) {
+				$rootScope.$broadcast("message", data);
+			});
 
-            function isListeningAt(eventName) {
-                return socket.hasOwnProperty("$events") && socket.$events.hasOwnProperty(eventName);
-            }
+			var users = [];
 
-            return {
-                users:users,
+			function isListeningAt(eventName) {
+				return socket.hasOwnProperty("$events") && socket.$events.hasOwnProperty(eventName);
+			}
 
-                on: function (eventName, callback) {
-                    if(eventName!=='message') {
-                        socket.on(eventName, function () {
-                            var args = arguments;
-                            $rootScope.$apply(function () {
-                                if (callback) {
-                                    callback.apply(socket, args);
-                                }
-                            });
-                        });
-                    }
-                },
+			return {
+				users: users,
 
-                off: function(eventName, callback){
-                    if(eventName!=='message') {
-                        socket.removeAllListeners(eventName, function () {
-                            var args = arguments;
-                            $rootScope.$apply(function () {
-                                if (callback) {
-                                    callback.apply(socket, args);
-                                }
-                            });
-                        });
-                    }
-                },
+				isConnected: function () {
+					return socket.connected
+				},
 
-                emit: function (eventName, data, callback) {
-                    socket.emit(eventName, data, function () {
-                        var args = arguments;
-                        $rootScope.$apply(function () {
-                            if (callback) {
-                                callback.apply(socket, args);
-                            }
-                        });
-                    })
-                },
+				on: function (eventName, callback) {
+					if (eventName !== 'message') {
+						socket.on(eventName, function () {
+							var args = arguments;
+							$rootScope.$apply(function () {
+								if (callback) {
+									callback.apply(socket, args);
+								}
+							});
+						});
+					}
+				},
 
-                sock: function (funcName, options, callback) {
-                    return function () {
-                        var emitStr = handle + funcName;
-                        var resStr = emitStr + 'Res';
+				off: function (eventName, callback) {
+					if (eventName !== 'message') {
+						socket.removeAllListeners(eventName, function () {
+							var args = arguments;
+							$rootScope.$apply(function () {
+								if (callback) {
+									callback.apply(socket, args);
+								}
+							});
+						});
+					}
+				},
 
-                        var resFunc = function (resData) {
-                            console.log(resData);
-                            socket.removeListener(resStr, resFunc);
-                            if (callback) {
-                                callback.apply(null, resData);
-                            }
-                        };
+				emit: function (eventName, data, callback) {
+					socket.emit(eventName, data, function () {
+						var args = arguments;
+						$rootScope.$apply(function () {
+							if (callback) {
+								callback.apply(socket, args);
+							}
+						});
+					})
+				},
 
-                        socket.on(resStr, resFunc);
-                        socket.emit(emitStr, options);
-                    };
-                },
+				sock: function (funcName, options, callback) {
+					return function () {
+						var emitStr = handle + funcName;
+						var resStr  = emitStr + 'Res';
 
-                isListeningAt: isListeningAt
-            };
-        })
-        .service('ip', function($http){
-            return $http.get('http://ipinfo.io/json');
-        })
+						var resFunc = function (resData) {
+							console.log(resData);
+							socket.removeListener(resStr, resFunc);
+							if (callback) {
+								callback.apply(null, resData);
+							}
+						};
+
+						socket.on(resStr, resFunc);
+						socket.emit(emitStr, options);
+					};
+				},
+
+				isListeningAt: isListeningAt
+			};
+		})
+		.service('ip', function ($http) {
+			return $http.get('http://ipinfo.io/json');
+		})
 
 })();

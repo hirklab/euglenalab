@@ -67,3 +67,10 @@ bower_components/*
 docs/*
 release/*
 src/.DS_Store
+/src/app/pages/ui/
+/src/app/pages/maps/
+/src/app/pages/form/
+/src/app/pages/charts/
+/src/app/pages/components/
+/src/app/pages/tables/
+/ignored/

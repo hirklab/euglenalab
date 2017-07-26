@@ -9,6 +9,7 @@
                         <th st-sort="bpu">Microscope</th>
                         <th st-sort="submittedAt">Submission Time</th>
                         <!--<th st-sort="username">User</th>-->
+                        <th st-sort="type" st-sort-default="true">Type</th>
                         <th st-sort="status" st-sort-default="true">Status</th>
                         <th >Actions</th>
                     </tr>
@@ -37,13 +38,22 @@
                     <!--</tr>-->
                     </thead>
                     <tbody>
-                    <tr ng-repeat="experiment in vm.displayed">
+                    <tr ng-show="vm.loading" class="fadeIn">
+                        <td colspan="6">
+                            <div class="loader"></div>
+                        </td>
+                    </tr>
+                    <tr ng-repeat="experiment in vm.displayed" ng-show="!vm.loading" class="fadeIn">
                         <td class="table-id"><a ui-sref="experimentDetail({id:experiment.id})">{{experiment.id}}</a></td>
-                        <td>{{experiment.bpu}}</td>
+                        <td style="text-transform: uppercase">{{experiment.bpu}}</td>
                         <td>{{ experiment.submittedAt | date:'short'}}</td>
                         <!--<td>{{experiment.username}}</td>-->
-                        <td>{{experiment.status}}</td>
-                        <td></td>
+                        <td style="text-transform: capitalize">{{experiment.type}}</td>
+                        <td style="text-transform: capitalize">{{experiment.status}}</td>
+                        <td>
+                            <button class="btn btn-primary btn-xs" ui-sref="experimentDetail({id:experiment.id})"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</button>
+                            <button class="btn btn-default btn-xs" ng-click="vm.download(experiment.id)"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Download</button>
+                        </td>
                     </tr>
                     </tbody>
                     <tfoot>

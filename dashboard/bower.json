@@ -1,12 +1,12 @@
 {
   "name": "biolab-admin",
   "version": "1.0.0",
-  "homepage": "",
+  "homepage": "http://euglena.stanford.edu",
   "authors": [
     "shirishgoyal"
   ],
   "description": "Admin for Interactive Biolab",
-  "license": "MIT",
+  "license": "GPLv3",
   "ignore": [
     "**/.*",
     "node_modules",

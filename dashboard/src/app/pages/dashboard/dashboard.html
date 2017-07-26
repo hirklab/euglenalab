@@ -1,21 +1,10 @@
 <div class="row">
-    <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-6 col-xs-12"
+    <div class="col-xlg-3 col-lg-4 col-md-4 col-sm-6 col-xs-12"
          ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering">
 
         <div class="panel" ng-class="microscope.panelClass">
             <div class="panel-heading clearfix" style="height: 94px;">
                 <button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button>
-
-                <!--<div class="btn-group" role="group">-->
-                    <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-                        <!--Options-->
-                        <!--<span class="caret"></span>-->
-                    <!--</button>-->
-                    <!--<ul class="dropdown-menu">-->
-                        <!--<li><button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button></li>-->
-                        <!--<li><button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Collaborate</button></li>-->
-                    <!--</ul>-->
-                <!--</div>-->
 
                 <h3 class="panel-title" style="margin-bottom: 8px;">{{microscope.name}} {{microscope.status}}</h3>
                 <h4 style="font-size: 16px;margin-bottom: 6px;">Time left: <span>{{microscope.timePending/1000|number:0}} sec</span>
@@ -34,22 +23,22 @@
                         </div>
                         <img ng-src="{{microscope.address}}" err-src="/assets/img/bpu-disabled.jpg" style="width:100%">
                     </div>
-                    <div class="microscope-footer">
-                        <div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">
-                            <div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}"
-                                 aria-valuemin="0"
-                                 aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"
-                                 ng-class="stat.class">
-                                <span>{{stat.name | uppercase}}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <!--<div class="microscope-footer">-->
+                        <!--<div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">-->
+                            <!--<div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}"-->
+                                 <!--aria-valuemin="0"-->
+                                 <!--aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"-->
+                                 <!--ng-class="stat.class">-->
+                                <!--<span>{{stat.name | uppercase}}</span>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</div>-->
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-3 col-xs-12 pull-right">
+    <div class="col-xlg-3 col-lg-4 col-md-4 col-sm-3 col-xs-12 pull-right">
         <div class="panel">
             <div class="panel-heading">
                 <h3 class="panel-title" style="margin-bottom: 8px;">Users online</h3>

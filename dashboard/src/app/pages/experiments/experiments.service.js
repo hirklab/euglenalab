@@ -19,6 +19,17 @@
 			queue:      queue,
 			addNote:    addNote,
 			removeNote: removeNote,
+			STATUS_DISPLAY: {
+				'created': 'created',
+				'submited': 'created',
+				'queued': 'queued',
+				'addingtobpu': 'submitting',
+				'running': 'running',
+				'servercleared': 'pending processing',
+				'processing': 'processing',
+				'failed': 'failed',
+				'finished': 'finished'
+			},
 			thresholds: {
 				'activity':   [
 					{
@@ -77,8 +88,11 @@
 		return Experiment;
 
 
-		function list() {
-			return $http.get('/api/experiments/');
+		function list(page, limit, sortBy, search) {
+			if(!page) page =1;
+			if(!limit) limit =10;
+
+			return $http.get('/api/experiments/?'+'page='+page + '&limit='+limit);
 		}
 
 		function detail(id) {
