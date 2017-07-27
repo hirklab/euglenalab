@@ -276,6 +276,7 @@
     updateLoopInterval: null,
 
     bpuAddress: "",
+    magnification: 0,
 
     gameSessionName: "no_name_assigned",
     sessionOverFirstTime: false,
@@ -390,6 +391,7 @@
       app.mainView.bpuAddress = "http://" + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["ip"] + ":" + JSON.parse(unescape($('#data-bpu').html()))["publicAddr"]["webcamPort"];
       app.mainView.ledsSetObj = new app.User(JSON.parse(unescape($('#data-setLedsObj').html())));
       app.mainView.bpuExp = new app.User(JSON.parse(unescape($('#data-bpuExp').html())));
+      app.mainView.magnification = parseInt(JSON.parse(unescape($('#data-bpu').html()))["magnification"]);
       app.mainView.bpuExp.attributes.exp_eventsToRun.sort(function(objA, objB) {
         return objB.time - objA.time;
       });

@@ -149,6 +149,7 @@ function processNextImage()
                 gameInSession: app.mainView.gameInSession,
                 gameDemoMode: app.mainView.gameDemoMode,
                 gameDrawOnTrackedEuglena: app.mainView.gameDrawOnTrackedEuglena,
+                magnification: app.mainView.magnification,
                 // drawRect
                 drawRectUpperLeftX: app.mainView.drawRectUpperLeftX, 
                 drawRectUpperLeftY: app.mainView.drawRectUpperLeftY, 
@@ -178,6 +179,7 @@ function processNextImage()
                 getEuglenaRotationID: app.mainView.getEuglenaRotationID,
                 // getEuglenaVelocityByID
                 getEuglenaVelocityID: app.mainView.getEuglenaVelocityID,
+
 
                 processor: "Euglena" };
     startTime = performance.now();

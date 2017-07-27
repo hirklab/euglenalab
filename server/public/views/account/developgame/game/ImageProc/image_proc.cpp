@@ -101,6 +101,8 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->accelerationID = var_dict.Get("getEuglenaAccelerationID").AsInt();
       // getEuglenaRotationByID
       ((EuglenaProcessor*)processor.get())->rotationID = var_dict.Get("getEuglenaAccelerationID").AsInt();
+
+      ((EuglenaProcessor*)processor.get())->magnification = var_dict.Get("magnification").AsInt();
     }
 
     // Post message with C++ variables back to JavaScript layer.
