@@ -35,17 +35,13 @@
         function login(account) {
             return $http.post('/api/auth/login/', account)
                 .success(function(response, status, headers, config){
-                    // console.log(response);
 
                     $cookies.put("token", response.token);
                     $cookies.put("user", response);
 
-                    // if(response.user.isAdmin) {
-                    //     $cookies.put("token", response.token);
-                    //     $cookies.put("user", response);
-                    // }else{
-                    //
-                    // }
+                    if(response.user.isAdmin) {
+                        $cookies.put("isAdmin", true);
+                    }
                 });
         }
 
@@ -55,8 +51,6 @@
 
             function logoutSuccessFn(data, status, headers, config) {
                 Auth.unauthenticate();
-
-                $window.location = '/auth/login';
             }
 
             function logoutErrorFn(data, status, headers, config) {
@@ -67,6 +61,9 @@
         function unauthenticate() {
             $cookies.remove('token');
             $cookies.remove('user');
+            $cookies.remove('isAdmin');
+
+	        $window.location = '#/auth/login';
         }
 
         function getToken() {

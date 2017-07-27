@@ -3,54 +3,53 @@
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.25);
     margin-bottom: 30px;
 
-    .microscope-video-status{
+    .microscope-video-status {
       position: absolute;
       right: 10px;
       top: 6px;
       font-size: 30px;
     }
 
-    &.disabled{
-      &> .panel-heading{
-        color:red;
+    &.disabled {
+      & > .panel-heading {
+        color: red;
       }
 
     }
 
-    &.enabled{
-      &> .panel-heading{
+    &.enabled {
+      & > .panel-heading {
         color: $success;
       }
 
     }
 
-    & .panel-heading, .panel-footer{
+    & .panel-heading, .panel-footer {
       padding: 12px 12px
     }
 
-    &> .panel-body {
+    & > .panel-body {
       padding: 0;
       height: 100%;
     }
 
-    & .microscope-footer{
+    & .microscope-footer {
       padding: 5px 10px;
 
-      p{
+      p {
         font-size: 10px;
         margin-bottom: 2px;
       }
 
-      .progress{
+      .progress {
         margin-bottom: 5px;
         height: 10px;
         border-radius: 0;
 
-        .progress-bar
-        {
+        .progress-bar {
           font-size: 6px;
           line-height: 11px;
-          color:black;
+          color: black;
 
         }
       }
@@ -64,7 +63,7 @@
   border-bottom-left-radius: 0;
 }
 
-.slider-handle{
+.slider-handle {
   width: 15px;
   height: 15px;
   background-color: $primary;
@@ -76,27 +75,27 @@
   margin-top: -3px;
 }
 
-.slider-selection{
+.slider-selection {
   background-color: $primary;
   background-image: linear-gradient(to bottom, $primary-light 0%, $primary-light 100%);
 }
 
-live-status .admin-chart{
+live-status .admin-chart {
   height: 80px;
 }
 
 .amcharts-chart-div a {
-  display:none !important;
+  display: none !important;
 }
 
-.about-page{
-  li{
+.about-page {
+  li {
     margin-bottom: 5px;
     line-height: 18px;
   }
 }
 
-div > iframe{
+div > iframe {
   bottom: 40px !important;
 }
 
@@ -114,6 +113,7 @@ div > iframe{
     transform: rotate(0deg);
   }
 }
+
 @-webkit-keyframes lds-pacman-1 {
   0% {
     -webkit-transform: rotate(0deg);
@@ -128,6 +128,7 @@ div > iframe{
     transform: rotate(0deg);
   }
 }
+
 @keyframes lds-pacman-2 {
   0% {
     -webkit-transform: rotate(180deg);
@@ -142,6 +143,7 @@ div > iframe{
     transform: rotate(180deg);
   }
 }
+
 @-webkit-keyframes lds-pacman-2 {
   0% {
     -webkit-transform: rotate(180deg);
@@ -156,6 +158,7 @@ div > iframe{
     transform: rotate(180deg);
   }
 }
+
 @keyframes lds-pacman-3 {
   0% {
     -webkit-transform: translate(190px, 0);
@@ -171,6 +174,7 @@ div > iframe{
     opacity: 1;
   }
 }
+
 @-webkit-keyframes lds-pacman-3 {
   0% {
     -webkit-transform: translate(190px, 0);
@@ -187,59 +191,27 @@ div > iframe{
   }
 }
 
-.loader{
-  background:url('/assets/img/loader.gif') no-repeat center center;
+.loader {
+  background: url('/assets/img/loader.gif') no-repeat center center;
   background-size: contain;
-  min-height:80px;
-  width:100%;
+  min-height: 80px;
+  width: 100%;
 }
 
-.lds-pacman {
-  position: relative;
-}
-.lds-pacman > div:nth-child(2) div {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  width: 120px;
-  height: 60px;
-  border-radius: 120px 120px 0 0;
-  background: #1C2B36;
-  -webkit-animation: lds-pacman-1 0.9s linear infinite;
-  animation: lds-pacman-1 0.9s linear infinite;
-  -webkit-transform-origin: 60px 60px;
-  transform-origin: 60px 60px;
-}
-.lds-pacman > div:nth-child(2) div:nth-child(2) {
-  -webkit-animation: lds-pacman-2 0.9s linear infinite;
-  animation: lds-pacman-2 0.9s linear infinite;
-}
-.lds-pacman > div:nth-child(1) div {
-  position: absolute;
-  top: 92px;
-  left: -8px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #209e91;
-  -webkit-animation: lds-pacman-3 0.9s linear infinite;
-  animation: lds-pacman-3 0.9s linear infinite;
-}
-.lds-pacman > div:nth-child(1) div:nth-child(1) {
-  -webkit-animation-delay: -0.603s;
-  animation-delay: -0.603s;
-}
-.lds-pacman > div:nth-child(1) div:nth-child(2) {
-  -webkit-animation-delay: -0.297s;
-  animation-delay: -0.297s;
-}
-.lds-pacman > div:nth-child(1) div:nth-child(3) {
-  -webkit-animation-delay: 0s;
-  animation-delay: 0s;
-}
-.lds-pacman {
-  width: 200px !important;
-  height: 200px !important;
-  -webkit-transform: translate(-100px, -100px) scale(1) translate(100px, 100px);
-  transform: translate(-100px, -100px) scale(1) translate(100px, 100px);
+video#bg-video {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -99;
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+  background: url('/assets/img/video.jpg') no-repeat;
+  background-size: cover;
+
 }

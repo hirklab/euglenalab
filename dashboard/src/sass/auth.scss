@@ -27,7 +27,7 @@ $text-color: #ffffff;
     width: 600px;
     margin: 100px auto;
     border-radius: 5px;
-    @include bg-translucent-dark(0.55);
+    @include bg-translucent-dark(0.80);
     color: #fff;
     padding: 32px;
     h1 {

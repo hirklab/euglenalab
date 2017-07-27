@@ -245,6 +245,7 @@ var list = function (req, res) {
 		req.query.sort   = req.query.sort ? req.query.sort : '-_id';
 
 		var filters = {};
+
 		if (req.query.search) {
 			filters.search = new RegExp('^.*?' + req.query.search + '.*$', 'i');
 		}

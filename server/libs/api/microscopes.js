@@ -147,7 +147,7 @@ var bio_unit_detail = function (req, res) {
 
                 var newResult = {};
 
-                if (result.currentStatus === null) {
+                if (result.currentStatus === null || result.currentStatus === undefined) {
 
                     newResult.id = result._id;
                     newResult.name = result.name;

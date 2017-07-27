@@ -7,8 +7,11 @@
  * created on 16.12.2015
  */
 (function () {
-  'use strict';
+	'use strict';
 
-  angular.module('BlurAdmin.theme.components', ['BlurAdmin.pages.services']);
+	angular.module('BlurAdmin.theme.components', [
+		'BlurAdmin.pages.services',
+		'BlurAdmin.pages.auth.services'
+	]);
 
 })();

@@ -13,7 +13,7 @@
 		var vm = this;
 
 		vm.currentPage = 1;
-		vm.pageSize    = 10;
+		vm.pageSize    = 15;
 		vm.list        = [];
 		vm.displayed   = [];
 		vm.loading     = true;

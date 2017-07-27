@@ -6,7 +6,7 @@
     "shirishgoyal"
   ],
   "description": "Admin for Interactive Biolab",
-  "license": "GPLv3",
+  "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",

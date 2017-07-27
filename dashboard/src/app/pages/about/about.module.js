@@ -13,13 +13,14 @@
         $stateProvider
             .state('about', {
                 url: '/about',
-                title: 'About',
+                title: 'About Us',
                 templateUrl: 'app/pages/about/about.html',
                 controller: 'AboutPageCtrl',
                 sidebarMeta: {
                     icon: 'ion-information-circled',
                     order: 99,
                 },
+	            isAdmin:false
             });
     }
 

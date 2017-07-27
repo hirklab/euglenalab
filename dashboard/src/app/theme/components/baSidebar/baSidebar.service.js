@@ -1,99 +1,113 @@
-(function() {
-  'use strict';
+(function () {
+	'use strict';
 
-  angular.module('BlurAdmin.theme.components')
-      .provider('baSidebarService', baSidebarServiceProvider);
+	angular.module('BlurAdmin.theme.components')
+		.provider('baSidebarService', baSidebarServiceProvider);
 
-  /** @ngInject */
-  function baSidebarServiceProvider() {
-    var staticMenuItems = [];
+	/** @ngInject */
+	function baSidebarServiceProvider() {
+		var staticMenuItems = [];
 
-    this.addStaticItem = function() {
-      staticMenuItems.push.apply(staticMenuItems, arguments);
-    };
+		this.addStaticItem = function () {
+			staticMenuItems.push.apply(staticMenuItems, arguments);
+		};
 
-    /** @ngInject */
-    this.$get = function($state, layoutSizes) {
-      return new _factory();
+		/** @ngInject */
+		this.$get = function ($state, layoutSizes, Auth) {
+			return new _factory();
 
-      function _factory() {
-        var isMenuCollapsed = shouldMenuBeCollapsed();
+			function _factory() {
+				var isMenuCollapsed = shouldMenuBeCollapsed();
 
-        this.getMenuItems = function() {
-          var states = defineMenuItemStates();
-          var menuItems = states.filter(function(item) {
-            return item.level == 0;
-          });
+				this.getMenuItems = function () {
+					var states    = defineMenuItemStates();
+					var menuItems = states.filter(function (item) {
+						var allowed = true;
 
-          menuItems.forEach(function(item) {
-            var children = states.filter(function(child) {
-              return child.level == 1 && child.name.indexOf(item.name) === 0;
-            });
-            item.subMenu = children.length ? children : null;
-          });
+						if (item.isAdmin && !Auth.isAdmin() ) {
+							allowed = false;
+						}
 
-          return menuItems.concat(staticMenuItems);
-        };
+						return item.level == 0 && allowed;
+					});
 
-        this.shouldMenuBeCollapsed = shouldMenuBeCollapsed;
-        this.canSidebarBeHidden = canSidebarBeHidden;
+					menuItems.forEach(function (item) {
+						var children = states.filter(function (child) {
+							var allowed = true;
 
-        this.setMenuCollapsed = function(isCollapsed) {
-          isMenuCollapsed = isCollapsed;
-        };
+							if (item.isAdmin && !Auth.isAdmin() ) {
+								allowed = false;
+							}
 
-        this.isMenuCollapsed = function() {
-          return isMenuCollapsed;
-        };
+							return child.level == 1 && child.name.indexOf(item.name) === 0 && allowed;
+						});
 
-        this.toggleMenuCollapsed = function() {
-          isMenuCollapsed = !isMenuCollapsed;
-        };
+						item.subMenu = children.length ? children : null;
+					});
 
-        this.getAllStateRefsRecursive = function(item) {
-          var result = [];
-          _iterateSubItems(item);
-          return result;
+					return menuItems.concat(staticMenuItems);
+				};
 
-          function _iterateSubItems(currentItem) {
-            currentItem.subMenu && currentItem.subMenu.forEach(function(subItem) {
-              subItem.stateRef && result.push(subItem.stateRef);
-              _iterateSubItems(subItem);
-            });
-          }
-        };
+				this.shouldMenuBeCollapsed = shouldMenuBeCollapsed;
+				this.canSidebarBeHidden    = canSidebarBeHidden;
 
-        function defineMenuItemStates() {
-          return $state.get()
-              .filter(function(s) {
-                return s.sidebarMeta;
-              })
-              .map(function(s) {
-                var meta = s.sidebarMeta;
-                return {
-                  name: s.name,
-                  title: s.title,
-                  level: (s.name.match(/\./g) || []).length,
-                  order: meta.order,
-                  icon: meta.icon,
-                  stateRef: s.name,
-                };
-              })
-              .sort(function(a, b) {
-                return (a.level - b.level) * 100 + a.order - b.order;
-              });
-        }
+				this.setMenuCollapsed = function (isCollapsed) {
+					isMenuCollapsed = isCollapsed;
+				};
 
-        function shouldMenuBeCollapsed() {
-          return window.innerWidth <= layoutSizes.resWidthCollapseSidebar;
-        }
+				this.isMenuCollapsed = function () {
+					return isMenuCollapsed;
+				};
 
-        function canSidebarBeHidden() {
-          return window.innerWidth <= layoutSizes.resWidthHideSidebar;
-        }
-      }
+				this.toggleMenuCollapsed = function () {
+					isMenuCollapsed = !isMenuCollapsed;
+				};
 
-    };
+				this.getAllStateRefsRecursive = function (item) {
+					var result = [];
+					_iterateSubItems(item);
+					return result;
 
-  }
+					function _iterateSubItems(currentItem) {
+						currentItem.subMenu && currentItem.subMenu.forEach(function (subItem) {
+							subItem.stateRef && result.push(subItem.stateRef);
+							_iterateSubItems(subItem);
+						});
+					}
+				};
+
+				function defineMenuItemStates() {
+					return $state.get()
+						.filter(function (s) {
+							return s.sidebarMeta;
+						})
+						.map(function (s) {
+							var meta = s.sidebarMeta;
+							return {
+								name:     s.name,
+								title:    s.title,
+								level:    (s.name.match(/\./g) || []).length,
+								order:    meta.order,
+								icon:     meta.icon,
+								stateRef: s.name,
+								isAdmin :s.hasOwnProperty('isAdmin')? s.isAdmin: false
+							};
+						})
+						.sort(function (a, b) {
+							return (a.level - b.level) * 100 + a.order - b.order;
+						});
+				}
+
+				function shouldMenuBeCollapsed() {
+					return window.innerWidth <= layoutSizes.resWidthCollapseSidebar;
+				}
+
+				function canSidebarBeHidden() {
+					return window.innerWidth <= layoutSizes.resWidthHideSidebar;
+				}
+			}
+
+		};
+
+	}
 })();
