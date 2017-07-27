@@ -412,15 +412,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 }
                 euglenaAngles[e.ID] = angle;
                 std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
-                if (e.ID == euglenaID) {
-                    std::strcat(targetEuglenaPositionStr, "(");
-                    std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
-                    std::strcat(targetEuglenaPositionStr, ",");
-                    std::strcat(targetEuglenaPositionStr, std::to_string(yPosition).c_str());
-                    std::strcat(targetEuglenaPositionStr, ");");
-                    targetEuglenaVelocity = euglenaVelocities[e.ID];
-                    targetEuglenaAcceleration = euglenaAccelerations[e.ID];
-                }
                 if (frameCount%10 == 0) {
                     if (frameCount>=10) {
                         endTime = time(nullptr);
