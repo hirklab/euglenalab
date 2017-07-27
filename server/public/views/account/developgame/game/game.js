@@ -170,6 +170,8 @@ function processNextImage()
                 getEuglenaInRectUpperLeftY: app.mainView.getEuglenaInRectUpperLeftY,
                 getEuglenaInRectLowerRightX: app.mainView.getEuglenaInRectLowerRightX,
                 getEuglenaInRectLowerRightY: app.mainView.getEuglenaInRectLowerRightY,
+                // getEuglenaAccelerationByID
+                getEuglenaAccelerationID: app.mainView.getEuglenaAccelerationID,
                 // getEuglenaPositionByID
                 getEuglenaPositionID: app.mainView.getEuglenaPositionID,
                 // getEuglenaRotationByID
@@ -205,6 +207,7 @@ function handleMessage(msg) {
     app.mainView.gameEuglenaInRectCount = parseInt(res.EuglenaInRect);
     app.mainView.getAllEuglenaPositionsStr = res.EuglenaPositionsStr;
     app.mainView.getAllEuglenaIDsStr = res.EuglenaIDsStr;
+    app.mainView.getEuglenaAccelerationReturn = res.EuglenaAccelerationReturn;
     app.mainView.getEuglenaPositionReturn = res.EuglenaPositionReturn;
     app.mainView.getEuglenaVelocityReturn = res.EuglenaVelocityReturn;
     app.mainView.getEuglenaRotationReturn = res.EuglenaRotationReturn;
