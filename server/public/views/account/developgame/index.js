@@ -589,6 +589,7 @@
     },
     getAllEuglenaIDs: function() {
       console.log('getAllEuglenaIDs function called.');
+      console.log('input str::: ' + app.mainView.getAllEuglenaIDsStr);
       var idSet = new Set();
       var idList = app.mainView.getAllEuglenaIDsStr.split(';');
       for (var i = 0; i < idList.length; i++) {

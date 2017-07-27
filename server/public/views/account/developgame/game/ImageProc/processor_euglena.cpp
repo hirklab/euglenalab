@@ -420,7 +420,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     angle = e.rect.angle + 90;
                 }
                 euglenaAngles[e.ID] = angle;
-                std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
+                //std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
                 if (frameCount%10 == 0) {
                     if (frameCount>=10) {
                         endTime = time(nullptr);
