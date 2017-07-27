@@ -1,11 +1,7 @@
-/**
- * @author a.demeshko
- * created on 23.12.2015
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.theme')
+  angular.module('BioLab.theme')
     .filter('plainText', plainText);
 
   /** @ngInject */

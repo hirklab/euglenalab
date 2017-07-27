@@ -1,11 +1,7 @@
-/**
- * @author v.lugovksy
- * created on 15.12.2015
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.theme')
+  angular.module('BioLab.theme')
     .run(themeRun);
 
   /** @ngInject */

@@ -1,11 +1,7 @@
-/**
- * @author v.lugovsky
- * created on 16.12.2015
- */
 (function () {
     'use strict';
 
-    angular.module('BlurAdmin.pages.auth')
+    angular.module('BioLab.pages.auth')
         .controller('RegisterPageCtrl', RegisterPageCtrl);
 
     /** @ngInject */

@@ -5,7 +5,7 @@
     'use strict';
 
     angular
-        .module('BlurAdmin.pages.auth.services')
+        .module('BioLab')
         .service('Auth', Auth);
 
     Auth.$inject = ['$cookies', '$http', '$q', '$window'];

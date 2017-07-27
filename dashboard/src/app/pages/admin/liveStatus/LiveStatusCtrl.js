@@ -1,11 +1,7 @@
-/**
- * @author shirish.goyal
- * created on 22.12.2016
- */
 (function () {
     'use strict';
 
-    angular.module('BlurAdmin.pages.admin')
+    angular.module('BioLab.pages.admin')
         .controller('LiveStatusCtrl', LiveStatusCtrl);
 
     /** @ngInject */

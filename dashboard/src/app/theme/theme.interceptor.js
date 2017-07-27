@@ -1,5 +1,5 @@
 angular
-    .module('BlurAdmin.theme')
+    .module('BioLab.theme')
     .factory('AuthHttpResponseInterceptor', function ($q, $location, $log, $injector) {
         return {
             request: function (config) {

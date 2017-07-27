@@ -5,14 +5,14 @@
     'use strict';
 
     angular
-        .module('BlurAdmin.pages.microscope.services', [])
-        .factory('Microscope', Microscope);
+        .module('BioLab')
+        .factory('AdminMicroscope', AdminMicroscope);
 
-    Microscope.$inject = ['$cookies', '$http', '$q', '$window'];
+    AdminMicroscope.$inject = ['$cookies', '$http', '$q', '$window'];
 
-    function Microscope($cookies, $http, $q, $window) {
+    function AdminMicroscope($cookies, $http, $q, $window) {
 
-        var Microscope = {
+        var AdminMicroscope = {
             list: list,
             detail: detail,
             health: health,
@@ -83,7 +83,7 @@
             }
         };
 
-        return Microscope;
+        return AdminMicroscope;
 
 
         function list() {
@@ -91,7 +91,7 @@
         }
 
         function detail(id) {
-            return $http.get('/api/microscopes/' + id + '/');
+            return $http.get('/api/microscopes/' + id);
         }
 
         function health(id, startDate, endDate) {

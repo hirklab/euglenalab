@@ -1,13 +1,9 @@
-/**
- * @author v.lugovsky
- * created on 15.12.2015
- */
 (function () {
   'use strict';
 
   var IMAGES_ROOT = 'assets/img/';
 
-  angular.module('BlurAdmin.theme')
+  angular.module('BioLab.theme')
     .constant('layoutSizes', {
       resWidthCollapseSidebar: 1200,
       resWidthHideSidebar: 500

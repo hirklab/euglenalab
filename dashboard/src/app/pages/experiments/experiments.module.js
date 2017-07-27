@@ -1,18 +1,10 @@
-/**
- * @author shirishgoyal
- * created on 16.12.2015
- */
 (function () {
     'use strict';
 
-    angular.module('BlurAdmin.pages.experiments', [
-        'BlurAdmin.pages.experiments.services',
-        'BlurAdmin.pages.microscope.services',
-	    'BlurAdmin.directives'
-    ])
+    angular.module('BioLab.pages.experiments', [])
         .config(routeConfig);
 
-    angular.module('BlurAdmin.pages.experiments.services', []);
+    angular.module('BioLab.pages.experiments.services', []);
 
     /** @ngInject */
     function routeConfig($stateProvider) {

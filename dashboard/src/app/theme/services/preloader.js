@@ -1,11 +1,7 @@
-/**
- * @author a.demeshko
- * created on 3/1/16
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.theme')
+  angular.module('BioLab.theme')
     .service('preloader', preloader);
 
   /** @ngInject */

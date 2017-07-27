@@ -1,26 +1,16 @@
-/**
- * @author v.lugovsky
- * created on 16.12.2015
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.pages', [
+  angular.module('BioLab.pages', [
     'ui.router',
 
-    'BlurAdmin.pages.dashboard',
-    // 'BlurAdmin.pages.ui',
-    // 'BlurAdmin.pages.components',
-    // 'BlurAdmin.pages.form',
-    // 'BlurAdmin.pages.tables',
-    // 'BlurAdmin.pages.charts',
-    // 'BlurAdmin.pages.maps',
-    // 'BlurAdmin.pages.profile',
-    'BlurAdmin.pages.about',
-    'BlurAdmin.pages.auth',
-    'BlurAdmin.pages.admin',
-    'BlurAdmin.pages.experiments',
-    // 'BlurAdmin.pages.simulation',
+    'BioLab.pages.dashboard',
+    // 'BioLab.pages.profile',
+    'BioLab.pages.about',
+    'BioLab.pages.auth',
+    'BioLab.pages.admin',
+    'BioLab.pages.experiments',
+    // 'BioLab.pages.simulation',
   ])
       .config(routeConfig);
 

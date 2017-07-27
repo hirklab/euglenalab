@@ -1,11 +1,7 @@
-/**
- * @author a.demeshko
- * created on 21.01.2016
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.pages.profile')
+  angular.module('BioLab.pages.profile')
     .controller('ProfileModalCtrl', ProfileModalCtrl);
 
   /** @ngInject */

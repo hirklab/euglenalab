@@ -5,7 +5,7 @@
     'use strict';
 
     angular
-        .module('BlurAdmin.pages.admin.services')
+        .module('BioLab')
         .factory('User', User);
 
     User.$inject = ['$cookies', '$http', '$q', '$window'];

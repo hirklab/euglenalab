@@ -299,7 +299,157 @@ var login = function(req, res) {
     workflow.emit('validate');
 };
 
+var forgot = function(req, res, next){
+	var workflow = req.app.utility.workflow(req, res);
+
+	workflow.on('validate', function() {
+		if (!req.body.email) {
+			workflow.outcome.errfor.email = 'required';
+			return workflow.emit('response');
+		}
+
+		workflow.emit('generateToken');
+	});
+
+	workflow.on('generateToken', function() {
+		var crypto = require('crypto');
+		crypto.randomBytes(21, function(err, buf) {
+			if (err) {
+				return next(err);
+			}
+
+			var token = buf.toString('hex');
+			req.app.db.models.User.encryptPassword(token, function(err, hash) {
+				if (err) {
+					return next(err);
+				}
+
+				workflow.emit('patchUser', token, hash);
+			});
+		});
+	});
+
+	workflow.on('patchUser', function(token, hash) {
+		var conditions = { email: req.body.email.toLowerCase() };
+		var fieldsToSet = {
+			resetPasswordToken: hash,
+			resetPasswordExpires: Date.now() + 10000000
+		};
+		req.app.db.models.User.findOneAndUpdate(conditions, fieldsToSet, function(err, user) {
+			if (err) {
+				return workflow.emit('exception', err);
+			}
+
+			if (!user) {
+				return workflow.emit('response');
+			}
+
+			workflow.emit('sendEmail', token, user);
+		});
+	});
+
+	workflow.on('sendEmail', function(token, user) {
+		req.app.utility.sendmail(req, res, {
+			from: req.app.config.smtp.from.name +' <'+ req.app.config.smtp.from.address +'>',
+			to: user.email,
+			subject: 'Reset your '+ req.app.config.projectName +' password',
+			textPath: 'login/forgot/email-text',
+			htmlPath: 'login/forgot/email-html',
+			locals: {
+				username: user.username,
+				resetLink: req.protocol +'://'+ req.headers.host +'/login/reset/'+ user.email +'/'+ token +'/',
+				projectName: req.app.config.projectName
+			},
+			success: function(message) {
+				workflow.emit('response');
+			},
+			error: function(err) {
+				workflow.outcome.errors.push('Error Sending: '+ err);
+				workflow.emit('response');
+			}
+		});
+	});
+
+	workflow.emit('validate');
+};
+
+var reset = function(req, res){
+	var workflow = req.app.utility.workflow(req, res);
+
+	workflow.on('validate', function() {
+		if (!req.body.password) {
+			workflow.outcome.errfor.password = 'required';
+		}
+
+		if (!req.body.confirm) {
+			workflow.outcome.errfor.confirm = 'required';
+		}
+
+		if (req.body.password !== req.body.confirm) {
+			workflow.outcome.errors.push('Passwords do not match.');
+		}
+
+		if (workflow.hasErrors()) {
+			return workflow.emit('response');
+		}
+
+		workflow.emit('findUser');
+	});
+
+	workflow.on('findUser', function() {
+		var conditions = {
+			email: req.params.email,
+			resetPasswordExpires: { $gt: Date.now() }
+		};
+		req.app.db.models.User.findOne(conditions, function(err, user) {
+			if (err) {
+				return workflow.emit('exception', err);
+			}
+
+			if (!user) {
+				workflow.outcome.errors.push('Invalid request.');
+				return workflow.emit('response');
+			}
+
+			req.app.db.models.User.validatePassword(req.params.token, user.resetPasswordToken, function(err, isValid) {
+				if (err) {
+					return workflow.emit('exception', err);
+				}
+
+				if (!isValid) {
+					workflow.outcome.errors.push('Invalid request.');
+					return workflow.emit('response');
+				}
+
+				workflow.emit('patchUser', user);
+			});
+		});
+	});
+
+	workflow.on('patchUser', function(user) {
+		req.app.db.models.User.encryptPassword(req.body.password, function(err, hash) {
+			if (err) {
+				return workflow.emit('exception', err);
+			}
+
+			var fieldsToSet = { password: hash, resetPasswordToken: '' };
+			req.app.db.models.User.findByIdAndUpdate(user._id, fieldsToSet, function(err, user) {
+				if (err) {
+					return workflow.emit('exception', err);
+				}
+
+				workflow.emit('response');
+			});
+		});
+	});
+
+	workflow.emit('validate');
+};
+
+
 router.post('/register/', register);
 router.post('/login/', login);
+router.post('/forgot-password/', forgot);
+router.post('/reset-password/', reset);
 
 module.exports = router;

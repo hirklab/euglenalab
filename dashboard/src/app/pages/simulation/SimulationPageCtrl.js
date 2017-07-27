@@ -1,11 +1,7 @@
-/**
- * @author shirishgoyal
- * created on 16.12.2015
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.pages.simulation')
+  angular.module('BioLab.pages.simulation')
     .controller('SimulationPageCtrl', SimulationPageCtrl);
 
   /** @ngInject */

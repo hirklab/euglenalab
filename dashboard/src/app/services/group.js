@@ -5,7 +5,7 @@
     'use strict';
 
     angular
-        .module('BlurAdmin.pages.admin.services')
+        .module('BioLab')
         .factory('Group', Group);
 
     Group.$inject = ['$cookies', '$http', '$q', '$window'];
@@ -23,7 +23,6 @@
 
 
         function list(page, count, search) {
-            console.log('getting list of groups');
             return $http.get('/api/groups/?page=' + page + "&limit=" + count + "&search=" + search);
         }
 

@@ -1,11 +1,7 @@
-/**
- * @author a.demeshko
- * created on 22.12.2015
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.theme')
+  angular.module('BioLab.theme')
     .directive('ionSlider', ionSlider);
 
   /** @ngInject */

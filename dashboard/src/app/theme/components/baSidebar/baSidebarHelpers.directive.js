@@ -1,11 +1,7 @@
-/**
- * @author v.lugovsky
- * created on 03.05.2016
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.theme.components')
+  angular.module('BioLab.theme.components')
       .directive('baSidebarToggleMenu', baSidebarToggleMenu)
       .directive('baSidebarCollapseMenu', baSidebarCollapseMenu)
       .directive('baSidebarTogglingItem', baSidebarTogglingItem)

@@ -2,7 +2,7 @@
 	'use strict';
 
 	angular
-		.module('BlurAdmin.pages.services', [])
+		.module('BioLab')
 		.service('socket', function ($rootScope, $location) {
 			var socket = io.connect('http://localhost:5000', {
 				forceNew:     false,
@@ -96,9 +96,6 @@
 
 				isListeningAt: isListeningAt
 			};
-		})
-		.service('ip', function ($http) {
-			return $http.get('http://ipinfo.io/json');
-		})
+		});
 
 })();

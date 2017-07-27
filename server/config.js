@@ -2,31 +2,24 @@
 
 var mainConfig=require('../shared/mainConfig.js');
 
-var myMongoUri=mainConfig.adminFlags.getMongoUri();
-var myServerPort=mainConfig.adminFlags.getWebServerPort();
-var myServerAddr=mainConfig.adminFlags.getWebServerAddr();
-var myControllerPort = mainConfig.adminFlags.getControllerPort();
-var controllerAddress = mainConfig.adminFlags.getControllerAddress();
-var myWebServerName = mainConfig.adminFlags.getWebServerName();
-var myWebServerIdentifier = mainConfig.adminFlags.getWebServerIdentifier();
-
 exports.mainConfig=mainConfig;
-exports.port = process.env.PORT || myServerPort;
-exports.myServerPort = myServerPort;
-exports.myServerAddr = myServerAddr;
-exports.controllerAddress = controllerAddress;
-exports.myControllerPort = myControllerPort;
-exports.myWebServerIdentifier = myWebServerIdentifier;
-exports.myWebServerName = myWebServerName;
-
+exports.port = process.env.PORT || mainConfig.adminFlags.getWebServerPort();
+exports.myServerPort = exports.port;
+exports.myServerAddr = mainConfig.adminFlags.getWebServerAddr();
+exports.controllerAddress =  mainConfig.adminFlags.getControllerAddress();
+exports.myControllerPort = mainConfig.adminFlags.getControllerPort();
+exports.myWebServerIdentifier = mainConfig.adminFlags.getWebServerIdentifier();
+exports.myWebServerName = mainConfig.adminFlags.getWebServerName();
 exports.mongodb = {
-  uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || myMongoUri
+  uri: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || mainConfig.adminFlags.getMongoUri()
 };
+
 exports.companyName = 'Riedel-Kruse Lab';
 exports.projectName = 'Interactive Online Biology';
 exports.systemEmail= 'euglena.hirk@gmail.com';
 
 exports.cryptoKey = 'k3yb0ardc4t';
+
 exports.loginAttempts = {
   forIp: 50,
   forIpAndUser: 7,
@@ -47,26 +40,3 @@ exports.smtp = {
     ssl: true
   }
 };
-
-// exports.oauth = {
-//   twitter: {
-//     key: process.env.TWITTER_OAUTH_KEY || '',
-//     secret: process.env.TWITTER_OAUTH_SECRET || ''
-//   },
-//   facebook: {
-//     key: process.env.FACEBOOK_OAUTH_KEY || '',
-//     secret: process.env.FACEBOOK_OAUTH_SECRET || ''
-//   },
-//   github: {
-//     key: process.env.GITHUB_OAUTH_KEY || '',
-//     secret: process.env.GITHUB_OAUTH_SECRET || ''
-//   },
-//   google: {
-//     key: process.env.GOOGLE_OAUTH_KEY || '',
-//     secret: process.env.GOOGLE_OAUTH_SECRET || ''
-//   },
-//   tumblr: {
-//     key: process.env.TUMBLR_OAUTH_KEY || '',
-//     secret: process.env.TUMBLR_OAUTH_SECRET || ''
-//   }
-// };

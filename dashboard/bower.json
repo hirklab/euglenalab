@@ -61,7 +61,8 @@
     "ng-lodash": "^0.5.0",
     "angular-ui-switch": "^0.1.1",
     "socket.io": "^1.7.3",
-    "socket.io-client": "^1.7.2"
+    "socket.io-client": "^1.7.2",
+    "angulartics-google-analytics": "^0.4.0"
   },
   "resolutions": {
     "angular": "1.4.8"
@@ -97,6 +98,16 @@
         "./dist/ammap/maps/js/worldLow.js"
       ]
     },
+    "angulartics":{
+      "main":[
+        "dist/angulartics.min.js"
+      ]
+    },
+    "angulartics-google-analytics":{
+      "main":[
+        "dist/angulartics-ga.min.js"
+      ]
+    },
     "bootstrap": {
       "main": [
         "dist/css/bootstrap.css",
@@ -118,8 +129,8 @@
         "fonts/fontawesome-webfont.woff2"
       ]
     },
-    "socket.io-client":{
-      "main":[
+    "socket.io-client": {
+      "main": [
         "dist/socket.io.js"
       ]
     }

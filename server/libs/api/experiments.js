@@ -432,11 +432,48 @@ var download = function (req, res) {
 	workflow.emit('find');
 };
 
+var survey = function(req, res) {
+	var workflow = req.app.utility.workflow(req, res);
+
+	workflow.on('validate', function() {
+		if (!req.body.experiment) {
+			workflow.outcome.errfor.experiment = 'required';
+		}
+
+		if (!req.body.rating) {
+			workflow.outcome.errfor.rating = 'required';
+		}
+
+		if (workflow.hasErrors()) {
+			return workflow.emit('response');
+		}
+
+		workflow.emit('createSurvey');
+	});
+	workflow.on('createSurvey', function() {
+		var fieldsToSet = {
+			experiment: req.body.experiment,
+			rating: req.body.rating,
+			notes: req.body.notes
+		};
+
+		req.app.db.models.Survey.create(fieldsToSet, function(err, survey) {
+			if (err) {
+				return workflow.emit('exception', err);
+			}
+			workflow.emit('response');
+		});
+	});
+
+	workflow.emit('validate');
+};
+
 router.get('/', ensureAuthenticated, ensureAccount, list);
 // router.post('/', ensureAuthenticated, require('./views/index').create_experiment);
 router.get('/:id/', ensureAuthenticated, ensureAccount, detail);
 router.get('/:id/status/', ensureAuthenticated, ensureAccount, status);
 router.get('/:id/download/', download);
+router.post('/:id/survey/', survey);
 
 
 module.exports = router;

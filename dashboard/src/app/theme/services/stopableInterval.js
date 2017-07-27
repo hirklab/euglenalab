@@ -1,11 +1,7 @@
-/**
- * @author a.demeshko
- * created on 12/21/15
- */
 (function () {
   'use strict';
 
-  angular.module('BlurAdmin.theme')
+  angular.module('BioLab.theme')
     .service('stopableInterval', stopableInterval);
 
   /** @ngInject */

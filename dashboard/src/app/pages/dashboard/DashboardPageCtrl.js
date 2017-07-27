@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('BlurAdmin.pages.dashboard')
+    angular.module('BioLab.pages.dashboard')
         .controller('DashboardPageCtrl', DashboardPageCtrl);
 
     /** @ngInject */
