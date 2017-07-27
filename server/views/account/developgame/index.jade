@@ -488,6 +488,16 @@ block body
             br
             br
 
+            b getAllEuglenaIDs
+            |()
+            br
+            |Return an array of all of the currently tracked Euglena IDs.
+            br
+            |Returns: an array of integers
+
+            br
+            br
+
             b getAllEuglenaPositions
             |()
             br
@@ -528,6 +538,74 @@ block body
             |, a number between 0 and MAX_SCREEN_HEIGHT
             br
             |Get the total Euglena count in the rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordiante (lowerRightX, lowerRightY).
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b getEuglenaAccelerationByID
+            |(
+            i id
+            |)
+            br
+            |Input(s):
+            br
+            i id
+            |, a number
+            br
+            |Get the acceleration (in microns per second squared) of the Euglena based on Euglena ID. UNDER CONSTRUCTION!
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b getEuglenaPositionByID
+            |(
+            i id
+            |)
+            br
+            |Input(s):
+            br
+            i id
+            |, a number
+            br
+            |Get the position (in window coordinates) of the Euglena based on Euglena ID. UNDER CONSTRUCTION!
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b getEuglenaRotationByID
+            |(
+            i id
+            |)
+            br
+            |Input(s):
+            br
+            i id
+            |, a number
+            br
+            |Get the rotation (in degrees) of the Euglena based on Euglena ID. UNDER CONSTRUCTION!
+            br
+            |Returns: a number
+
+            br
+            br
+
+            b getEuglenaVelocityByID
+            |(
+            i id
+            |)
+            br
+            |Input(s):
+            br
+            i id
+            |, a number
+            br
+            |Get the velocity (in microns per second) of the Euglena based on Euglena ID. UNDER CONSTRUCTION!
             br
             |Returns: a number
 
