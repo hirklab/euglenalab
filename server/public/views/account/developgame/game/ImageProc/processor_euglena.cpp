@@ -241,7 +241,9 @@ void KFTracker::drawPath(cv::Mat img) {
 cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     printf("Processing images..."); 
 
-    // targetEuglenaVelocity = euglenaVelocities[];
+    targetEuglenaVelocity = euglenaVelocities[velocityID];
+    targetEuglenaAcceleration = euglenaAccelerations[accelerationID];
+    targetEuglenaRotation = euglenaAngles[rotationID];
 
     cv::Mat fgmask;
     (*_fgbg)(im,fgmask,-1);
@@ -302,7 +304,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
         getEuglenaInRectReturnVal = 0;
         for (auto &c : contours) {
-            if ( cv::contourArea(c) > 12.8 /*80.0 */) {
+            if ( cv::contourArea(c) > magnification*magnification*0.8 /*80.0 */) {
                 totalDetectedEuglena += 1;
                 cv::RotatedRect e = cv::minAreaRect(c);
                 cv::Point2f pts[4];
@@ -393,6 +395,13 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             if (e.tracked) {
                 std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
                 std::strcat(getAllEuglenaIDsStr, ";");
+                if (positionID == e.ID) {
+                    std::strcat(targetEuglenaPositionStr, "(");
+                    std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
+                    std::strcat(targetEuglenaPositionStr, ",");
+                    std::strcat(targetEuglenaPositionStr, std::to_string(yPosition).c_str());
+                    std::strcat(targetEuglenaPositionStr, ");");
+                }
                 e.tracked = false;
                 xPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].x + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].x)/2;
                 yPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].y + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].y)/2;
