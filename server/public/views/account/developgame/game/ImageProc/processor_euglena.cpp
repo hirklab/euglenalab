@@ -101,15 +101,19 @@ class EuglenaProcessor : public Processor {
         char getAllEuglenaIDsStr[10000];
 
         //getEuglenaPositionByID
+        int positionID;
         char targetEuglenaPositionStr[10];
 
         //getEuglenaVelocityByID
+        int velocityID;
         float targetEuglenaVelocity;
 
         //getEuglenaAccelerationByID;
+        int accelerationID;
         float targetEuglenaAcceleration;
 
         //getEuglenaRotationByID
+        int rotationID;
         float targetEuglenaRotation;
         std::string targetEuglenaDirection;
 
@@ -235,6 +239,8 @@ void KFTracker::drawPath(cv::Mat img) {
 
 cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     printf("Processing images..."); 
+
+    // targetEuglenaVelocity = euglenaVelocities[];
 
     cv::Mat fgmask;
     (*_fgbg)(im,fgmask,-1);

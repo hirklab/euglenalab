@@ -93,6 +93,14 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftY = var_dict.Get("getEuglenaInRectUpperLeftY").AsDouble();
       ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightX = var_dict.Get("getEuglenaInRectLowerRightX").AsDouble();
       ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightY = var_dict.Get("getEuglenaInRectLowerRightY").AsDouble();
+      // getEuglenaPositionByID
+      ((EuglenaProcessor*)processor.get())->positionID = var_dict.Get("getEuglenaPositionID").AsInt();
+      // getEuglenaVelocityByID
+      ((EuglenaProcessor*)processor.get())->velocityID = var_dict.Get("getEuglenaVelocityID").AsInt();
+      // getEuglenaAccelerationByID
+      ((EuglenaProcessor*)processor.get())->accelerationID = var_dict.Get("getEuglenaAccelerationID").AsInt();
+      // getEuglenaRotationByID
+      ((EuglenaProcessor*)processor.get())->rotationID = var_dict.Get("getEuglenaAccelerationID").AsInt();
     }
 
     // Post message with C++ variables back to JavaScript layer.
@@ -102,6 +110,7 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
     msg.Set( "EuglenaInRect", ((EuglenaProcessor*)processor.get())->getEuglenaInRectReturnVal );
     msg.Set( "EuglenaPositionsStr", ((EuglenaProcessor*)processor.get())->getAllEuglenaPositionsStr );
     msg.Set( "EuglenaIDsStr", ((EuglenaProcessor*)processor.get())->getAllEuglenaIDsStr );
+    msg.Set( "EuglenaAccelerationReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaAcceleration );
     msg.Set( "EuglenaPositionReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaPositionStr );
     msg.Set( "EuglenaVelocityReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaVelocity );
     msg.Set( "EuglenaRotationReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaRotation );

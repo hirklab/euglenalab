@@ -347,6 +347,10 @@
     getEuglenaVelocityID: 0,
     getEuglenaVelocityReturn: "",
 
+    // getEuglenaAccelerationByID
+    getEuglenaAccelerationID: 0,
+    getEuglenaAccelerationReturn: "",
+
     // getEuglenaRotationByID
     getEuglenaRotationID: 0,
     getEuglenaRotationReturn: "",
@@ -464,6 +468,7 @@
       modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
       modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
       modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
+      modifiedCode = modifiedCode.split('getEuglenaAccelerationByID').join('app.mainView.getEuglenaAccelerationByID');
       modifiedCode = modifiedCode.split('getEuglenaPositionByID').join('app.mainView.getEuglenaPositionByID');
       modifiedCode = modifiedCode.split('getEuglenaRotationByID').join('app.mainView.getEuglenaRotationByID');
       modifiedCode = modifiedCode.split('getEuglenaVelocityByID').join('app.mainView.getEuglenaVelocityByID');
@@ -618,6 +623,12 @@
       app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
       return app.mainView.gameEuglenaInRectCount;
+    },
+    getEuglenaAccelerationByID: function(id) {
+      console.log('getEuglenaAccelerationByID function called.');
+      app.mainView.getEuglenaAccelerationID = id;
+      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
+      return app.mainView.getEuglenaAccelerationReturn;
     },
     getEuglenaPositionByID: function(id) {
       console.log('getEuglenaPositionByID function called.');
