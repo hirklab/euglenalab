@@ -72,6 +72,13 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->gameInSession = var_dict.Get("gameInSession").AsBool();
       ((EuglenaProcessor*)processor.get())->demoMode = var_dict.Get("gameDemoMode").AsBool();
       ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = var_dict.Get("gameDrawOnTrackedEuglena").AsBool();
+      // drawCircle
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterX, var_dict.Get("drawCircleCenterX").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterY, var_dict.Get("drawCircleCenterY").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleRadius, var_dict.Get("drawCircleRadius").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleR, var_dict.Get("drawCircleR").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleG, var_dict.Get("drawCircleG").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleB, var_dict.Get("drawCircleB").AsString().c_str());
       // drawRect
       std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftX, var_dict.Get("drawRectUpperLeftX").AsString().c_str());
       std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftY, var_dict.Get("drawRectUpperLeftY").AsString().c_str());

@@ -414,6 +414,36 @@ block body
             br
             br
 
+            b drawCircle
+            |(
+            i xCenter, yCenter, radius, R, G, B
+            |)
+            br
+            |Input(s):
+            br
+            i xCenter
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i yCenter
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i radius
+            |, a number
+            br
+            i R
+            |, a number between 0 and 255
+            br
+            i G
+            |, a number between 0 and 255
+            br
+            i B
+            |, a number between 0 and 255
+            br
+            |Draw circle with center (xCenter, yCenter) with radius and color (R, G, B).
+
+            br
+            br
+
             b drawRect
             |(
             i upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B

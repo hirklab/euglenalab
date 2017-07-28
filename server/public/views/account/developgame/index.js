@@ -309,6 +309,14 @@
     gameEuglenaCount: -1,
     gameDemoMode: false,
 
+    // drawCircle
+    drawCircleCenterX: [],
+    drawCircleCenterY: [],
+    drawCircleRadius: [],
+    drawCircleR: [],
+    drawCircleG: [],
+    drawCircleB: [],
+
     // drawRect
     drawRectUpperLeftX: [], 
     drawRectUpperLeftY: [], 
@@ -434,6 +442,13 @@
      */
     runLoop: function() {
       if (app.mainView.gameInSession) {
+        app.mainView.drawCircleCenterX = "";
+        app.mainView.drawCircleCenterY = "";
+        app.mainView.drawCircleRadius = "";
+        app.mainView.drawCircleR = "";
+        app.mainView.drawCircleG = "";
+        app.mainView.drawCircleB = "";
+
         app.mainView.drawRectUpperLeftX = ""; 
         app.mainView.drawRectUpperLeftY = "";
         app.mainView.drawRectLowerRightX = "";
@@ -462,6 +477,7 @@
 
       // Replace EuglenaScript functions with appropriate function calls.
       var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
+      modifiedCode = modifiedCode.split('drawCircle').join('app.mainView.drawCircle');
       modifiedCode = modifiedCode.split('drawOnTrackedEuglena').join('app.mainView.drawOnTrackedEuglena');
       modifiedCode = modifiedCode.split('drawRect').join('app.mainView.drawRect');
       modifiedCode = modifiedCode.split('drawText').join('app.mainView.drawText');
@@ -564,6 +580,15 @@
       console.log('drawOnTrackedEuglena function called.');
       app.mainView.gameDrawOnTrackedEuglena = isDrawing;
     },
+    drawCircle: function(centerX, centerY, radius, R, G, B) {
+      console.log('drawCircle function called.');
+      app.mainView.drawCircleCenterX = app.mainView.drawCircleCenterX + centerX + "*";
+      app.mainView.drawCircleCenterY = app.mainView.drawCircleCenterY + centerY + "*";
+      app.mainView.drawCircleRadius = app.mainView.drawCircleRadius + radius + "*";
+      app.mainView.drawCircleR = app.mainView.drawCircleR + R + "*";
+      app.mainView.drawCircleG = app.mainView.drawCircleG + G + "*";
+      app.mainView.drawCircleB = app.mainView.drawCircleB + B + "*";
+    },
     drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B) {
       console.log('drawRect function called.');
       app.mainView.drawRectUpperLeftX = app.mainView.drawRectUpperLeftX + upperLeftX + "*";
@@ -591,7 +616,7 @@
     },
     getAllEuglenaIDs: function() {
       console.log('getAllEuglenaIDs function called.');
-      console.log('input str::: ' + app.mainView.getAllEuglenaIDsStr);
+      //console.log('input str::: ' + app.mainView.getAllEuglenaIDsStr);
       var idSet = new Set();
       var idList = app.mainView.getAllEuglenaIDsStr.split(';');
       for (var i = 0; i < idList.length; i++) {

@@ -61,6 +61,14 @@ class EuglenaProcessor : public Processor {
         std::map<int, float> euglenaAccelerations;
         std::map<int, float> euglenaAngles;
 
+        // drawCircle
+        char drawCircleCenterX[300];
+        char drawCircleCenterY[300];
+        char drawCircleRadius[300];
+        char drawCircleR[300];
+        char drawCircleG[300];
+        char drawCircleB[300];
+
         // drawRect
         char drawRectUpperLeftX[300];
         char drawRectUpperLeftY[300];
@@ -271,6 +279,17 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         std::strcpy(getAllEuglenaPositionsStr, ";");
 
         cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
+
+        // Create circles.
+        std::vector<std::string> drawCircleCenterXVector = split(drawCircleCenterX, '*');
+        std::vector<std::string> drawCircleCenterYVector = split(drawCircleCenterY, '*');
+        std::vector<std::string> drawCircleRadiusVector = split(drawCircleRadius, '*');
+        std::vector<std::string> drawCircleRVector = split(drawCircleR, '*');
+        std::vector<std::string> drawCircleGVector = split(drawCircleG, '*');
+        std::vector<std::string> drawCircleBVector = split(drawCircleB, '*');
+        for (int i = 0; i < drawCircleCenterXVector.size()-1; i++) {
+            cv::circle(im, cv::Point(std::stod(drawCircleCenterXVector.at(i)), std::stod(drawCircleCenterYVector.at(i))), std::stod(drawCircleRadiusVector.at(i)), cv::Scalar(std::stod(drawCircleRVector.at(i)), std::stod(drawCircleGVector.at(i)), std::stod(drawCircleBVector.at(i)), 255), 2);      
+        }
 
         // Create rectangles.
         std::vector<std::string> drawRectUpperLeftXVector = split(drawRectUpperLeftX, '*');

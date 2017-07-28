@@ -150,6 +150,13 @@ function processNextImage()
                 gameDemoMode: app.mainView.gameDemoMode,
                 gameDrawOnTrackedEuglena: app.mainView.gameDrawOnTrackedEuglena,
                 magnification: app.mainView.magnification,
+                // drawCircle
+                drawCircleCenterX: app.mainView.drawCircleCenterX,
+                drawCircleCenterY: app.mainView.drawCircleCenterY,
+                drawCircleRadius: app.mainView.drawCircleRadius,
+                drawCircleR: app.mainView.drawCircleR,
+                drawCircleG: app.mainView.drawCircleG,
+                drawCircleB: app.mainView.drawCircleB,
                 // drawRect
                 drawRectUpperLeftX: app.mainView.drawRectUpperLeftX, 
                 drawRectUpperLeftY: app.mainView.drawRectUpperLeftY, 
