@@ -3,7 +3,7 @@
         <div ba-panel ba-panel-class="with-scroll">
             <div class="horizontal-scroll">
                 <table class="table" st-table="vm.displayed" st-safe-src="vm.list" st-pipe="vm.filter">
-                <thead>
+                    <thead>
                     <tr class="sortable">
                         <th class="table-id" st-sort="id">Experiment ID</th>
                         <th st-sort="bpu">Microscope</th>
@@ -11,30 +11,30 @@
                         <!--<th st-sort="username">User</th>-->
                         <th st-sort="type" st-sort-default="true">Type</th>
                         <th st-sort="status" st-sort-default="true">Status</th>
-                        <th >Actions</th>
+                        <th>Actions</th>
                     </tr>
                     <!--<tr>-->
-                        <!--<th><input st-search="id" placeholder="Search Experiment ID"-->
-                                   <!--class="input-sm form-control search-input"-->
-                                   <!--type="search"/></th>-->
-                        <!--<th><input st-search="bpu" placeholder="Search microscope"-->
-                                   <!--class="input-sm form-control search-input"-->
-                                   <!--type="search"/></th>-->
-                        <!--<th>-->
-                            <!--&lt;!&ndash;<input st-search="submittedAt" placeholder="Search created time"&ndash;&gt;-->
-                                   <!--&lt;!&ndash;class="input-sm form-control search-input"&ndash;&gt;-->
-                                   <!--&lt;!&ndash;type="search"/>&ndash;&gt;-->
-                        <!--</th>-->
-                        <!--&lt;!&ndash;<th>&ndash;&gt;-->
-                            <!--&lt;!&ndash;<input st-search="username" placeholder="Search user name"&ndash;&gt;-->
-                                   <!--&lt;!&ndash;class="input-sm form-control search-input"&ndash;&gt;-->
-                                   <!--&lt;!&ndash;type="search"/>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</th>&ndash;&gt;-->
-                        <!--<th>-->
-                            <!--<input st-search="status" placeholder="Search status"-->
-                                   <!--class="input-sm form-control search-input" type="search"/>-->
-                        <!--</th>-->
-                        <!--<th></th>-->
+                    <!--<th><input st-search="id" placeholder="Search Experiment ID"-->
+                    <!--class="input-sm form-control search-input"-->
+                    <!--type="search"/></th>-->
+                    <!--<th><input st-search="bpu" placeholder="Search microscope"-->
+                    <!--class="input-sm form-control search-input"-->
+                    <!--type="search"/></th>-->
+                    <!--<th>-->
+                    <!--&lt;!&ndash;<input st-search="submittedAt" placeholder="Search created time"&ndash;&gt;-->
+                    <!--&lt;!&ndash;class="input-sm form-control search-input"&ndash;&gt;-->
+                    <!--&lt;!&ndash;type="search"/>&ndash;&gt;-->
+                    <!--</th>-->
+                    <!--&lt;!&ndash;<th>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<input st-search="username" placeholder="Search user name"&ndash;&gt;-->
+                    <!--&lt;!&ndash;class="input-sm form-control search-input"&ndash;&gt;-->
+                    <!--&lt;!&ndash;type="search"/>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</th>&ndash;&gt;-->
+                    <!--<th>-->
+                    <!--<input st-search="status" placeholder="Search status"-->
+                    <!--class="input-sm form-control search-input" type="search"/>-->
+                    <!--</th>-->
+                    <!--<th></th>-->
                     <!--</tr>-->
                     </thead>
                     <tbody>
@@ -44,29 +44,35 @@
                         </td>
                     </tr>
                     <tr ng-repeat="experiment in vm.displayed" ng-show="!vm.loading" class="fadeIn">
-                        <td class="table-id"><a ui-sref="experimentDetail({id:experiment.id})">{{experiment.id}}</a></td>
+                        <td class="table-id"><a ui-sref="experimentDetail({id:experiment.id})">{{experiment.id}}</a>
+                        </td>
                         <td style="text-transform: uppercase">{{experiment.bpu}}</td>
                         <td>{{ experiment.submittedAt | date:'short'}}</td>
                         <!--<td>{{experiment.username}}</td>-->
                         <td style="text-transform: capitalize">{{experiment.type}}</td>
                         <td style="text-transform: capitalize">{{experiment.status}}</td>
                         <td>
-                            <button class="btn btn-primary btn-xs" ui-sref="experimentDetail({id:experiment.id})"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View</button>
-                            <button class="btn btn-default btn-xs" ng-click="vm.download(experiment.id)"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Download</button>
+                            <button class="btn btn-primary btn-xs" ui-sref="experimentDetail({id:experiment.id})"><span
+                                    class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> View
+                            </button>
+                            <button class="btn btn-default btn-xs" ng-click="vm.download(experiment.id)"><span
+                                    class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Download
+                            </button>
                         </td>
                     </tr>
                     </tbody>
                     <tfoot>
                     <tr>
                         <td colspan="3">
-                        <div class="form-group select-page-size-wrap ">
-                            <label>
-                                <select class="form-control selectpicker show-tick" style="max-width: 80px;" title="Rows on page" selectpicker
-                                        ng-model="vm.pageSize" ng-options="i for i in [5,10,15,20,25]">
-                                </select> <span>experiments per page</span>
-                            </label>
-                        </div>
-                    </td>
+                            <div class="form-group select-page-size-wrap ">
+                                <label>
+                                    <select class="form-control selectpicker show-tick" style="max-width: 80px;"
+                                            title="Rows on page" selectpicker
+                                            ng-model="vm.pageSize" ng-options="i for i in [5,10,15,20,25]">
+                                    </select> <span>experiments per page</span>
+                                </label>
+                            </div>
+                        </td>
                         <td colspan="3" class="text-right">
                             <div st-pagination="" st-items-by-page="vm.pageSize" st-displayed-pages="5"></div>
                         </td>

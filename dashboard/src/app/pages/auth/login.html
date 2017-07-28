@@ -1,5 +1,5 @@
 <main class="auth-main">
-    <video autoplay muted loop preload="auto"  id="bg-video">
+    <video autoplay muted loop preload="auto" id="bg-video">
         <source src="/assets/video/movie.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
@@ -14,7 +14,8 @@
                 <label for="email" class="col-sm-3 control-label">Username or Email</label>
 
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" name="username" placeholder="Username or Email" ng-model="account.username" ng-required="true" backend-validity>
+                    <input type="text" class="form-control" name="username" placeholder="Username or Email"
+                           ng-model="account.username" ng-required="true" backend-validity>
                     <div class="help-block" ng-if="has_error('username')" ng-messages="form.username.$error">
                         <span ng-message="required">Username or Email is required</span>
                         <span ng-message="backend">{{ errors.username }}</span>
@@ -25,7 +26,8 @@
                 <label for="password" class="col-sm-3 control-label">Password</label>
 
                 <div class="col-sm-9">
-                    <input type="password" class="form-control" name="password" placeholder="Password" ng-model="account.password" ng-required="true">
+                    <input type="password" class="form-control" name="password" placeholder="Password"
+                           ng-model="account.password" ng-required="true">
                     <div class="help-block" ng-if="has_error('password')" ng-messages="form.password.$error">
                         <span ng-message="required">Password is required</span>
                     </div>

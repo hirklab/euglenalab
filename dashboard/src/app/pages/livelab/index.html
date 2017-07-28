@@ -1,0 +1,44 @@
+<div class="row">
+    <div class="col-xlg-7 col-lg-7 col-md-7 col-sm-7 col-xs-7">
+
+        <div class="panel" ng-class="vm.microscope.panelClass">
+            <div class="panel-heading clearfix" style="height: 44px;">
+
+                <h3 class="panel-title" style="margin-bottom: 8px;">{{vm.microscope.name}} ({{vm.microscope.magnification}}X) <span style="text-transform: capitalize">{{vm.microscope.status}}</span> <span class="pull-right">{{vm.microscope.timePending/1000|number:0}} sec</span></h3>
+
+            </div>
+            <div class="panel-body">
+                <div class="microscope-wrapper">
+                    <div class="microscope-main-info">
+                        <img ng-src="{{vm.microscope.address}}" err-src="/assets/img/bpu-disabled.jpg" style="width:100%">
+                    </div>
+                    <!--<div class="microscope-footer">-->
+                    <!--<div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">-->
+                    <!--<div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}"-->
+                    <!--aria-valuemin="0"-->
+                    <!--aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"-->
+                    <!--ng-class="stat.class">-->
+                    <!--<span>{{stat.name | uppercase}}</span>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xlg-5 col-lg-5 col-md-5 col-sm-5 col-xs-5">
+        <joystick debug="true"></joystick>
+        <!--<div class="panel">-->
+            <!--<div class="panel-heading">-->
+                <!--<h3 class="panel-title" style="margin-bottom: 8px;">Users online</h3>-->
+            <!--</div>-->
+            <!--<div class="panel-body">-->
+                <!--<ul class="list-unstyled" ng-repeat="user in vm.users">-->
+                    <!--<li><i class="fa fa-male"></i> {{user.id}}</li>-->
+                <!--</ul>-->
+            <!--</div>-->
+        <!--</div>-->
+
+    </div>
+</div>

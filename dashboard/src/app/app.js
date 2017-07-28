@@ -23,5 +23,6 @@ angular.module('BioLab', [
 	'angulartics.google.analytics',
 
 	'BioLab.theme',
-	'BioLab.pages'
+	'BioLab.pages',
+	'BioLab.components'
 ]);

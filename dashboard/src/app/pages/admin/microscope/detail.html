@@ -136,21 +136,22 @@
                     <live-status class="live-status-chart" experiments-data="{{vm.microscope.queue}}"
                                  bpu-name="{{vm.microscope.name}}"
                     ></live-status>
-                    <p class="text-muted" ng-if="vm.microscope.queue.length==0" style="margin-left: 55px;">No experiment in progress</p>
+                    <p class="text-muted" ng-if="vm.microscope.queue.length==0" style="margin-left: 55px;">No experiment
+                        in progress</p>
                 </div>
             </div>
         </div>
 
         <!--<div class="row">-->
-            <!--<div class="col-xs-12">-->
-                <!--<pre>{{vm.microscope.currentExperiment | json}}</pre>-->
-            <!--</div>-->
+        <!--<div class="col-xs-12">-->
+        <!--<pre>{{vm.microscope.currentExperiment | json}}</pre>-->
+        <!--</div>-->
         <!--</div>-->
 
         <!--<div class="row">-->
-            <!--<div class="col-xs-12">-->
-                <!--<pre>{{vm.microscope.queue | json}}</pre>-->
-            <!--</div>-->
+        <!--<div class="col-xs-12">-->
+        <!--<pre>{{vm.microscope.queue | json}}</pre>-->
+        <!--</div>-->
         <!--</div>-->
 
         <div class="row" ng-if="vm.microscope">

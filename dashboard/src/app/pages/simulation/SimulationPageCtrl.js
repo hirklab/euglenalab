@@ -1,11 +1,11 @@
 (function () {
-  'use strict';
+	'use strict';
 
-  angular.module('BioLab.pages.simulation')
-    .controller('SimulationPageCtrl', SimulationPageCtrl);
+	angular.module('BioLab.pages.simulation')
+		.controller('SimulationPageCtrl', SimulationPageCtrl);
 
-  /** @ngInject */
-  function SimulationPageCtrl($scope, fileReader, $filter) {
-  }
+	/** @ngInject */
+	function SimulationPageCtrl($scope, fileReader, $filter) {
+	}
 
 })();

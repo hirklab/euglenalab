@@ -10,7 +10,7 @@
                         <th st-sort="email">Email</th>
                         <th st-sort="isActive">Active</th>
                         <th>Role</th>
-                        <th >Actions</th>
+                        <th>Actions</th>
                     </tr>
                     <tr>
                         <th><input st-search="_id" placeholder="Search User ID"
@@ -27,7 +27,7 @@
                                    type="search"/></th>
                         <th>
                             <!--<input st-search="roles" placeholder="Search role"-->
-                                   <!--class="input-sm form-control search-input" type="search" disabled/>-->
+                            <!--class="input-sm form-control search-input" type="search" disabled/>-->
                         </th>
                         <th></th>
                     </tr>
@@ -38,7 +38,8 @@
                         <td><a ui-sref="admin.userDetail({id:user._id})">{{user.username}}</a></td>
                         <td>{{ user.email}}</td>
                         <td><i class="fa"
-                               ng-class="{'fa-circle text-success':user.isActive=='yes', 'fa-circle-o text-danger':user.isActive=='no'}"></i></td>
+                               ng-class="{'fa-circle text-success':user.isActive=='yes', 'fa-circle-o text-danger':user.isActive=='no'}"></i>
+                        </td>
                         <td>{{user.roles.admin?"admin":"account"}}</td>
                         <td></td>
                     </tr>
@@ -48,7 +49,8 @@
                         <td colspan="3">
                             <div class="form-group select-page-size-wrap ">
                                 <label>
-                                    <select class="form-control selectpicker show-tick" style="max-width: 80px;" title="Rows on page" selectpicker
+                                    <select class="form-control selectpicker show-tick" style="max-width: 80px;"
+                                            title="Rows on page" selectpicker
                                             ng-model="vm.pageSize" ng-options="i for i in [5,10,15,20,25]">
                                     </select> <span>rows per page</span>
                                 </label>

@@ -1,11 +1,11 @@
 (function () {
-  'use strict';
+	'use strict';
 
-  angular.module('BioLab.pages.about')
-    .controller('AboutPageCtrl', AboutPageCtrl);
+	angular.module('BioLab.pages.about')
+		.controller('AboutPageCtrl', AboutPageCtrl);
 
-  /** @ngInject */
-  function AboutPageCtrl($scope, fileReader, $filter) {
-  }
+	/** @ngInject */
+	function AboutPageCtrl($scope, fileReader, $filter) {
+	}
 
 })();
