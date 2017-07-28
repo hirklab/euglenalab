@@ -317,6 +317,15 @@
     drawCircleG: [],
     drawCircleB: [],
 
+    // drawLine
+    drawLineX1: [],
+    drawLineY1: [],
+    drawLineX2: [],
+    drawLineY2: [],
+    drawLineR: [],
+    drawLineG: [],
+    drawLineB: [],
+
     // drawRect
     drawRectUpperLeftX: [], 
     drawRectUpperLeftY: [], 
@@ -449,6 +458,14 @@
         app.mainView.drawCircleG = "";
         app.mainView.drawCircleB = "";
 
+        app.mainView.drawLineX1 = "";
+        app.mainView.drawLineY1 = "";
+        app.mainView.drawLineX2 = "";
+        app.mainView.drawLineY2 = "";
+        app.mainView.drawLineR = "";
+        app.mainView.drawLineG = "";
+        app.mainView.drawLineB = "";
+
         app.mainView.drawRectUpperLeftX = ""; 
         app.mainView.drawRectUpperLeftY = "";
         app.mainView.drawRectLowerRightX = "";
@@ -478,6 +495,7 @@
       // Replace EuglenaScript functions with appropriate function calls.
       var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
       modifiedCode = modifiedCode.split('drawCircle').join('app.mainView.drawCircle');
+      modifiedCode = modifiedCode.split('drawLine').join('app.mainView.drawLine');
       modifiedCode = modifiedCode.split('drawOnTrackedEuglena').join('app.mainView.drawOnTrackedEuglena');
       modifiedCode = modifiedCode.split('drawRect').join('app.mainView.drawRect');
       modifiedCode = modifiedCode.split('drawText').join('app.mainView.drawText');
@@ -588,6 +606,16 @@
       app.mainView.drawCircleR = app.mainView.drawCircleR + R + "*";
       app.mainView.drawCircleG = app.mainView.drawCircleG + G + "*";
       app.mainView.drawCircleB = app.mainView.drawCircleB + B + "*";
+    },
+    drawLine: function(x1, y1, x2, y2, R, G, B) {
+      console.log('drawLine function called.');
+      app.mainView.drawLineX1 = app.mainView.drawLineX1 + x1 + "*";
+      app.mainView.drawLineY1 = app.mainView.drawLineY1 + y1 + "*";
+      app.mainView.drawLineX2 = app.mainView.drawLineX2 + x2 + "*";
+      app.mainView.drawLineY2 = app.mainView.drawLineY2 + y2 + "*";
+      app.mainView.drawLineR = app.mainView.drawLineR + R + "*";
+      app.mainView.drawLineG = app.mainView.drawLineG + G + "*";
+      app.mainView.drawLineB = app.mainView.drawLineB + B + "*";
     },
     drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B) {
       console.log('drawRect function called.');

@@ -444,6 +444,39 @@ block body
             br
             br
 
+            b drawLine
+            |(
+            i x1, y1, x2, y2, radius, R, G, B
+            |)
+            br
+            |Input(s):
+            br
+            i x1
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i y1
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i x2
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i y2
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i R
+            |, a number between 0 and 255
+            br
+            i G
+            |, a number between 0 and 255
+            br
+            i B
+            |, a number between 0 and 255
+            br
+            |Draw line from (x1,y1) to (x2,y2) with color (R, G, B).
+
+            br
+            br
+
             b drawRect
             |(
             i upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B

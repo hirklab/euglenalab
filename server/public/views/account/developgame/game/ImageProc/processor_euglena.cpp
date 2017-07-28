@@ -69,6 +69,15 @@ class EuglenaProcessor : public Processor {
         char drawCircleG[300];
         char drawCircleB[300];
 
+        // drawLine
+        char drawLineX1[300];
+        char drawLineY1[300];
+        char drawLineX2[300];
+        char drawLineY2[300];
+        char drawLineR[300];
+        char drawLineG[300];
+        char drawLineB[300];
+
         // drawRect
         char drawRectUpperLeftX[300];
         char drawRectUpperLeftY[300];
@@ -289,6 +298,18 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         std::vector<std::string> drawCircleBVector = split(drawCircleB, '*');
         for (int i = 0; i < drawCircleCenterXVector.size()-1; i++) {
             cv::circle(im, cv::Point(std::stod(drawCircleCenterXVector.at(i)), std::stod(drawCircleCenterYVector.at(i))), std::stod(drawCircleRadiusVector.at(i)), cv::Scalar(std::stod(drawCircleRVector.at(i)), std::stod(drawCircleGVector.at(i)), std::stod(drawCircleBVector.at(i)), 255), 2);      
+        }
+
+        // Draw lines.
+        std::vector<std::string> drawLineX1Vector = split(drawLineX1, '*');
+        std::vector<std::string> drawLineY1Vector = split(drawLineY1, '*');
+        std::vector<std::string> drawLineX2Vector = split(drawLineX2, '*');
+        std::vector<std::string> drawLineY2Vector = split(drawLineY2, '*');
+        std::vector<std::string> drawLineRVector = split(drawLineR, '*');
+        std::vector<std::string> drawLineGVector = split(drawLineG, '*');
+        std::vector<std::string> drawLineBVector = split(drawLineB, '*');
+        for (int i = 0; i < drawLineX1Vector.size()-1; i++) {
+            cv::line(im, cv::Point(std::stod(drawLineX1Vector.at(i)), std::stod(drawLineY1Vector.at(i))), cv::Point(std::stod(drawLineX2Vector.at(i)), std::stod(drawLineY2Vector.at(i))), cv::Scalar(std::stod(drawLineRVector.at(i)), std::stod(drawLineGVector.at(i)), std::stod(drawLineBVector.at(i))));      
         }
 
         // Create rectangles.

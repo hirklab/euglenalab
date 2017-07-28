@@ -79,6 +79,14 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleR, var_dict.Get("drawCircleR").AsString().c_str());
       std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleG, var_dict.Get("drawCircleG").AsString().c_str());
       std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleB, var_dict.Get("drawCircleB").AsString().c_str());
+      // drawLine
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX1, var_dict.Get("drawLineX1").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY1, var_dict.Get("drawLineY1").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX2, var_dict.Get("drawLineX2").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY2, var_dict.Get("drawLineY2").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineR, var_dict.Get("drawLineR").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineG, var_dict.Get("drawLineG").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineB, var_dict.Get("drawLineB").AsString().c_str());
       // drawRect
       std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftX, var_dict.Get("drawRectUpperLeftX").AsString().c_str());
       std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftY, var_dict.Get("drawRectUpperLeftY").AsString().c_str());

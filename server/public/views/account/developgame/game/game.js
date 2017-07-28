@@ -157,6 +157,14 @@ function processNextImage()
                 drawCircleR: app.mainView.drawCircleR,
                 drawCircleG: app.mainView.drawCircleG,
                 drawCircleB: app.mainView.drawCircleB,
+                // drawLine
+                drawLineX1: app.mainView.drawLineX1,
+                drawLineY1: app.mainView.drawLineY1,
+                drawLineX2: app.mainView.drawLineX2,
+                drawLineY2: app.mainView.drawLineY2,
+                drawLineR: app.mainView.drawLineR,
+                drawLineG: app.mainView.drawLineG,
+                drawLineB: app.mainView.drawLineB,
                 // drawRect
                 drawRectUpperLeftX: app.mainView.drawRectUpperLeftX, 
                 drawRectUpperLeftY: app.mainView.drawRectUpperLeftY, 
