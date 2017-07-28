@@ -169,6 +169,54 @@
         });
       }
     });
+
+    jQuery.fn.center = function () {
+      //this.css("position","absolute");
+      this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + 
+                                                  $(window).scrollTop()) + "px");
+      this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + 
+                                                  $(window).scrollLeft()) + "px");
+      return this;
+    }
+
+    jQuery.fn.uncenter = function() {
+      this.css("top", app.mainView.programTopCSS + "px");
+      this.css("left", app.mainView.programLeftCSS + "px");
+      this.css("top", "0px");
+      this.css("left", "0px");
+      return this;
+    }
+
+    $('#btnHideCode').click(function() {
+      if (app.mainView.isCodeShowing) {
+        app.mainView.programTopCSS = $('#programDiv').css("top");
+        app.mainView.programLeftCSS = $('#programDiv').css("left");
+        console.log(app.mainView.programTopCSS + "-----" + app.mainView.programLeftCSS);
+        $('#programDiv').center();
+        $('#btnHideCode').html('Show Code');
+        $('#programDiv').removeClass('col-xs-5');
+        $('#programDiv').addClass('col-xs-12');
+        $('#codeDiv').removeClass('col-xs-12');
+        $('#codeDiv').addClass('col-xs-0');
+        $('#codeDiv').hide();
+        $('#apiCalls').hide();
+        $('#pageFooter').hide();
+        $('#btnShowAPI').hide();
+        app.mainView.isCodeShowing = false;
+      } else {
+        $('#programDiv').uncenter();
+        $('#btnHideCode').html('Hide Code');
+        $('#programDiv').removeClass('col-xs-12');
+        $('#programDiv').addClass('col-xs-5');
+        $('#codeDiv').removeClass('col-xs-0');
+        $('#codeDiv').addClass('col-xs-7');
+        $('#codeDiv').show();
+        $('#apiCalls').show();
+        $('#pageFooter').show();
+        $('#btnShowAPI').show();
+        app.mainView.isCodeShowing = true;
+      }
+    });
     
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
@@ -281,6 +329,9 @@
     gameSessionName: "no_name_assigned",
     sessionOverFirstTime: false,
     isAPIshowing: true,
+    isCodeShowing: true,
+    programTopCSS: 0,
+    programLeftCSS: 0,
     fileWriteMode: 'FILE.APPEND',
     userName: "",
     fullName: "",

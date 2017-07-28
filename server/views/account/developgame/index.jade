@@ -182,7 +182,7 @@ block body
       embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
 
     div.row
-      div.col-xs-7
+      div.col-xs-7#codeDiv
         font(color='purple')
           |function&nbsp;
         |BioticProgram() {
@@ -364,12 +364,14 @@ block body
         |};
         br
         
-      div.col-xs-5
+      div.col-xs-5#programDiv
         div.row
           div.col-xs-12
-            button.btn.btn-success#btnStartGame(type="update",value="update") Run Code
+            button.btn.btn-success#btnStartGame(type="update" value="update") Run Program
             |&nbsp;&nbsp;&nbsp;&nbsp;
-            button.btn.btn-danger#btnStopGame(type="update",value="update") Stop Code
+            button.btn.btn-danger#btnStopGame(type="update" value="update") Stop Program
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            button.btn.btn-primary#btnHideCode(type="update" value="update") Hide Code
         br
         div.row
           div.col-xs-5#myAside.unselectable(name='myAside')
@@ -883,13 +885,13 @@ block body
           div.modal-header
             button.close(type="button", data-dismiss="modal")
             h4.modal-title
-              |Save Game
+              |Save Program
           div.modal-body
             div.form-group
-              label(for="usr") Game file name:
+              label(for="usr") Program file name:
               input.form-control#gameNameText(type="text")
             br
-            button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
+            button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Program
           div.modal-footer
             button.btn.btn-default(type="button", data-dismiss="modal") Close
 
@@ -899,10 +901,10 @@ block body
           div.modal-header
             button.close(type="button", data-dismiss="modal")
             h4.modal-title
-              |Choose Game
+              |Choose Program
           div.modal-body
             div.dropdown
-              button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown") Select A Game
+              button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown") Select A Program
                 span.caret
               ul.dropdown-menu#existingGamesDropdown
                 - for (var j=0; j < data.gameNames.split('%3B').length; j++)
