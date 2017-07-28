@@ -9,7 +9,7 @@
     var myVar = setInterval(app.mainView.runLoop, 1000);
 
     document.getElementById("txtCodeVariables").addEventListener("onfocus", function() {
-      console.log('we are focused!');
+      //console.log('we are focused!');
     }, true);
 
     document.onkeypress = function (e) {
@@ -120,7 +120,7 @@
                                                     logTimestamp: Date.now().toString(),
                                                     logText: "User " + app.mainView.userName + " started program ----- \n" } )
         .done(function(data) {
-          console.log( "Data Loaded log user data: " + data);
+          //console.log( "Data Loaded log user data: " + data);
         });
     });
 
@@ -142,7 +142,7 @@
                                                                 jsExp: app.mainView.jsExp,
                                                                 bioExp: app.mainView.bioExp } )
         .done(function(data) {
-          console.log( "Data Loaded demographic data: " + data);
+          //console.log( "Data Loaded demographic data: " + data);
         });
     });
 
@@ -155,7 +155,7 @@
                                                     logTimestamp: Date.now().toString(),
                                                     logText: "User " + app.mainView.userName + " hiding API ----- \n" } )
         .done(function(data) {
-          console.log( "Data Loaded log user data: " + data);
+          //console.log( "Data Loaded log user data: " + data);
         });
       } else {
         $('#btnShowAPI').html('Hide API');
@@ -165,7 +165,7 @@
                                                     logTimestamp: Date.now().toString(),
                                                     logText: "User " + app.mainView.userName + " showing API ----- \n" } )
         .done(function(data) {
-          console.log( "Data Loaded log user data: " + data);
+          //console.log( "Data Loaded log user data: " + data);
         });
       }
     });
@@ -179,9 +179,7 @@
       return this;
     }
 
-    jQuery.fn.uncenter = function() {
-      this.css("top", app.mainView.programTopCSS + "px");
-      this.css("left", app.mainView.programLeftCSS + "px");
+    jQuery.fn.uncenter = function() {;
       this.css("top", "0px");
       this.css("left", "0px");
       return this;
@@ -191,7 +189,6 @@
       if (app.mainView.isCodeShowing) {
         app.mainView.programTopCSS = $('#programDiv').css("top");
         app.mainView.programLeftCSS = $('#programDiv').css("left");
-        console.log(app.mainView.programTopCSS + "-----" + app.mainView.programLeftCSS);
         $('#programDiv').center();
         $('#btnHideCode').html('Show Code');
         $('#programDiv').removeClass('col-xs-5');
@@ -234,7 +231,7 @@
                                                     logTimestamp: Date.now().toString(),
                                                     logText: "User " + app.mainView.userName + " stopped program ----- \n" } )
         .done(function(data) {
-          console.log( "Data Loaded log user data: " + data);
+          //console.log( "Data Loaded log user data: " + data);
         });
     });
 
@@ -261,7 +258,7 @@
                                                  keypressCode: codeKeypress,
                                                  fileName: gameName } )
         .done(function(data) {
-          console.log( "Data Loaded savefile: " + data);
+          //console.log( "Data Loaded savefile: " + data);
 
         });
 
@@ -269,7 +266,7 @@
                                                     logTimestamp: Date.now().toString(),
                                                     logText: "User " + app.mainView.userName + " saved program as " + gameName + " ----- \n" } )
         .done(function(data) {
-          console.log( "Data Loaded log user data: " + data);
+          //console.log( "Data Loaded log user data: " + data);
         });
     });
 
@@ -277,7 +274,7 @@
         var codeInd = $(this).index();
         $.post('/account/developgame/getgamecode/', { gameIndex: codeInd } )
         .done(function(data) {
-          console.log( "Data Loaded readfile: ");
+          //console.log( "Data Loaded readfile: ");
           var gameSections = data.split('-----');
           app.mainView.codeVariablesEditor.setValue(gameSections[0]);
           app.mainView.runEditor.setValue(gameSections[1]);
@@ -291,7 +288,7 @@
                                                         logTimestamp: Date.now().toString(),
                                                         logText: "User " + app.mainView.userName + " loaded program " + gameName + "----- \n" } )
             .done(function(data) {
-              console.log( "Data Loaded log user data: " + data);
+              //console.log( "Data Loaded log user data: " + data);
             });
         });
     });
@@ -438,7 +435,7 @@
                                                     logTimestamp: Date.now().toString(),
                                                     logText: "User " + app.mainView.userName + " started session ----- \n" } )
         .done(function(data) {
-          console.log( "Data Loaded log user data: " + data);
+          //console.log( "Data Loaded log user data: " + data);
         });
 
 
@@ -646,11 +643,11 @@
      */
 
     drawOnTrackedEuglena: function(isDrawing) {
-      console.log('drawOnTrackedEuglena function called.');
+      //console.log('drawOnTrackedEuglena function called.');
       app.mainView.gameDrawOnTrackedEuglena = isDrawing;
     },
     drawCircle: function(centerX, centerY, radius, R, G, B) {
-      console.log('drawCircle function called.');
+      //console.log('drawCircle function called.');
       app.mainView.drawCircleCenterX = app.mainView.drawCircleCenterX + centerX + "*";
       app.mainView.drawCircleCenterY = app.mainView.drawCircleCenterY + centerY + "*";
       app.mainView.drawCircleRadius = app.mainView.drawCircleRadius + radius + "*";
@@ -659,7 +656,7 @@
       app.mainView.drawCircleB = app.mainView.drawCircleB + B + "*";
     },
     drawLine: function(x1, y1, x2, y2, R, G, B) {
-      console.log('drawLine function called.');
+      //console.log('drawLine function called.');
       app.mainView.drawLineX1 = app.mainView.drawLineX1 + x1 + "*";
       app.mainView.drawLineY1 = app.mainView.drawLineY1 + y1 + "*";
       app.mainView.drawLineX2 = app.mainView.drawLineX2 + x2 + "*";
@@ -669,7 +666,7 @@
       app.mainView.drawLineB = app.mainView.drawLineB + B + "*";
     },
     drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B) {
-      console.log('drawRect function called.');
+      //console.log('drawRect function called.');
       app.mainView.drawRectUpperLeftX = app.mainView.drawRectUpperLeftX + upperLeftX + "*";
       app.mainView.drawRectUpperLeftY = app.mainView.drawRectUpperLeftY + upperLeftY + "*";
       app.mainView.drawRectLowerRightX = app.mainView.drawRectLowerRightX + lowerRightX + "*";
@@ -679,7 +676,7 @@
       app.mainView.drawRectB = app.mainView.drawRectB + B + "*";
     },
     drawText: function(drawTxt, xPos, yPos, size, R, G, B) {
-      console.log('drawText function called.');
+      //console.log('drawText function called.');
       app.mainView.drawTextdrawTxt = app.mainView.drawTextdrawTxt + drawTxt + "*";
       app.mainView.drawTextXPos = app.mainView.drawTextXPos + xPos + "*";
       app.mainView.drawTextYPos = app.mainView.drawTextYPos + yPos + "*";
@@ -689,12 +686,12 @@
       app.mainView.drawTextB = app.mainView.drawTextB + B + "*";
     },
     endProgram: function() {
-      console.log('endProgram function called.');
+      //console.log('endProgram function called.');
       app.mainView.gameInSession = false;
       app.mainView.parseEndCode(app.mainView.gameEndCode);
     },
     getAllEuglenaIDs: function() {
-      console.log('getAllEuglenaIDs function called.');
+      //console.log('getAllEuglenaIDs function called.');
       //console.log('input str::: ' + app.mainView.getAllEuglenaIDsStr);
       var idSet = new Set();
       var idList = app.mainView.getAllEuglenaIDsStr.split(';');
@@ -706,7 +703,7 @@
       return Array.from(idSet);
     },
     getAllEuglenaPositions: function() {
-      console.log('getAllEuglenaPositions function called.');
+      //console.log('getAllEuglenaPositions function called.');
       var allEuglenaPositions = [];
       var splitPositions = app.mainView.getAllEuglenaPositionsStr.split(";");
       for (var i = 0; i < splitPositions.length; i++) {
@@ -719,11 +716,11 @@
       return allEuglenaPositions;
     },
     getEuglenaCount: function() {
-      console.log('getEuglenaCount function called.');
+      //console.log('getEuglenaCount function called.');
       return app.mainView.gameEuglenaCount;
     },
     getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
-      console.log('getEuglenaInRect function called.');
+      //console.log('getEuglenaInRect function called.');
       app.mainView.getEuglenaInRectUpperLeftX = upperLeftX;
       app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
       app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
@@ -732,43 +729,43 @@
       return app.mainView.gameEuglenaInRectCount;
     },
     getEuglenaAccelerationByID: function(id) {
-      console.log('getEuglenaAccelerationByID function called.');
+      //console.log('getEuglenaAccelerationByID function called.');
       app.mainView.getEuglenaAccelerationID = id;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
       return app.mainView.getEuglenaAccelerationReturn;
     },
     getEuglenaPositionByID: function(id) {
-      console.log('getEuglenaPositionByID function called.');
+      //console.log('getEuglenaPositionByID function called.');
       app.mainView.getEuglenaPositionID = id;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
       return app.mainView.getEuglenaPositionReturn;
     },
     getEuglenaRotationByID: function(id) {
-      console.log('getEuglenaRotationByID function called.');
+      //console.log('getEuglenaRotationByID function called.');
       app.mainView.getEuglenaRotationID = id;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
       return app.mainView.getEuglenaRotationReturn;
     },
     getEuglenaVelocityByID: function(id) {
-      console.log('getEuglenaVelocityByID function called.');
+      //console.log('getEuglenaVelocityByID function called.');
       app.mainView.getEuglenaVelocityID = id;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
       return app.mainView.getEuglenaVelocityReturn;
     },
     getMaxScreenHeight: function() {
-      console.log('getMaxScreenHeight function called.');
+      //console.log('getMaxScreenHeight function called.');
       return 479;
     },
     getMaxScreenWidth: function() {
-      console.log('getMaxScreenWidth function called.');
+      //console.log('getMaxScreenWidth function called.');
       return 639;
     },
     getTimeLeft: function() {
-      console.log('getTimeLeft function called.');
+      //console.log('getTimeLeft function called.');
       return Math.floor(app.mainView.timeLeftInLab / 1000.0);
     },
     readFromFile: function(fileName) {
-      console.log('readFromFile function called.');
+      //console.log('readFromFile function called.');
 
       var txtData = "unchanged";
       $.ajax({
@@ -786,11 +783,11 @@
       return txtData;
     },
     setJoystickView: function(isOn) {
-      console.log('setJoystickView function called.');
+      //console.log('setJoystickView function called.');
       app.mainView.gameJoystickView = isOn;
     },
     setGameOverMessage: function(gameOverText) {
-      console.log('setGameOverMessage function called.');
+      //console.log('setGameOverMessage function called.');
       app.mainView.gameOverText = gameOverText;
     },
     setLED: function(led, intensity) {
@@ -838,17 +835,17 @@
       return ledsSetObj;
     },
     setInstructionText: function(msgText) {
-      console.log('setLevelText function called.');
+      //console.log('setLevelText function called.');
       app.mainView.gameInstructionText = msgText;
       $('#instructionText').text(app.mainView.gameInstructionText);
     },
     writeToFile: function(fileName, txt, mode) {
-      console.log('writeToFile function called.');
+      //console.log('writeToFile function called.');
       $.post('/account/developgame/writeuserfile/', { fileName: fileName,
                                                  userText: txt,
                                                  fileMode: mode } )
         .done(function(data) {
-          console.log( "Data Loaded writeToFile: " + data);
+          //console.log( "Data Loaded writeToFile: " + data);
         });
     },
 
@@ -912,7 +909,7 @@
                                                     logTimestamp: Date.now().toString(),
                                                     logText: "User session expired ----- \n" } )
         .done(function(data) {
-          console.log( "Data Loaded log user data: " + data);
+          //console.log( "Data Loaded log user data: " + data);
         });
       //location.href = '/account/';
       // }
@@ -1248,7 +1245,7 @@
             };
 
             if (app.mainView.updateLoopInterval != null) {
-              console.log('keyboard loop');
+              //console.log('keyboard loop');
               loop();
             }
           }
