@@ -16,26 +16,18 @@
 			scope:       {
 				debug:    '=',
 				disabled: '=',
-				// sendMovement: '&',          // will callback one of: {response: {left: speed, right: speed}}, {response: {angle: 27, speed: speed}}. {response: {direction: 'up-left', speed: speed}}
-
-
-				// directionManagement: "=",   // 'differential' - means we send acceleration for each wheel through the callback (real devices)
-				// 'angle' - we send the angle of movement and acceleration through the callback (real / on-screen interactive element)
-				// 'directions': - we send 'up', 'up-left', 'up-right', 'left', 'right', 'down-left', (on-screen interactive element)
-				//                  'down-right' and acceleration through the callback **/
-				// controlSize:         "=", // The size in pixels of the control on page, max 300.
-				// speedDebug:          "=" // The size in pixels of the control on page, max 300.
+				onMove:   '&'
 			},
 			transclude:  false,
 			templateUrl: 'app/components/joystick/joystick.html',
-			controller:  function ($scope, $timeout, joystickAPI) {
+
+			controller: function ($scope, $timeout, joystickAPI) {
 				joystickAPI.goBackToLevel = function (direction) {
-
 					console.log('direction', direction);
-
 				};
 			},
-			link:        function (scope, element, attrs) {
+
+			link: function (scope, element, attrs) {
 
 				/**
 				 * Angular Joystick - Consensus / Options
@@ -66,9 +58,8 @@
 						return scope.debug;
 					},
 
-					pixelToSpeedRatio: 0,
 					radius:            0,
-					timeoutToStop:     700,
+					timeoutToStop:     100,
 					singleButton:      false
 				};
 
@@ -77,33 +68,23 @@
 				scope.actual = {
 					x:         0,
 					y:         0,
-					magnitude: 0, // 0-100
-					angle:     0 // in degrees
+					magnitude: 0, // 0-100 (percent)
+					angle:     0  // in degrees
 				};
 
 				/** Movement / UI / Positioning **/
 
-				// //// Control Size
-				//
-				// if (settings.controlSize()) {
-				// 	angular.element(element.children()).css({
-				// 		width:  settings.controlSize() + 'px',
-				// 		height: settings.controlSize() + 'px'
-				// 	});
-				// }
-				//
-				//
 				// $timeout(function () {
 				// 	settings.center = [button[0].offsetLeft, button[0].offsetTop];
+				//
 				// 	button.css({'left': settings.center[0] + 'px'});
 				// 	button.css({'top': settings.center[1] + 'px'});
 				// }, 500);
-				//
-				//
+
 				// //// Hooking Up Events
-				//
-				// var stopMovement = 0;
-				//
+
+				var stopMovement = 0;
+
 				// //Touch
 				//
 				// var touchEventPresent = 0;
@@ -144,31 +125,39 @@
 				// });
 				//
 				//
-				// //Mouse
-				// var mouseMove = function (event) {
-				// 	moveJoystick(event.clientX, event.clientY);
-				// };
-				//
+
+
+				//Mouse
+				var mouseMove = function (event) {
+					moveJoystick(event.clientX, event.clientY);
+				};
+
 				// button.on('mousedown', function mousedown(event) {
-				// 	//console.log('mousedown', event);
-				// 	settings.moving = 1;
-				// 	$timeout.cancel(stopMovement);
-				// 	//Calculate the center of touch from the moment the user clicks on the button
-				// 	settings.touchedCenter = [event.clientX, event.clientY];
-				// 	angular.element(window).on('mousemove', mouseMove);
-				// });
-				//
-				// //button.on('mouseup', function mouseup(event){
-				// angular.element(window).on('mouseup', function mouseup(event) {
-				// 	//console.log('mouseup', event);
-				// 	stopMovement = $timeout(function () {
-				// 		settings.moving = 0;
-				// 	}, settings.timeoutToStop);
-				//
-				// 	returnJoystick(button);
-				// 	angular.element(window).off('mousemove', mouseMove);
-				// });
-				//
+				angular.element(window).on('mousedown', function mousedown(event) {
+					if(event.target.className=='joystick-button') {
+						console.log('mousedown', event);
+						settings.moving = 1;
+						$timeout.cancel(stopMovement);
+
+						//Calculate the center of touch from the moment the user clicks on the button
+						settings.touchedCenter = [event.clientX, event.clientY];
+						angular.element(window).on('mousemove', mouseMove);
+					}
+				});
+
+				//button.on('mouseup', function mouseup(event){
+				angular.element(window).on('mouseup', function mouseup(event) {
+					console.log('mouseup', event);
+
+					stopMovement = $timeout(function () {
+						settings.moving = 0;
+					}, settings.timeoutToStop);
+
+					returnJoystick(button);
+
+					angular.element(window).off('mousemove', mouseMove);
+				});
+
 				//
 				// // Watching joystick actions
 				//
@@ -189,69 +178,69 @@
 				// window.requestAnimationFrame(step);
 				//
 				//
-				// // Moving the joystick & utilities
-				//
-				// var limit = function limit(x, y, cenx, ceny, r) {
-				// 	var dist = distance([x, y], [cenx, ceny]);
-				// 	if (dist <= r) {
-				// 		return {
-				// 			x: x,
-				// 			y: y
-				// 		};
-				// 	} else {
-				// 		x           = x - cenx;
-				// 		y           = y - ceny;
-				// 		var radians = Math.atan2(y, x);
-				// 		return {
-				// 			x: Math.cos(radians) * r + cenx,
-				// 			y: Math.sin(radians) * r + ceny
-				// 		};
-				// 	}
-				// };
-				//
-				// var distance = function distance(dot1, dot2) {
-				// 	var x1 = dot1[0],
-				// 	    y1 = dot1[1],
-				// 	    x2 = dot2[0],
-				// 	    y2 = dot2[1];
-				// 	return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-				// };
-				//
-				// var moveJoystick = function moveJoystick(x, y) {
-				// 	var center        = settings.center[0];
-				// 	var circle_cenx   = center;
-				// 	var circle_ceny   = center;
-				// 	var circle_radius = center - 20;
-				// 	settings.radius   = circle_radius;
-				//
-				// 	var moveX = x - settings.touchedCenter[0];
-				// 	var moveY = y - settings.touchedCenter[1];
-				//
-				// 	var result = limit(
-				// 		settings.center[0] + moveX,
-				// 		settings.center[1] + moveY,
-				// 		circle_cenx,
-				// 		circle_ceny,
-				// 		circle_radius
-				// 	);
-				//
-				// 	button.css({'left': result.x + 'px'}).css({'top': result.y + 'px'});
-				// 	scope.$apply();
-				// };
-				//
-				// // Return the joystick to its default position
-				// var returnJoystick = function returnJoystick(button) {
-				// 	// If no other action has been taken, return the joystick to its initial position
-				// 	button.addClass('returning');
-				//
-				// 	$timeout(function () {
-				// 		button.css({'left': settings.center[0] + 'px', 'top': settings.center[1] + 'px'});
-				// 	}, settings.timeoutToStop - 500);
-				//
-				// 	$timeout(function () {
-				// 		button.removeClass('returning');
-				// 	}, settings.timeoutToStop);
-				// };
+				// Moving the joystick & utilities
+
+				var limit = function limit(x, y, cenx, ceny, r) {
+					var dist = distance([x, y], [cenx, ceny]);
+					if (dist <= r) {
+						return {
+							x: x,
+							y: y
+						};
+					} else {
+						x           = x - cenx;
+						y           = y - ceny;
+						var radians = Math.atan2(y, x);
+						return {
+							x: Math.cos(radians) * r + cenx,
+							y: Math.sin(radians) * r + ceny
+						};
+					}
+				};
+
+				var distance = function distance(dot1, dot2) {
+					var x1 = dot1[0],
+					    y1 = dot1[1],
+					    x2 = dot2[0],
+					    y2 = dot2[1];
+					return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+				};
+
+				var moveJoystick = function moveJoystick(x, y) {
+					var center        = settings.center[0];
+					var circle_cenx   = center;
+					var circle_ceny   = center;
+					var circle_radius = center - 20;
+					settings.radius   = circle_radius;
+
+					var moveX = x - settings.touchedCenter[0];
+					var moveY = y - settings.touchedCenter[1];
+
+					var result = limit(
+						settings.center[0] + moveX,
+						settings.center[1] + moveY,
+						circle_cenx,
+						circle_ceny,
+						circle_radius
+					);
+
+					button.css({'left': result.x + 'px'}).css({'top': result.y + 'px'});
+					scope.$apply();
+				};
+
+				// Return the joystick to its default position
+				var returnJoystick = function returnJoystick(button) {
+					// If no other action has been taken, return the joystick to its initial position
+					button.addClass('returning');
+
+					$timeout(function () {
+						button.css({'left': settings.center[0] + 'px', 'top': settings.center[1] + 'px'});
+					}, settings.timeoutToStop - 500);
+
+					$timeout(function () {
+						button.removeClass('returning');
+					}, settings.timeoutToStop);
+				};
 				//
 				// /** Math for speed / direction **/
 				//
