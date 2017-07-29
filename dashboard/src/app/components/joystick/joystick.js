@@ -10,7 +10,7 @@
 		return {};
 	}
 
-	function joystick($parse, $document, $timeout, $compile) {
+	function joystick($parse, $document, $window, $timeout, $compile) {
 		return {
 			restrict:    'E',
 			scope:       {
@@ -28,7 +28,6 @@
 			},
 
 			link: function (scope, element, attrs) {
-
 				/**
 				 * Angular Joystick - Consensus / Options
 				 * - listens for mouse and touch events
@@ -36,32 +35,43 @@
 				 * - after a set time of inactivity (no touch, mouseup event) retract the joystick
 				 * - distance traveled from center to margin
 				 * */
+				var joystickElement = angular.element(element[0]);
+				var joystickBounds  = angular.element(element[0].querySelector('.joystick-bounds'));
+				var button          = angular.element(element[0].querySelector('.joystick-button-container'));
+				var pad             = element[0].querySelector('.joystick-pad');
 
-
-					// Defining elements
-
-				var button = angular.element(element[0].querySelector('.joystick'));
-				var pad    = element[0].querySelector('.joystick-pad');
 
 				// Settings
 
 				var settings = {
-					elementOffset:   [element[0].offsetLeft, element[0].offsetTop],
-					elementPosition: element[0].getBoundingClientRect(),
+					    elementOffset:   [element[0].offsetLeft, element[0].offsetTop],
+					    elementPosition: element[0].getBoundingClientRect(),
 
-					center: [button[0].offsetLeft, button[0].offsetTop],
-					moving: 0,
+					    padCenter: {
+						    x: joystickElement.offset().left + (joystickElement.width() / 2),
+						    y: joystickElement.offset().top + (joystickElement.height() / 2)
+					    },
 
-					touchedCenter: [],
+					    padRadius:      button[0].offsetLeft,
+					    padWidth:       20, // 20 px in svg
+					    joystickRadius: 60, // 60 px in styles
 
-					debug: function () {
-						return scope.debug;
-					},
+					    center: [button[0].offsetLeft, button[0].offsetTop],
+					    radius: 0,
+					    // moving: 0,
 
-					radius:            0,
-					timeoutToStop:     100,
-					singleButton:      false
-				};
+					    touchedCenter: [],
+
+					    debug: function () {
+						    return scope.debug;
+					    },
+
+					    timeoutToStop: 100,
+					    singleButton:  false
+				    }
+				;
+
+				scope.moving = false;
 
 				scope.debug = settings.debug();
 
@@ -73,19 +83,34 @@
 				};
 
 				/** Movement / UI / Positioning **/
+				var resize = function () {
+					joystickBounds.css({
+						'width':  joystickElement.width() + 'px',
+						'height': joystickElement.width() + 'px'
+					});
 
-				// $timeout(function () {
-				// 	settings.center = [button[0].offsetLeft, button[0].offsetTop];
-				//
-				// 	button.css({'left': settings.center[0] + 'px'});
-				// 	button.css({'top': settings.center[1] + 'px'});
-				// }, 500);
+					//relative position with respect to pad
+					settings.buttonCenter = [button[0].offsetLeft, button[0].offsetTop];
 
-				// //// Hooking Up Events
+					settings.padCenter = {
+						x: joystickElement.offset().left + (joystickElement.width() / 2),
+						y: joystickElement.offset().top + (joystickElement.height() / 2)
+					};
+				};
+
+				resize();
+
+				angular.element($window).bind('resize', function () {
+					resize();
+
+					scope.$digest();
+				});
+
+				// Hooking Up Events
 
 				var stopMovement = 0;
 
-				// //Touch
+				//Touch
 				//
 				// var touchEventPresent = 0;
 				// var touchMove         = function (event) {
@@ -120,68 +145,88 @@
 				// 		settings.moving = 0;
 				// 	}, settings.timeoutToStop);
 				//
-				// 	returnJoystick(button);
+				// 	repositionJoystick(button);
 				// 	angular.element(window).off('touchmove', touchMove);
 				// });
 				//
 				//
-
 
 				//Mouse
 				var mouseMove = function (event) {
 					moveJoystick(event.clientX, event.clientY);
 				};
 
-				// button.on('mousedown', function mousedown(event) {
+				// angular.element(window).on('mousemove', function (event) {
+				// 	console.log(event.clientX, event.clientY, settings.padCenter, joystickElement.offset().top, joystickElement.height() / 2);
+				// });
+
 				angular.element(window).on('mousedown', function mousedown(event) {
-					if(event.target.className=='joystick-button') {
-						console.log('mousedown', event);
-						settings.moving = 1;
-						$timeout.cancel(stopMovement);
+					// console.log('mousedown', event);
+					if (event.target.className.indexOf('joystick-button') >= 0 && event.button == 0) {
+						scope.moving = true;
+						// $timeout.cancel(stopMovement);
 
 						//Calculate the center of touch from the moment the user clicks on the button
 						settings.touchedCenter = [event.clientX, event.clientY];
+						// positionJoystick(event.clientX, event.clientY);
 						angular.element(window).on('mousemove', mouseMove);
 					}
 				});
 
+				// scope.$watch('moving', function (newVal, oldVal) {
+				// 	console.log("moving:" , newVal);
+				// 	//
+				// 	// if(newVal){
+				// 	//
+				// 	// }else{
+				// 	//
+				// 	// }
+				// });
+
+
 				//button.on('mouseup', function mouseup(event){
 				angular.element(window).on('mouseup', function mouseup(event) {
-					console.log('mouseup', event);
+					// console.log('mouseup', event);
+					if (scope.moving) {
+						stopMovement = $timeout(function () {
+							scope.moving = false;
+						}, settings.timeoutToStop);
 
-					stopMovement = $timeout(function () {
-						settings.moving = 0;
-					}, settings.timeoutToStop);
+						repositionJoystick(button);
 
-					returnJoystick(button);
-
-					angular.element(window).off('mousemove', mouseMove);
+						angular.element(window).off('mousemove', mouseMove);
+					}
 				});
 
-				//
-				// // Watching joystick actions
-				//
-				// // Animation Frame is a much more smoother experience
-				// function step(timestamp) {
-				// 	if (settings.moving) {
-				// 		scope.actual.x = button[0].offsetLeft;
-				// 		scope.actual.y = button[0].offsetTop;
-				// 		calculateDirectionAndSpeed(scope.actual.x, scope.actual.y);
-				// 	}
-				// 	if (settings.singleButton) {
-				// 		//TODO: As long as the button is pressed, run this function
-				// 		calculateSingleMovement(settings.singleButton, timestamp);
-				// 	}
-				// 	window.requestAnimationFrame(step);
-				// }
-				//
-				// window.requestAnimationFrame(step);
-				//
-				//
-				// Moving the joystick & utilities
 
+				// Watching joystick actions
+
+				// Animation Frame is a much more smoother experience
+				function step(timestamp) {
+					if (scope.moving) {
+						calculate();
+					}
+					window.requestAnimationFrame(step);
+				}
+
+				window.requestAnimationFrame(step);
+
+				var calculate = function(){
+					scope.actual.x = button[0].offsetLeft - settings.buttonCenter[0];
+					scope.actual.y = button[0].offsetTop - settings.buttonCenter[1];
+					var mag = distance([scope.actual.x, scope.actual.y], [0, 0]) * 100 / (settings.padRadius - settings.padWidth);
+					if(mag>100) mag =100;
+
+					scope.actual.magnitude = mag;
+
+					console.log(scope.actual.x, scope.actual.y, scope.actual.magnitude);
+				};
+
+
+				// Moving the joystick & utilities
 				var limit = function limit(x, y, cenx, ceny, r) {
 					var dist = distance([x, y], [cenx, ceny]);
+
 					if (dist <= r) {
 						return {
 							x: x,
@@ -207,38 +252,47 @@
 				};
 
 				var moveJoystick = function moveJoystick(x, y) {
-					var center        = settings.center[0];
+					var center        = settings.buttonCenter[0];
 					var circle_cenx   = center;
 					var circle_ceny   = center;
-					var circle_radius = center - 20;
+					var circle_radius = center - settings.padWidth;
 					settings.radius   = circle_radius;
 
 					var moveX = x - settings.touchedCenter[0];
 					var moveY = y - settings.touchedCenter[1];
 
 					var result = limit(
-						settings.center[0] + moveX,
-						settings.center[1] + moveY,
+						settings.buttonCenter[0] + moveX,
+						settings.buttonCenter[1] + moveY,
 						circle_cenx,
 						circle_ceny,
 						circle_radius
 					);
 
-					button.css({'left': result.x + 'px'}).css({'top': result.y + 'px'});
+					positionJoystick(result.x, result.y);
 					scope.$apply();
 				};
 
-				// Return the joystick to its default position
-				var returnJoystick = function returnJoystick(button) {
+				var positionJoystick = function (x, y) {
+					// x = x-(settings.joystickRadius/2);
+					// y = y-(settings.joystickRadius/2);
+					button.css({'position': 'absolute', 'left': x + 'px', 'top': y + 'px'});
+				};
+
+				// return the joystick to its default position
+				var repositionJoystick = function repositionJoystick(button) {
 					// If no other action has been taken, return the joystick to its initial position
 					button.addClass('returning');
 
 					$timeout(function () {
-						button.css({'left': settings.center[0] + 'px', 'top': settings.center[1] + 'px'});
-					}, settings.timeoutToStop - 500);
+						positionJoystick(settings.buttonCenter[0], settings.buttonCenter[1]);
+
+						scope.moving = false;
+					}, settings.timeoutToStop-10);
 
 					$timeout(function () {
 						button.removeClass('returning');
+						calculate();
 					}, settings.timeoutToStop);
 				};
 				//
@@ -249,12 +303,12 @@
 				// var pxToCarthesian = function pxToCarthesian(x, y) {
 				//
 				// 	    var divider = 100;
-				// 	    if (settings.center[0] > 100) {
+				// 	    if (settings.buttonCenter[0] > 100) {
 				// 		    divider = 1000;
 				// 	    }
 				//
-				// 	    var centerX = settings.center[0];
-				// 	    var centerY = settings.center[1];
+				// 	    var centerX = settings.buttonCenter[0];
+				// 	    var centerY = settings.buttonCenter[1];
 				//
 				//
 				// 	    // This is not carthesian, at all ... f**k it.
@@ -358,8 +412,8 @@
 				// 	scope.actual.finalWheelSpeedRight = parseInt(0 - r);
 				//
 				// 	scope.sendMovement({response: {left: 0 - l, right: 0 - r}});
-				// 	/*console.log('Sent Params', 'x', pos[0], 'y', pos[1], 'maxAxis', settings.radius || (settings.center[0] - 20), 'minAxis', - (settings.radius || (settings.center[0] -20)), 'maxSpeed', settings.maxPositiveSpeed, 1);
-				// 	console.info('artDifferentialControl', artDifferentialControl.calculate(pos[0], pos[1], settings.radius || (settings.center[0] -20), - (settings.radius || (settings.center[0] - 20)), settings.maxPositiveSpeed, 1));*/
+				// 	/*console.log('Sent Params', 'x', pos[0], 'y', pos[1], 'maxAxis', settings.radius || (settings.buttonCenter[0] - 20), 'minAxis', - (settings.radius || (settings.buttonCenter[0] -20)), 'maxSpeed', settings.maxPositiveSpeed, 1);
+				// 	console.info('artDifferentialControl', artDifferentialControl.calculate(pos[0], pos[1], settings.radius || (settings.buttonCenter[0] -20), - (settings.radius || (settings.buttonCenter[0] - 20)), settings.maxPositiveSpeed, 1));*/
 				// };
 			}
 		};

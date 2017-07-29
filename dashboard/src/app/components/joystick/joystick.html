@@ -1,22 +1,23 @@
-<div class="joystick-container">
-    <div class="joystick-pad"></div>
-    <div class="joystick-area">
-        <div class="joystick">
-            <div class="joystick-button"></div>
+<div class="joystick-bounds unselectable">
+    <div class="joystick-container unselectable">
+
+        <div class="joystick-pad unselectable"></div>
+        <div class="joystick-area unselectable">
+            <div class="joystick-button-container">
+                <div class="joystick-button"></div>
+            </div>
         </div>
-    </div>
-    <div class="joystick-arrow-up joystick-arrow" ng-mousedown="simpleDirection.up()"></div>
-    <div class="joystick-arrow-down joystick-arrow" ng-mousedown="simpleDirection.down()"></div>
-    <div class="joystick-arrow-left joystick-arrow" ng-mousedown="simpleDirection.left()"></div>
-    <div class="joystick-arrow-right joystick-arrow" ng-mousedown="simpleDirection.right()"></div>
-    <div ng-if="debug" class="joystick-debug">
-        <p>
-            <small>Magnitude:</small>
-            {{actual.magnitude}}
-        </p>
-        <p>
-            <small>Angle:</small>
-            {{actual.angle}}&deg;
-        </p>
+        <div class="joystick-arrow-up joystick-arrow unselectable" ></div>
+        <div class="joystick-arrow-down joystick-arrow unselectable"></div>
+        <div class="joystick-arrow-left joystick-arrow unselectable"></div>
+        <div class="joystick-arrow-right joystick-arrow unselectable"></div>
+        <div ng-if="debug" class="joystick-debug unselectable">
+            <p>
+                <small>Angle: {{actual.angle|number:2}}&deg;</small>
+            </p>
+            <p>
+                <small>Intensity: {{actual.magnitude|number:2}}%</small>
+            </p>
+        </div>
     </div>
 </div>
