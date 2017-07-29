@@ -72,6 +72,21 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->gameInSession = var_dict.Get("gameInSession").AsBool();
       ((EuglenaProcessor*)processor.get())->demoMode = var_dict.Get("gameDemoMode").AsBool();
       ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = var_dict.Get("gameDrawOnTrackedEuglena").AsBool();
+      // drawCircle
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterX, var_dict.Get("drawCircleCenterX").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterY, var_dict.Get("drawCircleCenterY").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleRadius, var_dict.Get("drawCircleRadius").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleR, var_dict.Get("drawCircleR").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleG, var_dict.Get("drawCircleG").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleB, var_dict.Get("drawCircleB").AsString().c_str());
+      // drawLine
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX1, var_dict.Get("drawLineX1").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY1, var_dict.Get("drawLineY1").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX2, var_dict.Get("drawLineX2").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY2, var_dict.Get("drawLineY2").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineR, var_dict.Get("drawLineR").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineG, var_dict.Get("drawLineG").AsString().c_str());
+      std::strcpy(((EuglenaProcessor*)processor.get())->drawLineB, var_dict.Get("drawLineB").AsString().c_str());
       // drawRect
       std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftX, var_dict.Get("drawRectUpperLeftX").AsString().c_str());
       std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftY, var_dict.Get("drawRectUpperLeftY").AsString().c_str());
@@ -101,6 +116,8 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->accelerationID = var_dict.Get("getEuglenaAccelerationID").AsInt();
       // getEuglenaRotationByID
       ((EuglenaProcessor*)processor.get())->rotationID = var_dict.Get("getEuglenaAccelerationID").AsInt();
+
+      ((EuglenaProcessor*)processor.get())->magnification = var_dict.Get("magnification").AsInt();
     }
 
     // Post message with C++ variables back to JavaScript layer.

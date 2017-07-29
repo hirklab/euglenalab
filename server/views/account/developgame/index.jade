@@ -182,7 +182,7 @@ block body
       embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
 
     div.row
-      div.col-xs-7
+      div.col-xs-7#codeDiv
         font(color='purple')
           |function&nbsp;
         |BioticProgram() {
@@ -364,12 +364,14 @@ block body
         |};
         br
         
-      div.col-xs-5
+      div.col-xs-5#programDiv
         div.row
           div.col-xs-12
-            button.btn.btn-success#btnStartGame(type="update",value="update") Run Code
+            button.btn.btn-success#btnStartGame(type="update" value="update") Run Program
             |&nbsp;&nbsp;&nbsp;&nbsp;
-            button.btn.btn-danger#btnStopGame(type="update",value="update") Stop Code
+            button.btn.btn-danger#btnStopGame(type="update" value="update") Stop Program
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            button.btn.btn-primary#btnHideCode(type="update" value="update") Hide Code
         br
         div.row
           div.col-xs-5#myAside.unselectable(name='myAside')
@@ -410,6 +412,69 @@ block body
             |, a boolean
             br
             |Toggle whether the currently tracked Euglena have a virtual object drawn over them.
+
+            br
+            br
+
+            b drawCircle
+            |(
+            i xCenter, yCenter, radius, R, G, B
+            |)
+            br
+            |Input(s):
+            br
+            i xCenter
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i yCenter
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i radius
+            |, a number
+            br
+            i R
+            |, a number between 0 and 255
+            br
+            i G
+            |, a number between 0 and 255
+            br
+            i B
+            |, a number between 0 and 255
+            br
+            |Draw circle with center (xCenter, yCenter) with radius and color (R, G, B).
+
+            br
+            br
+
+            b drawLine
+            |(
+            i x1, y1, x2, y2, radius, R, G, B
+            |)
+            br
+            |Input(s):
+            br
+            i x1
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i y1
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i x2
+            |, a number between 0 and MAX_SCREEN_HEIGHT
+            br
+            i y2
+            |, a number between 0 and MAX_SCREEN_WIDTH
+            br
+            i R
+            |, a number between 0 and 255
+            br
+            i G
+            |, a number between 0 and 255
+            br
+            i B
+            |, a number between 0 and 255
+            br
+            |Draw line from (x1,y1) to (x2,y2) with color (R, G, B).
 
             br
             br
@@ -820,13 +885,13 @@ block body
           div.modal-header
             button.close(type="button", data-dismiss="modal")
             h4.modal-title
-              |Save Game
+              |Save Program
           div.modal-body
             div.form-group
-              label(for="usr") Game file name:
+              label(for="usr") Program file name:
               input.form-control#gameNameText(type="text")
             br
-            button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Game
+            button.btn.btn-primary#btnSaveGame(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Program
           div.modal-footer
             button.btn.btn-default(type="button", data-dismiss="modal") Close
 
@@ -836,10 +901,10 @@ block body
           div.modal-header
             button.close(type="button", data-dismiss="modal")
             h4.modal-title
-              |Choose Game
+              |Choose Program
           div.modal-body
             div.dropdown
-              button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown") Select A Game
+              button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown") Select A Program
                 span.caret
               ul.dropdown-menu#existingGamesDropdown
                 - for (var j=0; j < data.gameNames.split('%3B').length; j++)
