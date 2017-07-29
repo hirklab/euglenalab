@@ -16,9 +16,9 @@
 class KFTracker {
     public:
         cv::KalmanFilter KF;
-        cv::Mat systemState;
-        cv::Mat precessNoise;
-        cv::Mat systemMeasurement;
+        cv::Mat state;
+        cv::Mat processNoise;
+        cv::Mat measurement;
         std::vector<cv::Point>pointsVector, kalmanVector;
         bool init;
 
@@ -114,7 +114,7 @@ class EuglenaProcessor : public Processor {
         //getEuglenaRotationByID
         int rotationID;
         float targetEuglenaRotation;
-        std::string targetEuglenaDirection;
+        std::string targetEuglenaDirection;  //Not necessary
 
     private:
         std::vector<std::string> split(const std::string &text, char sep);
@@ -183,10 +183,10 @@ std::vector<std::string> EuglenaProcessor::split(const std::string &text, char s
 
 KFTracker::KFTracker() {
     KF = cv::KalmanFilter(4, 2, 0);
-    systemState = cv::Mat(4, 1, CV_32FC1);
-    precessNoise = cv::Mat(4, 1, CV_32F);
-    systemMeasurement = cv::Mat(2, 1, CV_32FC1);
-    systemMeasurement.setTo(cv::Scalar(0));
+    state = cv::Mat(4, 1, CV_32FC1);
+    processNoise = cv::Mat(4, 1, CV_32F);
+    measurement = cv::Mat(2, 1, CV_32FC1);
+    measurement.setTo(cv::Scalar(0));
     init = true;
 }
 
@@ -197,26 +197,34 @@ void KFTracker::initializeKF(float x, float y) {
     KF.statePre.at<float>(1) = y;
     KF.statePre.at<float>(2) = 0;
     KF.statePre.at<float>(3) = 0;
+
     KF.transitionMatrix = *(cv::Mat_<float>(4, 4) << 1,0,0,0,   0,1,0,0,   0,0,1,0,   0,0,0,1 );
+
     cv::setIdentity(KF.measurementMatrix);
     cv::setIdentity(KF.processNoiseCov, cv::Scalar::all(1e-4));
     cv::setIdentity(KF.measurementNoiseCov, cv::Scalar::all(1e-4));
     cv::setIdentity(KF.errorCovPost, cv::Scalar::all(.1));
+    
     pointsVector.clear();
     kalmanVector.clear();
+    
     init = false;
 }
 
 void KFTracker::track(float x, float y) {
     if ( init )
         initializeKF(x, y);
+
     cv::Mat prediction = KF.predict();
     cv::Point predictPt(prediction.at<float>(0), prediction.at<float>(1));
-    systemMeasurement.at<float>(0,0) = x;
-    systemMeasurement.at<float>(1,0) = y;
-    cv::Point measPt(systemMeasurement.at<float>(0,0), systemMeasurement.at<float>(1,0));
+    
+    measurement.at<float>(0,0) = x;
+    measurement.at<float>(1,0) = y;
+
+    cv::Point measPt(measurement.at<float>(0,0), measurement.at<float>(1,0));
     pointsVector.push_back(measPt);
-    cv::Mat estimated = KF.correct(systemMeasurement);
+
+    cv::Mat estimated = KF.correct(measurement);
     cv::Point statePt( estimated.at<float>(0), estimated.at<float>(1) );
     kalmanVector.push_back(statePt);
  }
@@ -415,23 +423,30 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 }
                 float angle;
                 if (e.rect.size.width < e.rect.size.height) {
-                    angle = e.rect.angle + 180;
+                    if (xPosition < e.rect.center.x) {
+                        angle = e.rect.angle + 360;
+                    } else {
+                        angle = e.rect.angle + 180;
+                    }
                 } else {
-                    angle = e.rect.angle + 90;
+                    if (xPosition < e.rect.center.x) {
+                        angle = e.rect.angle + 270;
+                    } else {
+                        angle = e.rect.angle + 90;
+                    }
                 }
                 euglenaAngles[e.ID] = angle;
-                std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
                 if (frameCount%10 == 0) {
                     if (frameCount>=10) {
                         endTime = time(nullptr);
                         elapsedTime = std::difftime(endTime, startTime)*1000;
                         if (euglenaPositions.count(e.ID)){
                             float deltaDistance = cv::norm(currPosition - euglenaPositions[e.ID]);
-                            float distanceInMicrons = (((deltaDistance*magnification)/4.0)*100.0)/640.0;
+                            float distanceInMicrons = 100*(((deltaDistance*magnification)/4.0)*100.0)/640.0;
                             float velocity = distanceInMicrons/elapsedTime;
                             if (frameCount>=20) {
                                 if (euglenaVelocities.count(e.ID)) {
-                                    float deltaVelocity = velocity - euglenaVelocities[e.ID];
+                                    float deltaVelocity = std::abs(velocity - euglenaVelocities[e.ID]);
                                     float acceleration = deltaVelocity/elapsedTime;
                                     euglenaAccelerations[e.ID] = acceleration;
                                 } else {
