@@ -191,6 +191,11 @@
       return this;
     }
 
+    $('#btnDownloadInstructions').click(function(e) {
+      e.preventDefault();  //stop the browser from following
+      window.location.href = '/media/documents/EuglenaScriptUsageInstructions.pdf'
+    });
+
     $('#btnHideCode').click(function() {
       if (app.mainView.isCodeShowing) {
         app.mainView.programTopCSS = $('#programDiv').css("top");
