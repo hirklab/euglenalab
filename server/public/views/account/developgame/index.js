@@ -193,7 +193,7 @@
 
     $('#btnDownloadInstructions').click(function(e) {
       e.preventDefault();  //stop the browser from following
-      window.location.href = '/media/documents/EuglenaScriptUsageInstructions.pdf'
+      window.open('/media/documents/EuglenaScriptUsageInstructions.pdf', '_blank');
     });
 
     $('#btnHideCode').click(function() {
