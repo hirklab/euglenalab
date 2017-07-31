@@ -6,7 +6,7 @@
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
-    var myVar = setInterval(app.mainView.runLoop, 10);
+    var myVar = setInterval(app.mainView.runLoop, 1);
 
     document.getElementById("txtCodeVariables").addEventListener("onfocus", function() {
       //console.log('we are focused!');

@@ -337,9 +337,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             //cv::putText(im, "test text!", cv::Point(i*30.0+20, i*30.0+20), cv::FONT_HERSHEY_DUPLEX, 0.3, cv::Scalar(0, 255, 0, 255));
             cv::putText(im, drawTextdrawTxtVector.at(i), cv::Point(std::stod(drawTextXPosVector.at(i)), std::stod(drawTextYPosVector.at(i))), cv::FONT_HERSHEY_DUPLEX, std::stod(drawTextSizeVector.at(i)), cv::Scalar(std::stod(drawTextRVector.at(i)), std::stod(drawTextGVector.at(i)), std::stod(drawTextBVector.at(i)), 255));
         }
-
-        totalEuglena = totalDetectedEuglena;
-
         
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
         getEuglenaInRectReturnVal = 0;
@@ -420,6 +417,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 }
             }
         }
+
+        totalEuglena = totalDetectedEuglena;
         
         memset(getAllEuglenaIDsStr, 0, 10000*sizeof(char));
         std::strcpy(getAllEuglenaIDsStr, ";");
