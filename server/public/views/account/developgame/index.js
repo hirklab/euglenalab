@@ -22,6 +22,12 @@
       if (e.keyCode) code = e.keyCode;
       else if (e.which) code = e.which;
       var character = String.fromCharCode(code);
+
+      // Override default spacebar functionality.
+      if (e.keyCode == 32) {
+        e.preventDefault();
+      }
+
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
