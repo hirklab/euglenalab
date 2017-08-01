@@ -10,6 +10,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <iostream>
+#include <chrono>
 //#include "global.h"
 //#include "KFTracker.h"
 //#include "processor_euglena.h"
@@ -52,13 +53,15 @@ class EuglenaProcessor : public Processor {
         
         // Euglena tracking variables
         std::vector<EuglenaObject> trackedEuglenas;
-        std::time_t startTime;
-        std::time_t endTime;
+        //std::time_t startTime;
+        //std::time_t endTime;
+        std::chrono::high_resolution_clock::time_point startTime;
+        std::chrono::high_resolution_clock::time_point endTime;
         int frameCount = 0;
-        int magnification;
+        float magnification=4;
         std::map<int, cv::Point2f> euglenaPositions;
-        std::map<int, float> euglenaVelocities;
-        std::map<int, float> euglenaAccelerations;
+        std::map<int, double> euglenaVelocities;
+        std::map<int, double> euglenaAccelerations;
         std::map<int, float> euglenaAngles;
 
         // drawCircle
@@ -285,7 +288,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
     int currEuglenaInBox = 0;
     int totalDetectedEuglena = 0;
-    double elapsedTime;
+    //double elapsedTime;
+    std::chrono::duration<double, std::milli> elapsedTimeInMilliseconds;
 
     if (gameInSession) {
         if (demoMode) {
@@ -363,6 +367,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 bool matched = false;
                 int count = -1;
                 int index = 0;
+
+
                 for (auto &g : trackedEuglenas) {
                     count += 1;
                     std::vector<cv::Point2f> intersectingVertices;
@@ -384,6 +390,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                         index = count;
                     } 
                 }
+
+                // Create new object trackers for unassigned EUglena
                 if (!matched) {
                     matched = true;
                     EuglenaObject euglena;
@@ -397,6 +405,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 }
                 trackedEuglenas[index].rect = e;
                 trackedEuglenas[index].tracked = true;
+
+
                 for (int i=0;i<4;i++) {
                     if (!haveWeAddedEuglenaPositionYet) {
                         haveWeAddedEuglenaPositionYet = true;
@@ -459,7 +469,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     cv::putText(im, std::to_string(e.ID), e.rect.center, cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
                 } else if (drawOnTrackedEuglena) {
                     e.tracker.draw(im);
-                    cv::putText(im, std::to_string(e.ID), e.rect.center, cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
+                    cv::putText(im, std::to_string(euglenaAccelerations[e.ID]), e.rect.center, cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
                 }
                 float angle;
                 if (e.rect.size.width < e.rect.size.height) {
@@ -477,19 +487,26 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 }
                 euglenaAngles[e.ID] = angle;
 
+                // Return acceleration, velocity, position, rotation
                 if (frameCount%10 == 0) {
                     if (frameCount>=10) {
-                        endTime = time(nullptr);
-                        elapsedTime = std::difftime(endTime, startTime)*1000;
+                        //endTime = time(nullptr);
+                        endTime = std::chrono::high_resolution_clock::now();
+                        elapsedTimeInMilliseconds = endTime - startTime;
+                        //elapsedTime = std::difftime(endTime, startTime)*1000000.0;
                         if (euglenaPositions.count(e.ID)){
-                            float deltaDistance = cv::norm(currPosition - euglenaPositions[e.ID]);
-                            float distanceInMicrons = 100*(((deltaDistance*magnification)/4.0)*100.0)/640.0;
-                            float velocity = distanceInMicrons/elapsedTime;
+                            double deltaDistance = cv::norm(currPosition - euglenaPositions[e.ID]);
+                            double distanceInMicrons = deltaDistance*100.0/((((30.0*4.0)/4.0)*100.0)/640.0);
+                            double velocity = distanceInMicrons/elapsedTimeInMilliseconds.count();
                             if (frameCount>=20) {
                                 if (euglenaVelocities.count(e.ID)) {
-                                    float deltaVelocity = std::abs(velocity - euglenaVelocities[e.ID]);
-                                    float acceleration = deltaVelocity/elapsedTime;
-                                    euglenaAccelerations[e.ID] = acceleration;
+                                    if (euglenaVelocities[e.ID] != -1) {
+                                        double deltaVelocity = std::abs(velocity - euglenaVelocities[e.ID]);
+                                        double acceleration = deltaVelocity/elapsedTimeInMilliseconds.count();
+                                        euglenaAccelerations[e.ID] = acceleration;
+                                    } else {
+                                        euglenaAccelerations[e.ID] = -1;
+                                    }
                                 } else {
                                     euglenaAccelerations[e.ID] = -1;
                                 }
@@ -503,7 +520,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     } else {
                         euglenaVelocities[e.ID] = -1;
                     }
-                    startTime = time(nullptr);
+                    //startTime = time(nullptr);
+                    startTime = std::chrono::high_resolution_clock::now();
                     euglenaPositions[e.ID] = currPosition;
                 }   
             } else {
