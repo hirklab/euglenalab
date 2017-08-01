@@ -353,7 +353,7 @@
     // GAME-RELATED VARIABLES
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
-    gameInstructionText: "This text can be changed with the API!",
+    gameInstructionText: "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!",
     gameOverText: "",
     gameJoystickView: true,
     gameInSession: false,

@@ -238,7 +238,8 @@ block body
           div.col-xs-11
             textarea.codeArea#txtCodeStart
               |setJoystickView(false);
-              |setInstructionText("This text can be changed with the API!");
+              |var instructionText = "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!";
+              |setInstructionText(instructionText);
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -382,7 +383,7 @@ block body
           div.col-xs-1
           div.col-xs-6
             p#instructionText
-              |This text can be changed with the API!
+              |This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!
         br
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
