@@ -175,10 +175,13 @@
 
 		});
 
-
 		vm.join = function (microscope) {
 			console.log(microscope);
 		};
+
+		vm.onMove = function(response){
+			// console.log(response);
+		}
 
 
 	}
