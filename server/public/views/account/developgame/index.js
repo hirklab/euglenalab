@@ -6,6 +6,12 @@
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
+    var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    if (!isChrome) {
+      alert('This feature only works on Google Chrome!!! Navigating back to homepage.');
+      location.href = '/account/';
+    } 
+
     var myVar = setInterval(app.mainView.runLoop, 1);
 
     document.getElementById("txtCodeVariables").addEventListener("onfocus", function() {
