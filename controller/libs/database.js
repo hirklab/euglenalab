@@ -5,7 +5,6 @@ var config = require('../config');
 module.exports = function (app, callback) {
     "use strict";
 
-
     app.db = mongoose.createConnection(config.DB_URL);
     app.db.on('error', function (err) {
         app.logger.error(err);
@@ -20,15 +19,11 @@ module.exports = function (app, callback) {
     });
 
     app.db.getExperiments = function (callback) {
-        var ListExperiment = mongoose.model('ListExperiment');
-
-        ListExperiment.getInstanceDocument(callback);
-    };
+        app.db.models.ListExperiment.getInstanceDocument(callback);
+    }
 
     app.db.getBPUs = function (callback) {
-        var Bpu = mongoose.model('Bpu');
-
-        var query = Bpu.find({
+        var query = app.db.models.Bpu.find({
             isOn: true
         });
 

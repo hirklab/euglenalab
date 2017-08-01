@@ -1,7 +1,4 @@
 'use strict';
-var mongoose = require('mongoose');
-
-
 var schemaName='Group';
 var getDocByName=function(app, name, callback) {
   app.db.models.User.findOne({username:name}, {}, function(err, mongoDoc) {
@@ -27,8 +24,8 @@ var getDocById=function(app, id, callback) {
     }
   });
 };
-exports = module.exports = function(app) {
-  var schema = new mongoose.Schema({
+exports = module.exports = function(app, mongoose) {
+  var mySchema = new mongoose.Schema({
     name: { type: String, default: 'default' },
     description: { type: String, default: 'default' },
     users: { type: Array, default: [] },
@@ -45,12 +42,12 @@ exports = module.exports = function(app) {
       doClientSideLightDataSave: { type: Boolean, default: false },
     },
   });
-  schema.plugin(require('./plugins/pagedFind'));
-  schema.index({ name: 1 });
-  schema.set('autoIndex', app.config.isDevelopment);
+  mySchema.plugin(require('./plugins/pagedFind'));
+  mySchema.index({ name: 1 });
+  mySchema.set('autoIndex', app.config.isDevelopment);
 
 
-  schema.statics.getAllGroups=function(callback) {
+  mySchema.statics.getAllGroups=function(callback) {
     var allGroups=[];
     app.db.models.Group.find({}, {name:1}, function(err, mongoDocs) {
       if(err) {
@@ -66,5 +63,5 @@ exports = module.exports = function(app) {
     });
   };
 
-    return schema;
+  app.db.model('Group', mySchema);
 };

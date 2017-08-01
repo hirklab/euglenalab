@@ -6,8 +6,6 @@ var jwt = require('jsonwebtoken');
 var _ = require('lodash');
 var mongoose = require('mongoose');
 
-var flow = require('../utils/workflow');
-
 
 // a) MP -> API : POST /api/auth/register/ (Register user)
 // {
@@ -17,7 +15,7 @@ var flow = require('../utils/workflow');
 // }
 // Response -> user: {id, username, email, createdAt}
 var register = function(req, res) {
-    var workflow = flow(req,res);
+    var workflow = req.app.utility.workflow(req, res);
 
     workflow.on('validate', function() {
         if (!req.body.username) {
@@ -176,7 +174,7 @@ var register = function(req, res) {
 //   token: "JWT 35252632632236"
 // }
 var login = function(req, res) {
-    var workflow = flow(req,res);
+    var workflow = req.app.utility.workflow(req, res);
 
     workflow.on('validate', function() {
         if (!req.body.username) {
@@ -302,7 +300,7 @@ var login = function(req, res) {
 };
 
 var forgot = function(req, res, next){
-	var workflow = flow(req,res);
+	var workflow = req.app.utility.workflow(req, res);
 
 	workflow.on('validate', function() {
 		if (!req.body.email) {
@@ -351,7 +349,7 @@ var forgot = function(req, res, next){
 	});
 
 	workflow.on('sendEmail', function(token, user) {
-		sendmail(req, res, {
+		req.app.utility.sendmail(req, res, {
 			from: req.app.config.smtp.from.name +' <'+ req.app.config.smtp.from.address +'>',
 			to: user.email,
 			subject: 'Reset your '+ req.app.config.projectName +' password',
@@ -376,7 +374,7 @@ var forgot = function(req, res, next){
 };
 
 var reset = function(req, res){
-	var workflow = flow(req,res);
+	var workflow = req.app.utility.workflow(req, res);
 
 	workflow.on('validate', function() {
 		if (!req.body.password) {

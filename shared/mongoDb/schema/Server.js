@@ -1,6 +1,5 @@
 'use strict';
 var _SchemaName='Server';
-var mongoose = require('mongoose');
 
 var async=require('async');
 var fs=require('fs');
@@ -37,8 +36,8 @@ var getDocByName=function(app, name, callback) {
   });
 };
 
-exports=module.exports = function(app) {
-  var schema = new mongoose.Schema({
+exports=module.exports = function(app, mongoose) {
+  var mySchema = new mongoose.Schema({
     index: { type: Number, default: -1 },
     name: { type: String, default: 'default' },
     description: { type: String, default: 'default' },
@@ -46,11 +45,10 @@ exports=module.exports = function(app) {
     isOn: { type:Boolean, default: false },
     dateTurnOn: { type:Date, default: null },
   });
-  schema.index({ name: 1 });
-  schema.set('autoIndex', app.config.isDevelopment);
-
-  schema.statics.setServerInDb=function(serverJson, mainCallback) {
+  mySchema.index({ name: 1 });
+  mySchema.set('autoIndex', app.config.isDevelopment);
+  app.db.model(_SchemaName, mySchema);
+  mySchema.statics.setServerInDb=function(serverJson, mainCallback) {
   };
-    return schema;
 };
 

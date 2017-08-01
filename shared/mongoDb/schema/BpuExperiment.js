@@ -1,9 +1,6 @@
 'use strict';
-var mongoose = require('mongoose');
-
-
-exports = module.exports = function(app) {
-    var schema = new mongoose.Schema({
+exports = module.exports = function(app, mongoose) {
+    var mySchema = new mongoose.Schema({
         //Set on Creation
         //Client Server
         bc_serverInfo: {
@@ -282,9 +279,9 @@ exports = module.exports = function(app) {
             },
         },
     });
-    schema.plugin(require('./plugins/pagedFind'));
+    mySchema.plugin(require('./plugins/pagedFind'));
     //Action on Exp
-    schema.methods.cancel = function(callback) {
+    mySchema.methods.cancel = function(callback) {
         this.isCanceled = true;
         this.exp_status = 'failed';
         this.save(function(err, dat) {
@@ -292,7 +289,7 @@ exports = module.exports = function(app) {
             if (callback) callback(err, dat);
         });
     };
-    schema.statics.validate = function(exp) {
+    mySchema.statics.validate = function(exp) {
         var returnObj = {
             isValid: false,
             validationErr: null
@@ -474,30 +471,30 @@ exports = module.exports = function(app) {
     };
 
     //Bpu Experiment Objects
-    schema.statics.getDataObjToJoinQueue = function() {
+    mySchema.statics.getDataObjToJoinQueue = function() {
         return _getDataObjToJoinQueue(app);
     };
-    schema.methods.getDataObjToSetLeds = function() {
+    mySchema.methods.getDataObjToSetLeds = function() {
         var thisDoc = this;
         return _getDataObjToSetLeds(thisDoc);
     };
-    schema.methods.getDataObjToSetProjector = function() {
+    mySchema.methods.getDataObjToSetProjector = function() {
         var thisDoc = this;
         return _getDataObjToSetProjector(thisDoc);
     };
-    schema.methods.getExperimentTag = function() {
+    mySchema.methods.getExperimentTag = function() {
         var thisDoc = this;
         return _getExperimentTag(thisDoc);
     };
-    schema.plugin(require('./plugins/pagedFind'));
-    schema.index({
+    mySchema.plugin(require('./plugins/pagedFind'));
+    mySchema.index({
         user: 1
     });
-    schema.index({
+    mySchema.index({
         name: 1
     });
-    schema.set('autoIndex', app.config.isDevelopment);
-    return schema;
+    if (app.config) mySchema.set('autoIndex', app.config.isDevelopment);
+    app.db.model('BpuExperiment', mySchema);
 };
 var checkNum = function(num, low, high) {
     if (num !== null && num !== undefined) {

@@ -3,30 +3,33 @@
 var router = require('express').Router();
 var mongoose = require('mongoose');
 
-var flow = require('../utils/workflow');
-var auth               = require('../utils/auth');
-var ensureAuthenticated = auth.ensureAuthenticated;
-var ensureAdmin         = auth.ensureAdmin;
-var ensureAccount       = auth.ensureAccount;
+var utils = require('../utils');
 
-var Group = mongoose.model('Group');
+var ensureAuthenticated = utils.ensureAuthenticated;
+var ensureAdmin = utils.ensureAdmin;
+var ensureAccount = utils.ensureAccount;
+
 
 var list = function(req, res) {
-    var workflow = flow(req,res);
+    var workflow = req.app.utility.workflow(req, res);
 
     workflow.on('find', function() {
         req.query.search = req.query.search ? req.query.search : '';
         req.query.status = req.query.status ? req.query.status : '';
-        req.query.limit = req.query.limit ? parseInt(req.query.limit, 10) : 20;
-        req.query.page = req.query.page ? parseInt(req.query.page, 10) : 1;
-        req.query.sort = req.query.sort ? req.query.sort : '-modifiedAt';
+        req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
+        req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
+        req.query.sort = req.query.sort ? req.query.sort : '_id';
 
         var filters = {};
         if (req.query.search) {
             filters.search = new RegExp('^.*?' + req.query.search + '.*$', 'i');
         }
 
-        Group.pagedFind({
+        // if (req.query.status) {
+        //     filters['status.id'] = req.query.status;
+        // }
+
+        req.app.db.models.Group.pagedFind({
             filters: filters,
             keys: 'name description users settings',
             limit: req.query.limit,
@@ -59,7 +62,7 @@ var list = function(req, res) {
 };
 
 var detail = function(req, res) {
-    var workflow = flow(req,res);
+    var workflow = req.app.utility.workflow(req, res);
 
     workflow.on('find', function() {
         // req.query.search = req.query.search ? req.query.search : '';
@@ -77,7 +80,7 @@ var detail = function(req, res) {
         //     filters['status.id'] = req.query.status;
         // }
 
-        Group.findById(req.params.id, 'name description users settings').exec(function(err, result) {
+        req.app.db.models.Group.findById(req.params.id, 'name description users settings').exec(function(err, result) {
             if (err) {
                 return workflow.emit('exception', err);
             }

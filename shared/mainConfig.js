@@ -11,9 +11,6 @@ var g_publicIP = deployment[deployment.mode].publicIP;
 
 var exports = module.exports = {
 	adminFlags: {
-		isDevelopment : function(){
-			return deployment.mode==='dev';
-		},
 		getMongoUri: function () {
 			return 'mongodb://localhost:27017/' + g_DbName;
 		},

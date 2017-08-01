@@ -20,8 +20,8 @@ var express = require('express'),
     socketIO = require('socket.io'),
     async = require('async'),
     config = require('./config'),
-    Controller = require('./libs/managers/controller'),
-    UserManager = require('./libs/managers/user'),
+    Controller = require('./libs/controller'),
+    UserManager = require('./libs/userManager'),
     myFunctions = require('../shared/myFunctions');
 
 var LOGGER_LEVELS = ['log', 'trace', 'debug', 'info', 'warn', 'error'];
@@ -48,10 +48,10 @@ app.tracer.setLevel(LOGGER_LEVELS[2]);
 
 app.myFunctions = myFunctions;
 
-// app.utility = {};
-// app.utility.sendmail = require('../shared/utils/sendmail');
-// app.utility.slugify = require('../shared/utils/slugify');
-// app.utility.workflow = require('../shared/utils/workflow');
+app.utility = {};
+app.utility.sendmail = require('../shared/utils/sendmail');
+app.utility.slugify = require('../shared/utils/slugify');
+app.utility.workflow = require('../shared/utils/workflow');
 
 app.config = config;
 
@@ -70,10 +70,8 @@ parts.forEach(function (part) {
 
 app.mainConfig = app.config.mainConfig;
 
-mongoose.connect(config.mongodb.uri, {useMongoClient:true});
-
-// app.db = mongoose.connection;
-mongoose.connection.on('error', app.logger.error.bind(app.logger, 'db connection error: '));
+app.db = mongoose.createConnection(config.mongodb.uri);
+app.db.on('error', app.logger.error.bind(app.logger, 'db connection error: '));
 
 app.sessionMiddleware = session({
     resave: true,
@@ -136,7 +134,7 @@ app.use(function (req, res, next) {
 // app.locals.copyrightName = app.config.companyName;
 // app.locals.cacheBreaker = 'br34k-01';
 
-require('./libs/utils/passport')(app, passport);
+require('./libs/passport')(app, passport);
 
 // require('./routes')(app, passport);
 
@@ -152,7 +150,7 @@ app.server.listen(app.config.port, function () {
 
     app.io = socketIO.listen(app.server, {'pingInterval': 5000, 'pingTimeout': 10000});
 
-    mongoose.connection.once('open', function () {
+    app.db.once('open', function () {
         app.logger.info('database => ' + config.mongodb.uri);
 
         async.waterfall([

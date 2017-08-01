@@ -1,7 +1,7 @@
 var socketClient = require('socket.io-client');
 var _            = require('lodash');
 
-// var myFunctions = require('../../shared/myFunctions.js');
+var myFunctions = require('../../shared/myFunctions.js');
 
 // Constructor
 function Controller(config, logger, userManager) {
@@ -199,7 +199,7 @@ Controller.prototype.connect = function (cb) {
 
     //Routes calls to user sockets if found
     that.socket.on('activateLiveUser', function (session, liveUserConfirmTimeout, callbackToBpuController) {
-        // var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
+        var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
 
         if (userSocket) {
             that.logger.debug('activateLiveUser: sessionID: ' + session.sessionID + " socketID: " + session.socketID);
@@ -217,7 +217,7 @@ Controller.prototype.connect = function (cb) {
     });
 
     that.socket.on('sendUserToLiveLab', function (session, callbackToBpuController) {
-        // var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
+        var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
 
         if (userSocket) {
             that.logger.debug('sendUserToLiveLab sessionID: ' + session.sessionID + " socketID: " + session.socketID);

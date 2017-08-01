@@ -1,9 +1,6 @@
 'use strict';
-var mongoose = require('mongoose');
-
-
-exports = module.exports = function(app) {
-  var schema = new mongoose.Schema({
+exports = module.exports = function(app, mongoose) {
+  var mySchema = new mongoose.Schema({
     //General Info
     isClosed:  { type: Boolean, default: false },
     isVerified:  { type: Boolean, default: false },
@@ -29,14 +26,15 @@ exports = module.exports = function(app) {
   });
   //Takes a socket and cross references it with the database.  
   //if none exists then a new one will be made if there is a session id available
-  schema.statics.updateSessionFromSocket=function(socket, callbackToServer) {
+  mySchema.statics.updateSessionFromSocket=function(socket, callbackToServer) {
     _updateSessionFromSocket(app, socket, callbackToServer);
   };
-  schema.statics.makeNewSession=function(sessInfo, callback) {
+  mySchema.statics.makeNewSession=function(sessInfo, callback) {
     _makeNewSession(app, sessInfo, callback);
   };
-  schema.set('autoIndex',app.config.isDevelopment);
-    return schema;
+  if(app.get) mySchema.set('autoIndex',app.config.isDevelopment);
+  else mySchema.set('autoIndex', true);
+  app.db.model('Session', mySchema);
 };
 
 var _updateSessionFromSocket=function(app, socket, callbackToServer) {
