@@ -6,7 +6,7 @@
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
-    var myVar = setInterval(app.mainView.runLoop, 10);
+    var myVar = setInterval(app.mainView.runLoop, 1);
 
     document.getElementById("txtCodeVariables").addEventListener("onfocus", function() {
       //console.log('we are focused!');
@@ -22,6 +22,12 @@
       if (e.keyCode) code = e.keyCode;
       else if (e.which) code = e.which;
       var character = String.fromCharCode(code);
+
+      // Override default spacebar functionality.
+      if (e.keyCode == 32) {
+        e.preventDefault();
+      }
+
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
@@ -185,6 +191,11 @@
       return this;
     }
 
+    $('#btnDownloadInstructions').click(function(e) {
+      e.preventDefault();  //stop the browser from following
+      window.open('/media/documents/EuglenaScriptUsageInstructions.pdf', '_blank');
+    });
+
     $('#btnHideCode').click(function() {
       if (app.mainView.isCodeShowing) {
         app.mainView.programTopCSS = $('#programDiv').css("top");
@@ -342,7 +353,7 @@
     // GAME-RELATED VARIABLES
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
-    gameInstructionText: "This text can be changed with the API!",
+    gameInstructionText: "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!",
     gameOverText: "",
     gameJoystickView: true,
     gameInSession: false,
@@ -630,10 +641,42 @@
     parseKeypressCode: function(runCode, key) {
       var modifiedCode = runCode.split('KEY.W').join('\'w\'');
       modifiedCode = modifiedCode.split('KEY.SPACE').join('\' \'');
+      modifiedCode = modifiedCode.split('KEY.ZERO').join('\'0\'');
+      modifiedCode = modifiedCode.split('KEY.ONE').join('\'1\'');
+      modifiedCode = modifiedCode.split('KEY.TWO').join('\'2\'');
+      modifiedCode = modifiedCode.split('KEY.THREE').join('\'3\'');
+      modifiedCode = modifiedCode.split('KEY.FOUR').join('\'4\'');
+      modifiedCode = modifiedCode.split('KEY.FIVE').join('\'5\'');
+      modifiedCode = modifiedCode.split('KEY.SIX').join('\'6\'');
+      modifiedCode = modifiedCode.split('KEY.SEVEN').join('\'7\'');
+      modifiedCode = modifiedCode.split('KEY.EIGHT').join('\'8\'');
+      modifiedCode = modifiedCode.split('KEY.NINE').join('\'9\'');
       modifiedCode = modifiedCode.split('KEY.A').join('\'a\'');
       modifiedCode = modifiedCode.split('KEY.S').join('\'s\'');
       modifiedCode = modifiedCode.split('KEY.D').join('\'d\'');
       modifiedCode = modifiedCode.split('KEY.C').join('\'c\'');
+      modifiedCode = modifiedCode.split('KEY.Q').join('\'q\'');
+      modifiedCode = modifiedCode.split('KEY.E').join('\'e\'');
+      modifiedCode = modifiedCode.split('KEY.R').join('\'r\'');
+      modifiedCode = modifiedCode.split('KEY.T').join('\'t\'');
+      modifiedCode = modifiedCode.split('KEY.Y').join('\'y\'');
+      modifiedCode = modifiedCode.split('KEY.U').join('\'u\'');
+      modifiedCode = modifiedCode.split('KEY.I').join('\'i\'');
+      modifiedCode = modifiedCode.split('KEY.O').join('\'o\'');
+      modifiedCode = modifiedCode.split('KEY.P').join('\'p\'');
+      modifiedCode = modifiedCode.split('KEY.F').join('\'f\'');
+      modifiedCode = modifiedCode.split('KEY.G').join('\'g\'');
+      modifiedCode = modifiedCode.split('KEY.H').join('\'h\'');
+      modifiedCode = modifiedCode.split('KEY.J').join('\'j\'');
+      modifiedCode = modifiedCode.split('KEY.K').join('\'k\'');
+      modifiedCode = modifiedCode.split('KEY.L').join('\'l\'');
+      modifiedCode = modifiedCode.split('KEY.Z').join('\'z\'');
+      modifiedCode = modifiedCode.split('KEY.X').join('\'x\'');
+      modifiedCode = modifiedCode.split('KEY.C').join('\'c\'');
+      modifiedCode = modifiedCode.split('KEY.V').join('\'v\'');
+      modifiedCode = modifiedCode.split('KEY.B').join('\'b\'');
+      modifiedCode = modifiedCode.split('KEY.N').join('\'n\'');
+      modifiedCode = modifiedCode.split('KEY.M').join('\'m\'');
       modifiedCode = modifiedCode.split('key').join('\'' + key + '\'');
       app.mainView.generalParser(modifiedCode);
     },
