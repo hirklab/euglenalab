@@ -198,8 +198,13 @@
     }
 
     $('#btnDownloadInstructions').click(function(e) {
-      e.preventDefault();  //stop the browser from following
+      e.preventDefault();
       window.open('/media/documents/EuglenaScriptUsageInstructions.pdf', '_blank');
+    });
+
+    $('#btnSubmitFeedback').click(function(e) {
+      e.preventDefault();
+      window.open('https://docs.google.com/forms/d/e/1FAIpQLSc16t_RYg7P5GXY-CJIyibj-aC5UfqxuDqHM6JCorLY5RFZiA/viewform', '_blank');
     });
 
     $('#btnHideCode').click(function() {
