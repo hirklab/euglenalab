@@ -260,15 +260,17 @@
                 var joinQueueDataObjects = [];
                 var isLive = false;
                 var doSend = false;
+
                 if (type === 'live') {
                     isLive = true;
+
                     var joinQueueData = JSON.parse(JSON.stringify(app.mainView.joinQueueDataObj));
                     joinQueueData.group_experimentType = 'live';
                     joinQueueData.exp_metaData = {};
                     joinQueueData.exp_metaData.machine = app.clientInfo;
                     joinQueueData.exp_metaData.type = 'live';
                     joinQueueData.exp_metaData.chosenBPU = wantsBpuName;
-                    joinQueueData.exp_metaData.selection = (wantsBpuName == null) ? 'auto' : 'user';
+                    joinQueueData.exp_metaData.selection = (wantsBpuName === null) ? 'auto' : 'user';
                     joinQueueData.exp_metaData.tag = 'live';
                     joinQueueData.exp_metaData.description = 'no description set';
                     joinQueueData.exp_metaData.expTypeString = 'isLive';
@@ -284,11 +286,13 @@
                         joinQueueData.exp_metaData.machine = app.clientInfo;
                         joinQueueData.exp_metaData.type = 'batch';
                         joinQueueData.exp_metaData.chosenBPU = wantsBpuName;
-                        joinQueueData.exp_metaData.selection = (wantsBpuName == null) ? 'auto' : 'user';
+                        joinQueueData.exp_metaData.selection = (wantsBpuName === null) ? 'auto' : 'user';
                         joinQueueDataObjects.push(joinQueueData);
                     });
+
                     if (joinQueueDataObjects.length > 0) doSend = true;
                 }
+
                 if (doSend) {
                     //Add common data to all
                     joinQueueDataObjects.forEach(function(obj) {
@@ -305,12 +309,16 @@
                         obj.exp_metaData.clientCreationDate = new Date();
                         obj.exp_metaData.userUrl = app.mainView.user.url;
                     });
+
                     //Start Sequence
                     console.log('2. submitExperimentFromViews', 'submittingToSocketClient');
+
                     app.userSocketClient.submitExperimentArray(joinQueueDataObjects, function(err, validationObjs) {
                         console.log('3. submitExperimentFromViews', 'submittingToSocketClient replied');
+
                         if (err) {
                             console.log('4e1. submitExperimentFromViews', 'submittingToSocketClient replied with err:' + err);
+
                             if (validationObjs && validationObjs.forEach) {
                                 var cnt = 0;
                                 validationObjs.forEach(function(validationObj) {
@@ -321,6 +329,7 @@
                                     });
                                 });
                             }
+
                             setTimeout(function() {
                                 console.log('5. reset. submitExperimentFromViews', 'app.mainView.userExpInfo.isSubmitting is now false again');
                                 app.mainView.userExpInfo.isSubmitting = false;
@@ -328,20 +337,24 @@
                         } else {
                             if (validationObjs && validationObjs.forEach) {
                                 console.log('4. submitExperimentFromViews', 'submittingToSocketClient replied with validationObjs:' + validationObjs.length);
+
                                 var cnt = 0;
                                 validationObjs.forEach(function(validationObj) {
                                     console.log(validationObj);
                                     cnt++;
                                     console.log('4-' + cnt + '. submitExperimentFromViews', validationObj.expInfo.exp_eventsRunTime, validationObj.expInfo.isValid);
                                 });
+
                                 setTimeout(function() {
                                     console.log('5. reset. submitExperimentFromViews', 'app.mainView.userExpInfo.isSubmitting is now false again');
                                     app.mainView.userExpInfo.isSubmitting = false;
                                 }, 2500);
                             } else {
                                 console.log('4e2. submitExperimentFromViews', 'submittingToSocketClient replied with validationObjs:' + 'dne');
+
                                 setTimeout(function() {
                                     console.log('5. reset. submitExperimentFromViews', 'app.mainView.userExpInfo.isSubmitting is now false again');
+
                                     app.mainView.userExpInfo.isSubmitting = false;
                                 }, 2500);
                             }
@@ -552,11 +565,9 @@
                     app.mainView.setHeaderLabel('Awaiting microscope update...');
                 }
             });
-
-
-
         }
     });
+
     //Start
     $(document).ready(function() {
         app.firstLoad = true;

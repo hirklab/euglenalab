@@ -3,11 +3,12 @@
 
 var async=require('async');
 var fs=require('fs');
+var mongoose = require('mongoose');
 
 var _SchemaName='ListExperiment';
-exports = module.exports = function(app, mongoose) {
+exports = module.exports = function(app) {
   //Schema Base
-  var _mySchema=new mongoose.Schema({
+  var schema=new mongoose.Schema({
     _lostList:{type:Array, default:[]},
     newExps:{type:Array, default:[]},
     eug0:{type:Array, default:[]},
@@ -24,12 +25,12 @@ exports = module.exports = function(app, mongoose) {
   //Script Additions
   
   //Default Additions
-  _mySchema.plugin(require('./plugins/pagedFind'));
-  _mySchema.index({ search: 1 });
-  if(app.config) _mySchema.set('autoIndex', app.config.isDevelopment);
+  schema.plugin(require('./plugins/pagedFind'));
+  schema.index({ search: 1 });
+  schema.set('autoIndex', app.config.isDevelopment);
   
   //How to get document
-  _mySchema.statics.getInstanceDocument=function(mainCallback) {
+  schema.statics.getInstanceDocument=function(mainCallback) {
     var funcName='getInstanceDocument';
     var thisSchema=this;
     thisSchema.find({}, {}, function(err, docs) {
@@ -67,7 +68,7 @@ exports = module.exports = function(app, mongoose) {
 
   //Functions
   //addNewExpTagToList
-  _mySchema.statics.addNewExpTagToList=function(expTag, mainCallback) {
+  schema.statics.addNewExpTagToList=function(expTag, mainCallback) {
     app.db.models.ListExperiment.getInstanceDocument(function(err, doc) {
       if(err) {
         mainCallback('getInstanceDocument '+err);
@@ -76,7 +77,7 @@ exports = module.exports = function(app, mongoose) {
       }
     });
   };
-  _mySchema.methods.addNewExpTagToList=function(expTag, mainCallback) {
+  schema.methods.addNewExpTagToList=function(expTag, mainCallback) {
     var thisDoc=this;
     app.db.models.ListExperiment.update({_id:thisDoc._id}, {$push: {newExps:expTag}}, function(err, newDoc) {
       if(err) {
@@ -87,7 +88,7 @@ exports = module.exports = function(app, mongoose) {
     });
   };
   //getOneList
-  _mySchema.methods.nc_getOneList=function() {
+  schema.methods.nc_getOneList=function() {
     var thisDoc=this;
     var oneList=[];
     Object.keys(app.listExperimentDoc._doc).forEach(function(key) {
@@ -97,7 +98,7 @@ exports = module.exports = function(app, mongoose) {
     });
     return oneList;
   };
-  _mySchema.methods.nc_clearBpuLists=function() {
+  schema.methods.nc_clearBpuLists=function() {
     var thisDoc=this;
     Object.keys(thisDoc._doc).forEach(function(key) {
       if(key[0]!=='_' && (key.search('eug')>-1)) {
@@ -105,7 +106,7 @@ exports = module.exports = function(app, mongoose) {
       }
     });
   };
-  _mySchema.methods.nc_printBpuLists=function(inObj) {
+  schema.methods.nc_printBpuLists=function(inObj) {
     var thisDoc=this;
     if(inObj) {
       Object.keys(inObj).forEach(function(key) {
@@ -122,5 +123,5 @@ exports = module.exports = function(app, mongoose) {
     }
   };
   //Done
-  app.db.model('ListExperiment', _mySchema);
+    return schema;
 };

@@ -1,13 +1,15 @@
 'use strict';
 
-exports = module.exports = function(app, mongoose) {
-  var attemptSchema = new mongoose.Schema({
+var mongoose = require('mongoose');
+
+exports = module.exports = function(app) {
+  var schema = new mongoose.Schema({
     ip: { type: String, default: '' },
     user: { type: String, default: '' },
     time: { type: Date, default: Date.now, expires: app.config.loginAttempts.logExpiration }
   });
-  attemptSchema.index({ ip: 1 });
-  attemptSchema.index({ user: 1 });
-  attemptSchema.set('autoIndex', app.config.isDevelopment);
-  app.db.model('LoginAttempt', attemptSchema);
+  schema.index({ ip: 1 });
+  schema.index({ user: 1 });
+  schema.set('autoIndex', app.config.isDevelopment);
+    return schema;
 };

@@ -3,8 +3,7 @@ var async=require('async');
 var exec=require('child_process').exec;
 var fs=require('fs');
 
-var _ServerBasePath=__dirname.split('shared/mongoDb/schema')[0];
-var _SchemaName='User';
+var mongoose = require('mongoose');
 
 var _getSocketFromAppIo=function(appIo, thisDocSocketID) {
   var clientIds=Object.keys(appIo.engine.clients);
@@ -56,9 +55,11 @@ var getDocById=function(app, id, callback) {
     }
   });
 };
-exports = module.exports = function(app, mongoose) {
 
-  var mySchema = new mongoose.Schema({
+
+exports = module.exports = function(app) {
+
+  var schema = new mongoose.Schema({
     //My Additions
     groups: { type: Array, default: [] },
     lastExperimentRunDate: { type: Date, default: new Date(0) },
@@ -84,7 +85,7 @@ exports = module.exports = function(app, mongoose) {
   });
 
   //Default
-  mySchema.methods.canPlayRoleOf = function(role) {
+  schema.methods.canPlayRoleOf = function(role) {
     if (role === "admin" && this.roles.admin) {
       return true;
     }
@@ -96,7 +97,7 @@ exports = module.exports = function(app, mongoose) {
     return false;
   };
 
-  mySchema.methods.defaultReturnUrl = function() {
+  schema.methods.defaultReturnUrl = function() {
     var returnUrl = '/';
     if (this.canPlayRoleOf('account')) {
       returnUrl = '/account/';
@@ -108,7 +109,7 @@ exports = module.exports = function(app, mongoose) {
 
     return returnUrl;
   };
-  mySchema.statics.encryptPassword = function(password, done) {
+  schema.statics.encryptPassword = function(password, done) {
     var bcrypt = require('../../../server/node_modules/bcrypt');
     bcrypt.genSalt(10, function(err, salt) {
       if (err) {
@@ -120,22 +121,22 @@ exports = module.exports = function(app, mongoose) {
       });
     });
   };
-  mySchema.statics.validatePassword = function(password, hash, done) {
+  schema.statics.validatePassword = function(password, hash, done) {
     var bcrypt = require('../../../server/node_modules/bcrypt');
     bcrypt.compare(password, hash, function(err, res) {
       done(err, res);
     });
   };
-  mySchema.plugin(require('./plugins/pagedFind'));
-  mySchema.index({ username: 1 }, { unique: true });
-  mySchema.index({ email: 1 }, { unique: true });
-  mySchema.index({ timeCreated: 1 });
-  mySchema.index({ 'twitter.id': 1 });
-  mySchema.index({ 'github.id': 1 });
-  mySchema.index({ 'facebook.id': 1 });
-  mySchema.index({ 'google.id': 1 });
-  mySchema.index({ search: 1 });
-  if(app.get) mySchema.set('autoIndex', app.config.isDevelopment);
-  else mySchema.set('autoIndex', true);
-  app.db.model(_SchemaName, mySchema);
+  schema.plugin(require('./plugins/pagedFind'));
+  schema.index({ username: 1 }, { unique: true });
+  schema.index({ email: 1 }, { unique: true });
+  schema.index({ timeCreated: 1 });
+  schema.index({ 'twitter.id': 1 });
+  schema.index({ 'github.id': 1 });
+  schema.index({ 'facebook.id': 1 });
+  schema.index({ 'google.id': 1 });
+  schema.index({ search: 1 });
+  schema.set('autoIndex', app.config.isDevelopment);
+  return schema;
+
 };

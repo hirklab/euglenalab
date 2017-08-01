@@ -1,7 +1,10 @@
 'use strict';
 
-exports = module.exports = function(app, mongoose) {
-  var accountSchema = new mongoose.Schema({
+var mongoose = require('mongoose');
+
+
+exports = module.exports = function(app) {
+  var schema = new mongoose.Schema({
     user: {
       id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       name: { type: String, default: '' }
@@ -26,8 +29,8 @@ exports = module.exports = function(app, mongoose) {
         time: { type: Date, default: Date.now }
       }
     },
-    statusLog: [mongoose.modelSchemas.StatusLog],
-    notes: [mongoose.modelSchemas.Note],
+    statusLog: ['StatusLog'],
+    notes: ['Note'],
     userCreated: {
       id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       name: { type: String, default: '' },
@@ -35,10 +38,11 @@ exports = module.exports = function(app, mongoose) {
     },
     search: [String]
   });
-  accountSchema.plugin(require('./plugins/pagedFind'));
-  accountSchema.index({ user: 1 });
-  accountSchema.index({ 'status.id': 1 });
-  accountSchema.index({ search: 1 });
-  accountSchema.set('autoIndex', app.config.isDevelopment);
-  app.db.model('Account', accountSchema);
+  schema.plugin(require('./plugins/pagedFind'));
+  schema.index({ user: 1 });
+  schema.index({ 'status.id': 1 });
+  schema.index({ search: 1 });
+  schema.set('autoIndex', app.config.isDevelopment);
+
+  return schema;
 };

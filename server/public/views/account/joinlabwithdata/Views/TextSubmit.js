@@ -14,6 +14,7 @@
       'keypress input[type="text"]': 'addNewOnEnter',
       'click .btn-submitTextNext': 'btnClick_submitTextNext',
     },
+
     //Join Button Action
     btnClick_submitTextNext: function(evt) {
       var wantsBpuName = null;

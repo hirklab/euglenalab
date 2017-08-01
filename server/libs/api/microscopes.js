@@ -4,17 +4,21 @@ var router = require('express').Router();
 var mongoose = require('mongoose');
 var _ = require('lodash');
 
-var utils = require('../utils');
-var ensureAuthenticated = utils.ensureAuthenticated;
-var ensureAdmin = utils.ensureAdmin;
-var ensureAccount = utils.ensureAccount;
+var flow = require('../utils/workflow');
 
+var auth               = require('../utils/auth');
+var ensureAuthenticated = auth.ensureAuthenticated;
+var ensureAdmin         = auth.ensureAdmin;
+var ensureAccount       = auth.ensureAccount;
+
+var Bpu = mongoose.model('Bpu');
+var BpuExperiment = mongoose.model('BpuExperiment');
+var ListExperiment = mongoose.model('ListExperiment');
 
 // c) MP -> API : GET / (List of bio processing units)
 // 	Response: list of units
 var get_bio_units = function (req, res) {
-    // console.log('get microsco');
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req,res);
 
     workflow.on('find', function () {
         req.query.search = req.query.search ? req.query.search : '';
@@ -32,7 +36,7 @@ var get_bio_units = function (req, res) {
             filters['status.id'] = req.query.status;
         }
 
-        req.app.db.models.Bpu.pagedFind({
+        Bpu.pagedFind({
             filters: filters,
             keys: 'name index isOn currentStatus magnification allowedGroups localAddr publicAddr avgStatsData',
             limit: req.query.limit,
@@ -116,7 +120,7 @@ var get_bio_units = function (req, res) {
 // c) MP -> API : GET /:id/ (detail of bio processing units)
 // 	Response: unit
 var bio_unit_detail = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req,res);
 
     workflow.on('find', function () {
         // req.query.search = req.query.search ? req.query.search : '';
@@ -134,7 +138,7 @@ var bio_unit_detail = function (req, res) {
         //     filters['status.id'] = req.query.status;
         // }
 
-        req.app.db.models.Bpu.findById(req.params.id,
+        Bpu.findById(req.params.id,
             'name index isOn currentStatus magnification allowedGroups localAddr publicAddr avgStatsData notes').exec(
             function (err, result) {
                 if (err) {
@@ -215,7 +219,7 @@ var bio_unit_detail = function (req, res) {
 };
 
 var bio_unit_health = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req,res);
 
     function getPerformance(username, param, bpu_id, startDate, endDate, scale, cb) {
         var endDate = parseInt(endDate);
@@ -239,7 +243,7 @@ var bio_unit_health = function (req, res) {
         projections['rating'] = '$survey.rating';
         projections['notes'] = '$survey.notes';
 
-        req.app.db.models.BpuExperiment.aggregate([{
+        BpuExperiment.aggregate([{
             $match: filters,
         }, {
             $lookup: {
@@ -303,7 +307,7 @@ var bio_unit_health = function (req, res) {
         projections['rating'] = '$survey.rating';
         projections['notes'] = '$survey.notes';
 
-        req.app.db.models.BpuExperiment.aggregate([{
+        BpuExperiment.aggregate([{
             $match: filters,
         }, {
             $lookup: {
@@ -398,11 +402,11 @@ var bio_unit_health = function (req, res) {
 };
 
 var bio_unit_queue = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req,res);
 
     workflow.on('queue', function () {
 
-        req.app.db.models.ListExperiment.getInstanceDocument(function (err, experiments) {
+        ListExperiment.getInstanceDocument(function (err, experiments) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -537,7 +541,7 @@ var bio_unit_queue = function (req, res) {
 };
 
 var add_note = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req,res);
 
     // console.log(req.user);
 
@@ -561,7 +565,7 @@ var add_note = function (req, res) {
             }
         };
 
-        req.app.db.models.Bpu.findByIdAndUpdate(req.params.id, {
+        Bpu.findByIdAndUpdate(req.params.id, {
             $push: {
                 notes: noteToAdd
             }
@@ -581,11 +585,11 @@ var add_note = function (req, res) {
 };
 
 var remove_note = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req,res);
 
     workflow.on('removeNote', function () {
 
-        req.app.db.models.Bpu.findByIdAndUpdate(req.params.id, {
+        Bpu.findByIdAndUpdate(req.params.id, {
             $pull: {
                 notes: {
                     _id: req.params.noteId

@@ -1,7 +1,10 @@
 'use strict';
 
-exports = module.exports = function(app, mongoose) {
-  var statusLogSchema = new mongoose.Schema({
+var mongoose = require('mongoose');
+
+
+exports = module.exports = function(app) {
+  var schema = new mongoose.Schema({
     id: { type: String, ref: 'Status' },
     name: { type: String, default: '' },
     userCreated: {
@@ -10,5 +13,5 @@ exports = module.exports = function(app, mongoose) {
       time: { type: Date, default: Date.now }
     }
   });
-  app.db.model('StatusLog', statusLogSchema);
+    return schema;
 };

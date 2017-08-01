@@ -1,15 +1,17 @@
 'use strict';
+var mongoose = require('mongoose');
 
-exports = module.exports = function(app, mongoose) {
-  var categorySchema = new mongoose.Schema({
+
+exports = module.exports = function(app) {
+  var schema = new mongoose.Schema({
     _id: { type: String },
     pivot: { type: String, default: '' },
     name: { type: String, default: '' }
   });
-  categorySchema.plugin(require('./plugins/pagedFind'));
-  categorySchema.index({ pivot: 1 });
-  categorySchema.index({ name: 1 });
-    categorySchema.set('autoIndex', app.config.isDevelopment);
-  // categorySchema.set('autoIndex', (app.get('env') === 'development'));
-  app.db.model('Category', categorySchema);
+  schema.plugin(require('./plugins/pagedFind'));
+  schema.index({ pivot: 1 });
+  schema.index({ name: 1 });
+    schema.set('autoIndex', app.config.isDevelopment);
+  // schema.set('autoIndex', (app.get('env') === 'development'));
+    return schema;
 };

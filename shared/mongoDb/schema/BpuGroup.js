@@ -1,13 +1,14 @@
 'use strict';
+var mongoose = require('mongoose');
 
-exports = module.exports = function(app, mongoose) {
-  var myShema = new mongoose.Schema({
+exports = module.exports = function(app) {
+  var schema = new mongoose.Schema({
     name: { type: String, default: 'default' },
     description: { type: String, default: 'default' },
     users: { type: Array, default: [] },
   });
-  myShema.plugin(require('./plugins/pagedFind'));
-  myShema.index({ name: 1 });
-  myShema.set('autoIndex', app.config.isDevelopment);
-  app.db.model('BpuGroup', myShema);
+  schema.plugin(require('./plugins/pagedFind'));
+  schema.index({ name: 1 });
+  schema.set('autoIndex', app.config.isDevelopment);
+    return schema;
 };

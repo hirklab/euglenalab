@@ -12,6 +12,7 @@ var filename = path.basename(__filename);
 //Main Object
 var app = {
     startDate: new Date(),
+    config:config,
 
     utils:                          require('../shared/myFunctions.js'),
     mainConfig:                     require('../shared/mainConfig.js'),

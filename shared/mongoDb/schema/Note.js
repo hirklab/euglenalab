@@ -1,7 +1,9 @@
 'use strict';
+var mongoose = require('mongoose');
 
-exports = module.exports = function(app, mongoose) {
-  var noteSchema = new mongoose.Schema({
+
+exports = module.exports = function(app) {
+  var schema = new mongoose.Schema({
     data: { type: String, default: '' },
     userCreated: {
       id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -9,5 +11,5 @@ exports = module.exports = function(app, mongoose) {
       time: { type: Date, default: Date.now }
     }
   });
-  app.db.model('Note', noteSchema);
+    return schema;
 };

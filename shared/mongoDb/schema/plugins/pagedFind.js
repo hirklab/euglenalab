@@ -1,8 +1,11 @@
 'use strict';
 
+var async = require('async');
+
 module.exports = exports = function pagedFindPlugin (schema) {
   schema.statics.pagedFind = function(options, cb) {
-    var thisSchema = this;
+    var that = this;
+    
     if (!options.filters) {
       options.filters = {};
     }
@@ -41,24 +44,24 @@ module.exports = exports = function pagedFindPlugin (schema) {
     };
 
     var countResults = function(callback) {
-      thisSchema.count(options.filters, function(err, count) {
+      that.count(options.filters, function(err, count) {
         output.items.total = count;
         callback(null, 'done counting');
       });
     };
 
     var getResults = function(callback) {
-      var query = thisSchema.find(options.filters, options.keys);
+      var query = that.find(options.filters, options.keys);
       query.skip((options.page - 1) * options.limit);
       query.limit(options.limit);
       query.sort(options.sort);
       query.exec(function(err, results) {
         output.data = results;
-        callback(null, 'done getting records');
+        callback(null);
       });
     };
 
-    require('async').parallel([
+    async.parallel([
       countResults,
       getResults
     ],

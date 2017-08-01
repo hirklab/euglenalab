@@ -2,31 +2,47 @@
 
 var schemaPath = './';
 
-exports = module.exports = function(app, mongoose) {
-  require(schemaPath + '/Survey')(app, mongoose);
-  require(schemaPath + '/Note')(app, mongoose);
-  require(schemaPath + '/Status')(app, mongoose);
-  require(schemaPath + '/StatusLog')(app, mongoose);
-  require(schemaPath + '/Category')(app, mongoose);
+exports = module.exports = function (app, mongoose) {
+    var Survey = require(schemaPath + '/Survey')(app);
+    var Session = require(schemaPath + '/Session')(app);
+    var Note = require(schemaPath + '/Note')(app);
+    var Status = require(schemaPath + '/Status')(app);
+    var StatusLog = require(schemaPath + '/StatusLog')(app);
+    var Category = require(schemaPath + '/Category')(app);
+    var BpuExperiment = require(schemaPath + '/BpuExperiment')(app);
+    var Bpu = require(schemaPath + '/Bpu')(app);
+    var BpuGroup = require(schemaPath + '/BpuGroup')(app);
+    var Group = require(schemaPath + '/Group')(app);
+    var ListExperiment = require(schemaPath + '/ListExperiment')(app);
+    var SoapReq = require(schemaPath + '/SoapReq')(app);
+    var User = require(schemaPath + '/User')(app);
+    var Admin = require(schemaPath + '/Admin')(app);
+    var AdminGroup = require(schemaPath + '/AdminGroup')(app);
+    var Account = require(schemaPath + '/Account')(app);
+    var LoginAttempt = require(schemaPath + '/LoginAttempt')(app);
+    var Server = require(schemaPath + '/Server')(app);
+    //require(schemaPath+'/AutoUserStatsManager')(app, mongoose);
+    var UrlEvent = require(schemaPath + '/UrlEvent')(app);
+    var MyFunctions = require(schemaPath + '/MyFunctions')(app);
 
-  require(schemaPath + '/BpuExperiment')(app, mongoose);
-  require(schemaPath + '/Bpu')(app, mongoose);
-  require(schemaPath + '/BpuGroup')(app, mongoose);
-  require(schemaPath + '/Group')(app, mongoose);
-  require(schemaPath + '/ListExperiment')(app, mongoose);
-  require(schemaPath + '/SoapReq')(app, mongoose);
-
-  require(schemaPath + '/User')(app, mongoose);
-  require(schemaPath + '/Admin')(app, mongoose);
-  require(schemaPath + '/AdminGroup')(app, mongoose);
-  require(schemaPath + '/Account')(app, mongoose);
-  require(schemaPath + '/LoginAttempt')(app, mongoose);
-
-  require(schemaPath + '/Server')(app, mongoose);
-  require(schemaPath + '/Session')(app, mongoose);
-
-  //require(schemaPath+'/AutoUserStatsManager')(app, mongoose);
-  require(schemaPath + '/UrlEvent')(app, mongoose);
-
-  require(schemaPath + '/MyFunctions')(app, mongoose);
+    mongoose.model('Survey', Survey,'surveys');
+    mongoose.model('Session', Session, 'sessions');
+    mongoose.model('Note', Note, 'notes');
+    mongoose.model('Status', Status, 'status');
+    mongoose.model('StatusLog', StatusLog,'statuslog');
+    mongoose.model('Category', Category,'categories');
+    mongoose.model('BpuExperiment', BpuExperiment,'bpuexperiments');
+    mongoose.model('Bpu', Bpu, 'bpus');
+    mongoose.model('BpuGroup', BpuGroup, 'bpugroups');
+    mongoose.model('Group', Group, 'groups');
+    mongoose.model('ListExperiment', ListExperiment,'listexperiments');
+    mongoose.model('SoapReq', SoapReq, 'soapreqs');
+    mongoose.model('User', User, 'users');
+    mongoose.model('Admin', Admin, 'admins');
+    mongoose.model('AdminGroup', AdminGroup, 'admingroups');
+    mongoose.model('Account', Account,'accounts');
+    mongoose.model('LoginAttempt', LoginAttempt, 'loginattempts');
+    mongoose.model('Server', Server,'servers');
+    mongoose.model('UrlEvent', UrlEvent,'urlevents');
+    mongoose.model('MyFunctions', MyFunctions, 'myfunctions');
 };

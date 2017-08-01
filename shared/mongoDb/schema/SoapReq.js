@@ -1,10 +1,13 @@
 'use strict';
+var mongoose = require('mongoose');
+
+
 var app={};
 var PassKey='ZTUzYzU3OGE5NmM2MjZmNDIzNTVhMjlm';
 var Identifier='C56A80D928264A0A900B30D610EDCB95';
-exports = module.exports = function(_app, mongoose) {
+exports = module.exports = function(_app) {
   app=_app;
-  var mySchema = new mongoose.Schema({
+  var schema = new mongoose.Schema({
     //My Additions
     req: {
       time: { type: Date, default: new Date() },
@@ -25,12 +28,12 @@ exports = module.exports = function(_app, mongoose) {
     },
   });
 
-  // mySchema.set('autoIndex', (app.get('env') === 'development'));
-  addStatics(mySchema);
-  addMethods(mySchema);
-  app.db.model('SoapReq', mySchema);
+  // schema.set('autoIndex', (app.get('env') === 'development'));
+  addStatics(schema);
+  addMethods(schema);
+    return schema;
 };
-var addStatics=function(mySchema) {
+var addStatics=function(schema) {
   var getSoapType=function(body) {
     var retValue=null; 
     var typeLine=getXmlTag('<soap:Body>', body ,true);
@@ -89,7 +92,7 @@ var addStatics=function(mySchema) {
     }
     return reqObj;
   };
-  mySchema.statics.getNew=function(req, callback) {
+  schema.statics.getNew=function(req, callback) {
     try {
       var newSoapReq=app.db.models.SoapReq();
       newSoapReq.req.headers=req.headers;
@@ -115,8 +118,8 @@ var addStatics=function(mySchema) {
     }
   };
 };
-var addMethods=function(mySchema) {
-  mySchema.methods.pingSocket=function(cb_fn) {
+var addMethods=function(schema) {
+  schema.methods.pingSocket=function(cb_fn) {
   };
 };
 

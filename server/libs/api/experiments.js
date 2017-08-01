@@ -9,11 +9,18 @@ var fs       = require('fs');
 var temp     = require('temp');
 var rmdir    = require('rimraf');
 
-var utils               = require('../utils');
-var ensureAuthenticated = utils.ensureAuthenticated;
-var ensureAdmin         = utils.ensureAdmin;
-var ensureAccount       = utils.ensureAccount;
+var flow = require('../utils/workflow');
+var auth               = require('../utils/auth');
+var ensureAuthenticated = auth.ensureAuthenticated;
+var ensureAdmin         = auth.ensureAdmin;
+var ensureAccount       = auth.ensureAccount;
 
+
+var User = mongoose.model('User');
+var Session = mongoose.model('Session');
+var Bpu = mongoose.model('Bpu');
+var BpuExperiment = mongoose.model('BpuExperiment');
+var ListExperiment = mongoose.model('ListExperiment');
 
 // POST /experiment/ (Choose BPU to experiment with)
 // Response: experimentID, queueID and waitTime
@@ -30,7 +37,7 @@ var status = function (req, res) {
 // GET /experiment/{id}/filter={type of data} (Get data from experiment)
 // Response: zip file with all filtered data
 var detail = function (req, res) {
-	req.app.db.models.BpuExperiment.findById(req.params.id).populate('roles.admin', 'name.full').populate('roles.account', 'name.full').exec(function (err, userExp) {
+	BpuExperiment.findById(req.params.id).populate('roles.admin', 'name.full').populate('roles.account', 'name.full').exec(function (err, userExp) {
 		if (err) {
 			return next(err);
 		}
@@ -41,7 +48,7 @@ var detail = function (req, res) {
 
 var find = function (req, res) {
 	var outcome = {
-		joinQueueDataObj: req.app.db.models.BpuExperiment.getDataObjToJoinQueue()
+		joinQueueDataObj: BpuExperiment.getDataObjToJoinQueue()
 	};
 
 	outcome.session = null;
@@ -56,7 +63,7 @@ var find = function (req, res) {
 			},
 			isVerified: false,
 		};
-		req.app.db.models.Session.findOneAndUpdate({
+		Session.findOneAndUpdate({
 			sessionID: req.sessionID
 		}, sessUpdate, {
 			new: true
@@ -73,7 +80,7 @@ var find = function (req, res) {
 						groups: req.user.groups,
 					},
 				};
-				req.app.db.models.Session.makeNewSession(sessInfo, function (err, newDoc) {
+				Session.makeNewSession(sessInfo, function (err, newDoc) {
 					if (err) {
 						return callback('getSession:' + err);
 					} else {
@@ -90,7 +97,7 @@ var find = function (req, res) {
 
 	outcome.user = null;
 	var getUser  = function (callback) {
-		req.app.db.models.User.findById(outcome.session.user.id, 'username  groups').exec(function (err, doc) {
+		User.findById(outcome.session.user.id, 'username  groups').exec(function (err, doc) {
 			if (err) {
 				return callback('getUser:' + err);
 			} else if (doc === null || doc === undefined) {
@@ -105,7 +112,7 @@ var find = function (req, res) {
 	outcome.bpus           = null;
 	outcome.bpuJadeObjects = [];
 	var getBpus            = function (callback) {
-		var query = req.app.db.models.Bpu.find({
+		var query = Bpu.find({
 			isOn:          true,
 			allowedGroups: {
 				$in: outcome.user.groups
@@ -180,7 +187,7 @@ var find = function (req, res) {
 		var filters           = {}; //filters is the first object givne to the db.model.collection.find(filters, ..);
 		filters['user.name']  = req.user.username;
 		filters['exp_status'] = 'finished';
-		req.app.db.models.BpuExperiment.pagedFind({
+		BpuExperiment.pagedFind({
 			filters: filters,
 			keys:    '',
 			limit:   req.query.limit,
@@ -235,13 +242,13 @@ var find = function (req, res) {
 };
 
 var list = function (req, res) {
-	var workflow = req.app.utility.workflow(req, res);
+	var workflow = flow(req,res);
 
 	workflow.on('find', function () {
 		req.query.search = req.query.search ? req.query.search : null;
 		req.query.status = req.query.status ? req.query.status : null;
-		req.query.limit  = req.query.limit ? parseInt(req.query.limit, null) : 10;
-		req.query.page   = req.query.page ? parseInt(req.query.page, null) : 1;
+		req.query.limit  = req.query.limit ? parseInt(req.query.limit, 10) : 10;
+		req.query.page   = req.query.page ? parseInt(req.query.page, 10) : 1;
 		req.query.sort   = req.query.sort ? req.query.sort : '-_id';
 
 		var filters = {};
@@ -256,10 +263,9 @@ var list = function (req, res) {
 
 		filters['user.name'] = req.user.username;
 
-		req.app.db.models.BpuExperiment.pagedFind({
+		BpuExperiment.pagedFind({
 			filters: filters,
-			keys:    'name user group_experimentType exp_submissionTime exp_wantsBpuName exp_eventsToRun exp_status' +
-			         ' exp_metaData tag',
+			keys:    'name user group_experimentType exp_submissionTime exp_wantsBpuName exp_eventsToRun exp_status exp_metaData tag',
 			limit:   req.query.limit,
 			page:    req.query.page,
 			sort:    req.query.sort
@@ -297,7 +303,7 @@ var list = function (req, res) {
 };
 
 var download = function (req, res) {
-	var workflow = req.app.utility.workflow(req, res);
+	var workflow = flow(req,res);
 
 	var sendFile = function (dir, filename) {
 		if (dir && filename) {
@@ -402,7 +408,7 @@ var download = function (req, res) {
 	};
 
 	workflow.on('find', function () {
-		req.app.db.models.BpuExperiment.findById(req.params.id, {}, function (err, userExp) {
+		BpuExperiment.findById(req.params.id, {}, function (err, userExp) {
 			if (err) {
 				return workflow.emit('exception', err);
 			} else if (userExp === null || userExp === undefined) {
@@ -433,7 +439,7 @@ var download = function (req, res) {
 };
 
 var survey = function(req, res) {
-	var workflow = req.app.utility.workflow(req, res);
+	var workflow = flow(req,res);
 
 	workflow.on('validate', function() {
 		if (!req.body.experiment) {
@@ -457,7 +463,7 @@ var survey = function(req, res) {
 			notes: req.body.notes
 		};
 
-		req.app.db.models.Survey.create(fieldsToSet, function(err, survey) {
+		Survey.create(fieldsToSet, function(err, survey) {
 			if (err) {
 				return workflow.emit('exception', err);
 			}

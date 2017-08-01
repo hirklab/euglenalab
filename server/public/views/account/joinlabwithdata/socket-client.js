@@ -135,12 +135,14 @@
         me.submitExperimentArray = function (joinQueueDataArray, callbackToMain) {
             //Time out
             var didCallback = false;
+
             setTimeout(function () {
                 if (!didCallback) {
                     didCallback = true;
                     callbackToMain('timed out in', null);
                 }
             }, 5000);
+
             //Fix Session Info to each exp request
             joinQueueDataArray.forEach(function (obj) {
                 if (obj.group_experimentType === 'live') {

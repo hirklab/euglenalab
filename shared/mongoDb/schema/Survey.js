@@ -1,7 +1,10 @@
 'use strict';
 
-exports = module.exports = function(app, mongoose) {
-	var surveySchema = new mongoose.Schema({
+var mongoose = require('mongoose');
+
+
+exports = module.exports = function(app) {
+	var schema = new mongoose.Schema({
 		rating: {
 			type: Number,
 			default: 0
@@ -15,5 +18,5 @@ exports = module.exports = function(app, mongoose) {
 			ref: 'BPUExperiment'
 		}
 	});
-	app.db.model('Survey', surveySchema);
+    return schema;
 };

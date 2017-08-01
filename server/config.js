@@ -40,3 +40,5 @@ exports.smtp = {
     ssl: true
   }
 };
+
+exports.isDevelopment = mainConfig.adminFlags.isDevelopment();

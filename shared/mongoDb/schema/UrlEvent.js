@@ -1,17 +1,21 @@
 'use strict';
+var mongoose = require('mongoose');
+
+
 var _SchemaName='UrlEvent';
 var myPrintMsg=false;
 var myPrintInit=true;
 var myPrintErr=true;
 var myPrintName='('+_SchemaName+'.js)';
+
 var myPrint=function(msg, init, err) {
   if(err!==undefined && err!==null && myPrintErr) console.log('Error'+'\t'+myPrintName+':'+err);
   else if(err!==undefined && init!==null && myPrintInit) console.log('Init'+'\t'+myPrintName+':'+init);
   else if(err!==undefined && msg!==null && myPrintMsg) console.log('Msg'+'\t'+myPrintName+':'+msg);
 };
 
-exports = module.exports = function(app, mongoose) {
-  var mySchema = new mongoose.Schema({
+exports = module.exports = function(app) {
+  var schema = new mongoose.Schema({
     creationDate:{type: Date, default: new Date()}, 
     sessionID:{type: String, default: ''}, 
     isUserSet:{type: Boolean, default: false},
@@ -21,8 +25,8 @@ exports = module.exports = function(app, mongoose) {
     },
     subReqEvents:{type:Array, default: []}, 
   });
-  mySchema.statics.checkTraffic=function(req, callback) {_checkTraffic(app, req, callback);};
-  app.db.model(_SchemaName, mySchema);
+  schema.statics.checkTraffic=function(req, callback) {_checkTraffic(app, req, callback);};
+    return schema;
 };
 
 var _checkTraffic=function(app, req, callback) {
