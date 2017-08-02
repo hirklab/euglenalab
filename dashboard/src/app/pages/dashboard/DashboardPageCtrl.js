@@ -179,6 +179,14 @@
 			console.log(microscope);
 		};
 
+		vm.toggle = function(microscope){
+			if(vm.selected && vm.selected.name==microscope.name){
+				vm.selected = null;
+			}else {
+				vm.selected = microscope;
+			}
+		};
+
 		$scope.$on("$stateChangeStart",
 			function (event, toState, toParams, fromState, fromParams) {
 				if (fromState.name === 'dashboard') {

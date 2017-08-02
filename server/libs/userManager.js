@@ -27,19 +27,21 @@ UserManager.prototype.connect = function (controller, cb) {
 
 	that.io.sockets.on('connection', function (socket) {
 		var found = false;
+		var currentUser = socket.request.session.passport.user;
 
-		if (socket.request.session.passport.user !== undefined && socket.request.session.passport.user !== null) {
-			if (socket.request.session.passport.user in that.users) {
-				that.users[socket.request.session.passport.user].sockets = _.reject(that.users[socket.request.session.passport.user].sockets, function (d) {
+		if (currentUser !== undefined && currentUser !== null) {
+			if (currentUser._id in that.users) {
+				that.users[currentUser._id].sockets = _.reject(that.users[currentUser._id].sockets, function (d) {
 					return !d.connected;
 				});
 
-				found = _.find(that.users[socket.request.session.passport.user].sockets, function (available) {
+				found = _.find(that.users[currentUser._id].sockets, function (available) {
 					return available.id === socket.id;
 				});
 			} else {
-				that.users[socket.request.session.passport.user] = {
-					userID:    socket.request.session.passport.user,
+				that.users[currentUser._id] = {
+					userID:   currentUser._id,
+					username: currentUser.username,
 					sockets:   [],
 					sessionID: socket.request.sessionID
 				}
@@ -47,7 +49,7 @@ UserManager.prototype.connect = function (controller, cb) {
 
 			if (!found) {
 				that.logger.debug('client ' + socket.id + ' connected');
-				that.users[socket.request.session.passport.user].sockets.push(socket);
+				that.users[currentUser._id].sockets.push(socket);
 				that.listConnectedUsers();
 			}
 		}
@@ -56,15 +58,15 @@ UserManager.prototype.connect = function (controller, cb) {
 			that.logger.debug('client ' + socket.id + ' disconnected');
 
 			//remove socket
-			if (socket.request.session.passport.user !== undefined && socket.request.session.passport.user !== null) {
-				if (socket.request.session.passport.user in that.users) {
-					that.users[socket.request.session.passport.user].sockets = _.reject(that.users[socket.request.session.passport.user].sockets, function (d) {
+			if (currentUser !== undefined && currentUser !== null) {
+				if (currentUser._id in that.users) {
+					that.users[currentUser._id].sockets = _.reject(that.users[currentUser._id].sockets, function (d) {
 						return d.id === socket.id;
 					});
 
 					//remove user with no socket connections
-					if (that.users[socket.request.session.passport.user].sockets.length === 0) {
-						delete that.users[socket.request.session.passport.user];
+					if (that.users[currentUser._id].sockets.length === 0) {
+						delete that.users[currentUser._id];
 					}
 
 					that.listConnectedUsers();
@@ -152,7 +154,7 @@ UserManager.prototype.listConnectedUsers = function () {
 	that.logger.info('========================================');
 
 	_.map(that.users, function (user) {
-		that.logger.info(user.userID + '\t' + user.sockets.length + ' client(s)');// + '\t' + _.pluck(user.sockets, 'id'));
+		that.logger.info(user.username + '\t' + user.sockets.length + ' client(s)');// + '\t' + _.pluck(user.sockets, 'id'));
 	});
 };
 

@@ -1,54 +1,112 @@
-<div class="row">
-    <div class="col-xlg-3 col-lg-4 col-md-4 col-sm-6 col-xs-12"
-         ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering">
+<div class="row" style="margin-bottom: 10px;">
+    <div class="col-xs-12">
+        <form class="form-vertical">
 
-        <div class="panel" ng-class="microscope.panelClass">
-            <div class="panel-heading clearfix" style="height: 94px;">
-                <button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button>
-
-                <h3 class="panel-title" style="margin-bottom: 8px;">{{microscope.name}} {{microscope.status}}</h3>
-                <h4 style="font-size: 16px;margin-bottom: 6px;">Time left: <span>{{microscope.timePending/1000|number:0}} sec</span>
-                </h4>
-                <h4 style="font-size: 16px;margin-bottom: 8px;">Quality:
-                    <uib-rating ng-model="microscope.quality" max="vm.max" read-only="vm.isReadonly"
-                                aria-labelledby="default-rating"></uib-rating>
-                </h4>
-
-            </div>
-            <div class="panel-body">
-                <div class="microscope-wrapper">
-                    <div class="microscope-main-info">
-                        <div style="color: #fff;font-weight: 600;font-size: 24px;float: right;position: relative;right: 12px;top: 12px;margin-bottom: -24px;    text-shadow: black;    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);">
-                            {{microscope.magnification}}X
-                        </div>
-                        <img ng-src="{{microscope.address}}" err-src="/assets/img/bpu-disabled.jpg" style="width:100%">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="#" style="text-transform: uppercase">Mode of experiment</a>
                     </div>
-                    <!--<div class="microscope-footer">-->
-                    <!--<div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">-->
-                    <!--<div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}"-->
-                    <!--aria-valuemin="0"-->
-                    <!--aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"-->
-                    <!--ng-class="stat.class">-->
-                    <!--<span>{{stat.name | uppercase}}</span>-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--</div>-->
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li class="active" style="text-transform: uppercase"><a href="#">Live</a></li>
+                            <li><a href="#" style="text-transform: uppercase">Batch</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right" style="position: relative;margin-top: 8px;">
+                            <li><button type="submit" class="btn btn-primary">Start</button></li>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+
+            <!--<div class="row" style="margin-bottom: 10px;">-->
+                <!--<div class="col-xs-4">-->
+                    <!--<h4 for="inputHelpBlock">Choose mode of experiment</h4>-->
+                <!--</div>-->
+                <!--<div class="col-xs-8">-->
+                    <!--<label class="radio-inline">-->
+                        <!--<input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="live"> Live-->
+                    <!--</label>-->
+                    <!--<label class="radio-inline">-->
+                        <!--<input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="batch"> Batch-->
+                    <!--</label>-->
+                <!--</div>-->
+            <!--</div>-->
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel bootstrap-panel" style="box-shadow: none">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Select a microscope <small>(optional)</small></h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-6 col-xs-12"
+                                     ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering">
+                                    <h4 for="inputHelpBlock"></h4>
+
+                                    <div class="panel microscope bootstrap-panel enabled" ng-click="vm.toggle(microscope)" ng-class="{'selected':vm.selected && vm.selected.name==microscope.name}">
+                                        <div class="panel-heading clearfix" style="height: 64px;">
+                                            <!--<button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button>-->
+
+                                            <h3 class="panel-title" style="margin-bottom: 8px;">{{microscope.name}}<span class="pull-right">~{{microscope.timePending/1000|number:0}} sec</span></h3>
+                                            <!--<h4 style="font-size: 16px;margin-bottom: 6px;">Time left: <span>{{microscope.timePending/1000|number:0}} sec</span>-->
+                                            </h4>
+                                            <h4 style="font-size: 16px;margin-bottom: 8px;">Quality:
+                                                <uib-rating ng-model="microscope.quality" max="vm.max" read-only="vm.isReadonly"
+                                                            aria-labelledby="default-rating"></uib-rating>
+                                            </h4>
+
+                                        </div>
+                                        <div class="panel-body">
+                                            <div class="microscope-wrapper">
+                                                <div class="microscope-main-info">
+                                                    <div style="color: #fff;font-weight: 600;font-size: 24px;float: right;position: relative;right: 12px;top: 12px;margin-bottom: -24px;    text-shadow: black;    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);">
+                                                        {{microscope.magnification}}X
+                                                    </div>
+                                                    <div style="position:absolute;top:60%;background-color:rgba(0,0,0,0.4);width:100%;padding:4px 0px;text-align: center"><span style="text-transform: uppercase;color:white;text-shadow: black;    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);">{{microscope.status}}</span></div>
+                                                    <img ng-src="{{microscope.address}}" err-src="/assets/img/bpu-disabled.jpg"
+                                                         style="width:100%">
+                                                </div>
+                                                <!--<div class="microscope-footer">-->
+                                                <!--<div class="progress" ng-repeat="stat in microscope.statistics | orderBy:'name' ">-->
+                                                <!--<div class="progress-bar" role="progressbar" aria-valuenow="{{stat.value}}"-->
+                                                <!--aria-valuemin="0"-->
+                                                <!--aria-valuemax="{{stat.max}}" style="width: {{stat.percent|number}}%"-->
+                                                <!--ng-class="stat.class">-->
+                                                <!--<span>{{stat.name | uppercase}}</span>-->
+                                                <!--</div>-->
+                                                <!--</div>-->
+                                                <!--</div>-->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--<div class="col-xlg-3 col-lg-4 col-md-4 col-sm-3 col-xs-12 pull-right">-->
+                                <!--<div class="panel">-->
+                                <!--<div class="panel-heading">-->
+                                <!--<h3 class="panel-title" style="margin-bottom: 8px;">Users online</h3>-->
+                                <!--</div>-->
+                                <!--<div class="panel-body">-->
+                                <!--<ul class="list-unstyled" ng-repeat="user in vm.users">-->
+                                <!--<li><i class="fa fa-male"></i> {{user.username}}</li>-->
+                                <!--</ul>-->
+                                <!--</div>-->
+                                <!--</div>-->
+
+                                <!--</div>-->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="col-xlg-3 col-lg-4 col-md-4 col-sm-3 col-xs-12 pull-right">
-        <div class="panel">
-            <div class="panel-heading">
-                <h3 class="panel-title" style="margin-bottom: 8px;">Users online</h3>
-            </div>
-            <div class="panel-body">
-                <ul class="list-unstyled" ng-repeat="user in vm.users">
-                    <li><i class="fa fa-male"></i> {{user.id}}</li>
-                </ul>
-            </div>
-        </div>
 
+
+        </form>
     </div>
 </div>

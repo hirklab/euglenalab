@@ -114,7 +114,7 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
 
     var users = _.map(Object.values(that.userManager.users), function (user) {
         "use strict";
-        return {id: user.userID};
+        return {id: user.userID, username: user.username};
     });
 
     Object.values(that.userManager.users).forEach(function (user) {

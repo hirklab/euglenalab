@@ -1,6 +1,6 @@
 .panel {
   &.microscope {
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.25);
+    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.75);
     margin-bottom: 30px;
 
     .microscope-video-status {
@@ -22,6 +22,10 @@
         color: $success;
       }
 
+    }
+
+    &.selected{
+      outline: 3px solid #209e91;
     }
 
     & .panel-heading, .panel-footer {
@@ -214,4 +218,19 @@ video#bg-video {
   background: url('/assets/img/video.jpg') no-repeat;
   background-size: cover;
 
+}
+
+.navbar-default .navbar-nav > .active > a{
+  color:white;
+  background-color:#209e91;
+  font-weight:600;
+}
+
+a.navbar-brand{
+  font-weight: 400;
+  text-transform: uppercase;
+  //opacity: 0.9;
+  font-size: 16px;
+  padding-left: 22px;
+  color:#666;
 }
