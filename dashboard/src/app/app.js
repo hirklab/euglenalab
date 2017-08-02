@@ -18,6 +18,8 @@ angular.module('BioLab', [
 	'ngJsTree',
 	'angular-progress-button-styles',
 	'ngLodash',
+	'ngFileUpload',
+	'ngCsvImport',
 	'uiSwitch',
 	'angulartics',
 	'angulartics.google.analytics',

@@ -5,31 +5,33 @@
     .run(themeRun);
 
   /** @ngInject */
-  function themeRun($timeout, $rootScope, $log, $state, layoutPaths, preloader, $q, baSidebarService, themeLayoutSettings, Auth) {
-    var whatToWait = [
-      preloader.loadAmCharts(),
-      $timeout(3000)
-    ];
+  function themeRun($timeout, $rootScope, $log, $state, $http, $cookies, layoutPaths, preloader, $q, baSidebarService, themeLayoutSettings, Auth) {
+    $http.defaults.headers.common['x-csrf-token'] = $cookies.get('_csrfToken');
+
+    // var whatToWait = [
+    //   preloader.loadAmCharts(),
+    //   $timeout(3000)
+    // ];
 
     var theme = themeLayoutSettings;
-    if (theme.blur) {
-      if (theme.mobile) {
-        whatToWait.unshift(preloader.loadImg(layoutPaths.images.root + 'blur-bg-mobile.jpg'));
-      } else {
-        whatToWait.unshift(preloader.loadImg(layoutPaths.images.root + 'blur-bg.jpg'));
-        whatToWait.unshift(preloader.loadImg(layoutPaths.images.root + 'blur-bg-blurred.jpg'));
-      }
-    }
+    // if (theme.blur) {
+    //   if (theme.mobile) {
+    //     whatToWait.unshift(preloader.loadImg(layoutPaths.images.root + 'blur-bg-mobile.jpg'));
+    //   } else {
+    //     whatToWait.unshift(preloader.loadImg(layoutPaths.images.root + 'blur-bg.jpg'));
+    //     whatToWait.unshift(preloader.loadImg(layoutPaths.images.root + 'blur-bg-blurred.jpg'));
+    //   }
+    // }
 
-    $q.all(whatToWait).then(function () {
+    // $q.all(whatToWait).then(function () {
       $rootScope.$pageFinishedLoading = true;
-    });
+    // });
 
-    $timeout(function () {
-      if (!$rootScope.$pageFinishedLoading) {
-        $rootScope.$pageFinishedLoading = true;
-      }
-    }, 1000);
+    // $timeout(function () {
+    //   if (!$rootScope.$pageFinishedLoading) {
+    //     $rootScope.$pageFinishedLoading = true;
+    //   }
+    // }, 1000);
 
     $rootScope.$baSidebarService = baSidebarService;
 
@@ -48,7 +50,7 @@
             //check if login page and already logged in
             if ((toState.name == 'auth.login' || toState.name == 'auth.register' ) && Auth.isAuthenticated()) {
               event.preventDefault();
-              $state.go('admin.microscopeList');
+              $state.go('dashboard');
             }
           }
         });

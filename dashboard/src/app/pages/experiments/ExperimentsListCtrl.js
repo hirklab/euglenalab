@@ -53,6 +53,13 @@
 		};
 
 		vm.download = function (id) {
+			// url: function() {
+			// 	return '/account/joinlabwithdata/' + this.id + '/';
+			// },
+			// downloadTrack: function(trackId) {
+			// 	return '/account/joinlabwithdata/details/downloadtrack/' + this.id + '/' + trackId;
+			// },
+
 			$window.open($location.protocol() + "://" + $location.host() + ":" + $location.port() + '/api/experiments/' + id + '/download/', '_blank');
 		}
 

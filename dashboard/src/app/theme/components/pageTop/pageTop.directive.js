@@ -5,7 +5,7 @@
         .directive('pageTop', pageTop);
 
     /** @ngInject */
-    function pageTop($state) {
+    function pageTop($state, $rootScope) {
         return {
             restrict: 'E',
             templateUrl: 'app/theme/components/pageTop/pageTop.html',
@@ -17,6 +17,10 @@
 	                Auth.unauthenticate();
                 };
 
+                scope.numUsers = 0;
+
+
+
                 // scope.socket = socket;
                 //
                 // scope.$watch(socket.isConnected, function(newVal, oldVal){
@@ -27,6 +31,15 @@
 		         //        scope.isConnected = newVal;
 	             //    }
                 // })
+
+	            var unhook = $rootScope.$on("message", function (e, updates) {
+
+		            var users      = angular.copy(updates.users);
+
+		            scope.$apply(function () {
+			            scope.numUsers = users.length;
+		            });
+	            });
 
             }]
         };

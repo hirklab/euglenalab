@@ -61,13 +61,26 @@
 						'height': joystickElement.width() + 'px'
 					});
 
-					//relative position with respect to pad
-					settings.buttonCenter = [button[0].offsetLeft, button[0].offsetTop];
+					button.css({
+						'left':'50%',
+						'top': '50%'
+					});
+
+					// update all variable properties which can get affected by resize
+					settings.elementOffset   = [element[0].offsetLeft, element[0].offsetTop];
+					settings.elementPosition = element[0].getBoundingClientRect();
 
 					settings.padCenter = {
 						x: joystickElement.offset().left + (joystickElement.width() / 2),
 						y: joystickElement.offset().top + (joystickElement.height() / 2)
 					};
+
+					settings.padRadius = button[0].offsetLeft;
+					settings.padWidth  = 20;
+					settings.center    = [button[0].offsetLeft, button[0].offsetTop];
+
+					//relative position with respect to pad
+					settings.buttonCenter = [button[0].offsetLeft, button[0].offsetTop];
 				};
 
 				resize();

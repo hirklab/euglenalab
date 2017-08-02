@@ -8,6 +8,7 @@ var rmdir = require('rimraf');
 var trackCGI = 'cgi/downloadTrack/writeXLSX.py';
 
 temp.track();
+//BpuExperiment.getDataObjToJoinQueue()
 
 exports.find = function(req, res, next) {
   var outcome = {
@@ -74,6 +75,7 @@ exports.find = function(req, res, next) {
 
   outcome.bpus = null;
   outcome.bpuJadeObjects = [];
+
   var getBpus = function(callback) {
     var query = req.app.db.models.Bpu.find({
       isOn: true,

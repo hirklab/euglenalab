@@ -62,7 +62,10 @@
     "angular-ui-switch": "^0.1.1",
     "socket.io": "^1.7.3",
     "socket.io-client": "^1.7.2",
-    "angulartics-google-analytics": "^0.4.0"
+    "angulartics-google-analytics": "^0.4.0",
+    "ng-file-upload": "12.2.13",
+    "angular-csv-import": "^0.0.38",
+    "papaparse": "^4.3.5"
   },
   "resolutions": {
     "angular": "1.4.8"
@@ -98,13 +101,13 @@
         "./dist/ammap/maps/js/worldLow.js"
       ]
     },
-    "angulartics":{
-      "main":[
+    "angulartics": {
+      "main": [
         "dist/angulartics.min.js"
       ]
     },
-    "angulartics-google-analytics":{
-      "main":[
+    "angulartics-google-analytics": {
+      "main": [
         "dist/angulartics-ga.min.js"
       ]
     },

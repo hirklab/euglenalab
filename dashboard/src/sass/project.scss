@@ -1,7 +1,7 @@
 .panel {
   &.microscope {
-    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.75);
-    margin-bottom: 30px;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.45);
+    margin-bottom: 20px;
 
     .microscope-video-status {
       position: absolute;
@@ -59,6 +59,9 @@
       }
     }
   }
+
+  margin-bottom: 10px;
+  border: 1px solid #e7e7e7;
 }
 
 .input-group-btn > .btn {
@@ -103,98 +106,6 @@ div > iframe {
   bottom: 40px !important;
 }
 
-@keyframes lds-pacman-1 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  50% {
-    -webkit-transform: rotate(-45deg);
-    transform: rotate(-45deg);
-  }
-  100% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-}
-
-@-webkit-keyframes lds-pacman-1 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  50% {
-    -webkit-transform: rotate(-45deg);
-    transform: rotate(-45deg);
-  }
-  100% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-}
-
-@keyframes lds-pacman-2 {
-  0% {
-    -webkit-transform: rotate(180deg);
-    transform: rotate(180deg);
-  }
-  50% {
-    -webkit-transform: rotate(225deg);
-    transform: rotate(225deg);
-  }
-  100% {
-    -webkit-transform: rotate(180deg);
-    transform: rotate(180deg);
-  }
-}
-
-@-webkit-keyframes lds-pacman-2 {
-  0% {
-    -webkit-transform: rotate(180deg);
-    transform: rotate(180deg);
-  }
-  50% {
-    -webkit-transform: rotate(225deg);
-    transform: rotate(225deg);
-  }
-  100% {
-    -webkit-transform: rotate(180deg);
-    transform: rotate(180deg);
-  }
-}
-
-@keyframes lds-pacman-3 {
-  0% {
-    -webkit-transform: translate(190px, 0);
-    transform: translate(190px, 0);
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  100% {
-    -webkit-transform: translate(70px, 0);
-    transform: translate(70px, 0);
-    opacity: 1;
-  }
-}
-
-@-webkit-keyframes lds-pacman-3 {
-  0% {
-    -webkit-transform: translate(190px, 0);
-    transform: translate(190px, 0);
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  100% {
-    -webkit-transform: translate(70px, 0);
-    transform: translate(70px, 0);
-    opacity: 1;
-  }
-}
-
 .loader {
   background: url('/assets/img/loader.gif') no-repeat center center;
   background-size: contain;
@@ -233,4 +144,10 @@ a.navbar-brand{
   font-size: 16px;
   padding-left: 22px;
   color:#666;
+}
+
+button.progress-button.btn.btn-primary.experiment-progress{
+  font-weight: 600;
+  width: 100%;
+  border-radius: 5px;
 }
