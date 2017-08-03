@@ -363,7 +363,9 @@
 
     gameErrorMessage: "",
 
+    // Sandbox mode.
     sandboxMode: false,
+    sandboxFrame: 1,
 
     // GAME-RELATED VARIABLES
     gameFileNames: [],
