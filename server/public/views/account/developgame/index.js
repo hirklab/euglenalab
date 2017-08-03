@@ -365,7 +365,7 @@
 
     // Sandbox mode.
     sandboxMode: false,
-    sandboxFrame: 1,
+    sandboxFrame: 9,
 
     // GAME-RELATED VARIABLES
     gameFileNames: [],

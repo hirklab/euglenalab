@@ -205,15 +205,25 @@ function processNextImage()
   img.onload = imageOnLoad;
   img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
   if (app.mainView.sandboxMode) {
-    if (app.mainView.sandboxFrame > 826) app.mainView.sandboxFrame = 1;
+    // 9 to 135 every 2, 136 to 318 every 2, 319 to 467 every 2, 468 to 528 every 2,
+    // 529 to 609 every 2, 610 to 680 every 2, 681 to 873 every 2, 
+    // 874 to 910 every 2
+    if (app.mainView.sandboxFrame > 910) app.mainView.sandboxFrame = 9;
     var trailingZeros = "";
     if (app.mainView.sandboxFrame < 10) {
       trailingZeros = "00";
     } else if (app.mainView.sandboxFrame >= 10 && app.mainView.sandboxFrame < 100) {
       trailingZeros = "0";
     }
-    img.src = "/media/videos/scene00" + trailingZeros + app.mainView.sandboxFrame + ".png";
-    app.mainView.sandboxFrame += 15;
+    img.src = "/media/videos/scene00" + trailingZeros + app.mainView.sandboxFrame + ".jpg";
+    app.mainView.sandboxFrame += 2;
+    if (app.mainView.sandboxFrame === 137) app.mainView.sandboxFrame = 136;
+    if (app.mainView.sandboxFrame === 320) app.mainView.sandboxFrame = 319;
+    if (app.mainView.sandboxFrame === 469) app.mainView.sandboxFrame = 468;
+    if (app.mainView.sandboxFrame === 530) app.mainView.sandboxFrame = 529;
+    if (app.mainView.sandboxFrame === 611) app.mainView.sandboxFrame = 610;
+    if (app.mainView.sandboxFrame === 682) app.mainView.sandboxFrame = 681;
+    if (app.mainView.sandboxFrame === 875) app.mainView.sandboxFrame = 874;
   }
   img.crossOrigin = "Anonymous";
 }
