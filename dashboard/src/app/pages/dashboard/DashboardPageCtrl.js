@@ -7,7 +7,6 @@
 	/** @ngInject */
 	function DashboardPageCtrl($scope, $rootScope, $http, $q, $timeout, $element, lodash, Microscope, socket, uiTourService) {
 		uiTourService.createDetachedTour('demo');
-		uiTourService.getTourByName('demo').start();
 
 		//todo
 		// handle actions when no bpu available
@@ -33,6 +32,11 @@
 		$http.get('http://ipinfo.io/json').success(function (data) {
 			vm.machine = data;
 		});
+
+		vm.showDemo = function(){
+
+			uiTourService.getTourByName('demo').start();
+		};
 
 		var unhook = null;
 
