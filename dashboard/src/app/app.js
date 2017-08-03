@@ -23,6 +23,7 @@ angular.module('BioLab', [
 	'uiSwitch',
 	'angulartics',
 	'angulartics.google.analytics',
+	'bm.uiTour',
 
 	'BioLab.theme',
 	'BioLab.pages',

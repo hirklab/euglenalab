@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	angular.module('BioLab.pages.dashboard', [])
+	angular.module('BioLab.pages.dashboard', ['bm.uiTour'])
 		.config(routeConfig);
 
 	/** @ngInject */

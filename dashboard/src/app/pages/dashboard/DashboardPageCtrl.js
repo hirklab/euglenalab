@@ -5,7 +5,9 @@
 		.controller('DashboardPageCtrl', DashboardPageCtrl);
 
 	/** @ngInject */
-	function DashboardPageCtrl($scope, $rootScope, $http, $q, $timeout, $element, lodash, Microscope, socket) {
+	function DashboardPageCtrl($scope, $rootScope, $http, $q, $timeout, $element, lodash, Microscope, socket, uiTourService) {
+		uiTourService.createDetachedTour('demo');
+		uiTourService.getTourByName('demo').start();
 
 		//todo
 		// handle actions when no bpu available
@@ -353,7 +355,7 @@
 			// });
 		}
 
-		vm.validate = function(){
+		vm.validate = function () {
 			// always call this function before submitting experiment
 
 			// similiar checks are also done on server side
@@ -393,7 +395,7 @@ function submitExperiment(type, microscope, file, machine, user) {
 
 		liveUserLabTime: app.mainConfig.liveUserLabTime, // todo let user pick some duration and cap it
 
-		zeroLedEvent:    {
+		zeroLedEvent: {
 			time:              0,
 			topValue:          0,
 			rightValue:        0,

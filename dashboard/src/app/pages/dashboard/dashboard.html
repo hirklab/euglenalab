@@ -1,27 +1,27 @@
-<div class="row">
+<div class="row" ui-tour="demo">
     <div class="col-xs-12">
         <form class="form-vertical">
 
-            <div class="row" style="margin-bottom: 4px;">
+            <div class="row" style="margin-bottom: 4px;" >
                 <div class="col-lg-7 col-md-7 col-xs-12">
-                    <nav class="navbar navbar-default">
-                        <div class="container-fluid">
+                    <nav class="navbar navbar-default" tour-step tour-step-belongs-to="demo" tour-step-title="Select experiment type" tour-step-content="Choose how you want to run the experiment" tour-step-order="0" tour-step-placement="bottom" tour-step-use-ui-router="true" tour-step-scroll-offset="100" tour-step-backdrop="true" tour-step-append-to-body="true" >
+                        <div class="container">
 
-                            <div class="navbar-header">
-                                <a class="navbar-brand" href="#" style="text-transform: uppercase">Select experiment</a>
+                            <div class="navbar-header" >
+                                <a class="navbar-brand" href="#" style="text-transform: uppercase" >Select experiment</a>
                             </div>
 
-                            <ul class="nav navbar-nav">
-                                <li style="text-transform: uppercase" ng-class="{'active':vm.mode=='live'}"><a
+                            <ul class="nav navbar-nav" >
+                                <li style="text-transform: uppercase" ng-class="{'active':vm.mode=='live'}" tour-step tour-step-belongs-to="demo" tour-step-title="Select experiment type" tour-step-content="Choose how you want to run the experiment" tour-step-order="1" tour-step-placement="bottom" tour-step-use-ui-router="true" tour-step-scroll-offset="100" tour-step-backdrop="true" tour-step-append-to-body="true"><a
                                         ng-click="vm.selectMode('live')" style="cursor: pointer">Live</a></li>
-                                <li style="text-transform: uppercase" ng-class="{'active':vm.mode=='batch'}"><a
+                                <li style="text-transform: uppercase" ng-class="{'active':vm.mode=='batch'}" tour-step tour-step-belongs-to="demo" tour-step-title="Select experiment type" tour-step-content="Choose how you want to run the experiment" tour-step-order="2" tour-step-placement="bottom" tour-step-use-ui-router="true" tour-step-scroll-offset="100" tour-step-backdrop="true" tour-step-append-to-body="true"><a
                                         ng-click="vm.selectMode('batch')" style="cursor: pointer">Batch</a></li>
                             </ul>
 
                         </div><!-- /.container-fluid -->
                     </nav>
                 </div>
-                <div class="col-lg-5 col-md-5 col-xs-12">
+                <div class="col-lg-5 col-md-5 col-xs-12" tour-step tour-step-belongs-to="demo" tour-step-title="Select experiment type" tour-step-content="Choose how you want to run the experiment" tour-step-order="6" tour-step-placement="bottom" tour-step-use-ui-router="true" tour-step-scroll-offset="100" tour-step-backdrop="true" tour-step-append-to-body="true">
                     <button type="submit" class="btn btn-primary experiment-progress" progress-button="vm.start()"
                             style="line-height: 50px;">Start {{vm.mode}} experiment <span ng-if="vm.selected">on {{vm.selected.name}}</span>
                         <i class="glyphicon glyphicon-play"></i>
@@ -36,7 +36,7 @@
                         <div class="panel-heading">
                             <h3 class="panel-title">Upload batch file</h3>
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body" tour-step tour-step-belongs-to="demo" tour-step-title="Select experiment type" tour-step-content="Choose how you want to run the experiment" tour-step-order="4" tour-step-placement="bottom" tour-step-use-ui-router="true" tour-step-scroll-offset="100" tour-step-backdrop="true" tour-step-append-to-body="true">
                             <div class="row">
                                 <div class="col-xs-12">
                                     <div class="btn btn-default" ngf-select="vm.upload($file)" ng-model="file"
@@ -63,7 +63,7 @@
                                 <small>(optional)</small>
                             </h3>
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body" tour-step tour-step-belongs-to="demo" tour-step-title="Select experiment type" tour-step-content="Choose how you want to run the experiment" tour-step-order="5" tour-step-placement="bottom" tour-step-use-ui-router="true" tour-step-scroll-offset="100" tour-step-backdrop="true" tour-step-append-to-body="true">
                             <div class="row">
                                 <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-6 col-xs-12"
                                      ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering">
