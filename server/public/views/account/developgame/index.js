@@ -315,6 +315,8 @@
         });
     });
 
+    $('#txtSandboxMode').hide();
+
   });
   app.User = Backbone.Model.extend({
     idAttribute: '_id',
@@ -360,6 +362,8 @@
     bioExp: "",
 
     gameErrorMessage: "",
+
+    sandboxMode: false,
 
     // GAME-RELATED VARIABLES
     gameFileNames: [],
@@ -848,6 +852,7 @@
       //console.log('setLED function called');
       //console.log(led);
       //console.log(intensity);
+      if (app.mainView.sandboxMode || !app.mainView.gameInSession) return;
       switch (led.split('.')[1]) {
         case 'RIGHT':
           var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
@@ -950,16 +955,20 @@
       //   app.mainView.showSurvey();
       //   console.log('bpuExp is null');
       // } else {
-      $('#btnUpdateRun').prop("disabled", true);
-      $('#btnStartGame').prop("disabled", true);
-      $('#btnStopGame').prop("disabled", true);
-      $('#btnLoadGame').prop("disabled", true);
+
+      // Entering sandbox mode.
+      app.mainView.sandboxMode = true;
+      $('#txtSandboxMode').show();
+      // $('#btnUpdateRun').prop("disabled", true);
+      // $('#btnStartGame').prop("disabled", true);
+      // $('#btnStopGame').prop("disabled", true);
+      // $('#btnLoadGame').prop("disabled", true);
       app.mainView.gameInSession = false;
-      app.mainView.gameInstructionText = 'Your session has timed out. So that another user can use a BPU, please save your code and then return to the home page in order to join a new session.';
+      app.mainView.gameInstructionText = 'So that other users can use the online microscope, your session has timed out. You are now in sandbox mode. Your code will run on the video stream, meaning some functions like setLED will not work. If you want to work with real Euglena again, please save your code and then return to the home page in order to join a new session.';
       alert(app.mainView.gameInstructionText);
       $('#instructionText').text(app.mainView.gameInstructionText);
       $('#instructionText').css('color', 'red');
-      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.gameSessionName + ".txt",
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
                                                     logTimestamp: Date.now().toString(),
                                                     logText: "User session expired ----- \n" } )
         .done(function(data) {
@@ -1059,7 +1068,7 @@
         }
       } else {
         if (isReal || app.mainView.wasTimeSetFromUpdate) {
-          labelMsg += ' Lab Over.';
+          labelMsg += ' Sandbox Mode.';
           // setTimeout(function() {
           //   clearInterval(app.mainView.updateLoopInterval);
           //   app.mainView.updateLoopInterval = null;

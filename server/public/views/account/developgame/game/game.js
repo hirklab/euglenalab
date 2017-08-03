@@ -204,6 +204,10 @@ function processNextImage()
   var img = new Image();
   img.onload = imageOnLoad;
   img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+  //app.mainView.sandboxMode = true; // DELETE THIS ONCE HAVE SANDBOX MODE LOGIC!
+  if (app.mainView.sandboxMode) {
+    img.src = "/media/euglena-video-screenshot.png";
+  }
   img.crossOrigin = "Anonymous";
 }
 
