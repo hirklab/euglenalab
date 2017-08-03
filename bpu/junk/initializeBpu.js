@@ -14,27 +14,6 @@ exports=module.exports=function(app, deps, mainCallback) {
   assert(app.script_resetBpu!==null,'missing script_resetBpu');
   assert(app.script_runExperiment!==null,'missing script_runExperiment');
   assert(app.script_runExperiment!==null,'missing script_runExperiment');
-
-  //Assert Deps 
-  //if(app===null) {mainCallback('need app object');
-  //
-  //} else if(app.mainConfig===null) {mainCallback('need app.mainConfig object');
-  //
-  //} else if(app.script_socketBpu===null) {mainCallback('need app.script_socketBpu object');
-  //} else if(app.script_fakeMongo===null) {mainCallback('need app.script_fakeMongo object');
-  //} else if(app.script_resetBpu===null) {mainCallback('need app.script_resetBpu object');
-  //} else if(app.script_runExperiment===null) {mainCallback('need app.script_runExperiment object');
-  //
-  //} else if(app.async===null) {mainCallback('need app.async module');
-  //
-  //} else if(deps.exec===null) {mainCallback('need exec module');
-  //} else if(deps.socketIo===null) {mainCallback('need socketIo module');
-  //} else if(deps.fs===null) {mainCallback('need fs module');
-  //} else if(deps.os===null) {mainCallback('need os object');
-  //} else if(deps.lodash===null) {mainCallback('need lodash object');
-  //
-  //} else {
-
     
     var num=0;
 
@@ -68,7 +47,8 @@ exports=module.exports=function(app, deps, mainCallback) {
         } else {
           //app.logger.trace(moduleName+' '+fName+' '+app.MainConfig.bpus[ind].name+', '+app.MainConfig.bpus[ind].localAddr.ip+' IGNORED');
         }
-      } 
+      }
+
       //Finish
       if(app.bpuConfig===null || app.bpuConfig===undefined) {
         return callback(fName+':no bpu config found for ip '+thisIP);

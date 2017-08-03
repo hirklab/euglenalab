@@ -10,7 +10,17 @@
                 </h3>
 
             </div>
-            <div class="panel-body">
+            <div class="panel-body"
+                 tour-step
+                 tour-step-belongs-to="demo"
+                 tour-step-title="Live view"
+                 tour-step-content="In live mode, you can use a joystick to control the LEDs which should be turned ON with specific intensity (also indicated by yellow bars around the display with intensity value). Watch how euglenas respond as you move your joystick. One live experiment session lasts for 1 minute and you can run as many experiments as you want."
+                 tour-step-order="0"
+                 tour-step-placement="bottom"
+                 tour-step-use-ui-router="true"
+                 tour-step-scroll-offset="100"
+                 tour-step-backdrop="true"
+                 tour-step-append-to-body="true">
                 <div class="microscope-wrapper">
                     <div class="microscope-main-info">
                         <img ng-src="{{vm.microscope.address}}" err-src="/assets/img/bpu-disabled.jpg"
