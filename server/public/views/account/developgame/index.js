@@ -1068,7 +1068,7 @@
         }
       } else {
         if (isReal || app.mainView.wasTimeSetFromUpdate) {
-          labelMsg += ' Sandbox Mode.';
+          labelMsg += ' Sandbox Mode. Go to home page and select new microscope to start again.';
           // setTimeout(function() {
           //   clearInterval(app.mainView.updateLoopInterval);
           //   app.mainView.updateLoopInterval = null;
