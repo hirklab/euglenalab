@@ -474,6 +474,10 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 e.tracked = false;
                 xPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].x + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].x)/2;
                 yPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].y + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].y)/2;
+                std::strcat(targetEuglenaPositionStr, std::to_string(positionID).c_str());
+                std::strcat(targetEuglenaPositionStr, ",");
+                std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
+                std::strcat(targetEuglenaPositionStr, "!!");
                 if (positionID == e.ID) {
                     std::strcat(targetEuglenaPositionStr, "(");
                     std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
@@ -556,6 +560,93 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         // std::strcpy(reqScoreStr, "Euglena needed: ");
         // std::strcat(reqScoreStr, std::to_string((int)(0.1*totalDetectedEuglena)).c_str());
         // cv::putText(im, reqScoreStr, cv::Point(2.0, 30.0), cv::FONT_HERSHEY_DUPLEX, 0.4, cv::Scalar(255,0,0,255));
+    } else {
+        memset(gameOverStr, 0, 80*sizeof(char));
+        totalEuglena = 0;
+        demoMode = false;
+        drawOnTrackedEuglena = false;
+        viewEuglenaPaths = false;
+        
+        // Euglena tracking variables
+        trackedEuglenas.clear();
+        //std::chrono::high_resolution_clock::time_point startTime;
+        //std::chrono::high_resolution_clock::time_point endTime;
+        frameCount = 0;
+        euglenaPositions.clear();
+        euglenaVelocities.clear();
+        euglenaAccelerations.clear();
+        euglenaAngles.clear();
+
+        // drawCircle
+        memset(drawCircleCenterX, 0, 300*sizeof(char));
+        memset(drawCircleCenterY, 0, 300*sizeof(char));
+        memset(drawCircleRadius, 0, 300*sizeof(char));
+        memset(drawCircleR, 0, 300*sizeof(char));
+        memset(drawCircleG, 0, 300*sizeof(char));
+        memset(drawCircleB, 0, 300*sizeof(char));
+
+        // drawLine
+        memset(drawLineX1, 0, 300*sizeof(char));
+        memset(drawLineY1, 0, 300*sizeof(char));
+        memset(drawLineX2, 0, 300*sizeof(char));
+        memset(drawLineY2, 0, 300*sizeof(char));
+        memset(drawLineR, 0, 300*sizeof(char));
+        memset(drawLineG, 0, 300*sizeof(char));
+        memset(drawLineB, 0, 300*sizeof(char));
+
+        // drawRect
+        memset(drawRectUpperLeftX, 0, 300*sizeof(char));
+        memset(drawRectUpperLeftY, 0, 300*sizeof(char));
+        memset(drawRectLowerRightX, 0, 300*sizeof(char));
+        memset(drawRectLowerRightY, 0, 300*sizeof(char));
+        memset(drawRectR, 0, 300*sizeof(char));
+        memset(drawRectG, 0, 300*sizeof(char));
+        memset(drawRectB, 0, 300*sizeof(char));
+
+        // drawText
+        memset(drawTextdrawTxt, 0, 300*sizeof(char));
+        memset(drawTextXPos, 0, 300*sizeof(char));
+        memset(drawTextYPos, 0, 300*sizeof(char));
+        memset(drawTextSize, 0, 300*sizeof(char));
+        memset(drawTextR, 0, 300*sizeof(char));
+        memset(drawTextG, 0, 300*sizeof(char));
+        memset(drawTextB, 0, 300*sizeof(char));
+
+        // getEugenaInRect
+        getEuglenaInRectUpperLeftX = 0;
+        getEuglenaInRectUpperLeftY = 0;
+        getEuglenaInRectLowerRightX = 0;
+        getEuglenaInRectLowerRightY = 0;
+        getEuglenaInRectReturnVal = 0;
+
+        // getAllEuglenaPositions
+        memset(getAllEuglenaPositionsStr, 0, 10000*sizeof(char));
+
+        // getEuglenaDensity
+        getEuglenaDensityUpperLeftX = 0;
+        getEuglenaDensityUpperLeftY = 0;
+        getEuglenaDensityLowerRightX = 0;
+        getEuglenaDensityLowerRightY = 0;
+        getEuglenaDensityReturnVal = 0;
+
+        //getAllEuglenaIDs
+        memset(getAllEuglenaIDsStr, 0, 10000*sizeof(char));
+
+        //getEuglenaPositionByID
+        positionID = 0;
+        memset(targetEuglenaPositionStr, 0, 100*sizeof(char));
+
+        //getEuglenaVelocityByID
+        velocityID = 0;
+        targetEuglenaVelocity = 0;
+
+        //getEuglenaAccelerationByID;
+        accelerationID = 0;
+        targetEuglenaAcceleration = 0;
+
+        //getEuglenaRotationByID
+        rotationID = 0;
+        targetEuglenaRotation = 0;
     }
 
     // Display game over if that's the case.

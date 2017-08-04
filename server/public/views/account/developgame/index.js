@@ -802,11 +802,12 @@
       //console.log('getEuglenaPositionByID function called.');
       app.mainView.getEuglenaPositionID = id;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
-      if (app.mainView.getEuglenaPositionReturn.split('(').length > 1) {
-        return app.mainView.getEuglenaPositionReturn;
-      } else {
-        return -1;
-      }
+      return app.mainView.getEuglenaPositionReturn;
+      // if (app.mainView.getEuglenaPositionReturn.split('(').length > 1) {
+      //   return app.mainView.getEuglenaPositionReturn;
+      // } else {
+      //   return -1;
+      // }
       
     },
     getEuglenaRotationByID: function(id) {
