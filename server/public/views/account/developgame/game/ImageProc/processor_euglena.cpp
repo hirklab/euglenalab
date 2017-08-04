@@ -131,7 +131,7 @@ class EuglenaProcessor : public Processor {
 
         //getEuglenaPositionByID
         int positionID;
-        char targetEuglenaPositionStr[10];
+        char targetEuglenaPositionStr[100];
 
         //getEuglenaVelocityByID
         int velocityID;
@@ -460,7 +460,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         memset(getAllEuglenaIDsStr, 0, 10000*sizeof(char));
         std::strcpy(getAllEuglenaIDsStr, ";");
 
-        memset(targetEuglenaPositionStr, 0, 10*sizeof(char));
+        memset(targetEuglenaPositionStr, 0, 100*sizeof(char));
         std::strcpy(targetEuglenaPositionStr, ";");
 
         int position = -1;
