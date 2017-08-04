@@ -33,7 +33,7 @@
     },
     //Join Button Action
     btnClick_joinLiveBpu: function(evt) {
-      console.log('Live Button Pressed!!!!!' + app.gameSession);
+      //console.log('Live Button Pressed!!!!!' + app.gameSession);
       var wantsBpuName = 'eug' + evt.target.value;
       app.mainView.submitExperimentFromViews('live', wantsBpuName, function(err) {
         if (err) {
@@ -43,7 +43,7 @@
     },
     btnClick_joinGameBpu: function(evt) {
       app.gameSession = true;
-      console.log('Joining game BPU' + app.gameSession);
+      //console.log('Joining game BPU' + app.gameSession);
       this.btnClick_joinLiveBpu(evt);
     },
     btnClick_submitTextBpu: function(evt) {

@@ -18,7 +18,7 @@ var downloaded = new Array();
 var downloadPaused = true;
 var transferPaused = true;
 
-console.log("Starting browser detection!!!");
+//console.log("Starting browser detection!!!");
 
 var allowedKeys = {
   37: 'left',
@@ -109,7 +109,7 @@ function enableTransfer()
 
 
 function pageDidLoad() {
-  console.log("Page is loading...")
+  //console.log("Page is loading...")
   //getVideoSources();
   ImageProcModule = document.getElementById( "image_proc" );
   var listener = document.getElementById("listener");
@@ -189,7 +189,7 @@ function processNextImage()
                 // getEuglenaAccelerationByID
                 getEuglenaAccelerationID: app.mainView.getEuglenaAccelerationID,
                 // getEuglenaPositionByID
-                getEuglenaPositionID: app.mainView.getEuglenaPositionID,
+                getEuglenaPositionID: app.mainView.getEuglenaPosID,
                 // getEuglenaRotationByID
                 getEuglenaRotationID: app.mainView.getEuglenaRotationID,
                 // getEuglenaVelocityByID

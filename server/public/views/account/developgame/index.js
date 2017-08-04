@@ -438,7 +438,7 @@
     getAllEuglenaIDsStr: "",
 
     // getEuglenaPositionByID
-    getEuglenaPositionID: 0,
+    getEuglenaPosID: 30,
     getEuglenaPositionReturn: "",
 
     // getEuglenaVelocityByID
@@ -799,16 +799,15 @@
       return app.mainView.getEuglenaAccelerationReturn;
     },
     getEuglenaPositionByID: function(id) {
-      //console.log('getEuglenaPositionByID function called.');
-      app.mainView.getEuglenaPositionID = id;
+      app.mainView.getEuglenaPosID = id;
+      //console.log('return:: ' + app.mainView.getEuglenaPositionReturn);
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
-      return app.mainView.getEuglenaPositionReturn;
-      // if (app.mainView.getEuglenaPositionReturn.split('(').length > 1) {
-      //   return app.mainView.getEuglenaPositionReturn;
-      // } else {
-      //   return -1;
-      // }
-      
+      var splitArr = app.mainView.getEuglenaPositionReturn.split(',');
+      if (splitArr.length > 1) {
+        return {x: parseInt(splitArr[0]), y: parseInt(splitArr[1])};
+      } else {
+        return -1;
+      }
     },
     getEuglenaRotationByID: function(id) {
       //console.log('getEuglenaRotationByID function called.');

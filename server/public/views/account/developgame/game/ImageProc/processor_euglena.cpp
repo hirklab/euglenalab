@@ -461,7 +461,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         std::strcpy(getAllEuglenaIDsStr, ";");
 
         memset(targetEuglenaPositionStr, 0, 100*sizeof(char));
-        std::strcpy(targetEuglenaPositionStr, ";");
+        std::strcpy(targetEuglenaPositionStr, " ");
 
         int position = -1;
         float xPosition;
@@ -474,16 +474,16 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 e.tracked = false;
                 xPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].x + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].x)/2;
                 yPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].y + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].y)/2;
-                std::strcat(targetEuglenaPositionStr, std::to_string(positionID).c_str());
-                std::strcat(targetEuglenaPositionStr, ",");
-                std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
-                std::strcat(targetEuglenaPositionStr, "!!");
+                // std::strcat(targetEuglenaPositionStr, std::to_string(positionID).c_str());
+                // std::strcat(targetEuglenaPositionStr, ",");
+                // std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
+                // std::strcat(targetEuglenaPositionStr, "!!");
                 if (positionID == e.ID) {
-                    std::strcat(targetEuglenaPositionStr, "(");
+                    //std::strcat(targetEuglenaPositionStr, "(");
                     std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
                     std::strcat(targetEuglenaPositionStr, ",");
                     std::strcat(targetEuglenaPositionStr, std::to_string(yPosition).c_str());
-                    std::strcat(targetEuglenaPositionStr, ");");
+                    //std::strcat(targetEuglenaPositionStr, ");");
                 }
                 cv::Point2f currPosition(xPosition, yPosition);
                 if (viewEuglenaPaths) {
