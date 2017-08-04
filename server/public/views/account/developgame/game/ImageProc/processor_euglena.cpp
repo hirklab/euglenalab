@@ -11,9 +11,8 @@
 
 #include <iostream>
 #include <chrono>
-//#include "global.h"
-//#include "KFTracker.h"
-//#include "processor_euglena.h"
+
+// Create a Kalman Filter class used to predict the position of euglena for more accurate live tracking
 class KFTracker {
     public:
         cv::KalmanFilter KF;
@@ -25,19 +24,32 @@ class KFTracker {
 
         KFTracker();
         virtual ~KFTracker();
-        void track(float x, float y);
+        void track(float x, float y);          // Input measured position from live feed
         void initializeKF(float x, float y);
-        void draw(cv::Mat img);
-        void drawPath(cv::Mat img);
+        void draw(cv::Mat img);                // Draw tight bound contour around euglena
+        void drawPath(cv::Mat img);            // Draws path euglena has taken since start of tracking
     private:
 };
 
+// Struct to represent euglena objects on screen
 struct EuglenaObject {
-    cv::RotatedRect rect;
-    int ID;
-    bool tracked;
-    KFTracker tracker;
+    cv::RotatedRect rect;       // Minimum bounding rotated rect from cv library 
+    int ID;                     // Unique ID for each euglena on the screen
+    bool tracked;               // Determiens whether this object has been matched to any euglena on screen
+    KFTracker tracker;          // Kalman Filter object assigned to each euglena object
 };
+
+// class HungarianAssignment {
+//     public:
+//         float costMatrix[][];
+//         int maxZeroes[][];
+//         int minimumLines[][];
+
+//         void initializeHA;
+//         void calculateMaxZeroes;
+//         void setLines;
+//     private:
+// };
 
 class EuglenaProcessor : public Processor {
     public:
@@ -267,6 +279,7 @@ void KFTracker::drawPath(cv::Mat img) {
 cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     printf("Processing images..."); 
 
+    // Assign calculated velocity, accelleration, and angle of rotation for a target euglena to user facing variables 
     targetEuglenaVelocity = euglenaVelocities[velocityID];
     targetEuglenaAcceleration = euglenaAccelerations[accelerationID];
     targetEuglenaRotation = euglenaAngles[rotationID];
@@ -286,7 +299,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
     int currEuglenaInBox = 0;
     int totalDetectedEuglena = 0;
-    //double elapsedTime;
+
+    // Variable to store time from start of the program in milliseconds
     std::chrono::duration<double, std::milli> elapsedTimeInMilliseconds;
 
     if (gameInSession) {
@@ -347,11 +361,16 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             //cv::putText(im, "test text!", cv::Point(i*30.0+20, i*30.0+20), cv::FONT_HERSHEY_DUPLEX, 0.3, cv::Scalar(0, 255, 0, 255));
             cv::putText(im, drawTextdrawTxtVector.at(i), cv::Point(std::stod(drawTextXPosVector.at(i)), std::stod(drawTextYPosVector.at(i))), cv::FONT_HERSHEY_DUPLEX, std::stod(drawTextSizeVector.at(i)), cv::Scalar(std::stod(drawTextRVector.at(i)), std::stod(drawTextGVector.at(i)), std::stod(drawTextBVector.at(i)), 255));
         }
+
+        // int sizeOfContourVector = contours.size();
+        // int sizeOfTrackedVector = trackedEuglenas.size();
+        // float costMatrix[sizeOfContourVector][sizeOfTrackedVector];
+
         
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
         getEuglenaInRectReturnVal = 0;
-        for (auto &c : contours) {
-            if ( cv::contourArea(c) > magnification*magnification*0.8 /*80.0 */) {
+        for (auto &c : contours) {              // Detect all contours on the screen
+            if ( cv::contourArea(c) > magnification*magnification*0.8) {  // Filter contours for only euglena objects
                 totalDetectedEuglena += 1;
                 cv::RotatedRect e = cv::minAreaRect(c);
                 cv::Point2f pts[4];
@@ -363,8 +382,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 int count = -1;
                 int index = 0;
 
-
-                for (auto &g : trackedEuglenas) {
+                 // Compare all detected contours to euglena objects to match computer objects to vision objects
+                for (auto &g : trackedEuglenas) {          
                     count += 1;
                     std::vector<cv::Point2f> intersectingVertices;
                     std::vector<cv::Point2f> rectVector;
@@ -378,8 +397,10 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                         objVector.push_back(objPts[j]);
                         KVIndex -= 1;
                     }
-                    float intersection = cv::intersectConvexConvex( rectVector, objVector, intersectingVertices );
+                    float intersection = cv::intersectConvexConvex( rectVector, objVector, intersectingVertices );  
                     float objArea = g.rect.size.width * g.rect.size.height;
+                    
+                    // If there is 40% overlap between predicted position and detected contour assume they are the same object
                     if (intersection > 0.4*objArea) {
                         matched = true;
                         index = count;
@@ -450,6 +471,9 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             if (e.tracked) {
                 std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
                 std::strcat(getAllEuglenaIDsStr, ";");
+                e.tracked = false;
+                xPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].x + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].x)/2;
+                yPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].y + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].y)/2;
                 if (positionID == e.ID) {
                     std::strcat(targetEuglenaPositionStr, "(");
                     std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
@@ -457,9 +481,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     std::strcat(targetEuglenaPositionStr, std::to_string(yPosition).c_str());
                     std::strcat(targetEuglenaPositionStr, ");");
                 }
-                e.tracked = false;
-                xPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].x + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].x)/2;
-                yPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].y + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].y)/2;
                 cv::Point2f currPosition(xPosition, yPosition);
                 if (viewEuglenaPaths) {
                     e.tracker.drawPath(im);
@@ -491,7 +512,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                         elapsedTimeInMilliseconds = endTime - startTime;
                         if (euglenaPositions.count(e.ID)){
                             double deltaDistance = cv::norm(currPosition - euglenaPositions[e.ID]);
-                            double distanceInMicrons = deltaDistance / (100 * (((30.0*4.0)/4.0)) );
+                            double distanceInMicrons = deltaDistance / (100 * (((30.0*magnification)/4.0)) );
                             double velocity = distanceInMicrons/elapsedTimeInMilliseconds.count();
                             if (frameCount>=20) {
                                 if (euglenaVelocities.count(e.ID)) {
@@ -540,7 +561,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     // Display game over if that's the case.
     if (currEuglenaInBox >= 0.1*totalDetectedEuglena || gameInSession == false) {
         gameInSession = false;
-        // cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
+        cv::putText(im, gameOverStr, cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
     }
 
     frameCount += 1;
