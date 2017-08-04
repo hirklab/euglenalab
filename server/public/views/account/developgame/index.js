@@ -12,6 +12,10 @@
       location.href = '/account/';
     } 
 
+    window.onbeforeunload = function() {
+      return "Dude, are you sure you want to leave? Think of the kittens!";
+    }
+
     var myVar = setInterval(app.mainView.runLoop, 1);
 
     document.getElementById("txtCodeVariables").addEventListener("onfocus", function() {
@@ -930,7 +934,7 @@
      */
     alreadyKicked: false,
     kickUser: function(err, from) {
-      console.log('kicked from ' + from);
+      //console.log('kicked from ' + from);
       // console.log('kick user loop');
 
       if (err) {
@@ -952,7 +956,7 @@
         app.mainView.keyboardTimeout = null;
       }
 
-      console.log('kicking user!');
+      //console.log('kicking user!');
       // if (app.mainView.bpuExp != null) {
       //   app.mainView.showSurvey();
       //   console.log('bpuExp is null');
@@ -1118,9 +1122,9 @@
         //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
         if (app.mainView.timeLeftInLab < 0) {
-          console.log('experiment over , kick user now' + app.mainView.timeLeftInLab);
+          //console.log('experiment over , kick user now' + app.mainView.timeLeftInLab);
           if (app.mainView.sessionOverFirstTime) {
-            console.log('KICKING USER CODE');
+            //console.log('KICKING USER CODE');
             app.mainView.kickUser(null, 'complete');
 
             clearInterval(app.mainView.updateLoopInterval);
