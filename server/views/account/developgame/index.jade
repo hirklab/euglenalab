@@ -406,6 +406,10 @@ block body
         div#apiCalls
           font(color="green") 
             h2 EuglenaScript API Calls
+            a(href="https://www.w3schools.com/jsref/", target="_blank") Here
+            |&nbsp;is a good JavaScript reference.
+            br
+            br
             u Methods:
             br
             br
@@ -420,6 +424,8 @@ block body
             |, a boolean
             br
             |Toggle whether the currently tracked Euglena have a virtual object drawn over them.
+            br
+            i Example: drawOnTrackedEuglena(true);
 
             br
             br
@@ -449,7 +455,9 @@ block body
             i B
             |, a number between 0 and 255
             br
-            |Draw circle with center (xCenter, yCenter) with radius and color (R, G, B).
+            |Draw circle with center (xCenter, yCenter) with radius and color (R, G, B). This function must be called in the run() event handler.
+            br
+            i Example: drawCircle(200, 200, 30, 0, 0, 255);
 
             br
             br
@@ -482,7 +490,9 @@ block body
             i B
             |, a number between 0 and 255
             br
-            |Draw line from (x1,y1) to (x2,y2) with color (R, G, B).
+            |Draw line from (x1,y1) to (x2,y2) with color (R, G, B). This function must be called in the run() event handler.
+            br
+            i Example: drawOLine(20, 20, 50, 50, 0, 255, 0);
 
             br
             br
@@ -515,7 +525,9 @@ block body
             i B
             |, a number between 0 and 255
             br
-            |Draw a virtual rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordinate (lowerRightX, lowerRightY) with the color (R, G, B).
+            |Draw a virtual rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordinate (lowerRightX, lowerRightY) with the color (R, G, B). This function must be called in the run() event handler.
+            br
+            i Example: drawRect(20, 20, MAX_SCREEN_WIDTH-20, MAX_SCREEN_HEIGHT-20, 100, 255, 10, 100);
 
             br
             br
@@ -531,10 +543,10 @@ block body
             |, a string
             br
             i xPos
-            |, a number between 0 and MAX_SCREEN_HEIGHT
+            |, a number between 0 and MAX_SCREEN_WIDTH
             br
             i yPos
-            |, a number between 0 and MAX_SCREEN_WIDTH
+            |, a number between 0 and MAX_SCREEN_HEIGHT
             br
             i size
             |, a number between 0 and MAX_TEXT_SIZE
@@ -548,7 +560,9 @@ block body
             i B
             |, a number between 0 and 255
             br
-            |Draw text as position (xPos, yPos) with the color (R, G, B).
+            |Draw text as position (xPos, yPos) with the color (R, G, B). This function must be called in the run() event handler.
+            br
+            i Example: drawText("Hello, world!", MAX_SCREEN_WIDTH/2, 200, 0.5*MAX_TEXT_SIZE, 255, 0, 0);
 
             br
             br
@@ -557,6 +571,8 @@ block body
             |()
             br
             |Ends the program.
+            br
+            i Example: endProgram();
 
             br
             br
@@ -567,6 +583,8 @@ block body
             |Return an array of all of the currently tracked Euglena IDs.
             br
             |Returns: an array of integers
+            br
+            i Example: var euglenaIDs = getAllEuglenaIDs();
 
             br
             br
@@ -577,6 +595,8 @@ block body
             |Return an array of objects that contain (x, y) coordinates of all tracked Euglena positions.
             br
             |Returns: an array of objects that contain the (x, y) coordinates
+            br
+            i Example: var euglenaPositions = getAllEuglenaPositions();
 
             br
             br
@@ -587,6 +607,8 @@ block body
             |Get the total Euglena count.
             br
             |Returns: a number
+            br
+            i Example: getEuglenaCount();
 
             br
             br
@@ -613,6 +635,8 @@ block body
             |Get the total Euglena count in the rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordiante (lowerRightX, lowerRightY).
             br
             |Returns: a number
+            br
+            i Example: var euglenaInRect = getEuglenaInRect(0, 0, 100, 100);
 
             br
             br
@@ -630,6 +654,8 @@ block body
             |Get the acceleration (in microns per second squared) of the Euglena based on Euglena ID.
             br
             |Returns: a number
+            br
+            i Example: var euglenaAcceleration = getEuglenaAccelerationByID(20);
 
             //- br
             //- br
@@ -647,6 +673,8 @@ block body
             //- |Get the position (in window coordinates) of the Euglena based on Euglena ID.
             //- br
             //- |Returns: a number
+            //- br
+            //- i Example: var euglenaPostion = getEuglenaPositionByID(0);
 
             br
             br
@@ -664,6 +692,8 @@ block body
             |Get the rotation (in degrees) of the Euglena based on Euglena ID.
             br
             |Returns: a number
+            br
+            i Example: var euglenaRotation = getEuglenaRotationByID(1);
 
             br
             br
@@ -681,6 +711,8 @@ block body
             |Get the velocity (in microns per second) of the Euglena based on Euglena ID.
             br
             |Returns: a number
+            br
+            i Example: var euglenaVelocity = getEuglenaVelocityByID(100);
 
             br
             br
@@ -691,6 +723,8 @@ block body
             |Get the time left in the session, in seconds.
             br
             |Returns: a number
+            br
+            i Example: var remainTime = getTimeLeft();
 
             br
             br
@@ -708,6 +742,8 @@ block body
             |Get the string contained in filename.
             br
             |Returns: a string
+            br
+            i Example: var fileContents = readFromFile("log.txt");
 
             br
             br
@@ -725,6 +761,8 @@ block body
             |Turn the joystick view on or off.
             br
             |Returns: a number
+            br
+            i Example: setJoystickView(true);
 
             br
             br
@@ -740,6 +778,8 @@ block body
             |, a string
             br
             |Change the text in the "instructions" section of the screen.
+            br
+            i Example: setInstructionText("Hello!");
 
             br
             br
@@ -755,6 +795,8 @@ block body
             |, one of LED.RIGHT, LED.LEFT, LED.UP, and LED.DOWN
             br
             |Set led to the intensity between 0 (completely off) and MAX_LED_INTENSITY (completely on).
+            br
+            i Example: setLED(LED.RIGHT, 0.8*MAX_LED_INTENSITY);
 
             br
             br
@@ -776,6 +818,8 @@ block body
             |, one of FILE.OVERWRITE or FILE.APPEND
             br
             |Write text into filename, in either overwrite mode (where the old file with the same name has text written over it) or append mode (where text is added to an existing file).
+            br
+            i Example: writeToFile("hello.txt", "Hello!", FILE.OVERWRITE);
 
             br
             br
