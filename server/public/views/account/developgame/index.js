@@ -276,7 +276,8 @@
       var codeKeypress = app.mainView.gameKeypressCode;
       var nameUser = app.mainView.user;
       var gameName = $('#gameNameText').val();
-      $.post('/account/developgame/savefile/', { varCode: codeVar,
+      $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
+                                                 varCode: codeVar,
                                                  runCode: codeRun,
                                                  startCode: codeStart,
                                                  endCode: codeEnd,
@@ -310,7 +311,8 @@
           app.mainView.keypressEditor.setValue(gameSections[5]);
 
           var gameName = gameSections[6];
-          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+          $.post('/account/developgame/loguserdata/', { userName: app.mainView.userName,
+                                                        fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
                                                         logTimestamp: Date.now().toString(),
                                                         logText: "User " + app.mainView.userName + " loaded program " + gameName + "----- \n" } )
             .done(function(data) {

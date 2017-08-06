@@ -9,7 +9,7 @@ var gameFileNames = '';
 
 exports.savefile = function(req, res) {
   console.log("Saving game code...");
-  var filePath = __dirname + "/games/" + req.body.fileName;
+  var filePath = __dirname + "/games/" + req.body.userName + "/" + req.body.fileName;
   var gameFileToSave = req.body.varCode + "\n-----\n" + req.body.runCode
                                         + "\n-----\n" + req.body.startCode
                                         + "\n-----\n" + req.body.endCode
@@ -27,7 +27,7 @@ exports.getgamecode = function(req, res) {
   var fileIndex = req.body.gameIndex;
   var gameFileNamesFixed = gameFileNames.split(';').slice(1, -1);
   var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
-  var filePath = __dirname + "/games/" + fileToOpen;
+  var filePath = __dirname + "/games/" + + req.body.userName + "/" + fileToOpen;
   console.log('Opening file: ' + filePath);
   fs.readFile(filePath, 'utf8', function (err, data) {
     if (err) throw err;
@@ -206,16 +206,24 @@ exports.init = function(req, res, next) {
     });
   };
   var getGameNames = function(callback) {
-    console.log("Getting game names...");
     var gameNames = ';';
-    fs.readdir(__dirname + "/games/", function(err, files) {
+    if (!fs.existsSync(__dirname + "/games/" + outcome.user.username + "/")) {
+      fs.mkdirSync(__dirname + "/games/" + outcome.user.username + "/");
+    }
+    fs.readdir(__dirname + "/games/" + outcome.user.username + "/", function(err, files) {
       files.forEach(function(file) {
         console.log(file);
         gameNames += file + ';';
       });
-      outcome.gameNames = gameNames;
-      gameFileNames = gameNames;
-      return callback(null);
+      fs.readdir(__dirname + "/games/", function(err, files2) {
+        files2.forEach(function(file2) {
+          console.log(file2);
+          gameNames += file2 + ';';
+        });
+        outcome.gameNames = gameNames;
+        gameFileNames = gameNames;
+        return callback(null);
+      });
     });
   };
   var seriesFuncs = [];
