@@ -122,12 +122,12 @@
       app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
 
       app.mainView.gameInSession = true;
-      app.mainView.codeVariablesEditor.setOption("readOnly", "nocursor");
-      app.mainView.runEditor.setOption("readOnly", "nocursor");
-      app.mainView.startEditor.setOption("readOnly", "nocursor");
-      app.mainView.endEditor.setOption("readOnly", "nocursor");
-      app.mainView.joystickEditor.setOption("readOnly", "nocursor");
-      app.mainView.keypressEditor.setOption("readOnly", "nocursor");
+      // app.mainView.codeVariablesEditor.setOption("readOnly", "nocursor");
+      // app.mainView.runEditor.setOption("readOnly", "nocursor");
+      // app.mainView.startEditor.setOption("readOnly", "nocursor");
+      // app.mainView.endEditor.setOption("readOnly", "nocursor");
+      // app.mainView.joystickEditor.setOption("readOnly", "nocursor");
+      // app.mainView.keypressEditor.setOption("readOnly", "nocursor");
       $('#btnUpdateRun').prop("disabled", true);
       app.mainView.parseGlobalVariables(app.mainView.gameGlobalVariables);
       app.mainView.parseStartCode(app.mainView.gameStartCode);
@@ -244,12 +244,12 @@
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
       app.mainView.codeEditorReadOnly = false;
-      app.mainView.codeVariablesEditor.setOption("readOnly", false);
-      app.mainView.runEditor.setOption("readOnly", false);
-      app.mainView.startEditor.setOption("readOnly", false);
-      app.mainView.endEditor.setOption("readOnly", false);
-      app.mainView.joystickEditor.setOption("readOnly", false);
-      app.mainView.keypressEditor.setOption("readOnly", false);
+      // app.mainView.codeVariablesEditor.setOption("readOnly", false);
+      // app.mainView.runEditor.setOption("readOnly", false);
+      // app.mainView.startEditor.setOption("readOnly", false);
+      // app.mainView.endEditor.setOption("readOnly", false);
+      // app.mainView.joystickEditor.setOption("readOnly", false);
+      // app.mainView.keypressEditor.setOption("readOnly", false);
       $('#btnUpdateRun').prop("disabled", false);
       app.mainView.parseStartCode(app.mainView.gameEndCode);
 
