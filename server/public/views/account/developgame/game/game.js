@@ -150,6 +150,7 @@ function processNextImage()
                 gameDemoMode: app.mainView.gameDemoMode,
                 gameDrawOnTrackedEuglena: app.mainView.gameDrawOnTrackedEuglena,
                 magnification: app.mainView.magnification,
+                sandboxMode: app.mainView.sandboxMode,
                 // drawCircle
                 drawCircleCenterX: app.mainView.drawCircleCenterX,
                 drawCircleCenterY: app.mainView.drawCircleCenterY,
@@ -194,7 +195,6 @@ function processNextImage()
                 getEuglenaRotationID: app.mainView.getEuglenaRotationID,
                 // getEuglenaVelocityByID
                 getEuglenaVelocityID: app.mainView.getEuglenaVelocityID,
-
 
                 processor: "Euglena" };
     startTime = performance.now();

@@ -62,6 +62,13 @@ class EuglenaProcessor : public Processor {
         bool demoMode;
         bool drawOnTrackedEuglena;
         bool viewEuglenaPaths;
+        bool sandboxMode = false;
+
+        // Sandbox mode variables
+        std::map<int, cv::Point2f> euglenaPositionsSandbox;
+        std::map<int, double> euglenaVelocitiesSandbox;
+        std::map<int, double> euglenaAccelerationsSandbox;
+        std::map<int, float> euglenaAnglesSandbox;
         
         // Euglena tracking variables
         std::vector<EuglenaObject> trackedEuglenas;
@@ -277,7 +284,17 @@ void KFTracker::drawPath(cv::Mat img) {
 }
 
 cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
-    printf("Processing images..."); 
+    printf("Processing images...");
+
+    // Draw simulation on top of image if in sandbox mode.
+    if (sandboxMode) {
+        // cv::rectangle(im, cv::Point(0.0, 0.0), cv::Point(640.0, 480.0), cv::Scalar(0, 0, 0, 255), -1);
+
+        // std::map<int, cv::Point2f> euglenaPositionsSandbox;
+        // std::map<int, double> euglenaVelocitiesSandbox;
+        // std::map<int, double> euglenaAccelerationsSandbox;
+        // std::map<int, float> euglenaAnglesSandbox;
+    }
 
     // Assign calculated velocity, accelleration, and angle of rotation for a target euglena to user facing variables 
     targetEuglenaVelocity = euglenaVelocities[velocityID];
