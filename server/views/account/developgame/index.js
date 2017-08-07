@@ -9,7 +9,11 @@ var gameFileNames = '';
 
 exports.savefile = function(req, res) {
   console.log("Saving game code...");
-  var filePath = __dirname + "/games/" + req.body.userName + "/" + req.body.fileName;
+  var fileName = "NO_NAME_ASSIGNED";
+  if (req.body.fileName.length > 1) {
+    fileName = req.body.fileName;
+  }
+  var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName;
   var gameFileToSave = req.body.varCode + "\n-----\n" + req.body.runCode
                                         + "\n-----\n" + req.body.startCode
                                         + "\n-----\n" + req.body.endCode
