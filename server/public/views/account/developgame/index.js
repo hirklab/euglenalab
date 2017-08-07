@@ -121,6 +121,27 @@
       app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
       app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
 
+      var codeVar = app.mainView.gameGlobalVariables;
+      var codeRun = app.mainView.gameRunCode;
+      var codeStart = app.mainView.gameStartCode;
+      var codeEnd = app.mainView.gameEndCode;
+      var codeJoystick = app.mainView.gameJoystickCode;
+      var codeKeypress = app.mainView.gameKeypressCode;
+      var nameUser = app.mainView.user;
+      var gameName = app.mainView.gameName;
+      $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
+                                                 varCode: codeVar,
+                                                 runCode: codeRun,
+                                                 startCode: codeStart,
+                                                 endCode: codeEnd,
+                                                 joystickCode: codeJoystick,
+                                                 keypressCode: codeKeypress,
+                                                 fileName: gameName } )
+        .done(function(data) {
+          //console.log( "Data Loaded savefile: " + data);
+
+        });
+
       app.mainView.gameInSession = true;
       // app.mainView.codeVariablesEditor.setOption("readOnly", "nocursor");
       // app.mainView.runEditor.setOption("readOnly", "nocursor");
@@ -312,6 +333,7 @@
           app.mainView.keypressEditor.setValue(gameSections[5]);
 
           var gameName = gameSections[6];
+          app.mainView.gameName = gameName;
           $.post('/account/developgame/loguserdata/', { userName: app.mainView.userName,
                                                         fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
                                                         logTimestamp: Date.now().toString(),
@@ -370,6 +392,7 @@
     bioExp: "",
 
     gameErrorMessage: "",
+    gameName: "",
 
     // Sandbox mode.
     sandboxMode: false,
