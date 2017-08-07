@@ -374,6 +374,11 @@ block body
             button.btn.btn-success#btnStartGame(type="update" value="update") Run Program
             |&nbsp;&nbsp;&nbsp;&nbsp;
             button.btn.btn-danger#btnStopGame(type="update" value="update") Stop Program
+            br
+            br
+            button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Code
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Code
             |&nbsp;&nbsp;&nbsp;&nbsp;
             button.btn.btn-primary#btnHideCode(type="update" value="update") Hide Code
             br
@@ -393,10 +398,6 @@ block body
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
-        button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Code
-        |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Code
-        |&nbsp;&nbsp;&nbsp;&nbsp;
         button.btn.btn-primary#btnShowAPI(type="save", value="save") Hide API
         //- h2
         //-   |Status 
