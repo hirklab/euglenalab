@@ -299,7 +299,8 @@
 
     $(".gameFile").click(function(){
         var codeInd = $(this).index();
-        $.post('/account/developgame/getgamecode/', { gameIndex: codeInd } )
+        $.post('/account/developgame/getgamecode/', { userName: app.mainView.userName,
+                                                      gameIndex: codeInd } )
         .done(function(data) {
           //console.log( "Data Loaded readfile: ");
           var gameSections = data.split('-----');

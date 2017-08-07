@@ -27,12 +27,33 @@ exports.getgamecode = function(req, res) {
   var fileIndex = req.body.gameIndex;
   var gameFileNamesFixed = gameFileNames.split(';').slice(1, -1);
   var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
-  var filePath = __dirname + "/games/" + + req.body.userName + "/" + fileToOpen;
-  console.log('Opening file: ' + filePath);
-  fs.readFile(filePath, 'utf8', function (err, data) {
-    if (err) throw err;
-    var returnVal = data + "-----" + fileToOpen;
-    res.json(returnVal);
+  var filePath = "";
+  // Check user specific path.
+  fs.readdir(__dirname + "/games/" + req.body.userName + "/", function(err, files) {
+    if (err) {} //throw err;
+    files.forEach(function(file) {
+      console.log(file + "aaaaaaaaaa");
+      if (file === fileToOpen) {
+        filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen;
+      }
+    });
+    // Check example code path.
+    fs.readdir(__dirname + "/games/", function(err, files) {
+      if (err) {} //throw err;
+      files.forEach(function(file) {
+        console.log(file + "bbbbbbbbbb");
+        if (file === fileToOpen) {
+          filePath = __dirname + "/games/" + fileToOpen;
+        }
+      });
+      // Open file.
+      console.log('Opening file: ' + filePath + '---' + fileToOpen);
+      fs.readFile(filePath, 'utf8', function (err, data) {
+        if (err) throw err;
+        var returnVal = data + "-----" + fileToOpen;
+        res.json(returnVal);
+      });
+    });
   });
 };
 
