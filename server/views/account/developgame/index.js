@@ -238,12 +238,16 @@ exports.init = function(req, res, next) {
     fs.readdir(__dirname + "/games/" + outcome.user.username + "/", function(err, files) {
       files.forEach(function(file) {
         console.log(file);
-        gameNames += file + ';';
+        if (!fs.lstatSync(__dirname + "/games/" + outcome.user.username + "/" + file).isDirectory()) {
+          gameNames += file + ';';
+        }
       });
       fs.readdir(__dirname + "/games/", function(err, files2) {
         files2.forEach(function(file2) {
           console.log(file2);
-          gameNames += file2 + ';';
+          if (!fs.lstatSync(__dirname + "/games/" + file2).isDirectory()) {
+            gameNames += file2 + ';';
+          }
         });
         outcome.gameNames = gameNames;
         gameFileNames = gameNames;
