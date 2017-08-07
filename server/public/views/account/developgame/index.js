@@ -297,7 +297,7 @@
         });
     });
 
-    $(".gameFile").click(function(){
+    $(".gameFile").click(function() {
         var codeInd = $(this).index();
         $.post('/account/developgame/getgamecode/', { userName: app.mainView.userName,
                                                       gameIndex: codeInd } )
@@ -318,6 +318,7 @@
                                                         logText: "User " + app.mainView.userName + " loaded program " + gameName + "----- \n" } )
             .done(function(data) {
               //console.log( "Data Loaded log user data: " + data);
+              $('#loadedProgramTxt').html("Loaded Program: " + gameName);
             });
         });
     });
