@@ -14,11 +14,11 @@ exports.savefile = function(req, res) {
     fileName = req.body.fileName;
   }
   var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName;
-  var gameFileToSave = req.body.varCode + "\n-----\n" + req.body.runCode
-                                        + "\n-----\n" + req.body.startCode
-                                        + "\n-----\n" + req.body.endCode
-                                        + "\n-----\n" + req.body.joystickCode
-                                        + "\n-----\n" + req.body.keypressCode;
+  var gameFileToSave = req.body.varCode + "-----" + req.body.runCode
+                                        + "-----" + req.body.startCode
+                                        + "-----" + req.body.endCode
+                                        + "-----" + req.body.joystickCode
+                                        + "-----" + req.body.keypressCode;
   fs.writeFile (filePath, gameFileToSave, function(err) {
       if (err) throw err;
       console.log('game file writing complete');
