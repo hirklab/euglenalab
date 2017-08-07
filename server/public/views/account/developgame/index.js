@@ -317,7 +317,7 @@
                                                  fileName: app.mainView.gameName } )
         .done(function(data) {
           //console.log( "Data Loaded savefile: " + data);
-
+          $('#loadedProgramTxt').html("Loaded Program: " + gameName);
         });
 
       $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
