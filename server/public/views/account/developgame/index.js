@@ -23,15 +23,18 @@
     }, true);
 
     document.onkeypress = function (e) {
-      if (!app.mainView.gameInSession) {
-        return;
-      }
       e = e || window.event;
       var code;
       if (!e) var e = window.event;
       if (e.keyCode) code = e.keyCode;
       else if (e.which) code = e.which;
       var character = String.fromCharCode(code);
+
+      app.mainView.previousKey = character;
+
+      if (!app.mainView.gameInSession) {
+        return;
+      }
 
       // Override default spacebar functionality.
       if (e.keyCode == 32) {
@@ -404,6 +407,7 @@
 
     gameErrorMessage: "",
     gameName: "",
+    previousKey: "",
 
     // Sandbox mode.
     sandboxMode: false,
