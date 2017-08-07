@@ -264,6 +264,14 @@
     
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
+      var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, 0);
+      ledsSetObj.rightValue = 0;
+      ledsSetObj.leftValue = 0;
+      ledsSetObj.upValue = 0;
+      ledsSetObj.DownValue = 0;
+      app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+      app.mainView.setInstructionText(" ");
+      app.mainView.setJoystickView(true);
       app.mainView.codeEditorReadOnly = false;
       // app.mainView.codeVariablesEditor.setOption("readOnly", false);
       // app.mainView.runEditor.setOption("readOnly", false);
@@ -306,7 +314,7 @@
                                                  endCode: codeEnd,
                                                  joystickCode: codeJoystick,
                                                  keypressCode: codeKeypress,
-                                                 fileName: gameName } )
+                                                 fileName: app.mainView.gameName } )
         .done(function(data) {
           //console.log( "Data Loaded savefile: " + data);
 
@@ -893,7 +901,9 @@
       //console.log('setLED function called');
       //console.log(led);
       //console.log(intensity);
-      if (app.mainView.sandboxMode || !app.mainView.gameInSession) return;
+      if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
+        return;
+      }
       switch (led.split('.')[1]) {
         case 'RIGHT':
           var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
