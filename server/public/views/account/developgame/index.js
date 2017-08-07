@@ -30,6 +30,7 @@
       else if (e.which) code = e.which;
       var character = String.fromCharCode(code);
 
+      console.log(e.ctrlKey);
       app.mainView.previousKey = character;
 
       if (!app.mainView.gameInSession) {
@@ -132,6 +133,14 @@
       var codeKeypress = app.mainView.gameKeypressCode;
       var nameUser = app.mainView.user;
       var gameName = app.mainView.gameName;
+      if (gameName === "avoidEuglenaGame.peter" || gameName === "euglenaHeatmaps.peter"
+          || gameName === "helloWorld.peter" || gameName === "euglenaCountExperiment.peter"
+          || gameName === "guessLedGame.peter" || gameName === "movingBoxGame.peter"
+          || gameName === "userInteractionLogging.peter") {
+        gameName += "_" + app.mainView.userName;
+      }
+      app.mainView.gameName = gameName;
+      $('#gameNameText').val(app.mainView.gameName);
       $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
                                                  varCode: codeVar,
                                                  runCode: codeRun,
@@ -142,7 +151,7 @@
                                                  fileName: gameName } )
         .done(function(data) {
           //console.log( "Data Loaded savefile: " + data);
-
+          $('#loadedProgramTxt').html("Loaded Program: " + gameName);
         });
 
       app.mainView.gameInSession = true;
@@ -308,6 +317,12 @@
       var codeKeypress = app.mainView.gameKeypressCode;
       var nameUser = app.mainView.user;
       var gameName = $('#gameNameText').val();
+      if (gameName === "avoidEuglenaGame.peter" || gameName === "euglenaHeatmaps.peter"
+          || gameName === "helloWorld.peter" || gameName === "euglenaCountExperiment.peter"
+          || gameName === "guessLedGame.peter" || gameName === "movingBoxGame.peter"
+          || gameName === "userInteractionLogging.peter") {
+        gameName += "_" + app.mainView.userName;
+      }
       app.mainView.gameName = gameName;
       $('#gameNameText').val(app.mainView.gameName);
       $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
@@ -321,6 +336,7 @@
         .done(function(data) {
           //console.log( "Data Loaded savefile: " + data);
           $('#loadedProgramTxt').html("Loaded Program: " + gameName);
+          alert('Game saved as: ' + gameName);
         });
 
       $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
