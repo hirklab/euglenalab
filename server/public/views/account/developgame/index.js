@@ -297,6 +297,8 @@
       var codeKeypress = app.mainView.gameKeypressCode;
       var nameUser = app.mainView.user;
       var gameName = $('#gameNameText').val();
+      app.mainView.gameName = gameName;
+      $('#gameNameText').val(app.mainView.gameName);
       $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
                                                  varCode: codeVar,
                                                  runCode: codeRun,
@@ -334,6 +336,7 @@
 
           var gameName = gameSections[6];
           app.mainView.gameName = gameName;
+          $('#gameNameText').val(app.mainView.gameName);
           $.post('/account/developgame/loguserdata/', { userName: app.mainView.userName,
                                                         fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
                                                         logTimestamp: Date.now().toString(),
