@@ -340,9 +340,9 @@
         app.mainView.programTopCSS = $('#programDiv').css("top");
         app.mainView.programLeftCSS = $('#programDiv').css("left");
         $('#programDiv').center();
-        $('#btnHideCode').html('Show Code');
         $('#programDiv').removeClass('col-xs-5');
         $('#programDiv').addClass('col-xs-12');
+        $('#btnHideCode').html('Show Code');
         $('#codeDiv').removeClass('col-xs-12');
         $('#codeDiv').addClass('col-xs-0');
         $('#codeDiv').hide();
@@ -352,9 +352,9 @@
         app.mainView.isCodeShowing = false;
       } else {
         $('#programDiv').uncenter();
-        $('#btnHideCode').html('Hide Code');
         $('#programDiv').removeClass('col-xs-12');
         $('#programDiv').addClass('col-xs-5');
+        $('#btnHideCode').html('Hide Code');
         $('#codeDiv').removeClass('col-xs-0');
         $('#codeDiv').addClass('col-xs-7');
         $('#codeDiv').show();
