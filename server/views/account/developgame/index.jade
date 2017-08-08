@@ -193,9 +193,9 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;
         button.btn.btn-primary#btnHideCode(type="update" value="update") Hide Code
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-primary#btnDownloadInstructions(type="update" value="update") View Instructions PDF
+        button.btn.btn-info#btnDownloadInstructions(type="update" value="update") View Instructions PDF
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-primary#btnSubmitFeedback(type="update" value="update") Submit Feedback
+        button.btn.btn-info#btnSubmitFeedback(type="update" value="update") Submit Feedback
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='black')#savedStatus Program Saved
 
@@ -420,7 +420,7 @@ block body
           |&nbsp;
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
         div.row#apiCalls
-          div.col-xs-11
+          div#apiInfo.col-xs-11
             font(color="black") 
               //-h2 EuglenaScript API Calls
               a(href="https://www.w3schools.com/jsref/", target="_blank", style="color:blue") Here

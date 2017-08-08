@@ -339,26 +339,24 @@
       if (app.mainView.isCodeShowing) {
         app.mainView.programTopCSS = $('#programDiv').css("top");
         app.mainView.programLeftCSS = $('#programDiv').css("left");
-        $('#programDiv').center();
         $('#programDiv').removeClass('col-xs-5');
         $('#programDiv').addClass('col-xs-12');
         $('#btnHideCode').html('Show Code');
         $('#codeDiv').removeClass('col-xs-12');
         $('#codeDiv').addClass('col-xs-0');
         $('#codeDiv').hide();
-        $('#apiCalls').hide();
+        $('#apiInfo').hide();
         $('#pageFooter').hide();
         $('#btnShowAPI').hide();
         app.mainView.isCodeShowing = false;
       } else {
-        $('#programDiv').uncenter();
         $('#programDiv').removeClass('col-xs-12');
         $('#programDiv').addClass('col-xs-5');
         $('#btnHideCode').html('Hide Code');
         $('#codeDiv').removeClass('col-xs-0');
         $('#codeDiv').addClass('col-xs-7');
         $('#codeDiv').show();
-        $('#apiCalls').show();
+        $('#apiInfo').show();
         $('#pageFooter').show();
         $('#btnShowAPI').show();
         app.mainView.isCodeShowing = true;
