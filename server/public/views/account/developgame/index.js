@@ -117,6 +117,8 @@
     });
     var hlLineKeypress = app.mainView.keypressEditor.setLineClass(0, "activeline");
 
+    $('#gameNameText').val(app.mainView.gameName);
+
     $('#btnStartGame').click(function() {
       app.mainView.gameGlobalVariables = app.mainView.codeVariablesEditor.getValue();
       app.mainView.gameRunCode = app.mainView.runEditor.getValue();
@@ -424,7 +426,7 @@
     bioExp: "",
 
     gameErrorMessage: "",
-    gameName: "",
+    gameName: "guessLedGame.peter",
     previousKey: "",
 
     // Sandbox mode.
