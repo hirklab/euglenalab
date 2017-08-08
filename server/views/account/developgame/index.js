@@ -14,8 +14,7 @@ exports.savefile = function(req, res) {
     fileName = req.body.fileName;
   }
   var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName;
-  var gameFileToSave = req.body.varCode + "-----" + req.body.runCode
-                                        + "-----" + req.body.startCode
+  var gameFileToSave = req.body.runCode + "-----" + req.body.startCode
                                         + "-----" + req.body.endCode
                                         + "-----" + req.body.joystickCode
                                         + "-----" + req.body.keypressCode;

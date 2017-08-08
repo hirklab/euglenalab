@@ -16,10 +16,6 @@
 
     var myVar = setInterval(app.mainView.runLoop, 1);
 
-    document.getElementById("txtCodeVariables").addEventListener("onfocus", function() {
-      //console.log('we are focused!');
-    }, true);
-
     document.onkeypress = function (e) {
       e = e || window.event;
       var code;
@@ -42,21 +38,6 @@
 
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
-
-    app.mainView.codeVariablesEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeVariables'), {
-        lineNumbers: false,
-        theme: "default",
-        autoMatchParens: true,
-        lineWrapping: true,
-        onCursorActivity: function() {
-          app.mainView.codeVariablesEditor.setLineClass(hlLine, null, null);
-          hlLine = app.mainView.codeVariablesEditor.setLineClass(app.mainView.codeVariablesEditor.getCursor().line, null, "activeline");
-        },
-        onChange: function() {
-          $('#savedStatus').html("Unsaved Program");
-        }
-    });
-    var hlLine = app.mainView.codeVariablesEditor.setLineClass(0, "activeline");
 
     app.mainView.runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
         lineNumbers: false,
@@ -136,14 +117,12 @@
     $('#gameNameText').val(app.mainView.gameName);
 
     $('#btnStartGame').click(function() {
-      app.mainView.gameGlobalVariables = app.mainView.codeVariablesEditor.getValue();
       app.mainView.gameRunCode = app.mainView.runEditor.getValue();
       app.mainView.gameStartCode = app.mainView.startEditor.getValue();
       app.mainView.gameEndCode = app.mainView.endEditor.getValue();
       app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
       app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
 
-      var codeVar = app.mainView.gameGlobalVariables;
       var codeRun = app.mainView.gameRunCode;
       var codeStart = app.mainView.gameStartCode;
       var codeEnd = app.mainView.gameEndCode;
@@ -160,7 +139,6 @@
       app.mainView.gameName = gameName;
       $('#gameNameText').val(app.mainView.gameName);
       $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
-                                                 varCode: codeVar,
                                                  runCode: codeRun,
                                                  startCode: codeStart,
                                                  endCode: codeEnd,
@@ -181,7 +159,6 @@
       // app.mainView.joystickEditor.setOption("readOnly", "nocursor");
       // app.mainView.keypressEditor.setOption("readOnly", "nocursor");
       $('#btnUpdateRun').prop("disabled", true);
-      app.mainView.parseGlobalVariables(app.mainView.gameGlobalVariables);
       app.mainView.parseStartCode(app.mainView.gameStartCode);
 
       $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
@@ -392,13 +369,11 @@
     });
 
     $('#btnSaveGame').click(function() {
-      app.mainView.gameGlobalVariables = app.mainView.codeVariablesEditor.getValue();
       app.mainView.gameRunCode = app.mainView.runEditor.getValue();
       app.mainView.gameStartCode = app.mainView.startEditor.getValue();
       app.mainView.gameEndCode = app.mainView.endEditor.getValue();
       app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
       app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
-      var codeVar = app.mainView.gameGlobalVariables;
       var codeRun = app.mainView.gameRunCode;
       var codeStart = app.mainView.gameStartCode;
       var codeEnd = app.mainView.gameEndCode;
@@ -415,7 +390,6 @@
       app.mainView.gameName = gameName;
       $('#gameNameText').val(app.mainView.gameName);
       $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
-                                                 varCode: codeVar,
                                                  runCode: codeRun,
                                                  startCode: codeStart,
                                                  endCode: codeEnd,
@@ -444,14 +418,13 @@
         .done(function(data) {
           //console.log( "Data Loaded readfile: ");
           var gameSections = data.split('-----');
-          app.mainView.codeVariablesEditor.setValue(gameSections[0]);
-          app.mainView.runEditor.setValue(gameSections[1]);
-          app.mainView.startEditor.setValue(gameSections[2]);
-          app.mainView.endEditor.setValue(gameSections[3]);
-          app.mainView.joystickEditor.setValue(gameSections[4]);
-          app.mainView.keypressEditor.setValue(gameSections[5]);
+          app.mainView.runEditor.setValue(gameSections[0]);
+          app.mainView.startEditor.setValue(gameSections[1]);
+          app.mainView.endEditor.setValue(gameSections[2]);
+          app.mainView.joystickEditor.setValue(gameSections[3]);
+          app.mainView.keypressEditor.setValue(gameSections[4]);
 
-          var gameName = gameSections[6];
+          var gameName = gameSections[5];
           app.mainView.gameName = gameName;
           $('#gameNameText').val(app.mainView.gameName);
           $.post('/account/developgame/loguserdata/', { userName: app.mainView.userName,
@@ -527,7 +500,6 @@
     gameOverText: "",
     gameJoystickView: true,
     gameInSession: false,
-    gameGlobalVariables: "",
     gameRunCode: "",
     gameStartCode: "",
     gameEndCode: "",
@@ -785,7 +757,6 @@
         $('#instructionText').css('color', 'red');
         app.mainView.gameInSession = false;
         app.mainView.codeEditorReadOnly = false;
-        app.mainView.codeVariablesEditor.setOption("readOnly", false);
         app.mainView.runEditor.setOption("readOnly", false);
         app.mainView.startEditor.setOption("readOnly", false);
         app.mainView.endEditor.setOption("readOnly", false);
@@ -797,9 +768,6 @@
       // $('#instructionText').text(app.mainView.gameInstructionText);
       // $('#instructionText').css('color', 'black');
       
-    },
-    parseGlobalVariables: function(runCode) {
-      app.mainView.generalParser(runCode);
     },
     parseRunCode: function(runCode) {
       app.mainView.generalParser(runCode);
