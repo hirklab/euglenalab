@@ -5,10 +5,10 @@ WHAT_AM_I=$(uname -m)
 
 if [[ $WHAT_AM_I != 'armv6l' ]];
 then
-    echo 'Not using RaspberryPi'
+    echo 'emulating RaspberryPi'
     export MACHINE="ubuntu"
 else
-    echo 'Using RaspberryPi'
+    echo 'using RaspberryPi'
     export MACHINE="raspberrypi"
 
     gpio export 3 out
@@ -20,4 +20,5 @@ else
     gpio export 25 out
 fi
 
-forever -w --watchDirectory ./ app.js
+#forever -w --watchDirectory ./ app.js
+node app.js

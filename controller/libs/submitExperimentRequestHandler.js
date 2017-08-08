@@ -1,6 +1,7 @@
 var async    = require('async');
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
+var logger = require('./logging');
 
 exports = module.exports = function (app, socketServerInfo, joinQueueDataArray, callbackToClient) {
     var outcome     = {};

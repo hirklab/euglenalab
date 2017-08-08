@@ -5,6 +5,7 @@ var _     = require('underscore');
 
 var config    = require('../config');
 var constants = require('../constants');
+var logger = require('./logging');
 
 module.exports = function (app) {
     var addExpToBpu = function (app, exp, bpuDoc, bpuSocket, callback) {
@@ -69,11 +70,11 @@ module.exports = function (app) {
                                 new: true
                             }, function (err, savedExperiment) {
                                 if (err) {
-                                    app.logger.error(err);
+                                    logger.error(err);
 
                                     cb(null);
                                 } else if (savedExperiment === null) {
-                                    app.logger.error('savedExperiment is null');
+                                    logger.error('savedExperiment is null');
 
                                     cb(null);
                                 } else {
@@ -92,11 +93,11 @@ module.exports = function (app) {
                                         new: true
                                     }, function (err, session) {
                                         if (err) {
-                                            app.logger.error(err);
+                                            logger.error(err);
 
                                             cb(null);
                                         } else if (expDoc === null) {
-                                            app.logger.error('session is null');
+                                            logger.error('session is null');
 
                                             cb(null);
                                         } else {
@@ -118,7 +119,7 @@ module.exports = function (app) {
             async.some(app.clients, function (client, callback) {
 
                 if (client.connected) {
-                    app.logger.debug('confirming live experiment from server: ' + client.id);
+                    logger.debug('confirming live experiment from server: ' + client.id);
 
                     client.emit('activateLiveUser', outcome.sess, config.USER_CONFIRMATION_TIMEOUT, function (userActivateResData) {
                         if (userActivateResData.err || !userActivateResData.didConfirm) {
@@ -143,7 +144,7 @@ module.exports = function (app) {
                                             });
                                             return callback(false);
                                         } else {
-                                            app.logger.debug('Someone confirmed and user sent to live lab');
+                                            logger.debug('Someone confirmed and user sent to live lab');
                                             return callback(true);
                                         }
                                     });
@@ -158,7 +159,7 @@ module.exports = function (app) {
             }, function (someoneConfirmed) {
 
                 if (!someoneConfirmed) {
-                    app.logger.warn('********* nobody confirmed **********');
+                    logger.warn('********* nobody confirmed **********');
 
                     var isCancelled = true;
                     bpuSocket.emit(app.mainConfig.socketStrs.bpu_resetBpu, isCancelled, outcome.sess.sessionID, function (err) {
@@ -180,7 +181,7 @@ module.exports = function (app) {
         var batchExperiment = function (cb_fn) {
             bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuResObj) {
                 if (bpuResObj.err) {
-                    app.logger.error(bpuResObj.err);
+                    logger.error(bpuResObj.err);
                 }
             });
             cb_fn(null);
@@ -230,14 +231,14 @@ module.exports = function (app) {
             var checkExpAndResort = function (checkExpCallback) {
                 cnt++;
                 var expTag = this;
-                app.logger.debug(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(age:' + (app.startDate.getTime() - expTag.exp_submissionTime) + ')');
-                app.logger.debug(cnt + ':checkExpAndResort:(user:' + expTag.user.name + ', bpu:' + expTag.exp_wantsBpuName + ')');
+                logger.debug(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(age:' + (app.startDate.getTime() - expTag.exp_submissionTime) + ')');
+                logger.debug(cnt + ':checkExpAndResort:(user:' + expTag.user.name + ', bpu:' + expTag.exp_wantsBpuName + ')');
                 app.db.models.BpuExperiment.findById(expTag.id, function (err, expDoc) {
 
                     //Failed
                     if (err) {
                         err = cnt + ':checkExpAndResort BpuExperiment.findById :' + err;
-                        app.logger.error(err);
+                        logger.error(err);
                         expTag.exp_lastResort.rejectionCounter++;
                         expTag.exp_lastResort.rejectionReason = err;
                         checkExpCallback(null);
@@ -245,7 +246,7 @@ module.exports = function (app) {
                         //Failed
                     } else if (expDoc === null || expDoc === undefined) {
                         err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'expDoc===null || expDoc===undefined';
-                        app.logger.error(err);
+                        logger.error(err);
                         expTag.exp_lastResort.rejectionCounter++;
                         expTag.exp_lastResort.rejectionReason = err;
                         checkExpCallback(null);
@@ -253,7 +254,7 @@ module.exports = function (app) {
                         //Canceled
                     } else if (expDoc.exp_isCanceled) {
                         err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'expDoc.exp_isCanceled';
-                        app.logger.error(err);
+                        logger.error(err);
                         expTag.exp_lastResort.rejectionCounter = ExpRejectMax;
                         expTag.exp_lastResort.rejectionReason  = err;
                         checkExpCallback(null);
@@ -261,7 +262,7 @@ module.exports = function (app) {
                         //Incorrect status, should alreay be out of queue
                     } else if (expDoc.exp_status !== 'queued' && expDoc.exp_status !== 'submited' && expDoc.exp_status !== 'created') {
                         err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'Incorrect status:' + expDoc.exp_status + ', should alreay be out of queue';
-                        app.logger.error(err);
+                        logger.error(err);
                         expTag.exp_lastResort.rejectionCounter = ExpRejectMax;
                         expTag.exp_lastResort.rejectionReason  = err;
                         checkExpCallback(null);
@@ -346,9 +347,9 @@ module.exports = function (app) {
                         }
 
                         if (true) {
-                            app.logger.debug(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(cans:' + expDoc.exp_lastResort.canidateBpus.length + ')');
+                            logger.debug(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(cans:' + expDoc.exp_lastResort.canidateBpus.length + ')');
                             expDoc.exp_lastResort.canidateBpus.forEach(function (canBpu) {
-                                app.logger.debug(canBpu.bpuName + ' ' + canBpu.finalScore + ' ' + canBpu.totalWaitTime);
+                                logger.debug(canBpu.bpuName + ' ' + canBpu.finalScore + ' ' + canBpu.totalWaitTime);
                             });
                         }
 
@@ -389,10 +390,10 @@ module.exports = function (app) {
                 newExps: 1
             }, function (err, newListExperimentDoc) {
                 if (err) {
-                    app.logger.error(err);
+                    logger.error(err);
                     return callback(err);
                 } else if (newListExperimentDoc === null || newListExperimentDoc === undefined) {
-                    app.logger.error('newListExperimentDoc dne');
+                    logger.error('newListExperimentDoc dne');
                     return callback('newListExperimentDoc dne');
                 } else {
 
@@ -478,7 +479,7 @@ module.exports = function (app) {
 
                         async.series(runSeriesFuncs, function (err) {
                             if (err) {
-                                app.logger.error(err);
+                                logger.error(err);
                             }
 
                             return callback(null);
@@ -496,7 +497,7 @@ module.exports = function (app) {
                 var exp    = this.exp;
                 var bpuObj = this.bpuObj;
 
-                app.logger.debug(cnt + ':sendExpToBpu ' + bpuObj.doc.name + ':' + exp.group_experimentType + ':' + exp.id + ' on Socket?null:' + (bpuObj.socket === null));
+                logger.debug(cnt + ':sendExpToBpu ' + bpuObj.doc.name + ':' + exp.group_experimentType + ':' + exp.id + ' on Socket?null:' + (bpuObj.socket === null));
 
                 addExpToBpu(app, exp, bpuObj.doc, bpuObj.socket, function (err, session) {
                     if (err) {
@@ -505,7 +506,7 @@ module.exports = function (app) {
                             time: new Date(),
                             err:  err
                         });
-                        app.logger.error(err);
+                        logger.error(err);
                     } else {
                         bpuObj.doc.session.id        = session.id;
                         bpuObj.doc.session.sessionID = session.sessionID;
@@ -554,7 +555,7 @@ module.exports = function (app) {
 
             async.parallel(runParallelFuncs, function (err) {
                 if (err) {
-                    app.logger.error('runParallel end sendExpsToBpus on ' + runParallelFuncs.length + ' in ' + (new Date() - app.startDate) + ' err:' + err + '\n');
+                    logger.error('runParallel end sendExpsToBpus on ' + runParallelFuncs.length + ' in ' + (new Date() - app.startDate) + ' err:' + err + '\n');
                 }
 
                 return callback(null);
@@ -577,7 +578,7 @@ module.exports = function (app) {
                 if (newTag.exp_lastResort.bpuName in app.experiments) {
                     app.experiments[newTag.exp_lastResort.bpuName].push(newTag);
                 } else {
-                    app.logger.error('BPU Name in experiment: ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not present in app.listExperiment');
+                    logger.error('BPU Name in experiment: ID: ' + newTag._id + ' has BPU Name: ' + newTag.exp_lastResort.bpuName + ', but that BPU is not present in app.listExperiment');
                 }
             }
 

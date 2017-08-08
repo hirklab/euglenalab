@@ -1,25 +1,26 @@
+// import env from 'dotenv';
 var tracer = require('tracer');
 var colors = require('colors');
 
-var config = require('../config');
+var LOG_LEVELS = require('../constants').LOG_LEVELS;
 
-module.exports = function (app) {
-    "use strict";
-    app.tracer = tracer;
+// env.config();
 
-    app.logger = app.tracer.colorConsole({
-        format:     "{{timestamp}} <{{file}}:{{line}}> {{message}}",
-        dateformat: "HH:MM:ss.L",
-        level:      config.LOG_LEVEL,
-        filters:    {
-            log:   colors.white,
-            trace: colors.magenta,
-            debug: colors.blue,
-            info:  colors.green,
-            warn:  colors.yellow,
-            error: [colors.red, colors.bold]
-        }
-    });
+var logger = tracer.colorConsole(
+	{
+		format:     "{{timestamp}} <{{file}}:{{line}}> {{message}}",
+		dateformat: "HH:MM:ss.L",
+		level:      LOG_LEVELS[0],
+		filters:    {
+			log:   colors.white,
+			trace: colors.magenta,
+			debug: colors.blue,
+			info:  colors.green,
+			warn:  colors.yellow,
+			error: [colors.red, colors.bold]
+		}
+	});
 
-    app.tracer.setLevel(config.LOG_LEVEL);
-};
+tracer.setLevel(LOG_LEVELS[2]);
+
+module.exports = logger;

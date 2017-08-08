@@ -11,7 +11,7 @@ module.exports = {
     PROFILING:                   true,
     PROFILING_INTERVAL:          30 * 60 * 1000,
     USER_CONFIRMATION_TIMEOUT:   15 * 1000,
-    MICROSCOPE_INACTIVE_COUNT:   30,
+    MICROSCOPE_INACTIVE_COUNT:   5,
     INACTIVE_EXPERIMENT_TIMEOUT: 1 * 24 * 60 * 60 * 1000,
     CALLBACK_TIMEOUT:            1500
 };

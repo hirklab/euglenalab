@@ -1,373 +1,709 @@
 "use strict";
-var async          = require('async');
-var socketIo       = require('socket.io');
-var socketIoClient = require('socket.io-client');
 
-var config = require('../config');
+var async = require('async');
+var os    = require('os');
+var fs    = require('fs');
+var http  = require('http');
+// var publicIp   = require('public-ip');
+// var internalIp = require('internal-ip');
+var exec           = require('child_process').exec;
+var socketIOClient = require('socket.io-client');
+var lodash         = require('lodash');
 
-module.exports = function (app) {
+var logger    = require('./logging');
+var config    = require('../config');
+var constants = require('../constants');
 
+var EVENTS   = constants.BPU_EVENTS;
+var STATES   = constants.BPU_STATES;
+var MESSAGES = constants.BPU_MESSAGES;
 
-    return {
-        getMicroscopes: function (callback) {
-            app.logger.debug('fetching BPUs...');
+function Microscope(config) {
+	this.name          = config.name;
+	this.doc           = config.doc;
+	this.address       = config.address;
+	this.socket        = null;
+	this.inactiveCount = 0;
+	this.queueTime     = 0;
+	this.messages      = [];
+	this.isConnected   = false;
+}
 
-            app.db.getBPUs(function (err, microscopes) {
-                if (err) {
-                    app.logger.error(err);
-                    return callback(err);
-                } else {
-                    microscopes.forEach(function (microscope) {
-                        if (app.microscopesIndex[microscope.name]) {
-                            app.microscopesIndex[microscope.name].doc = microscope;
-                        } else {
-                            app.microscopesIndex[microscope.name] = {
-                                doc:           microscope,
-                                socket:        null,
-                                inactiveCount: 0,
-                                queueTime:     0,
-                                messages:      [],
-                                isConnected:   false
-                            };
-                        }
+Microscope.prototype.cleanup = function (timeout) {
+	this.socket.disconnect();
+	this.socket = null;
 
-                    });
-                    return callback(null);
-                }
-            });
-        },
+	this.isConnected = false;
 
-        checkIfConnected: function (callback) {
-            app.logger.debug('checking BPUs...');
+	if (timeout) {
+		this.inactiveCount = 0;
+	}
+}
 
-            var fn_connectBpu = function (bpuObj, cb_connectBpu) {
-                // new connection to BPU
-                if (bpuObj.socket === null) {
+Microscope.prototype.connect = function (callback) {
+	var that = this;
 
-                    bpuObj.socket = socketIoClient('http://' + bpuObj.doc.localAddr.ip + ':' + bpuObj.doc.localAddr.serverPort, {
-                        multiplex:    false,
-                        reconnection: true
-                    });
+	// new connection to BPU
+	if (that.socket === null) {
+		that.socket = socketIOClient('http://' + that.doc.localAddr.ip + ':' + that.doc.localAddr.serverPort, {
+			multiplex:    false,
+			reconnection: true
+		});
 
-                    bpuObj.socket.on('connect', function () {
-                    });
+		that.socket.on(EVENTS.CONNECT, function () {
+			logger.info('connected to microscope at ' + that.address);
+		});
 
-                    bpuObj.socket.on('disconnect', function (msg) {
-                        bpuObj.socket.disconnect();
-                        bpuObj.socket.close();
-                        delete bpuObj.socket;
-                        bpuObj.inactiveCount = 0;
-                        bpuObj.socket        = null;
-                    });
+		that.socket.on(EVENTS.DISCONNECT, function (msg) {
+			that.cleanup(false);
+		});
 
-                    app.microscopesIndex[bpuObj.doc.name].setStimulus = function (setStimulus) {
-                        bpuObj.socket.emit(app.mainConfig.socketStrs.bpu_runExpLedsSet, setStimulus);
-                    };
+		that.socket.on(EVENTS.MESSAGE, function (message) {
+			if (message) {
+				var type    = message.type;
+				var payload = message.payload;
 
-                    setTimeout(function () {
-                        cb_connectBpu(null);
-                    }, 500);
-                } else {
-                    // connection to BPU timed out
-                    if (bpuObj.inactiveCount > config.MICROSCOPE_INACTIVE_COUNT) {
-                        bpuObj.socket.disconnect();
-                        delete bpuObj.socket;
-                        bpuObj.inactiveCount = 0;
-                        bpuObj.socket        = null;
-                        cb_connectBpu('reset socket');
-                    } else {
-                        // connection looks fine
-                        cb_connectBpu(null);
-                    }
-                }
-            };
+				logger.debug('====================================');
+				logger.debug('[RX] ' + that.doc.name + ': ' + type);
+				if(payload) logger.debug(payload);
 
-            var fn_clearBpuExp = function (bpuObj, cb_clearBpuExp) {
-                if (bpuObj.getStatusResObj.expOverId !== null && bpuObj.getStatusResObj.expOverId !== undefined) {
-                    if (bpuObj.doc.bpuStatus === app.mainConfig.bpuStatusTypes.finalizingDone) {
-                        var updateObj = {
-                            exp_serverClearTime: new Date().getTime(),
-                            exp_status:          'servercleared',
-                        };
-                        app.db.models.BpuExperiment.findByIdAndUpdate(bpuObj.getStatusResObj.expOverId, updateObj, function (err, savedExpDoc) {
-                            if (err) {
-                                app.errors.experiment.push({
-                                    time: new Date(),
-                                    err:  bpuObj.doc.name + ' fn_clearBpuExp BpuExperiment.findByIdAndUpdate ' + err
-                                });
-                                cb_clearBpuExp(bpuObj.doc.name + ' fn_clearBpuExp BpuExperiment.findByIdAndUpdate ' + err);
-                            } else {
-                                cb_clearBpuExp(null);
-                            }
-                        });
-                    } else {
-                        app.errors.experiment.push({
-                            time: new Date(),
-                            err:  bpuObj.doc.name + ' fn_clearBpuExp ' + 'has expOverId:' + bpuObj.getStatusResObj.expOverId + ' but status is ' + bpuObj.doc.bpuStatus + '!=' + app.mainConfig.bpuStatusTypes.finalizingDone
-                        });
-                        cb_clearBpuExp(bpuObj.doc.name + ' fn_clearBpuExp ' + 'has expOverId:' + bpuObj.getStatusResObj.expOverId + ' but status is ' + bpuObj.doc.bpuStatus + '!=' + app.mainConfig.bpuStatusTypes.finalizingDone);
-                    }
-                } else {
-                    cb_clearBpuExp(null);
-                }
-            };
+				switch (type) {
+					case MESSAGES.CONNECTED:
+						that.onConnected(payload);
+						break;
 
-            var checkBpu = function (checkBpuCallback) {
-                var bpuObj      = this;
-                //Timeout
-                var didCallback = false;
-                setTimeout(function () {
-                    if (!didCallback) {
-                        didCallback = true;
-                        bpuObj.inactiveCount++;
-                        app.logger.error('timed out ' + bpuObj.inactiveCount);
-                        app.errors.experiment.push({
-                            time: new Date(),
-                            err:  bpuObj.doc.name + ' fn_connectBpu ' + 'timed out ' + bpuObj.inactiveCount
-                        });
-                        return checkBpuCallback(null);
-                    }
-                }, 1000);
+					case MESSAGES.STATUS:
+						that.onStatus(payload);
+						break;
 
-                bpuObj.messages = [];
-                //Check Socket Connnection
-                bpuObj.messages.push({
-                    isErr: false,
-                    time:  new Date().getTime(),
-                    msg:   'Connected:\t' + (bpuObj.socket !== null)
-                });
-                bpuObj.messages.push({
-                    isErr: false,
-                    time:  new Date().getTime(),
-                    msg:   'Timeout:\t' + bpuObj.inactiveCount
-                });
+					case MESSAGES.EXPERIMENT_SET:
+						that.onExperimentSet(payload);
+						break;
 
-                fn_connectBpu(bpuObj, function (err) {
-                    if (!didCallback) {
-                        if (err) {
-                            didCallback = true;
-                            bpuObj.inactiveCount++;
-                            bpuObj.messages.push({
-                                isErr: true,
-                                time:  new Date().getTime(),
-                                msg:   'fn_connectBpu ' + err
-                            });
-                            bpuObj.doc.bpuStatus = app.mainConfig.bpuStatusTypes.offline;
-                            app.errors.experiment.push({
-                                time: new Date(),
-                                err:  bpuObj.doc.name + ' fn_connectBpu ' + err
-                            });
-                            return checkBpuCallback(null);
+					case MESSAGES.EXPERIMENT_CANCEL:
+						that.onExperimentCancel(payload);
+						break;
 
-                        } else if (!bpuObj.socket.connected) {
-                            didCallback = true;
-                            bpuObj.inactiveCount++;
-                            bpuObj.doc.bpuStatus = app.mainConfig.bpuStatusTypes.offline;
-                            bpuObj.messages.push({
-                                isErr: true,
-                                time:  new Date().getTime(),
-                                msg:   'Connection:\toffline'
-                            });
-                            app.errors.experiment.push({
-                                time: new Date(),
-                                err:  bpuObj.doc.name + 'Connection:\toffline'
-                            });
-                            return checkBpuCallback(null);
-                        } else {
+					case MESSAGES.EXPERIMENT_RUN:
+						that.onExperimentRun(payload);
+						break;
 
-                            //Get Status
-                            bpuObj.socket.emit(app.mainConfig.socketStrs.bpu_getStatus, function (resObj) {
-                                if (!didCallback) {
-                                    didCallback        = true;
-                                    bpuObj.isConnected = true;
-                                    bpuObj.messages.push({
-                                        isErr: false,
-                                        time:  new Date().getTime(),
-                                        msg:   'Status:\t\t' + app.mainConfig.betterStatus[bpuObj.doc.bpuStatus]
-                                    });
+					case MESSAGES.STIMULUS:
+						that.onStimulus(payload);
+						break;
 
-                                    bpuObj.inactiveCount = 0;
-                                    bpuObj.queueTime     = 0;
+					case MESSAGES.EXPERIMENT_CLEAR:
+						that.onExperimentClear(payload);
+						break;
 
-                                    //Save Res Obj on temp obj
-                                    bpuObj.getStatusResObj = resObj;
+					case MESSAGES.MAINTENANCE:
+						that.onMaintenance(payload);
+						break;
 
-                                    //bpuStatus
-                                    bpuObj.doc.bpuStatus = resObj.bpuStatus;
+					case MESSAGES.DISCONNECTED:
+						that.onDisconnected(payload);
+						break;
 
-                                    //Check for active Exp
-                                    if (resObj.exp !== null && resObj.exp !== undefined) {
-                                        var expOverIdNull = (bpuObj.getStatusResObj.expOverId !== null && bpuObj.getStatusResObj.expOverId !== undefined);
-                                        bpuObj.messages.push({
-                                            isErr: false,
-                                            time:  new Date().getTime(),
-                                            msg:   'id:' + resObj.exp._id + ', Exp=(user:' + resObj.exp.user.name + ', timeLeft:' + resObj.expTimeLeft + ', expOverIdNull?' + expOverIdNull + ')'
-                                        });
-                                        bpuObj.doc.liveBpuExperiment.id                   = resObj.exp._id;
-                                        bpuObj.doc.liveBpuExperiment.group_experimentType = resObj.exp.group_experimentType;
-                                        bpuObj.doc.liveBpuExperiment.bc_timeLeft          = resObj.expTimeLeft;
-                                        bpuObj.doc.liveBpuExperiment.username             = resObj.exp.user.name;
-                                        bpuObj.doc.liveBpuExperiment.sessionID            = resObj.exp.session.sessionID;
+					default:
+						logger.error('invalid message: message type not handled');
+						break;
+				}
+			}
+		});
 
-                                        //Include current experiment in queue time
-                                        bpuObj.queueTime = bpuObj.doc.liveBpuExperiment.bc_timeLeft;
+		// todo remove this dependency
+		// that.setStimulus = function (setStimulus) {
+		// 	that.socket.emit(app.mainConfig.socketStrs.bpu_runExpLedsSet, setStimulus);
+		// };
 
-                                        //Clear set leds function
-                                        if (app.bpuLedsSetMatch[bpuObj.doc.liveBpuExperiment.sessionID] &&
-                                            bpuObj.doc.bpuStatus !== app.mainConfig.bpuStatusTypes.running && bpuObj.doc.bpuStatus !== app.mainConfig.bpuStatusTypes.pendingRun) {
-                                            delete app.bpuLedsSetMatch[bpuObj.doc.liveBpuExperiment.sessionID];
-                                        }
+		callback(null);
+	} else {
 
-                                        //No Active exp
-                                    } else {
-                                        bpuObj.doc.liveBpuExperiment.id                   = null;
-                                        bpuObj.doc.liveBpuExperiment.group_experimentType = 'text';
-                                        bpuObj.doc.liveBpuExperiment.bc_timeLeft          = 0;
-                                        bpuObj.doc.liveBpuExperiment.sessionID            = null;
-                                        bpuObj.doc.liveBpuExperiment.username             = null;
-                                    }
+		// connection timed out
+		if (that.inactiveCount > config.MICROSCOPE_INACTIVE_COUNT) {
+			that.cleanup(true);
+			callback('timeout');
+		} else {
+			// connection looks fine
+			callback(null);
+		}
+	}
+}
 
-                                    //Check for exp over
-                                    fn_clearBpuExp(bpuObj, function (err) {
-                                        if (err) {
-                                            bpuObj.messages.push({
-                                                isErr: true,
-                                                time:  new Date().getTime(),
-                                                msg:   'fn_clearBpuExp ' + err
-                                            });
-                                        }
+Microscope.prototype.check = function (callback) {
+	var that = this;
 
-                                        //Check if scripter needs to run
-                                        var statMsg = [];
+	//Timeout
+	var didCallback = false;
 
-                                        statMsg.push({
-                                            name: 'scripterPopulation',
-                                            age:  app.startDate.getTime() - bpuObj.doc.performanceScores.scripterPopulationDate,
-                                            msg:  'Population:\t' + Math.round(bpuObj.doc.performanceScores.scripterPopulation, 2) + ' '
-                                        });
+	setTimeout(function () {
+		if (!didCallback) {
+			didCallback = true;
+			that.inactiveCount++;
 
-                                        statMsg.push({
-                                            name: 'scripterActivity',
-                                            age:  app.startDate.getTime() - bpuObj.doc.performanceScores.scripterActivityDate,
-                                            msg:  'Activity:\t' + Math.round(bpuObj.doc.performanceScores.scripterActivity, 2) + ' '
-                                        });
+			return callback(null);
+		}
+	}, 1000);
 
-                                        statMsg.push({
-                                            name: 'scripterResponse',
-                                            age:  app.startDate.getTime() - bpuObj.doc.performanceScores.scripterResponseDate,
-                                            msg:  'Response:\t' + Math.round(bpuObj.doc.performanceScores.scripterResponse, 2) + ' '
-                                        });
+	that.messages = [];
 
-                                        statMsg.sort(function (objA, objB) {
-                                            return objA.age - objB.age;
-                                        });
+	//Check Socket Connnection
+	that.messages.push({
+		isErr: false,
+		time:  new Date().getTime(),
+		msg:   'Connected:\t' + (that.isConnected)
+	});
 
-                                        var cnt = 0;
+	that.messages.push({
+		isErr: false,
+		time:  new Date().getTime(),
+		msg:   'Timeout:\t' + that.inactiveCount
+	});
 
-                                        statMsg.forEach(function (stat) {
-                                            bpuObj.messages.push({
-                                                isErr: false,
-                                                time:  new Date().getTime() + cnt * 100,
-                                                msg:   stat.msg + '\t(' + Math.round(stat.age / 60000) + ' mins ago)'
-                                            });
-                                        });
+	that.connect(function (err) {
+		if (!didCallback) {
+			if (err) {
+				didCallback = true;
 
+				that.inactiveCount++;
+				that.messages.push({
+					isErr: true,
+					time:  new Date().getTime(),
+					msg:   'connectMicroscope ' + err
+				});
 
-                                        var lastSend = app.startDate.getTime() - bpuObj.doc.performanceScores.bc_lastSendDate;
+				that.doc.status = STATES.OFFLINE;
 
-                                        var nextSendMS = config.PROFILING_INTERVAL - statMsg[statMsg.length - 1].age;
+				return callback(null);
 
-                                        if (nextSendMS < 0 && lastSend > config.PROFILING_INTERVAL) {
+			} else if (!that.socket) {
+				didCallback = true;
 
-                                            if (config.PROFILING) {
-                                                app.db.models.Bpu.submitTextExpWithUser({
-                                                    name: bpuObj.doc.name
-                                                }, {
-                                                    name:   statMsg[statMsg.length - 1].name,
-                                                    groups: ['scripter']
-                                                }, function (err, expTag) {
-                                                    if (err) {
-                                                        bpuObj.messages.push({
-                                                            isErr: true,
-                                                            time:  new Date().getTime(),
-                                                            msg:   'submitTextExpWithUser err:' + err
-                                                        });
-                                                    }
-                                                    bpuObj.doc.performanceScores.bc_lastSendDate = app.startDate.getTime();
-                                                    bpuObj.doc.save(function (err, newDoc) {
-                                                        if (err) {
-                                                            bpuObj.messages.push({
-                                                                isErr: true,
-                                                                time:  new Date().getTime(),
-                                                                msg:   'save err:' + err
-                                                            });
-                                                        }
-                                                        return checkBpuCallback(null);
-                                                    });
-                                                });
-                                            } else {
-                                                return checkBpuCallback(null);
-                                            }
-                                        } else {
-                                            return checkBpuCallback(null);
-                                        }
-                                    });
-                                } else {
-                                    app.errors.experiment.push({
-                                        time: new Date(),
-                                        err:  bpuObj.doc.name + ' fn_connectBpu ' + 'getstatus called back but already timed out'
-                                    });
-                                } //end of !didCallback
-                            }); //socket get status
-                        }
-                    } //end of !didCallback
-                }); //connect bpu
-            }; //end of main func
+				that.inactiveCount++;
+				that.doc.status = STATES.OFFLINE;
 
-            //Build Parallel
-            var runParallelFuncs = [];
-            var keys             = Object.keys(app.microscopesIndex);
-            keys.sort(function (objA, objB) {
-                return app.microscopesIndex[objA].doc.index - app.microscopesIndex[objB].doc.index;
-            });
-            keys.forEach(function (key) {
-                app.microscopesIndex[key].isConnected = false;
-                runParallelFuncs.push(checkBpu.bind(app.microscopesIndex[key]));
-            });
+				that.messages.push({
+					isErr: true,
+					time:  new Date().getTime(),
+					msg:   'Connection:\toffline'
+				});
 
-            async.parallel(runParallelFuncs, function (err) {
+				return callback(null);
+			} else {
+				didCallback = true;
 
-                var keys = Object.keys(app.microscopesIndex);
-
-                keys.sort(function (objA, objB) {
-                    return app.microscopesIndex[objA].doc.index - app.microscopesIndex[objB].doc.index;
-                });
-
-                keys.forEach(function (key) {
-                    app.logger.info(app.microscopesIndex[key].doc.name);
-
-                    app.microscopesIndex[key].messages.sort(function (objA, objB) {
-                        return objA.time - objB.time;
-                    });
-
-                    app.microscopesIndex[key].messages.forEach(function (msgObj) {
-                        if (msgObj.isErr) {
-                            app.logger.error('\t' + msgObj.msg);
-                        } else {
-                            app.logger.info('\t' + msgObj.msg);
-                        }
-                    });
-                });
-                if (err) {
-                    app.logger.error(err);
-                } else {
-                    app.logger.debug('Checking ' + runParallelFuncs.length + ' BPU(s)');
-                }
-
-                return callback(null);
-            });
-        },
-
-
-    }
+				//Get Status
+				that.sendMessage(MESSAGES.STATUS, null); //socket get status
+				return callback(null);
+			}
+		}
+	});
 };
+
+Microscope.prototype.onConnected = function(payload){}
+
+Microscope.prototype.onStatus = function(payload){
+	var that = this;
+
+	if(!that.isConnected){
+		that.isConnected = true;
+	}
+}
+
+// Microscope.prototype.onExperimentSet = function(payload){
+//
+// }
+//
+// Microscope.prototype.onExperimentCancel = function(payload){
+//
+// }
+//
+// Microscope.prototype.onExperimentRun = function(payload){
+//
+// }
+//
+// Microscope.prototype.onStimulus = function(payload){
+//
+// }
+//
+// Microscope.prototype.onExecuteEvent = function(payload){
+//
+// }
+//
+// Microscope.prototype.onExperimentClear = function(payload){
+//
+// }
+//
+// Microscope.prototype.onMaintenance = function(payload){
+//
+// }
+//
+// Microscope.prototype.onDisconnected = function(payload){
+//
+// }
+//
+// Microscope.prototype.onSaveExperiment = function (exp) {
+// 	"use strict";
+//
+// 	var o_savePath = options.savePath || '/home/pi/bpuData/tempExpData';
+//
+// 	if (exp !== null) {
+// 		exp.exp_metaData.saveTime          = new Date();
+// 		exp.exp_metaData.lightDataSoapPath = o_savePath + "/" + "lightdata.json";
+// 		exp.exp_metaData.lightDataPath     = o_savePath + "/" + "lightdata_meta.json";
+// 		var saveName                       = exp._id || "noExpId";
+// 		var saveFullPath                   = o_savePath + "/" + saveName + ".json";
+// 		exp.exp_metaData.ExpFullPath       = saveFullPath;
+// 		exp.exp_metaData.ExpName           = saveName;
+// 		//Save Full Exp Schema
+// 		fs.writeFile(exp.exp_metaData.ExpFullPath, JSON.stringify(exp, null, 4), function (err) {
+// 			if (err) {
+// 				callback('writeFile ExpFullPath ' + err, null);
+// 			} else {
+// 				//Save Exp Light Data with Meta
+// 				var lightDataWithMeta = {
+// 					metaData:    exp.exp_metaData,
+// 					eventsToRun: exp.exp_eventsRan,
+// 				};
+//
+// 				fs.writeFile(exp.exp_metaData.lightDataPath, JSON.stringify(lightDataWithMeta, null, 4), function (err) {
+// 					if (err) {
+// 						callback('writeFile lightDataPath ' + err, null);
+// 					} else {
+// 						//Save Exp Light Data
+// 						var lightData = {
+// 							eventsToRun: exp.exp_eventsRan,
+// 						};
+// 						fs.writeFile(exp.exp_metaData.lightDataSoapPath, JSON.stringify(lightData, null, 4), function (err) {
+// 							if (err) {
+// 								callback('writeFile lightDataSoapPath ' + err, null);
+// 							} else {
+// 								callback(null, exp);
+// 							}
+// 						});
+// 					}
+// 				});
+// 			}
+// 		});
+// 	}
+// };
+//
+//
+// Microscope.prototype.handleMessage = function(message){
+// 	var that = this;
+//
+// 	var type = message.type;
+// 	var payload = message.payload;
+//
+// 	logger.debug('====================================');
+// 	logger.debug('[RX] ' + type);
+// 	logger.debug(payload);
+//
+// 	switch (type) {
+// 		case MESSAGES.CONNECTED:
+// 			that.onConnected(payload);
+// 			break;
+//
+// 		case MESSAGES.STATUS:
+// 			logger.debug('send status');
+// 			that.onStatus(payload);
+// 			break;
+//
+// 		case MESSAGES.EXPERIMENT_SET:
+// 			that.onExperimentSet(payload);
+// 			break;
+//
+// 		case MESSAGES.EXPERIMENT_CANCEL:
+// 			that.onExperimentCancel(payload);
+// 			break;
+//
+// 		case MESSAGES.EXPERIMENT_RUN:
+// 			that.onExperimentRun(payload);
+// 			break;
+//
+// 		case MESSAGES.STIMULUS:
+// 			that.onStimulus(payload);
+// 			break;
+//
+// 		case MESSAGES.EXPERIMENT_CLEAR:
+// 			that.onExperimentClear(payload);
+// 			break;
+//
+// 		case MESSAGES.MAINTENANCE:
+// 			that.onMaintenance(payload);
+// 			break;
+//
+// 		case MESSAGES.DISCONNECTED:
+// 			that.onDisconnected(payload);
+// 			break;
+//
+// 		default:
+// 			logger.error('invalid message: message type not handled');
+// 			break;
+// 	}
+// }
+//
+// Microscope.prototype.handleError = function(payload){
+//
+// }
+//
+
+
+Microscope.prototype.sendMessage = function (type, payload) {
+	var newMessage     = {};
+	newMessage.type    = type;
+	newMessage.payload = payload;
+
+	logger.debug('[TX -> M]: ' + this.name + ': ' + type);
+	if(payload) logger.debug(payload);
+
+	this.socket.emit(EVENTS.MESSAGE, newMessage);
+}
+
+//
+//
+// Microscope.prototype.disconnect = function(payload){
+//
+// }
+//
+// Microscope.prototype.status = function () {
+// 	return this.state;
+// };
+//
+// Microscope.prototype.isAvailable = function () {
+// 	return (this.state.status === STATES.IDLE);
+// };
+//
+// Microscope.prototype.isRunning = function () {
+// 	return (this.state.status === STATES.RUNNING);
+// };
+//
+// Microscope.prototype.isQueued = function () {
+// 	return (this.state.status === STATES.QUEUED);
+// };
+//
+// Microscope.prototype.getPublicIP = function () {
+// 	publicIp.v4().then(function (ip) {
+// 		this.state.publicAddress = {
+// 			ip:         ip,
+// 			port:       0,
+// 			cameraPort: 20005  // todo
+// 		};
+//
+// 		//this.sendMessage(MESSAGE.STATUS, this.status());
+// 	});
+// };
+//
+// Microscope.prototype.getLocalIP = function () {
+// 	this.state.localAddress = {
+// 		ip:         internalIp.v4(),
+// 		port:       0,
+// 		cameraPort: 80
+// 	};
+// };
+//
+// Microscope.prototype.connect = function () {
+// 	var that = this;
+//
+// 	var httpServer = http.createServer();
+// 	httpServer.listen(that.port, that.ip);
+//
+// 	that.server = socketIO(httpServer);
+//
+// 	that.server.on(EVENTS.CONNECT, function (socket) {
+// 		logger.info('microscope connected at '+ that.ip + ':'+ that.port);
+//
+// 		// socket.on(app.socketStrs.bpu_ping, function (callback) {
+// 		// 	var emitStr = app.socketStrs.bpu_ping;
+// 		// 	var retStr  = emitStr + 'Res';
+// 		// 	var resObj  = {err: null, bpuStatus: app.bpuStatus};
+// 		// 	//Log
+// 		// 	//app.logger.info(moduleName+' '+emitStr);
+// 		//
+// 		// 	//Run
+// 		//
+// 		// 	//Return
+// 		// 	socket.emit(retStr, resObj);
+// 		// 	if (typeof callback === 'function') callback(resObj.err, resObj);
+// 		// });
+//
+// 		socket.on(EVENTS.MESSAGE, that.handleMessage.bind(that));
+//
+// 		socket.on(EVENTS.ERROR, that.handleError.bind(that));
+//
+// 		that.state.connected = 1;
+//
+// 		if (that.state.status === STATES.CONNECTING) {
+// 			that.state.status = STATES.IDLE;
+// 		}
+//
+// 		that.sendMessage(MESSAGES.STATUS, that.status());
+//
+// 		// socket.on(app.socketStrs.bpu_getStatus, function (callback) {
+// 		// 	//Init
+// 		// 	var emitStr = app.socketStrs.bpu_getStatus;
+// 		// 	var retStr  = emitStr + 'Res';
+// 		// 	var resObj  = {
+// 		// 		//id
+// 		// 		index:       app.bpuConfig.index,
+// 		// 		name:        app.bpuConfig.name,
+// 		// 		//status
+// 		// 		err:         null,
+// 		// 		bpuStatus:   app.bpuStatus,
+// 		// 		expOverId:   null,
+// 		// 		//Exp
+// 		// 		exp:         null,
+// 		// 		expTimeLeft: 0
+// 		// 	};
+// 		//
+// 		// 	//Log
+// 		// 	//app.logger.info(moduleName+' '+emitStr+':'+app.bpuStatus);
+// 		//
+// 		// 	//Run
+// 		// 	if (app.exp) {
+// 		// 		resObj.exp = app.exp;
+// 		// 		if (app.isExperimentOverAndWaitingForPickup) {
+// 		// 			app.isExperimentOverAndWaitingForPickup = false;
+// 		// 			resObj.expOverId                        = app.exp._id;
+// 		// 			var opts                                = {};
+// 		// 			app.logger.debug(moduleName + ' script_resetBpu ' + 'start');
+// 		// 			app.script_resetBpu(app, deps, opts, function (err) {
+// 		// 				app.logger.debug(moduleName + ' script_resetBpu ' + 'end');
+// 		// 				if (err) {
+// 		// 					app.logger.error(moduleName + ' script_resetBpu ' + err);
+// 		// 				} else {
+// 		// 					app.logger.debug(moduleName + ' run experiment done READY FOR Next EXPERIMENT');
+// 		// 					callback(null);
+// 		// 				}
+// 		// 			});
+// 		//
+// 		// 			//While Bpu Has Exp: Check for Run Bad Status
+// 		// 		} else {
+// 		// 			if (app.bpuStatus === app.bpuStatusTypes.runningFailed) {
+// 		// 				app.logger.error('app.exp***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
+// 		// 				app.logger.error('app.exp           Make sure this is not a big deal and force reset here');
+// 		//
+// 		// 			} else if (app.bpuStatus === app.bpuStatusTypes.finalizingFailed) {
+// 		// 				app.logger.error('app.exp***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
+// 		// 				app.logger.error('app.exp           Make sure this is not a big deal and force reset here');
+// 		//
+// 		// 			} else if (app.bpuStatus === app.bpuStatusTypes.resetingFailed) {
+// 		// 				app.logger.error('app.exp***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
+// 		// 				app.logger.error('app.exp           Make sure this is not a big deal...reset is being forced');
+// 		// 				app.script_resetBpu(app, deps, {}, function (err) {
+// 		// 					app.logger.debug(moduleName + ' script_resetBpu ' + 'end');
+// 		// 					if (err) {
+// 		// 						app.logger.error(moduleName + 'app.exp force script_resetBpu ' + err);
+// 		// 					} else {
+// 		// 						app.logger.debug(moduleName + 'app.exp force reset done done READY FOR Next EXPERIMENT');
+// 		// 						callback(null);
+// 		// 					}
+// 		// 				});
+// 		//
+// 		// 			} else {
+// 		// 				console.log('1', app.exp_eventsRunTime, (new Date().getTime() - app.exp.exp_runStartTime));
+// 		// 				resObj.expTimeLeft = app.exp_eventsRunTime || 0;
+// 		// 				if (app.bpuStatus !== app.bpuStatusTypes.pendingRun) {
+// 		// 					if (app.exp_eventsRunTime && app.exp.exp_runStartTime) {
+// 		// 						resObj.expTimeLeft = app.exp_eventsRunTime - (new Date().getTime() - app.exp.exp_runStartTime);
+// 		// 					}
+// 		// 				}
+// 		// 				app.logger.trace('Exp Time Left:' + resObj.expTimeLeft);
+// 		// 			}
+// 		// 		}
+// 		//
+// 		// 		//While Bpu Does Not Have Exp: Check for Bad Status
+// 		// 	} else {
+// 		//
+// 		// 		if (app.bpuStatus === app.bpuStatusTypes.initializingFailed) {
+// 		// 			app.logger.error('***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
+// 		// 			app.logger.error('           Make sure this is not a big deal and force reset here');
+// 		//
+// 		// 		} else if (app.bpuStatus === app.bpuStatusTypes.resetingFailed) {
+// 		// 			app.logger.error('***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
+// 		// 			app.logger.error('           Make sure this is not a big deal and force reset here');
+// 		// 		}
+// 		// 	}
+// 		//
+// 		// 	//Return
+// 		// 	if (typeof callback === 'function') callback(resObj);
+// 		// });
+// 		//
+// 		// socket.on(app.socketStrs.bpu_setExp, function (exp, resetTimeout, callback) {
+// 		// 	//Init
+// 		// 	var emitStr = app.socketStrs.bpu_setExp;
+// 		// 	var retStr  = emitStr + 'Res';
+// 		// 	var resObj  = {err: null, bpuStatus: app.bpuStatus};
+// 		//
+// 		// 	//Log
+// 		// 	app.logger.info(moduleName + ' ' + emitStr);
+// 		//
+// 		// 	if (app.exp !== null) {
+// 		// 		resObj.err = 'already has exp';
+// 		// 		//Return
+// 		// 		if (typeof callback === 'function') callback(resObj.err, resObj);
+// 		// 	} else if (app.bpuStatus !== app.bpuStatusTypes.resetingDone) {
+// 		// 		resObj.err = 'status is not app.bpuStatusTypes.resetingDone its ' + app.bpuStatus;
+// 		// 		//Return
+// 		// 		if (typeof callback === 'function') callback(resObj.err, resObj);
+// 		// 	} else if (exp.exp_eventsToRun.length === 0) {
+// 		// 		resObj.err = 'app.exp.exp_eventsToRun.length===0';
+// 		// 		//Return
+// 		// 		if (typeof callback === 'function') callback(resObj.err, resObj);
+// 		// 	} else {
+// 		// 		app.bpuStatus = app.bpuStatusTypes.pendingRun;
+// 		// 		app.exp       = exp;
+// 		//
+// 		// 		app.exp.exp_eventsToRun.sort(function (objA, objB) {
+// 		// 			return objB.time - objA.time
+// 		// 		});
+// 		// 		app.exp_eventsRunTime = app.exp.exp_eventsToRun[0].time;
+// 		//
+// 		// 		app.didConfirmRun        = false;
+// 		// 		app.didConfirmTimeoutRun = false;
+// 		// 		setTimeout(function () {
+// 		// 			if (!app.didConfirmRun) {
+// 		// 				app.didConfirmTimeoutRun = true;
+// 		// 				app.script_resetBpu(app, deps, opts, function (err) {
+// 		// 					if (app.bpu === null || app.bpu === undefined) {
+// 		// 						app.logger.error('socketBpu bpu_setExp reseting issue no app.bpu');
+// 		// 					} else if (err) {
+// 		// 						app.logger.error('socketBpu bpu_setExp reseting ' + err);
+// 		// 					} else {
+// 		// 						app.logger.debug('socketBpu bpu_setExp READY FOR EXPERIMENT');
+// 		// 					}
+// 		// 				});
+// 		// 			}
+// 		// 		}, resetTimeout);
+// 		// 		//Return
+// 		// 		if (typeof callback === 'function') callback(resObj.err, resObj);
+// 		// 	}
+// 		// });
+// 		//
+// 		// socket.on(app.socketStrs.bpu_runExp, function (callback) {
+// 		// 	if (!app.didConfirmTimeoutRun && app.exp !== null) {
+// 		// 		app.didConfirmRun = true;
+// 		// 		//If Live Add setleds
+// 		// 		if (app.exp.group_experimentType === 'live') {
+// 		// 			//Set LEDs
+// 		// 			var ledsSet = function (lightData, cb_fn) {
+// 		// 				//Init
+// 		// 				var emitStr = app.socketStrs.bpu_runExpLedsSet;
+// 		// 				var retStr  = emitStr + 'Res';
+// 		// 				var resObj  = {err: null, bpuStatus: app.bpuStatus};
+// 		//
+// 		// 				//Log
+// 		// 				//app.logger.info(moduleName+' '+emitStr);
+// 		//
+// 		// 				//Run
+// 		// 				var timeNow       = new Date().getTime();
+// 		// 				lightData.setTime = timeNow;
+// 		// 				var doReset       = false;
+// 		// 				resObj            = app.bpu.ledsSet(lightData, doReset);
+// 		// 				resObj.err        = null;
+// 		// 				app.exp.exp_eventsRan.push(resObj);
+// 		// 				//Return
+// 		// 				if (typeof cb_fn === 'function') cb_fn(resObj.err, resObj);
+// 		// 			};
+// 		// 			//Listender
+// 		// 			socket.on(app.socketStrs.bpu_runExpLedsSet, ledsSet);
+// 		// 		}
+// 		//
+// 		// 		//Run
+// 		// 		var options = {};
+// 		// 		app.logger.debug(moduleName + ' script_runExperiment start');
+// 		// 		app.script_runExperiment(app, deps, options, app.exp, function (err) {
+// 		// 			app.logger.debug(moduleName + ' script_runExperiment end');
+// 		//
+// 		// 			//If Live Add setleds
+// 		// 			if (app.exp.group_experimentType === 'live') {
+// 		// 				socket.removeListener(app.socketStrs.bpu_runExpLedsSet, ledsSet);
+// 		// 			}
+// 		//
+// 		// 			if (err) {
+// 		// 				app.logger.error(moduleName + ' script_runExperiment ' + err);
+// 		// 			} else {
+// 		// 				// if no error set flag for pick, used in get status ping
+// 		// 				if (app.bpuStatus === app.bpuStatusTypes.finalizingDone) {
+// 		// 					app.isExperimentOverAndWaitingForPickup = true;
+// 		// 				}
+// 		// 			}
+// 		// 		});
+// 		//
+// 		// 		//Return
+// 		// 		if (typeof callback === 'function') callback({err: null});
+// 		// 	} else {
+// 		// 		//Return
+// 		// 		if (typeof callback === 'function') callback('already canceled', null);
+// 		// 	}
+// 		// });
+// 		//
+// 		// socket.on(app.socketStrs.bpu_resetBpu, function (isUserCancel, userSessionID) {
+// 		// 	var doReset = true;
+// 		// 	if (isUserCancel) {
+// 		// 		if (app.exp === null || app.exp.session.sessionID !== userSessionID) {
+// 		// 			doReset = false;
+// 		// 		}
+// 		// 	}
+// 		// 	if (doReset) {
+// 		// 		//Init
+// 		// 		var emitStr = app.socketStrs.bpu_resetBpu;
+// 		// 		var retStr  = emitStr + 'Res';
+// 		// 		var resObj  = {err: null, bpuStatus: app.bpuStatus};
+// 		//
+// 		// 		//Log
+// 		// 		app.logger.info(moduleName + ' ' + emitStr);
+// 		//
+// 		// 		//Run
+// 		// 		app.script_resetBpu(app, deps, opts, function (err, data) {
+// 		// 			resObj.resetData = data;
+// 		//
+// 		// 			//Return
+// 		// 			if (typeof callback === 'function') callback(resObj.err, resObj);
+// 		//
+// 		// 		});
+// 		// 	}
+// 		// });
+//
+// 		socket.on(EVENTS.DISCONNECT, function (reason) {
+// 			logger.error('disconnected due to ' + reason);
+// 		});
+//
+// 	});
+// };
+
+
+// todo seems junk method - no need to clear if they are not maintained as part of microscope
+// microscope needs to look into queue and if experiment expired, remove it from execution and update status in queue
+
+// Microscope.prototype.clear = function (bpuObj, cb_clearBpuExp) {
+// 	if (bpuObj.getStatusResObj.expOverId !== null && bpuObj.getStatusResObj.expOverId !== undefined) {
+// 		if (bpuObj.doc.status === BPU_STATES.IDLE) {
+// 			var updateObj = {
+// 				exp_serverClearTime: new Date().getTime(),
+// 				exp_status:          'servercleared',
+// 			};
+// 			app.db.models.BpuExperiment.findByIdAndUpdate(bpuObj.getStatusResObj.expOverId, updateObj, function (err, savedExpDoc) {
+// 				if (err) {
+// 					app.errors.experiment.push({
+// 						time: new Date(),
+// 						err:  bpuObj.doc.name + ' fn_clearBpuExp BpuExperiment.findByIdAndUpdate ' + err
+// 					});
+// 					cb_clearBpuExp(bpuObj.doc.name + ' fn_clearBpuExp BpuExperiment.findByIdAndUpdate ' + err);
+// 				} else {
+// 					cb_clearBpuExp(null);
+// 				}
+// 			});
+// 		} else {
+// 			app.errors.experiment.push({
+// 				time: new Date(),
+// 				err:  bpuObj.doc.name + ' fn_clearBpuExp ' + 'has expOverId:' + bpuObj.getStatusResObj.expOverId + ' but status is ' + bpuObj.doc.status + '!=' + app.mainConfig.bpuStatusTypes.finalizingDone
+// 			});
+// 			cb_clearBpuExp(bpuObj.doc.name + ' fn_clearBpuExp ' + 'has expOverId:' + bpuObj.getStatusResObj.expOverId + ' but status is ' + bpuObj.doc.status + '!=' + app.mainConfig.bpuStatusTypes.finalizingDone);
+// 		}
+// 	} else {
+// 		cb_clearBpuExp(null);
+// 	}
+// };
+
+module.exports = Microscope;

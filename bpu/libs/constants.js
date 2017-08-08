@@ -13,7 +13,7 @@ module.exports.STATES = {
 };
 
 module.exports.EVENTS = {
-	CONNECT:        'connection',
+	CONNECT:        'connect',
 	DISCONNECT:     'disconnect',
 	RECONNECT:      'reconnect',
 	CLOSE:          'close',
@@ -24,7 +24,7 @@ module.exports.EVENTS = {
 	PACKET_RECEIVE: 'packetreceive'
 };
 
-module.exports.MESSAGE = {
+module.exports.MESSAGES = {
 	CONNECTED:         'connected',
 	STATUS:            'status',
 	EXPERIMENT_SET:    'experimentSet',

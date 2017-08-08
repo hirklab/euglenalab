@@ -3,6 +3,7 @@ var socketIo       = require('socket.io');
 var socketIoClient = require('socket.io-client');
 
 var config = require('../config');
+var logger = require('./logging');
 
 function _objectHasAuthKey(obj, key) {
     if (obj[key] !== null && obj[key] !== undefined &&
@@ -41,37 +42,37 @@ module.exports = function (app, callback) {
     });
 
     app.server.listen(config.SERVER_PORT, function () {
-        app.logger.info('socket server => http://' + config.SERVER_IP + ':' + config.SERVER_PORT);
+        logger.info('socket server => http://' + config.SERVER_IP + ':' + config.SERVER_PORT);
     });
 
     process.on('SIGTERM', function () {
-        app.logger.warn("shutting down server...");
+        logger.warn("shutting down server...");
         app.server.close();
-        app.logger.warn("server shutdown!");
+        logger.warn("server shutdown!");
         process.exit(1);
     });
 
     app.socketClientIo = socketIo(app.server);
 
     app.socketClientIo.on('connection', function (socket) {
-        app.logger.info('socketClientIo:' + 'connection:' + 'socketid:' + socket.id);
+        // logger.info('socketClientIo:' + 'connection:' + 'socketid:' + socket.id);
 
         app.clients.push(socket);
 
         socket.on('setConnection', function (serverInfo, cbfn_setConn) {
             _verifyServerSocketConnection(serverInfo, function (err) {
                 if (err) {
-                    app.logger.error(err);
+                    logger.error(err);
                     socket.disconnect();
                     socket.close();
                     cbfn_setConn(err, null);
                 } else {
                     if (app.Auth[serverInfo.Identifier].socketID !== null) {
-                        app.logger.warn('remove old socket for Auth');
+                        logger.warn('remove old socket for Auth');
                         if (app.clients.length > 0) {
                             app.clients.forEach(function (otherSocket) {
                                 if (otherSocket.id === app.Auth[serverInfo.Identifier].socketID) {
-                                    app.logger.warn('duplicate server info: disconnecting');
+                                    logger.warn('duplicate server info: disconnecting');
                                     otherSocket.disconnect();
                                 }
                             });
@@ -90,7 +91,7 @@ module.exports = function (app, callback) {
                     socket.on('getJoinQueueDataObj', function (serverInfo, cb) {
                         _verifyServerSocketConnection(serverInfo, function (err) {
                             if (err) {
-                                app.logger.error('getJoinQueueDataObj _verifyServerSocketConnection end err', err);
+                                logger.error('getJoinQueueDataObj _verifyServerSocketConnection end err', err);
                                 socket.disconnect();
                                 socket.close();
                                 socket = null;
@@ -115,7 +116,7 @@ module.exports = function (app, callback) {
                     socket.on(app.mainConfig.socketStrs.bpuCont_submitExperimentRequest, function (serverInfo, joinQueueDataArray, cb) {
                         _verifyServerSocketConnection(serverInfo, function (err) {
                             if (err) {
-                                app.logger.error('submitExperimentRequest _verifyServerSocketConnection end err', err);
+                                logger.error('submitExperimentRequest _verifyServerSocketConnection end err', err);
                                 socket.disconnect();
                                 socket.close();
                                 socket = null;

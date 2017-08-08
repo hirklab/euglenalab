@@ -5,6 +5,7 @@ var mongoose       = require('mongoose');
 var path           = require('path');
 
 var config = require('./config');
+var logger = require('./libs/logging');
 
 var filename = path.basename(__filename);
 
@@ -68,30 +69,26 @@ var app = {
     }
 };
 
-var setupLogger = function (callback) {
-    require('./libs/logging')(app);
-    callback(null);
-};
 
 var setupMongoose = function (callback) {
-    app.logger.debug('setting database...');
+    logger.debug('setting database...');
     require('./libs/database')(app, callback);
 };
 
 var setupSocketClientServer = function (callback) {
-    app.logger.debug('setting socket server...');
+    logger.debug('setting socket server...');
     require('./libs/socketServer')(app, callback);
 };
 
 var getExperiments = function (callback) {
-    app.logger.debug('fetching experiments...');
+    logger.debug('fetching experiments...');
 
     app.db.getExperiments(function (err, experiments) {
         if (err) {
-            app.logger.error(err);
+            logger.error(err);
             callback(err);
         } else {
-            app.logger.debug('got experiments');
+            logger.debug('got experiments');
 
             app.experiments = experiments;
             callback(null);
@@ -101,16 +98,15 @@ var getExperiments = function (callback) {
 
 var init = function (callback) {
     async.series([
-        setupLogger,
         setupMongoose,
         setupSocketClientServer,
         getExperiments
     ], function (err) {
         if (err) {
-            app.logger.error(err);
+            logger.error(err);
             callback(err);
         } else {
-            app.logger.info('app initialized');
+            logger.info('app initialized');
             callback(null);
         }
     });
@@ -120,7 +116,7 @@ var loop = function () {
     app.utils.clearConsole();
     app.startDate = new Date();
 
-    var microscopeUtils = require('./libs/microscope')(app);
+    var microscopeUtils = require('./libs/microscopeManager')(app);
     var experimentUtils = require('./libs/experiment')(app);
 
     async.series([
@@ -133,7 +129,7 @@ var loop = function () {
         experimentUtils.notifyClients
     ], function (err) {
         if (err) {
-            app.logger.error(err);
+            logger.error(err);
         } else {
             setTimeout(function () {
                 loop();
@@ -144,7 +140,7 @@ var loop = function () {
 
 init(function (err) {
     if (err) {
-        app.logger.error(err);
+        logger.error(err);
     } else {
         loop();
     }
