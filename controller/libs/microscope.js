@@ -27,16 +27,34 @@ function Microscope(config) {
 	this.queueTime     = 0;
 	this.messages      = [];
 	this.isConnected   = false;
+
+	var that = this;
+
+	that.connect(function (err) {
+		if (err) {
+			logger.error(err);
+		}
+	});
+
+	// setInterval(function(){
+	// 	that.check(function(err){
+	// 		if (err) {
+	// 			logger.error(err);
+	// 		}
+	// 	});
+	// }, config.LOOP_INTERVAL);
 }
 
 Microscope.prototype.cleanup = function (timeout) {
-	this.socket.disconnect();
-	this.socket = null;
+	var that = this;
 
-	this.isConnected = false;
+	// this.socket.disconnect();
+	// this.socket = null;
+
+	that.isConnected = false;
 
 	if (timeout) {
-		this.inactiveCount = 0;
+		that.inactiveCount = 0;
 	}
 }
 
@@ -44,7 +62,7 @@ Microscope.prototype.connect = function (callback) {
 	var that = this;
 
 	// new connection to BPU
-	if (that.socket === null) {
+	if (that.socket == null) {
 		that.socket = socketIOClient('http://' + that.doc.localAddr.ip + ':' + that.doc.localAddr.serverPort, {
 			multiplex:    false,
 			reconnection: true
@@ -52,6 +70,7 @@ Microscope.prototype.connect = function (callback) {
 
 		that.socket.on(EVENTS.CONNECT, function () {
 			logger.info('connected to microscope at ' + that.address);
+			that.sendMessage(MESSAGES.STATUS, null);
 		});
 
 		that.socket.on(EVENTS.DISCONNECT, function (msg) {
@@ -65,7 +84,7 @@ Microscope.prototype.connect = function (callback) {
 
 				logger.debug('====================================');
 				logger.debug('[RX] ' + that.doc.name + ': ' + type);
-				if(payload) logger.debug(payload);
+				if (payload) logger.debug(payload);
 
 				switch (type) {
 					case MESSAGES.CONNECTED:
@@ -148,30 +167,16 @@ Microscope.prototype.check = function (callback) {
 	that.messages = [];
 
 	//Check Socket Connnection
-	that.messages.push({
-		isErr: false,
-		time:  new Date().getTime(),
-		msg:   'Connected:\t' + (that.isConnected)
-	});
-
-	that.messages.push({
-		isErr: false,
-		time:  new Date().getTime(),
-		msg:   'Timeout:\t' + that.inactiveCount
-	});
-
 	that.connect(function (err) {
+		if (err) {
+			logger.error(err);
+		}
+
 		if (!didCallback) {
 			if (err) {
 				didCallback = true;
 
 				that.inactiveCount++;
-				that.messages.push({
-					isErr: true,
-					time:  new Date().getTime(),
-					msg:   'connectMicroscope ' + err
-				});
-
 				that.doc.status = STATES.OFFLINE;
 
 				return callback(null);
@@ -182,30 +187,25 @@ Microscope.prototype.check = function (callback) {
 				that.inactiveCount++;
 				that.doc.status = STATES.OFFLINE;
 
-				that.messages.push({
-					isErr: true,
-					time:  new Date().getTime(),
-					msg:   'Connection:\toffline'
-				});
-
 				return callback(null);
 			} else {
 				didCallback = true;
 
 				//Get Status
-				that.sendMessage(MESSAGES.STATUS, null); //socket get status
+				that.sendMessage(MESSAGES.STATUS, null);
 				return callback(null);
 			}
 		}
 	});
 };
 
-Microscope.prototype.onConnected = function(payload){}
+Microscope.prototype.onConnected = function (payload) {
+}
 
-Microscope.prototype.onStatus = function(payload){
+Microscope.prototype.onStatus = function (payload) {
 	var that = this;
 
-	if(!that.isConnected){
+	if (!that.isConnected) {
 		that.isConnected = true;
 	}
 }
@@ -355,7 +355,7 @@ Microscope.prototype.sendMessage = function (type, payload) {
 	newMessage.payload = payload;
 
 	logger.debug('[TX -> M]: ' + this.name + ': ' + type);
-	if(payload) logger.debug(payload);
+	if (payload) logger.debug(payload);
 
 	this.socket.emit(EVENTS.MESSAGE, newMessage);
 }

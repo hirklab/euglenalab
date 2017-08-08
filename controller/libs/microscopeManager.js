@@ -51,32 +51,22 @@ module.exports = function (app) {
 			});
 
 			keys.forEach(function (key) {
-				parallel.push(app.microscopesIndex[key].check.bind(app.microscopesIndex[key]));
-			});
+				var microscope = app.microscopesIndex[key];
+				logger.info(microscope.doc.name + '(' + microscope.address + ')');
 
-			async.parallel(parallel, function (err) {
-				keys.forEach(function (key) {
-					logger.info(app.microscopesIndex[key].doc.name + '(' + app.microscopesIndex[key].address + ')');
-
-					app.microscopesIndex[key].messages.sort(function (objA, objB) {
-						return objA.time - objB.time;
-					});
-
-					app.microscopesIndex[key].messages.forEach(function (msgObj) {
-						if (msgObj.isErr) {
-							logger.error('\t' + msgObj.msg);
-						} else {
-							logger.info('\t' + msgObj.msg);
-						}
-					});
-				});
-
-				if (err) {
-					logger.error(err);
+				if (microscope.isConnected) {
+					logger.info('\tConnected:\t' + microscope.isConnected);
+					// logger.info('\tTimeout:\t' + microscope.inactiveCount);
+				}
+				else {
+					logger.error('\tConnected:\t' + microscope.isConnected);
+					// logger.error('\tTimeout:\t' + microscope.inactiveCount);
 				}
 
-				return callback(null);
 			});
+
+			return callback(null);
+
 		},
 	}
 };
