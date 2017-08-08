@@ -701,12 +701,10 @@
         app.mainView.gameInstructionText = 'There was an error in your code.';
         app.mainView.gameErrorMessage = 'There was an error in your code.';
         // TODO(PW): Find out why 'err' is not always accessible (race condition somewhere probably).
-        app.mainView.gameErrorMessage = err.message;
-        app.mainView.gameInstructionText = err.message;
-        //try {
-          //app.mainView.gameErrorMessage = err.message;
-          //app.mainView.gameInstructionText = err.message;
-        //} catch (err2) {}
+        try {
+          app.mainView.gameErrorMessage = err.message;
+          app.mainView.gameInstructionText = err.message;
+        } catch (err2) {}
         $('#btnUpdateRun').prop("disabled", false);
         $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
         $('#instructionText').css('color', 'red');
