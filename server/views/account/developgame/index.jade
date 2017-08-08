@@ -400,7 +400,7 @@ block body
         div#apiCalls
           font(color="green") 
             h2 EuglenaScript API Calls
-            a(href="https://www.w3schools.com/jsref/", target="_blank") Here
+            a(href="https://www.w3schools.com/jsref/", target="_blank", style="color:blue") Here
             |&nbsp;is a good JavaScript reference.
             br
             br
@@ -429,7 +429,7 @@ block body
 
               b drawCircle
               |(
-              i xCenter, yCenter, radius, R, G, B
+              i xCenter, yCenter, radius, color
               |)
               br
               |Input(s):
@@ -443,18 +443,12 @@ block body
               i radius
               |, a number
               br
-              i R
-              |, a number between 0 and 255
+              i color
+              |, one of COLORS.RED, COLORS.BLUE, COLORS.GREEN, COLORS.BLACK, COLORS.WHITE, COLORS.PURPLE, COLORS.YELLOW, or COLORS.ORANGE.
               br
-              i G
-              |, a number between 0 and 255
+              |Draw circle with center (xCenter, yCenter) with radius and specified color. This function must be called in the run() event handler.
               br
-              i B
-              |, a number between 0 and 255
-              br
-              |Draw circle with center (xCenter, yCenter) with radius and color (R, G, B). This function must be called in the run() event handler.
-              br
-              i Example: drawCircle(200, 200, 30, 0, 0, 255);
+              i Example: drawCircle(200, 200, 30, COLORS.RED);
 
               br
               br
@@ -478,18 +472,12 @@ block body
               i y2
               |, a number between 0 and MAX_SCREEN_WIDTH
               br
-              i R
-              |, a number between 0 and 255
+              i color
+              |, one of COLORS.RED, COLORS.BLUE, COLORS.GREEN, COLORS.BLACK, COLORS.WHITE, COLORS.PURPLE, COLORS.YELLOW, or COLORS.ORANGE.
               br
-              i G
-              |, a number between 0 and 255
+              |Draw line from (x1,y1) to (x2,y2) with specified color. This function must be called in the run() event handler.
               br
-              i B
-              |, a number between 0 and 255
-              br
-              |Draw line from (x1,y1) to (x2,y2) with color (R, G, B). This function must be called in the run() event handler.
-              br
-              i Example: drawLine(20, 20, 50, 50, 0, 255, 0);
+              i Example: drawLine(20, 20, 50, 50, COLORS.GREEN);
 
               br
               br
@@ -513,18 +501,12 @@ block body
               i lowerRightY
               |, a number between 0 and MAX_SCREEN_HEIGHT
               br
-              i R
-              |, a number between 0 and 255
+              i color
+              |, one of COLORS.RED, COLORS.BLUE, COLORS.GREEN, COLORS.BLACK, COLORS.WHITE, COLORS.PURPLE, COLORS.YELLOW, or COLORS.ORANGE.
               br
-              i G
-              |, a number between 0 and 255
+              |Draw a virtual rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordinate (lowerRightX, lowerRightY) wand the specified color. This function must be called in the run() event handler.
               br
-              i B
-              |, a number between 0 and 255
-              br
-              |Draw a virtual rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordinate (lowerRightX, lowerRightY) with the color (R, G, B). This function must be called in the run() event handler.
-              br
-              i Example: drawRect(20, 20, MAX_SCREEN_WIDTH-20, MAX_SCREEN_HEIGHT-20, 100, 255, 10, 100);
+              i Example: drawRect(20, 20, MAX_SCREEN_WIDTH-20, MAX_SCREEN_HEIGHT-20, 100, COLORS.ORANGE);
 
               br
               br
@@ -548,18 +530,12 @@ block body
               i size
               |, a number between 0 and MAX_TEXT_SIZE
               br
-              i R
-              |, a number between 0 and 255
+              i color
+              |, one of COLORS.RED, COLORS.BLUE, COLORS.GREEN, COLORS.BLACK, COLORS.WHITE, COLORS.PURPLE, COLORS.YELLOW, or COLORS.ORANGE.
               br
-              i G
-              |, a number between 0 and 255
+              |Draw text as position (xPos, yPos) with the specified color. This function must be called in the run() event handler.
               br
-              i B
-              |, a number between 0 and 255
-              br
-              |Draw text as position (xPos, yPos) with the color (R, G, B). This function must be called in the run() event handler.
-              br
-              i Example: drawText("Hello, world!", MAX_SCREEN_WIDTH/2, 200, 0.5*MAX_TEXT_SIZE, 255, 0, 0);
+              i Example: drawText("Hello, world!", MAX_SCREEN_WIDTH/2, 200, 0.5*MAX_TEXT_SIZE, COLORS.ORANGE);
 
             br
             br
@@ -853,6 +829,8 @@ block body
               |MAX_SCREEN_WIDTH: The maximum screen width of the microscope video view.
               br
               |MAX_SCREEN_HEIGHT: The maximum screen height of the microscope video view.
+              br
+              |The valid colors are COLORS.RED, COLORS.BLUE, COLORS.GREEN, COLORS.BLACK, COLORS.WHITE, COLORS.PURPLE, COLORS.YELLOW, and COLORS.ORANGE.
 
 
             
