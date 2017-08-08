@@ -214,75 +214,99 @@
         });
     });
 
-    $('#btnShowAPI').click(function() {
-      if (app.mainView.isAPIshowing) {
-        $('#btnShowAPI').html('Show API');
-        $('#apiCalls').hide();
-        app.mainView.isAPIshowing = false;
-        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
-                                                    logTimestamp: Date.now().toString(),
-                                                    logText: "User " + app.mainView.userName + " hiding API ----- \n" } )
-        .done(function(data) {
-          //console.log( "Data Loaded log user data: " + data);
-        });
-      } else {
-        $('#btnShowAPI').html('Hide API');
-        $('#apiCalls').show();
-        app.mainView.isAPIshowing = true;
-        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
-                                                    logTimestamp: Date.now().toString(),
-                                                    logText: "User " + app.mainView.userName + " showing API ----- \n" } )
-        .done(function(data) {
-          //console.log( "Data Loaded log user data: " + data);
-        });
-      }
-    });
-
     $('#drawingFunctionsButton').click(function() {
       if ($('#drawingFunctionsButton').text() === "Show drawing functions") {
         $('#drawingFunctionsButton').html("Hide drawing functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " hiding drawing functions ----- \n" } )
+        .done(function(data) {});
       } else {
         $('#drawingFunctionsButton').html("Show drawing functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " showing drawing functions ----- \n" } )
+        .done(function(data) {});
       }
     });
 
     $('#trackingFunctionsButton').click(function() {
       if ($('#trackingFunctionsButton').text() === "Show Euglena tracking functions") {
         $('#trackingFunctionsButton').html("Hide Euglena tracking functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " hiding Euglena tracking functions ----- \n" } )
+        .done(function(data) {});
       } else {
         $('#trackingFunctionsButton').html("Show Euglena tracking functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " showing Euglena tracking functions ----- \n" } )
+        .done(function(data) {});
       }
     });
 
     $('#programControlFunctionsButton').click(function() {
       if ($('#programControlFunctionsButton').text() === "Show program control functions") {
         $('#programControlFunctionsButton').html("Hide program control functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " hiding program control functions ----- \n" } )
+        .done(function(data) {});
       } else {
         $('#programControlFunctionsButton').html("Show program control functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " showing program control functions ----- \n" } )
+        .done(function(data) {});
       }
     });
 
     $('#euglenaControlFunctionsButton').click(function() {
       if ($('#euglenaControlFunctionsButton').text() === "Show Euglena control functions") {
         $('#euglenaControlFunctionsButton').html("Hide Euglena control functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " hiding Euglena control functions ----- \n" } )
+        .done(function(data) {});
       } else {
         $('#euglenaControlFunctionsButton').html("Show Euglena control functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " showing Euglena control functions ----- \n" } )
+        .done(function(data) {});
       }
     });
 
     $('#fileFunctionsButton').click(function() {
       if ($('#fileFunctionsButton').text() === "Show file functions") {
         $('#fileFunctionsButton').html("Hide file functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " hiding file functions ----- \n" } )
+        .done(function(data) {});
       } else {
         $('#fileFunctionsButton').html("Show file functions");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " showing file functions ----- \n" } )
+        .done(function(data) {});
       }
     });
 
     $('#showConstantsButton').click(function() {
       if ($('#showConstantsButton').text() === "Show constants") {
         $('#showConstantsButton').html("Hide constants");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " hiding constants ----- \n" } )
+        .done(function(data) {});
       } else {
         $('#showConstantsButton').html("Show constants");
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " showing constants ----- \n" } )
+        .done(function(data) {});
       }
     });
 

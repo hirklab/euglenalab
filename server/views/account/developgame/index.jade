@@ -397,13 +397,6 @@ block body
         canvas(id="display", width="640", height="480", hidden="true")
         canvas(id="processed", width="640", height="480")
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}
-        button.btn.btn-primary#btnShowAPI(type="save", value="save") Hide API
-        //- h2
-        //-   |Status 
-        //-   code(id="statusField")
-        //-     |Loading...
-        br
-        br
         div#apiCalls
           font(color="green") 
             h2 EuglenaScript API Calls
