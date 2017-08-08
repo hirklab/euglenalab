@@ -53,6 +53,9 @@
         onCursorActivity: function() {
           app.mainView.codeVariablesEditor.setLineClass(hlLine, null, null);
           hlLine = app.mainView.codeVariablesEditor.setLineClass(app.mainView.codeVariablesEditor.getCursor().line, null, "activeline");
+        },
+        onChange: function() {
+          $('#savedStatus').html("Unsaved Program");
         }
     });
     var hlLine = app.mainView.codeVariablesEditor.setLineClass(0, "activeline");
@@ -65,6 +68,9 @@
         onCursorActivity: function() {
           app.mainView.runEditor.setLineClass(hlLineRun, null, null);
           hlLineRun = app.mainView.runEditor.setLineClass(app.mainView.runEditor.getCursor().line, null, "activeline");
+        },
+        onChange: function() {
+          $('#savedStatus').html("Unsaved Program");
         }
     });
     var hlLineRun = app.mainView.runEditor.setLineClass(0, "activeline");
@@ -77,6 +83,9 @@
         onCursorActivity: function() {
           app.mainView.startEditor.setLineClass(hlLineStart, null, null);
           hlLineStart = app.mainView.startEditor.setLineClass(app.mainView.startEditor.getCursor().line, null, "activeline");
+        },
+        onChange: function() {
+          $('#savedStatus').html("Unsaved Program");
         }
     });
     var hlLineStart = app.mainView.startEditor.setLineClass(0, "activeline");
@@ -89,6 +98,9 @@
         onCursorActivity: function() {
           app.mainView.endEditor.setLineClass(hlLineEnd, null, null);
           hlLineEnd = app.mainView.endEditor.setLineClass(app.mainView.endEditor.getCursor().line, null, "activeline");
+        },
+        onChange: function() {
+          $('#savedStatus').html("Unsaved Program");
         }
     });
     var hlLineEnd = app.mainView.endEditor.setLineClass(0, "activeline");
@@ -101,6 +113,9 @@
         onCursorActivity: function() {
           app.mainView.joystickEditor.setLineClass(hlLineJoystick, null, null);
           hlLineJoystick = app.mainView.joystickEditor.setLineClass(app.mainView.joystickEditor.getCursor().line, null, "activeline");
+        },
+        onChange: function() {
+          $('#savedStatus').html("Unsaved Program");
         }
     });
     var hlLineJoystick = app.mainView.joystickEditor.setLineClass(0, "activeline");
@@ -113,6 +128,9 @@
         onCursorActivity: function() {
           app.mainView.keypressEditor.setLineClass(hlLineKeypress, null, null);
           hlLineKeypress = app.mainView.keypressEditor.setLineClass(app.mainView.keypressEditor.getCursor().line, null, "activeline");
+        },
+        onChange: function() {
+          $('#savedStatus').html("Unsaved Program");
         }
     });
     var hlLineKeypress = app.mainView.keypressEditor.setLineClass(0, "activeline");
@@ -153,6 +171,7 @@
                                                  fileName: gameName } )
         .done(function(data) {
           //console.log( "Data Loaded savefile: " + data);
+          $('#savedStatus').html("Program Saved");
           $('#loadedProgramTxt').html("Loaded Program: " + gameName);
         });
 
@@ -338,7 +357,7 @@
         .done(function(data) {
           //console.log( "Data Loaded savefile: " + data);
           $('#loadedProgramTxt').html("Loaded Program: " + gameName);
-          //$('#saveGameModal').modal('toggle');
+          $('#savedStatus').html("Program Saved");
           alert('Game saved as: ' + gameName);
         });
 
