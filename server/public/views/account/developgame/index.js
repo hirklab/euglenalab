@@ -6,6 +6,8 @@
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
+    //alert("JS HINT::: " + JSHINT(["'use strict';", "console.log('hello, world!');"]));
+
     var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     if (!isChrome) {
       alert('This feature only works on Google Chrome!!! Navigating back to homepage.');
@@ -699,26 +701,28 @@
         app.mainView.gameInstructionText = 'There was an error in your code.';
         app.mainView.gameErrorMessage = 'There was an error in your code.';
         // TODO(PW): Find out why 'err' is not always accessible (race condition somewhere probably).
-        try {
-          app.mainView.gameErrorMessage = err.message;
-          app.mainView.gameInstructionText = err.message;
-        } catch (err2) {}
-          $('#btnUpdateRun').prop("disabled", false);
-          $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
-          $('#instructionText').css('color', 'red');
-          app.mainView.gameInSession = false;
-          app.mainView.codeEditorReadOnly = false;
-          app.mainView.codeVariablesEditor.setOption("readOnly", false);
-          app.mainView.runEditor.setOption("readOnly", false);
-          app.mainView.startEditor.setOption("readOnly", false);
-          app.mainView.endEditor.setOption("readOnly", false);
-          app.mainView.joystickEditor.setOption("readOnly", false);
-          app.mainView.keypressEditor.setOption("readOnly", false);
-          return;
+        app.mainView.gameErrorMessage = err.message;
+        app.mainView.gameInstructionText = err.message;
+        //try {
+          //app.mainView.gameErrorMessage = err.message;
+          //app.mainView.gameInstructionText = err.message;
+        //} catch (err2) {}
+        $('#btnUpdateRun').prop("disabled", false);
+        $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
+        $('#instructionText').css('color', 'red');
+        app.mainView.gameInSession = false;
+        app.mainView.codeEditorReadOnly = false;
+        app.mainView.codeVariablesEditor.setOption("readOnly", false);
+        app.mainView.runEditor.setOption("readOnly", false);
+        app.mainView.startEditor.setOption("readOnly", false);
+        app.mainView.endEditor.setOption("readOnly", false);
+        app.mainView.joystickEditor.setOption("readOnly", false);
+        app.mainView.keypressEditor.setOption("readOnly", false);
+        return;
       }
 
-      $('#instructionText').text(app.mainView.gameInstructionText);
-      $('#instructionText').css('color', 'black');
+      // $('#instructionText').text(app.mainView.gameInstructionText);
+      // $('#instructionText').css('color', 'black');
       
     },
     parseGlobalVariables: function(runCode) {
