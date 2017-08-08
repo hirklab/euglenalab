@@ -204,8 +204,6 @@ block body
     div.row
       div.col-xs-7#codeDiv
         h2#loadedProgramTxt Loaded Program: guessLedGame.peter
-        h1
-          font#txtSandboxMode(color='red') SANDBOX MODE
         font(color='purple')
           |function&nbsp;
         |BioticProgram() {
@@ -224,6 +222,40 @@ block body
                 |this.score = 1;
         br
 
+        font(color='green')
+          |&nbsp;&nbsp;&nbsp;&nbsp;/*
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the "Run Program" button is pressed.
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+        br
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        font(color='#0F6BA0')
+          |this
+        |.startProgram = 
+        font(color='purple')
+          |function
+        |() {
+        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        div.row
+          div.col-xs-1
+          div.col-xs-11
+            textarea.codeArea#txtCodeStart
+              |setJoystickView(false);
+              |var instructionText = "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!";
+              |setInstructionText(instructionText);
+        |&nbsp;&nbsp;&nbsp;&nbsp;};
+        br
+        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        br
+
+        font(color='green')
+          |&nbsp;&nbsp;&nbsp;&nbsp;/*
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is the main update loop and is called approximately every millisecond.
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+        br
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='#0F6BA0')
           |this
@@ -231,7 +263,6 @@ block body
         font(color='purple')
           |function
         |() {
-        br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
           div.col-xs-1
@@ -241,34 +272,18 @@ block body
               |if (this.score >= 10) {
               |&nbsp;&nbsp;&nbsp;&nbsp;endProgram();
               |}
-        br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         br
 
-        |&nbsp;&nbsp;&nbsp;&nbsp;
-        font(color='#0F6BA0')
-          |this
-        |.startProgram = 
-        font(color='purple')
-          |function
-        |() {
+        font(color='green')
+          |&nbsp;&nbsp;&nbsp;&nbsp;/*
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the "Stop Program" button is pressed.
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
         br
-        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        div.row
-          div.col-xs-1
-          div.col-xs-11
-            textarea.codeArea#txtCodeStart
-              |setJoystickView(false);
-              |var instructionText = "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!";
-              |setInstructionText(instructionText);
-        br
-        |&nbsp;&nbsp;&nbsp;&nbsp;};
-        br
-        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        br
-
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='#0F6BA0')
           |this
@@ -276,7 +291,6 @@ block body
         font(color='purple')
           |function
         |() {
-        br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
           div.col-xs-1
@@ -284,12 +298,20 @@ block body
             textarea.codeArea#txtCodeEnd
               |setJoystickView(true);
               |if (this.score >= 10) alert('Guess correctly 10 times, congrats!');
-        br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         br
 
+        font(color='green')
+          |&nbsp;&nbsp;&nbsp;&nbsp;/*
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the user moves the joystick.
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* The angle is between 0 and 360 and the 'intensity' variable is between 0.0 and 1.0.
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+        br
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='#0F6BA0')
           |this
@@ -300,7 +322,6 @@ block body
         font(color='blue')
           |angle, intensity
         |) {
-        br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
           div.col-xs-1
@@ -318,12 +339,18 @@ block body
               |&nbsp;&nbsp;&nbsp;&nbsp;angle < 45 && angle >= 0) {
               |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.LEFT, ledIntensity);
               |} 
-        br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         br
 
+        font(color='green')
+          |&nbsp;&nbsp;&nbsp;&nbsp;/*
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is fired whenever the user presses a key on the keyboard.
+          br
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+        br
         |&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='#0F6BA0')
           |this
@@ -334,7 +361,6 @@ block body
         font(color='blue')
           |key
         |) {
-        br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
           div.col-xs-1
@@ -380,7 +406,6 @@ block body
               |&nbsp;&nbsp;&nbsp;&nbsp;default:
               |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
               |}
-        br
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
