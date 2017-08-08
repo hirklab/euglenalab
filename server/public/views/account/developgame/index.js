@@ -336,6 +336,7 @@
         .done(function(data) {
           //console.log( "Data Loaded savefile: " + data);
           $('#loadedProgramTxt').html("Loaded Program: " + gameName);
+          //$('#saveGameModal').modal('toggle');
           alert('Game saved as: ' + gameName);
         });
 
@@ -370,6 +371,7 @@
                                                         logText: "User " + app.mainView.userName + " loaded program " + gameName + "----- \n" } )
             .done(function(data) {
               //console.log( "Data Loaded log user data: " + data);
+              $('#loadGameModal').modal('toggle');
               $('#loadedProgramTxt').html("Loaded Program: " + gameName);
             });
         });
