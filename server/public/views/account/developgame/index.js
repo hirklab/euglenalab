@@ -12,10 +12,6 @@
     if (!isChrome) {
       alert('This feature only works on Google Chrome!!! Navigating back to homepage.');
       location.href = '/account/';
-    } 
-
-    window.onbeforeunload = function() {
-      return "Dude, are you sure you want to leave? Think of the kittens!";
     }
 
     var myVar = setInterval(app.mainView.runLoop, 1);
@@ -32,7 +28,7 @@
       else if (e.which) code = e.which;
       var character = String.fromCharCode(code);
 
-      console.log(e.ctrlKey);
+      //console.log(e.ctrlKey);
       app.mainView.previousKey = character;
 
       if (!app.mainView.gameInSession) {
@@ -239,6 +235,54 @@
         .done(function(data) {
           //console.log( "Data Loaded log user data: " + data);
         });
+      }
+    });
+
+    $('#drawingFunctionsButton').click(function() {
+      if ($('#drawingFunctionsButton').text() === "Show drawing functions") {
+        $('#drawingFunctionsButton').html("Hide drawing functions");
+      } else {
+        $('#drawingFunctionsButton').html("Show drawing functions");
+      }
+    });
+
+    $('#trackingFunctionsButton').click(function() {
+      if ($('#trackingFunctionsButton').text() === "Show Euglena tracking functions") {
+        $('#trackingFunctionsButton').html("Hide Euglena tracking functions");
+      } else {
+        $('#trackingFunctionsButton').html("Show Euglena tracking functions");
+      }
+    });
+
+    $('#programControlFunctionsButton').click(function() {
+      if ($('#programControlFunctionsButton').text() === "Show program control functions") {
+        $('#programControlFunctionsButton').html("Hide program control functions");
+      } else {
+        $('#programControlFunctionsButton').html("Show program control functions");
+      }
+    });
+
+    $('#euglenaControlFunctionsButton').click(function() {
+      if ($('#euglenaControlFunctionsButton').text() === "Show Euglena control functions") {
+        $('#euglenaControlFunctionsButton').html("Hide Euglena control functions");
+      } else {
+        $('#euglenaControlFunctionsButton').html("Show Euglena control functions");
+      }
+    });
+
+    $('#fileFunctionsButton').click(function() {
+      if ($('#fileFunctionsButton').text() === "Show file functions") {
+        $('#fileFunctionsButton').html("Hide file functions");
+      } else {
+        $('#fileFunctionsButton').html("Show file functions");
+      }
+    });
+
+    $('#showConstantsButton').click(function() {
+      if ($('#showConstantsButton').text() === "Show constants") {
+        $('#showConstantsButton').html("Hide constants");
+      } else {
+        $('#showConstantsButton').html("Show constants");
       }
     });
 

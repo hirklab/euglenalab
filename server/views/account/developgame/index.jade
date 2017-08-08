@@ -411,432 +411,455 @@ block body
             |&nbsp;is a good JavaScript reference.
             br
             br
-            u Methods:
-            br
-            br
-            b drawOnTrackedEuglena
-            |(
-            i isDrawing
-            |)
-            br
-            |Input(s):
-            br
-            i isDrawing
-            |, a boolean
-            br
-            |Toggle whether the currently tracked Euglena have a virtual object drawn over them.
-            br
-            i Example: drawOnTrackedEuglena(true);
+
+            button#drawingFunctionsButton(type="button" class="btn btn-primary" data-toggle="collapse" data-target="#drawingFunctions") Show drawing functions
+            div#drawingFunctions.collapse
+
+              br
+
+              b drawOnTrackedEuglena
+              |(
+              i isDrawing
+              |)
+              br
+              |Input(s):
+              br
+              i isDrawing
+              |, a boolean
+              br
+              |Toggle whether the currently tracked Euglena have a virtual object drawn over them.
+              br
+              i Example: drawOnTrackedEuglena(true);
+
+              br
+              br
+
+              b drawCircle
+              |(
+              i xCenter, yCenter, radius, R, G, B
+              |)
+              br
+              |Input(s):
+              br
+              i xCenter
+              |, a number between 0 and MAX_SCREEN_HEIGHT
+              br
+              i yCenter
+              |, a number between 0 and MAX_SCREEN_WIDTH
+              br
+              i radius
+              |, a number
+              br
+              i R
+              |, a number between 0 and 255
+              br
+              i G
+              |, a number between 0 and 255
+              br
+              i B
+              |, a number between 0 and 255
+              br
+              |Draw circle with center (xCenter, yCenter) with radius and color (R, G, B). This function must be called in the run() event handler.
+              br
+              i Example: drawCircle(200, 200, 30, 0, 0, 255);
+
+              br
+              br
+
+              b drawLine
+              |(
+              i x1, y1, x2, y2, radius, R, G, B
+              |)
+              br
+              |Input(s):
+              br
+              i x1
+              |, a number between 0 and MAX_SCREEN_HEIGHT
+              br
+              i y1
+              |, a number between 0 and MAX_SCREEN_WIDTH
+              br
+              i x2
+              |, a number between 0 and MAX_SCREEN_HEIGHT
+              br
+              i y2
+              |, a number between 0 and MAX_SCREEN_WIDTH
+              br
+              i R
+              |, a number between 0 and 255
+              br
+              i G
+              |, a number between 0 and 255
+              br
+              i B
+              |, a number between 0 and 255
+              br
+              |Draw line from (x1,y1) to (x2,y2) with color (R, G, B). This function must be called in the run() event handler.
+              br
+              i Example: drawLine(20, 20, 50, 50, 0, 255, 0);
+
+              br
+              br
+
+              b drawRect
+              |(
+              i upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B
+              |)
+              br
+              |Input(s):
+              br
+              i upperLeftX
+              |, a number between 0 and MAX_SCREEN_WIDTH
+              br
+              i upperLeftY
+              |, a number between 0 and MAX_SCREEN_HEIGHT
+              br
+              i lowerRightX
+              |, a number between 0 and MAX_SCREEN_WIDTH
+              br
+              i lowerRightY
+              |, a number between 0 and MAX_SCREEN_HEIGHT
+              br
+              i R
+              |, a number between 0 and 255
+              br
+              i G
+              |, a number between 0 and 255
+              br
+              i B
+              |, a number between 0 and 255
+              br
+              |Draw a virtual rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordinate (lowerRightX, lowerRightY) with the color (R, G, B). This function must be called in the run() event handler.
+              br
+              i Example: drawRect(20, 20, MAX_SCREEN_WIDTH-20, MAX_SCREEN_HEIGHT-20, 100, 255, 10, 100);
+
+              br
+              br
+
+              b drawText
+              |(
+              i text, xPos, yPos, size, R, G, B
+              |)
+              br
+              |Input(s):
+              br
+              i text
+              |, a string
+              br
+              i xPos
+              |, a number between 0 and MAX_SCREEN_WIDTH
+              br
+              i yPos
+              |, a number between 0 and MAX_SCREEN_HEIGHT
+              br
+              i size
+              |, a number between 0 and MAX_TEXT_SIZE
+              br
+              i R
+              |, a number between 0 and 255
+              br
+              i G
+              |, a number between 0 and 255
+              br
+              i B
+              |, a number between 0 and 255
+              br
+              |Draw text as position (xPos, yPos) with the color (R, G, B). This function must be called in the run() event handler.
+              br
+              i Example: drawText("Hello, world!", MAX_SCREEN_WIDTH/2, 200, 0.5*MAX_TEXT_SIZE, 255, 0, 0);
 
             br
             br
 
-            b drawCircle
-            |(
-            i xCenter, yCenter, radius, R, G, B
-            |)
-            br
-            |Input(s):
-            br
-            i xCenter
-            |, a number between 0 and MAX_SCREEN_HEIGHT
-            br
-            i yCenter
-            |, a number between 0 and MAX_SCREEN_WIDTH
-            br
-            i radius
-            |, a number
-            br
-            i R
-            |, a number between 0 and 255
-            br
-            i G
-            |, a number between 0 and 255
-            br
-            i B
-            |, a number between 0 and 255
-            br
-            |Draw circle with center (xCenter, yCenter) with radius and color (R, G, B). This function must be called in the run() event handler.
-            br
-            i Example: drawCircle(200, 200, 30, 0, 0, 255);
+            button#trackingFunctionsButton(type="button" class="btn btn-primary" data-toggle="collapse" data-target="#trackingFunctions") Show Euglena tracking functions
+            div#trackingFunctions.collapse
+
+              br
+
+              b getAllEuglenaIDs
+              |()
+              br
+              |Return an array of all of the currently tracked Euglena IDs.
+              br
+              |Returns: an array of integers
+              br
+              i Example: var euglenaIDs = getAllEuglenaIDs();
+
+              br
+              br
+
+              b getAllEuglenaPositions
+              |()
+              br
+              |Return an array of objects that contain (x, y) coordinates of all tracked Euglena positions.
+              br
+              |Returns: an array of objects that contain the (x, y) coordinates
+              br
+              i Example: var euglenaPositions = getAllEuglenaPositions();
+
+              br
+              br
+
+              b getEuglenaCount
+              |()
+              br
+              |Get the total Euglena count.
+              br
+              |Returns: a number
+              br
+              i Example: getEuglenaCount();
+
+              br
+              br
+
+              b getEuglenaInRect
+              |(
+              i upperLeftX, upperLeftY, lowerRightX, lowerRightY
+              |)
+              br
+              |Input(s):
+              br
+              i upperLeftX
+              |, a number between 0 and MAX_SCREEN_WIDTH
+              br
+              i upperLeftY
+              |, a number between 0 and MAX_SCREEN_HEIGHT
+              br
+              i lowerRightX
+              |, a number between 0 and MAX_SCREEN_WIDTH
+              br
+              i lowerRightY
+              |, a number between 0 and MAX_SCREEN_HEIGHT
+              br
+              |Get the total Euglena count in the rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordiante (lowerRightX, lowerRightY).
+              br
+              |Returns: a number
+              br
+              i Example: var euglenaInRect = getEuglenaInRect(0, 0, 100, 100);
+
+              br
+              br
+
+              b getEuglenaAccelerationByID
+              |(
+              i id
+              |)
+              br
+              |Input(s):
+              br
+              i id
+              |, a number
+              br
+              |Get the acceleration (in microns per second squared) of the Euglena based on Euglena ID.
+              br
+              |Returns: a number
+              br
+              i Example: var euglenaAcceleration = getEuglenaAccelerationByID(20);
+
+              //- br
+              //- br
+
+              //- b getEuglenaPositionByID
+              //- |(
+              //- i id
+              //- |)
+              //- br
+              //- |Input(s):
+              //- br
+              //- i id
+              //- |, a number
+              //- br
+              //- |Get the position (in window coordinates) of the Euglena based on Euglena ID.
+              //- br
+              //- |Returns: a number
+              //- br
+              //- i Example: var euglenaPostion = getEuglenaPositionByID(0);
+
+              br
+              br
+
+              b getEuglenaRotationByID
+              |(
+              i id
+              |)
+              br
+              |Input(s):
+              br
+              i id
+              |, a number
+              br
+              |Get the rotation (in degrees) of the Euglena based on Euglena ID.
+              br
+              |Returns: a number
+              br
+              i Example: var euglenaRotation = getEuglenaRotationByID(1);
+
+              br
+              br
+
+              b getEuglenaVelocityByID
+              |(
+              i id
+              |)
+              br
+              |Input(s):
+              br
+              i id
+              |, a number
+              br
+              |Get the velocity (in microns per second) of the Euglena based on Euglena ID.
+              br
+              |Returns: a number
+              br
+              i Example: var euglenaVelocity = getEuglenaVelocityByID(100);
 
             br
             br
 
-            b drawLine
-            |(
-            i x1, y1, x2, y2, radius, R, G, B
-            |)
-            br
-            |Input(s):
-            br
-            i x1
-            |, a number between 0 and MAX_SCREEN_HEIGHT
-            br
-            i y1
-            |, a number between 0 and MAX_SCREEN_WIDTH
-            br
-            i x2
-            |, a number between 0 and MAX_SCREEN_HEIGHT
-            br
-            i y2
-            |, a number between 0 and MAX_SCREEN_WIDTH
-            br
-            i R
-            |, a number between 0 and 255
-            br
-            i G
-            |, a number between 0 and 255
-            br
-            i B
-            |, a number between 0 and 255
-            br
-            |Draw line from (x1,y1) to (x2,y2) with color (R, G, B). This function must be called in the run() event handler.
-            br
-            i Example: drawOLine(20, 20, 50, 50, 0, 255, 0);
+            button#programControlFunctionsButton(type="button" class="btn btn-primary" data-toggle="collapse" data-target="#programControlFunctions") Show program control functions
+            div#programControlFunctions.collapse
+
+              br
+
+              b endProgram
+              |()
+              br
+              |Ends the program.
+              br
+              i Example: endProgram();
+
+              br
+              br
+
+              b getTimeLeft
+              |()
+              br
+              |Get the time left in the session, in seconds.
+              br
+              |Returns: a number
+              br
+              i Example: var remainTime = getTimeLeft();
+
+              br
+              br
+
+              b setJoystickView
+              |(
+              i isOn
+              |)
+              br
+              |Input(s):
+              br
+              i isOn
+              |, a boolean
+              br
+              |Turn the joystick view on or off.
+              br
+              |Returns: a number
+              br
+              i Example: setJoystickView(true);
+
+              br
+              br
+
+              b setInstructionText
+              |(
+              i message
+              |)
+              br
+              |Input(s):
+              br
+              i message
+              |, a string
+              br
+              |Change the text in the "instructions" section of the screen.
+              br
+              i Example: setInstructionText("Hello!");
 
             br
             br
 
-            b drawRect
-            |(
-            i upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B
-            |)
-            br
-            |Input(s):
-            br
-            i upperLeftX
-            |, a number between 0 and MAX_SCREEN_WIDTH
-            br
-            i upperLeftY
-            |, a number between 0 and MAX_SCREEN_HEIGHT
-            br
-            i lowerRightX
-            |, a number between 0 and MAX_SCREEN_WIDTH
-            br
-            i lowerRightY
-            |, a number between 0 and MAX_SCREEN_HEIGHT
-            br
-            i R
-            |, a number between 0 and 255
-            br
-            i G
-            |, a number between 0 and 255
-            br
-            i B
-            |, a number between 0 and 255
-            br
-            |Draw a virtual rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordinate (lowerRightX, lowerRightY) with the color (R, G, B). This function must be called in the run() event handler.
-            br
-            i Example: drawRect(20, 20, MAX_SCREEN_WIDTH-20, MAX_SCREEN_HEIGHT-20, 100, 255, 10, 100);
+            button#euglenaControlFunctionsButton(type="button" class="btn btn-primary" data-toggle="collapse" data-target="#euglenaControlFunctions") Show Euglena control functions
+            div#euglenaControlFunctions.collapse
+
+              br
+
+              b setLED
+              |(
+              i led, intensity
+              |)
+              br
+              |Input(s):
+              br
+              i led
+              |, one of LED.RIGHT, LED.LEFT, LED.UP, and LED.DOWN
+              br
+              |Set led to the intensity between 0 (completely off) and MAX_LED_INTENSITY (completely on).
+              br
+              i Example: setLED(LED.RIGHT, 0.8*MAX_LED_INTENSITY);
 
             br
             br
 
-            b drawText
-            |(
-            i text, xPos, yPos, size, R, G, B
-            |)
-            br
-            |Input(s):
-            br
-            i text
-            |, a string
-            br
-            i xPos
-            |, a number between 0 and MAX_SCREEN_WIDTH
-            br
-            i yPos
-            |, a number between 0 and MAX_SCREEN_HEIGHT
-            br
-            i size
-            |, a number between 0 and MAX_TEXT_SIZE
-            br
-            i R
-            |, a number between 0 and 255
-            br
-            i G
-            |, a number between 0 and 255
-            br
-            i B
-            |, a number between 0 and 255
-            br
-            |Draw text as position (xPos, yPos) with the color (R, G, B). This function must be called in the run() event handler.
-            br
-            i Example: drawText("Hello, world!", MAX_SCREEN_WIDTH/2, 200, 0.5*MAX_TEXT_SIZE, 255, 0, 0);
+            button#fileFunctionsButton(type="button" class="btn btn-primary" data-toggle="collapse" data-target="#fileFunctions") Show file functions
+            div#fileFunctions.collapse
+
+              br
+
+              b readFromFile
+              |(
+              i filename
+              |)
+              br
+              |Input(s):
+              br
+              i filename
+              |, a string
+              br
+              |Get the string contained in filename.
+              br
+              |Returns: a string
+              br
+              i Example: var fileContents = readFromFile("log.txt");
+
+              br
+              br
+
+              b writeToFile
+              |(
+              i filename, text, mode
+              |)
+              br
+              |Input(s):
+              br
+              i filename
+              |, a string
+              br
+              i text
+              |, a string
+              br
+              i mode
+              |, one of FILE.OVERWRITE or FILE.APPEND
+              br
+              |Write text into filename, in either overwrite mode (where the old file with the same name has text written over it) or append mode (where text is added to an existing file).
+              br
+              i Example: writeToFile("hello.txt", "Hello!", FILE.OVERWRITE);
 
             br
             br
 
-            b endProgram
-            |()
-            br
-            |Ends the program.
-            br
-            i Example: endProgram();
+            button#showConstantsButton(type="button" class="btn btn-primary" data-toggle="collapse" data-target="#showConstants") Show constants
+            div#showConstants.collapse
 
-            br
-            br
+              br
 
-            b getAllEuglenaIDs
-            |()
-            br
-            |Return an array of all of the currently tracked Euglena IDs.
-            br
-            |Returns: an array of integers
-            br
-            i Example: var euglenaIDs = getAllEuglenaIDs();
-
-            br
-            br
-
-            b getAllEuglenaPositions
-            |()
-            br
-            |Return an array of objects that contain (x, y) coordinates of all tracked Euglena positions.
-            br
-            |Returns: an array of objects that contain the (x, y) coordinates
-            br
-            i Example: var euglenaPositions = getAllEuglenaPositions();
-
-            br
-            br
-
-            b getEuglenaCount
-            |()
-            br
-            |Get the total Euglena count.
-            br
-            |Returns: a number
-            br
-            i Example: getEuglenaCount();
-
-            br
-            br
-
-            b getEuglenaInRect
-            |(
-            i upperLeftX, upperLeftY, lowerRightX, lowerRightY
-            |)
-            br
-            |Input(s):
-            br
-            i upperLeftX
-            |, a number between 0 and MAX_SCREEN_WIDTH
-            br
-            i upperLeftY
-            |, a number between 0 and MAX_SCREEN_HEIGHT
-            br
-            i lowerRightX
-            |, a number between 0 and MAX_SCREEN_WIDTH
-            br
-            i lowerRightY
-            |, a number between 0 and MAX_SCREEN_HEIGHT
-            br
-            |Get the total Euglena count in the rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordiante (lowerRightX, lowerRightY).
-            br
-            |Returns: a number
-            br
-            i Example: var euglenaInRect = getEuglenaInRect(0, 0, 100, 100);
-
-            br
-            br
-
-            b getEuglenaAccelerationByID
-            |(
-            i id
-            |)
-            br
-            |Input(s):
-            br
-            i id
-            |, a number
-            br
-            |Get the acceleration (in microns per second squared) of the Euglena based on Euglena ID.
-            br
-            |Returns: a number
-            br
-            i Example: var euglenaAcceleration = getEuglenaAccelerationByID(20);
-
-            //- br
-            //- br
-
-            //- b getEuglenaPositionByID
-            //- |(
-            //- i id
-            //- |)
-            //- br
-            //- |Input(s):
-            //- br
-            //- i id
-            //- |, a number
-            //- br
-            //- |Get the position (in window coordinates) of the Euglena based on Euglena ID.
-            //- br
-            //- |Returns: a number
-            //- br
-            //- i Example: var euglenaPostion = getEuglenaPositionByID(0);
-
-            br
-            br
-
-            b getEuglenaRotationByID
-            |(
-            i id
-            |)
-            br
-            |Input(s):
-            br
-            i id
-            |, a number
-            br
-            |Get the rotation (in degrees) of the Euglena based on Euglena ID.
-            br
-            |Returns: a number
-            br
-            i Example: var euglenaRotation = getEuglenaRotationByID(1);
-
-            br
-            br
-
-            b getEuglenaVelocityByID
-            |(
-            i id
-            |)
-            br
-            |Input(s):
-            br
-            i id
-            |, a number
-            br
-            |Get the velocity (in microns per second) of the Euglena based on Euglena ID.
-            br
-            |Returns: a number
-            br
-            i Example: var euglenaVelocity = getEuglenaVelocityByID(100);
-
-            br
-            br
-
-            b getTimeLeft
-            |()
-            br
-            |Get the time left in the session, in seconds.
-            br
-            |Returns: a number
-            br
-            i Example: var remainTime = getTimeLeft();
-
-            br
-            br
-
-            b readFromFile
-            |(
-            i filename
-            |)
-            br
-            |Input(s):
-            br
-            i filename
-            |, a string
-            br
-            |Get the string contained in filename.
-            br
-            |Returns: a string
-            br
-            i Example: var fileContents = readFromFile("log.txt");
-
-            br
-            br
-
-            b setJoystickView
-            |(
-            i isOn
-            |)
-            br
-            |Input(s):
-            br
-            i isOn
-            |, a boolean
-            br
-            |Turn the joystick view on or off.
-            br
-            |Returns: a number
-            br
-            i Example: setJoystickView(true);
-
-            br
-            br
-
-            b setInstructionText
-            |(
-            i message
-            |)
-            br
-            |Input(s):
-            br
-            i message
-            |, a string
-            br
-            |Change the text in the "instructions" section of the screen.
-            br
-            i Example: setInstructionText("Hello!");
-
-            br
-            br
-
-            b setLED
-            |(
-            i led, intensity
-            |)
-            br
-            |Input(s):
-            br
-            i led
-            |, one of LED.RIGHT, LED.LEFT, LED.UP, and LED.DOWN
-            br
-            |Set led to the intensity between 0 (completely off) and MAX_LED_INTENSITY (completely on).
-            br
-            i Example: setLED(LED.RIGHT, 0.8*MAX_LED_INTENSITY);
-
-            br
-            br
-
-            b writeToFile
-            |(
-            i filename, text, mode
-            |)
-            br
-            |Input(s):
-            br
-            i filename
-            |, a string
-            br
-            i text
-            |, a string
-            br
-            i mode
-            |, one of FILE.OVERWRITE or FILE.APPEND
-            br
-            |Write text into filename, in either overwrite mode (where the old file with the same name has text written over it) or append mode (where text is added to an existing file).
-            br
-            i Example: writeToFile("hello.txt", "Hello!", FILE.OVERWRITE);
-
-            br
-            br
-
-            u Constants:
-
-            br
-            br
-
-            |MAX_ANGLE: The highest angle (360) the joystick can turn.
-            br
-            |MAX_INTENSITY: The highest intensity the joystick can have.
-            br
-            |MAX_SCREEN_WIDTH: The maximum screen width of the microscope video view.
-            br
-            |MAX_SCREEN_HEIGHT: The maximum screen height of the microscope video view.
+              |MAX_ANGLE: The highest angle (360) the joystick can turn.
+              br
+              |MAX_INTENSITY: The highest intensity the joystick can have.
+              br
+              |MAX_SCREEN_WIDTH: The maximum screen width of the microscope video view.
+              br
+              |MAX_SCREEN_HEIGHT: The maximum screen height of the microscope video view.
 
 
             
