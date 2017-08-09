@@ -349,7 +349,7 @@
       ledsSetObj.DownValue = 0;
       app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
       app.mainView.setInstructionText(" ");
-      app.mainView.setJoystickView(true);
+      app.mainView.setJoystickVisible(true);
       app.mainView.codeEditorReadOnly = false;
       // app.mainView.codeVariablesEditor.setOption("readOnly", false);
       // app.mainView.runEditor.setOption("readOnly", false);
@@ -550,7 +550,7 @@
     getEuglenaInRectUpperLeftY: 0, 
     getEuglenaInRectLowerRightX: 0,
     getEuglenaInRectLowerRightY: 0,
-    gameEuglenaInRectCount: 0,
+    gameEuglenaInRectReturn: "",
 
     // getAllEuglenaPositions
     getAllEuglenaPositionsStr: "",
@@ -705,15 +705,15 @@
       modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
       modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
       modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
-      modifiedCode = modifiedCode.split('getEuglenaAccelerationByID').join('app.mainView.getEuglenaAccelerationByID');
-      modifiedCode = modifiedCode.split('getEuglenaPositionByID').join('app.mainView.getEuglenaPositionByID');
-      modifiedCode = modifiedCode.split('getEuglenaRotationByID').join('app.mainView.getEuglenaRotationByID');
-      modifiedCode = modifiedCode.split('getEuglenaVelocityByID').join('app.mainView.getEuglenaVelocityByID');
+      modifiedCode = modifiedCode.split('getEuglenaAcceleration').join('app.mainView.getEuglenaAcceleration');
+      modifiedCode = modifiedCode.split('getEuglenaPosition').join('app.mainView.getEuglenaPosition');
+      modifiedCode = modifiedCode.split('getEuglenaRotation').join('app.mainView.getEuglenaRotation');
+      modifiedCode = modifiedCode.split('getEuglenaVelocity').join('app.mainView.getEuglenaVelocity');
       modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
       modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
       modifiedCode = modifiedCode.split('getTimeLeft').join('app.mainView.getTimeLeft');
       modifiedCode = modifiedCode.split('readFromFile').join('app.mainView.readFromFile');
-      modifiedCode = modifiedCode.split('setJoystickView').join('app.mainView.setJoystickView');
+      modifiedCode = modifiedCode.split('setJoystickVisible').join('app.mainView.setJoystickVisible');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setInstructionText').join('app.mainView.setInstructionText');
       modifiedCode = modifiedCode.split('writeToFile').join('app.mainView.writeToFile');
@@ -1071,16 +1071,22 @@
       app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
       app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
       app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
-      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
-      return app.mainView.gameEuglenaInRectCount;
+      var idSet = new Set();
+      var splitPositions = app.mainView.gameEuglenaInRectReturn.split(";");
+      for (var i = 0; i < splitPositions.length; i++) {
+        var token = splitPositions[i];
+        if (token.length <= 0 || isNaN(token)) continue;
+        idSet.add(parseInt(token));
+      }
+      return Array.from(idSet);
     },
-    getEuglenaAccelerationByID: function(id) {
+    getEuglenaAcceleration: function(id) {
       //console.log('getEuglenaAccelerationByID function called.');
       app.mainView.getEuglenaAccelerationID = id;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
       return app.mainView.getEuglenaAccelerationReturn;
     },
-    getEuglenaPositionByID: function(id) {
+    getEuglenaPosition: function(id) {
       app.mainView.getEuglenaPosID = id;
       //console.log('return:: ' + app.mainView.getEuglenaPositionReturn);
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
@@ -1091,13 +1097,13 @@
         return -1;
       }
     },
-    getEuglenaRotationByID: function(id) {
+    getEuglenaRotation: function(id) {
       //console.log('getEuglenaRotationByID function called.');
       app.mainView.getEuglenaRotationID = id;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
       return app.mainView.getEuglenaRotationReturn;
     },
-    getEuglenaVelocityByID: function(id) {
+    getEuglenaVelocity: function(id) {
       //console.log('getEuglenaVelocityByID function called.');
       app.mainView.getEuglenaVelocityID = id;
       // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
@@ -1133,8 +1139,8 @@
       //console.log("Exiting function with data: " + txtData);
       return txtData;
     },
-    setJoystickView: function(isOn) {
-      //console.log('setJoystickView function called.');
+    setJoystickVisible: function(isOn) {
+      //console.log('setJoystickVisible function called.');
       app.mainView.gameJoystickView = isOn;
     },
     setGameOverMessage: function(gameOverText) {

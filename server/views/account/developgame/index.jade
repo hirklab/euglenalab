@@ -234,7 +234,7 @@ block body
               |&nbsp;&nbsp;&nbsp;&nbsp;"'W' for top LED, 'A' for left LED, 'S' for bottom LED, and" +
               |&nbsp;&nbsp;&nbsp;&nbsp;"'D' for right LED.";
               |this.score = 1;
-              |setJoystickView(false);
+              |setJoystickVisible(false);
               |var instructionText = "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!";
               |setInstructionText(instructionText);
         |&nbsp;&nbsp;&nbsp;&nbsp;};
@@ -289,7 +289,7 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeEnd
-              |setJoystickView(true);
+              |setJoystickVisible(true);
               |if (this.score >= 10) alert('Guess correctly 10 times, congrats!');
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
@@ -616,16 +616,16 @@ block body
                 i lowerRightY
                 |, a number between 0 and MAX_SCREEN_HEIGHT
                 br
-                |Get the total Euglena count in the rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordiante (lowerRightX, lowerRightY).
+                |Get a list of IDs of all Euglenas in the rectangle defined by the top left coordinate (upperLeftX, upperLeftY) and the bottom right coordiante (lowerRightX, lowerRightY).
                 br
-                |Returns: a number
+                |Returns: a list of numbers
                 br
                 i Example: var euglenaInRect = getEuglenaInRect(0, 0, 100, 100);
 
                 br
                 br
 
-                b getEuglenaAccelerationByID
+                b getEuglenaAcceleration
                 |(
                 i id
                 |)
@@ -639,12 +639,12 @@ block body
                 br
                 |Returns: a number
                 br
-                i Example: var euglenaAcceleration = getEuglenaAccelerationByID(20);
+                i Example: var euglenaAcceleration = getEuglenaAcceleration(20);
 
                 //- br
                 //- br
 
-                //- b getEuglenaPositionByID
+                //- b getEuglenaPosition
                 //- |(
                 //- i id
                 //- |)
@@ -658,12 +658,12 @@ block body
                 //- br
                 //- |Returns: a number
                 //- br
-                //- i Example: var euglenaPostion = getEuglenaPositionByID(0);
+                //- i Example: var euglenaPostion = getEuglenaPosition(0);
 
                 br
                 br
 
-                b getEuglenaRotationByID
+                b getEuglenaRotation
                 |(
                 i id
                 |)
@@ -677,12 +677,12 @@ block body
                 br
                 |Returns: a number
                 br
-                i Example: var euglenaRotation = getEuglenaRotationByID(1);
+                i Example: var euglenaRotation = getEuglenaRotation(1);
 
                 br
                 br
 
-                b getEuglenaVelocityByID
+                b getEuglenaVelocity
                 |(
                 i id
                 |)
@@ -696,7 +696,7 @@ block body
                 br
                 |Returns: a number
                 br
-                i Example: var euglenaVelocity = getEuglenaVelocityByID(100);
+                i Example: var euglenaVelocity = getEuglenaVelocity(100);
 
               br
               br
@@ -728,7 +728,7 @@ block body
                 br
                 br
 
-                b setJoystickView
+                b setJoystickVisible
                 |(
                 i isOn
                 |)
@@ -742,7 +742,7 @@ block body
                 br
                 |Returns: a number
                 br
-                i Example: setJoystickView(true);
+                i Example: setJoystickVisible(true);
 
                 br
                 br

@@ -242,7 +242,7 @@ function handleMessage(msg) {
   var res = msg.data;
   if ( res.Type == "gamedata" ) {
     app.mainView.gameEuglenaCount = parseInt(res.TotalEuglena);
-    app.mainView.gameEuglenaInRectCount = parseInt(res.EuglenaInRect);
+    app.mainView.gameEuglenaInRectReturn = res.EuglenaInRect;
     app.mainView.getAllEuglenaPositionsStr = res.EuglenaPositionsStr;
     app.mainView.getAllEuglenaIDsStr = res.EuglenaIDsStr;
     app.mainView.getEuglenaAccelerationReturn = res.EuglenaAccelerationReturn;

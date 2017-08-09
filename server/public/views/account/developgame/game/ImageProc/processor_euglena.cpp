@@ -121,7 +121,7 @@ class EuglenaProcessor : public Processor {
         double getEuglenaInRectUpperLeftY;
         double getEuglenaInRectLowerRightX;
         double getEuglenaInRectLowerRightY;
-        double getEuglenaInRectReturnVal;
+        char getEuglenaInRectReturnVal[10000];
 
         // getAllEuglenaPositions
         char getAllEuglenaPositionsStr[10000];
@@ -385,15 +385,12 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
         
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
-        getEuglenaInRectReturnVal = 0;
         for (auto &c : contours) {              // Detect all contours on the screen
             if ( cv::contourArea(c) > magnification*magnification*0.8) {  // Filter contours for only euglena objects
                 totalDetectedEuglena += 1;
                 cv::RotatedRect e = cv::minAreaRect(c);
                 cv::Point2f pts[4];
                 e.points(pts);
-                //bool withinScoreRect = false;
-                bool withinBoxRect = false;
                 bool haveWeAddedEuglenaPositionYet = false;
                 bool matched = false;
                 int count = -1;
@@ -451,28 +448,15 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     }
 
                     trackedEuglenas[index].tracker.track(pts[i].x, pts[i].y);
-
-                    // cv::Rect rRect(cv::Point(drawRectUpperLeftX, drawRectUpperLeftY), cv::Point(drawRectLowerRightX, drawRectLowerRightY));
-                    // if (rRect.contains(cv::Point(pts[i].x, pts[i].y))) {
-                    //     withinScoreRect = true;
-                    // }
-
-                    cv::Rect rRectBox(cv::Point(getEuglenaInRectUpperLeftX, getEuglenaInRectUpperLeftY), cv::Point(getEuglenaInRectLowerRightX, getEuglenaInRectLowerRightY));
-                    if (rRectBox.contains(cv::Point(pts[i].x, pts[i].y))) {
-                        withinBoxRect = true;
-                    }
                     
-                }
-                // if (withinScoreRect) {
-                //     currEuglenaInBox += 1;
-                // }
-                if (withinBoxRect) {
-                    getEuglenaInRectReturnVal += 1;
                 }
             }
         }
 
         totalEuglena = totalDetectedEuglena;
+
+        memset(getEuglenaInRectReturnVal, 0, 10000*sizeof(char));
+        std::strcpy(getEuglenaInRectReturnVal, ";");
         
         memset(getAllEuglenaIDsStr, 0, 10000*sizeof(char));
         std::strcpy(getAllEuglenaIDsStr, ";");
@@ -491,6 +475,11 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 e.tracked = false;
                 xPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].x + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].x)/2;
                 yPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].y + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].y)/2;
+                cv::Rect rRectBox(cv::Point(getEuglenaInRectUpperLeftX, getEuglenaInRectUpperLeftY), cv::Point(getEuglenaInRectLowerRightX, getEuglenaInRectLowerRightY));
+                if (rRectBox.contains(cv::Point(xPosition,yPosition))) {
+                    std::strcat(getEuglenaInRectReturnVal, std::to_string(e.ID).c_str());
+                    std::strcat(getEuglenaInRectReturnVal, ";");
+                }
                 // std::strcat(targetEuglenaPositionStr, std::to_string(positionID).c_str());
                 // std::strcat(targetEuglenaPositionStr, ",");
                 // std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
@@ -634,7 +623,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         getEuglenaInRectUpperLeftY = 0;
         getEuglenaInRectLowerRightX = 0;
         getEuglenaInRectLowerRightY = 0;
-        getEuglenaInRectReturnVal = 0;
+        memset(getEuglenaInRectReturnVal, 0, 10000*sizeof(char));
 
         // getAllEuglenaPositions
         memset(getAllEuglenaPositionsStr, 0, 10000*sizeof(char));
