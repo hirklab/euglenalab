@@ -111,6 +111,28 @@ Microscope.prototype.onExperimentSet = function (payload) {
 
 		var experiment = payload.experiment;
 
+		// 		app.exp.exp_eventsToRun.sort(function (objA, objB) {
+		// 			return objB.time - objA.time
+		// 		});
+		// 		app.exp_eventsRunTime = app.exp.exp_eventsToRun[0].time;
+		//
+		// 		app.didConfirmRun        = false;
+		// 		app.didConfirmTimeoutRun = false;
+		// 		setTimeout(function () {
+		// 			if (!app.didConfirmRun) {
+		// 				app.didConfirmTimeoutRun = true;
+		// 				app.script_resetBpu(app, deps, opts, function (err) {
+		// 					if (app.bpu === null || app.bpu === undefined) {
+		// 						app.logger.error('socketBpu bpu_setExp reseting issue no app.bpu');
+		// 					} else if (err) {
+		// 						app.logger.error('socketBpu bpu_setExp reseting ' + err);
+		// 					} else {
+		// 						app.logger.debug('socketBpu bpu_setExp READY FOR EXPERIMENT');
+		// 					}
+		// 				});
+		// 			}
+		// 		}, resetTimeout);
+
 		// todo: create a folder to save
 
 		// todo: get events to run
@@ -118,52 +140,12 @@ Microscope.prototype.onExperimentSet = function (payload) {
 		that.state.experiment             = experiment;
 		that.state.experiment.status      = EXPERIMENT.QUEUED;
 		that.state.experiment.submittedAt = new Date();
-	}
+	}else{
+		// already has experiment -> faillll
 
-	// 	var emitStr = app.socketStrs.bpu_setExp;
-	// 	var retStr  = emitStr + 'Res';
-	// 	var resObj  = {err: null, bpuStatus: app.bpuStatus};
-	//
-	// 	if (app.exp !== null) {
-	// 		resObj.err = 'already has exp';
-	// 		//Return
-	// 		if (typeof callback === 'function') callback(resObj.err, resObj);
-	// 	} else if (app.bpuStatus !== app.bpuStatusTypes.resetingDone) {
-	// 		resObj.err = 'status is not app.bpuStatusTypes.resetingDone its ' + app.bpuStatus;
-	// 		//Return
-	// 		if (typeof callback === 'function') callback(resObj.err, resObj);
-	// 	} else if (exp.exp_eventsToRun.length === 0) {
-	// 		resObj.err = 'app.exp.exp_eventsToRun.length===0';
-	// 		//Return
-	// 		if (typeof callback === 'function') callback(resObj.err, resObj);
-	// 	} else {
-	// 		app.bpuStatus = app.bpuStatusTypes.pendingRun;
-	// 		app.exp       = exp;
-	//
-	// 		app.exp.exp_eventsToRun.sort(function (objA, objB) {
-	// 			return objB.time - objA.time
-	// 		});
-	// 		app.exp_eventsRunTime = app.exp.exp_eventsToRun[0].time;
-	//
-	// 		app.didConfirmRun        = false;
-	// 		app.didConfirmTimeoutRun = false;
-	// 		setTimeout(function () {
-	// 			if (!app.didConfirmRun) {
-	// 				app.didConfirmTimeoutRun = true;
-	// 				app.script_resetBpu(app, deps, opts, function (err) {
-	// 					if (app.bpu === null || app.bpu === undefined) {
-	// 						app.logger.error('socketBpu bpu_setExp reseting issue no app.bpu');
-	// 					} else if (err) {
-	// 						app.logger.error('socketBpu bpu_setExp reseting ' + err);
-	// 					} else {
-	// 						app.logger.debug('socketBpu bpu_setExp READY FOR EXPERIMENT');
-	// 					}
-	// 				});
-	// 			}
-	// 		}, resetTimeout);
-	// 		//Return
-	// 		if (typeof callback === 'function') callback(resObj.err, resObj);
-	//}
+
+
+	}
 }
 
 Microscope.prototype.onExperimentCancel = function (payload) {

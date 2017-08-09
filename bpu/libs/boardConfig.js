@@ -105,6 +105,19 @@ var BoardConfig = {
 			},
 			default: 'stop'
 		}
+	},{
+		name:    'projector',
+		pin:     32001,
+		mode:    MODE.SOCKET,
+		type:    TYPE.STATE,
+		io:      IO.OUTPUT,
+		options: {
+			states:  {
+				ON:  'start',
+				OFF: 'stop'
+			},
+			default: 'stop'
+		}
 	}]
 };
 
