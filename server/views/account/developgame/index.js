@@ -39,7 +39,6 @@ exports.getgamecode = function(req, res) {
   fs.readdir(__dirname + "/games/" + req.body.userName + "/", function(err, files) {
     if (err) {} //throw err;
     files.forEach(function(file) {
-      console.log(file + "aaaaaaaaaa");
       if (file === fileToOpen) {
         filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen;
       }
@@ -48,7 +47,6 @@ exports.getgamecode = function(req, res) {
     fs.readdir(__dirname + "/games/", function(err, files) {
       if (err) {} //throw err;
       files.forEach(function(file) {
-        console.log(file + "bbbbbbbbbb");
         if (file === fileToOpen) {
           filePath = __dirname + "/games/" + fileToOpen;
         }

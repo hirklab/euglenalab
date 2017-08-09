@@ -471,7 +471,7 @@ block body
 
                 b drawLine
                 |(
-                i x1, y1, x2, y2, radius, R, G, B
+                i x1, y1, x2, y2, radius, color
                 |)
                 br
                 |Input(s):
@@ -500,7 +500,7 @@ block body
 
                 b drawRect
                 |(
-                i upperLeftX, upperLeftY, lowerRightX, lowerRightY, R, G, B
+                i upperLeftX, upperLeftY, lowerRightX, lowerRightY, color
                 |)
                 br
                 |Input(s):
@@ -529,7 +529,7 @@ block body
 
                 b drawText
                 |(
-                i text, xPos, yPos, size, R, G, B
+                i text, xPos, yPos, size, color
                 |)
                 br
                 |Input(s):
@@ -568,7 +568,17 @@ block body
                 br
                 |Returns: an array of integers
                 br
-                i Example: var euglenaIDs = getAllEuglenaIDs();
+                i 
+                  |Example: 
+                  br
+                  |var euglenaIDs = getAllEuglenaIDs(); 
+                  br
+                  |for (var i = 0; i < euglenaIDs.length; i++) {
+                  br
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenaIDs[i]);
+                  br
+                  |}
+
 
                 br
                 br
@@ -620,7 +630,16 @@ block body
                 br
                 |Returns: a list of numbers
                 br
-                i Example: var euglenaInRect = getEuglenaInRect(0, 0, 100, 100);
+                i 
+                  |Example: 
+                  br
+                  |var euglenasInRect = getEuglenaInRect(0, 0, 100, 100); 
+                  br
+                  |for (var i = 0; i < euglenasInRect.length; i++) {
+                  br
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i]);
+                  br
+                  |}
 
                 br
                 br
@@ -639,7 +658,16 @@ block body
                 br
                 |Returns: a number
                 br
-                i Example: var euglenaAcceleration = getEuglenaAcceleration(20);
+                i 
+                  |Example:
+                  br
+                  |var euglenaIDs = getAllEuglenaIDs(); 
+                  br
+                  |for (var i = 0; i < euglenaIDs.length; i++) {
+                  br
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i] + ', Acceleration: ' + getEuglenaAcceleration(euglenasInRect[i]));
+                  br
+                  |}
 
                 //- br
                 //- br
@@ -658,7 +686,15 @@ block body
                 //- br
                 //- |Returns: a number
                 //- br
-                //- i Example: var euglenaPostion = getEuglenaPosition(0);
+                //- i Example:
+                //- br
+                //- |var euglenaIDs = getAllEuglenaIDs(); 
+                //- br
+                //- |for (var i = 0; i < euglenaIDs.length; i++) {
+                //- br
+                //- |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i] + ', X Position: ' + getEuglenaPosition(euglenasInRect[i]).x);
+                //- br
+                //- |}
 
                 br
                 br
@@ -677,7 +713,16 @@ block body
                 br
                 |Returns: a number
                 br
-                i Example: var euglenaRotation = getEuglenaRotation(1);
+                i
+                  |Example: 
+                  br
+                  |var euglenaIDs = getAllEuglenaIDs(); 
+                  br
+                  |for (var i = 0; i < euglenaIDs.length; i++) {
+                  br
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i] + ', Rotation: ' + getEuglenaRotation(euglenasInRect[i]));
+                  br
+                  |}
 
                 br
                 br
@@ -696,7 +741,16 @@ block body
                 br
                 |Returns: a number
                 br
-                i Example: var euglenaVelocity = getEuglenaVelocity(100);
+                i 
+                  |Example: 
+                  br
+                  |var euglenaIDs = getAllEuglenaIDs(); 
+                  br
+                  |for (var i = 0; i < euglenaIDs.length; i++) {
+                  br
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i] + ', Velocity: ' + getEuglenaVelocity(euglenasInRect[i]));
+                  br
+                  |}
 
               br
               br
@@ -840,11 +894,15 @@ block body
 
                 |MAX_ANGLE: The highest angle (360) the joystick can turn.
                 br
+                br
                 |MAX_INTENSITY: The highest intensity the joystick can have.
+                br
                 br
                 |MAX_SCREEN_WIDTH: The maximum screen width of the microscope video view.
                 br
+                br
                 |MAX_SCREEN_HEIGHT: The maximum screen height of the microscope video view.
+                br
                 br
                 |The valid colors are COLORS.RED, COLORS.BLUE, COLORS.GREEN, COLORS.BLACK, COLORS.WHITE, COLORS.PURPLE, COLORS.YELLOW, and COLORS.ORANGE.
 
