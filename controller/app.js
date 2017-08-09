@@ -3,6 +3,7 @@ var socketIoClient = require('socket.io-client');
 var async          = require('async');
 var mongoose       = require('mongoose');
 var path           = require('path');
+var Agenda           = require('agenda');
 
 var config = require('./config');
 var logger = require('./libs/logging');
@@ -13,6 +14,8 @@ var filename = path.basename(__filename);
 //Main Object
 var app = {
     startDate: new Date(),
+
+    scheduler: null,
 
     utils:                          require('../shared/myFunctions.js'),
     mainConfig:                     require('../shared/mainConfig.js'),
@@ -75,6 +78,17 @@ var setupMongoose = function (callback) {
     require('./libs/database')(app, callback);
 };
 
+var setupScheduler = function(callback){
+	logger.debug('setting job scheduler...');
+	app.scheduler = new Agenda({db: {address: config.DB_URL, collection: 'jobs' }});
+
+	app.scheduler.on('ready', function() {
+		app.scheduler.start();
+
+		callback(null);
+	});
+}
+
 var setupSocketClientServer = function (callback) {
     logger.debug('setting socket server...');
     require('./libs/socketServer')(app, callback);
@@ -99,6 +113,7 @@ var getExperiments = function (callback) {
 var init = function (callback) {
     async.series([
         setupMongoose,
+	    setupScheduler,
         setupSocketClientServer,
         getExperiments
     ], function (err) {
@@ -121,11 +136,12 @@ var loop = function () {
 
     async.series([
         microscopeUtils.getMicroscopes,
-        microscopeUtils.checkIfConnected,
+        microscopeUtils.showStatus,
 
         experimentUtils.checkExperiments,
         experimentUtils.scheduleExperiments,
         experimentUtils.updateExperimentsQueue,
+
         experimentUtils.notifyClients
     ], function (err) {
         if (err) {

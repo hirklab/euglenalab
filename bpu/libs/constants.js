@@ -1,7 +1,13 @@
+var env = require('dotenv');
+env.config();
+
 var MACHINE            = process.env.MACHINE;
 module.exports.IS_FAKE = (MACHINE !== 'raspberrypi');
 
 module.exports.UNIQUE_ID = process.env.UNIQUE_ID || 'DEVICE_MISSING_UNIQUE_ID';
+module.exports.NAME = process.env.NAME || 'DEVICE_MISSING_NAME';
+module.exports.IP = process.env.IP || '127.0.0.1';
+module.exports.PORT = process.env.PORT || '8090';
 
 module.exports.STATES = {
 	CONNECTING:  'connecting',
@@ -13,7 +19,7 @@ module.exports.STATES = {
 };
 
 module.exports.EVENTS = {
-	CONNECT:        'connect',
+	CONNECT:        'connection',
 	DISCONNECT:     'disconnect',
 	RECONNECT:      'reconnect',
 	CLOSE:          'close',

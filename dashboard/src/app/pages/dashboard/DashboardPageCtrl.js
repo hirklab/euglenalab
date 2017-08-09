@@ -105,6 +105,8 @@
 						microscope.quality = (5 * response['percent'] / 100 + 2 * activity['percent'] / 100 + 3 * population['percent'] / 100) / 10;
 					}
 
+					microscope.status = Microscope.BPU_STATUS_DISPLAY[microscope.bpuStatus];
+
 					return microscope;
 				});
 

@@ -17,7 +17,7 @@ module.exports = function (app) {
 
 	return {
 		getMicroscopes: function (callback) {
-			logger.debug('fetching BPUs...');
+			// logger.debug('fetching BPUs...');
 
 			app.db.getBPUs(function (err, microscopes) {
 				if (err) {
@@ -40,8 +40,8 @@ module.exports = function (app) {
 			});
 		},
 
-		checkIfConnected: function (callback) {
-			logger.debug('checking BPUs...');
+		showStatus: function (callback) {
+			// logger.debug('checking BPUs...');
 
 			var parallel = [];
 			var keys     = Object.keys(app.microscopesIndex);

@@ -28,35 +28,15 @@ function Microscope(config) {
 	this.messages      = [];
 	this.isConnected   = false;
 
-	var that = this;
+	this.doc.status = STATES.OFFLINE;
 
-	that.connect(function (err) {
+	this.connect(function (err) {
 		if (err) {
 			logger.error(err);
 		}
 	});
-
-	// setInterval(function(){
-	// 	that.check(function(err){
-	// 		if (err) {
-	// 			logger.error(err);
-	// 		}
-	// 	});
-	// }, config.LOOP_INTERVAL);
 }
 
-Microscope.prototype.cleanup = function (timeout) {
-	var that = this;
-
-	// this.socket.disconnect();
-	// this.socket = null;
-
-	that.isConnected = false;
-
-	if (timeout) {
-		that.inactiveCount = 0;
-	}
-}
 
 Microscope.prototype.connect = function (callback) {
 	var that = this;
@@ -74,7 +54,7 @@ Microscope.prototype.connect = function (callback) {
 		});
 
 		that.socket.on(EVENTS.DISCONNECT, function (msg) {
-			that.cleanup(false);
+			that.onDisconnected(null, false);
 		});
 
 		that.socket.on(EVENTS.MESSAGE, function (message) {
@@ -120,7 +100,7 @@ Microscope.prototype.connect = function (callback) {
 						break;
 
 					case MESSAGES.DISCONNECTED:
-						that.onDisconnected(payload);
+						that.onDisconnected(payload, null);
 						break;
 
 					default:
@@ -140,7 +120,7 @@ Microscope.prototype.connect = function (callback) {
 
 		// connection timed out
 		if (that.inactiveCount > config.MICROSCOPE_INACTIVE_COUNT) {
-			that.cleanup(true);
+			that.onDisconnected(null, true);
 			callback('timeout');
 		} else {
 			// connection looks fine
@@ -149,65 +129,62 @@ Microscope.prototype.connect = function (callback) {
 	}
 }
 
-Microscope.prototype.check = function (callback) {
-	var that = this;
-
-	//Timeout
-	var didCallback = false;
-
-	setTimeout(function () {
-		if (!didCallback) {
-			didCallback = true;
-			that.inactiveCount++;
-
-			return callback(null);
-		}
-	}, 1000);
-
-	that.messages = [];
-
-	//Check Socket Connnection
-	that.connect(function (err) {
-		if (err) {
-			logger.error(err);
-		}
-
-		if (!didCallback) {
-			if (err) {
-				didCallback = true;
-
-				that.inactiveCount++;
-				that.doc.status = STATES.OFFLINE;
-
-				return callback(null);
-
-			} else if (!that.socket) {
-				didCallback = true;
-
-				that.inactiveCount++;
-				that.doc.status = STATES.OFFLINE;
-
-				return callback(null);
-			} else {
-				didCallback = true;
-
-				//Get Status
-				that.sendMessage(MESSAGES.STATUS, null);
-				return callback(null);
-			}
-		}
-	});
-};
+// Microscope.prototype.check = function (callback) {
+// 	var that = this;
+//
+// 	//Timeout
+// 	var didCallback = false;
+//
+// 	setTimeout(function () {
+// 		if (!didCallback) {
+// 			didCallback = true;
+// 			that.inactiveCount++;
+//
+// 			return callback(null);
+// 		}
+// 	}, 1000);
+//
+// 	that.messages = [];
+//
+// 	//Check Socket Connnection
+// 	that.connect(function (err) {
+// 		if (err) {
+// 			logger.error(err);
+// 		}
+//
+// 		if (!didCallback) {
+// 			if (err) {
+// 				didCallback = true;
+//
+// 				that.inactiveCount++;
+// 				that.doc.status = STATES.OFFLINE;
+//
+// 				return callback(null);
+//
+// 			} else if (!that.socket) {
+// 				didCallback = true;
+//
+// 				that.inactiveCount++;
+// 				that.doc.status = STATES.OFFLINE;
+//
+// 				return callback(null);
+// 			} else {
+// 				didCallback = true;
+//
+// 				//Get Status
+// 				that.sendMessage(MESSAGES.STATUS, null);
+// 				return callback(null);
+// 			}
+// 		}
+// 	});
+// };
 
 Microscope.prototype.onConnected = function (payload) {
 }
 
 Microscope.prototype.onStatus = function (payload) {
-	var that = this;
-
-	if (!that.isConnected) {
-		that.isConnected = true;
-	}
+	var that         = this;
+	that.isConnected = true;
 }
 
 // Microscope.prototype.onExperimentSet = function(payload){
@@ -237,11 +214,22 @@ Microscope.prototype.onStatus = function (payload) {
 // Microscope.prototype.onMaintenance = function(payload){
 //
 // }
-//
-// Microscope.prototype.onDisconnected = function(payload){
-//
-// }
-//
+
+Microscope.prototype.onDisconnected = function (payload, timeout) {
+	var that = this;
+
+	// this.socket.disconnect();
+	// this.socket = null;
+
+	that.isConnected = false;
+
+	if (timeout) {
+		that.inactiveCount = 0;
+	}
+
+	that.doc.status = STATES.OFFLINE;
+}
+
 // Microscope.prototype.onSaveExperiment = function (exp) {
 // 	"use strict";
 //

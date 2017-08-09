@@ -10,74 +10,326 @@ var exec       = require('child_process').exec;
 var socketIO   = require('socket.io');
 var lodash     = require('lodash');
 
-var logger    = require('./logging');
-var constants = require('./constants');
-var EVENTS    = constants.EVENTS;
-var STATES    = constants.STATES;
-var MESSAGES    = constants.MESSAGES;
+var logger            = require('./logging');
+var constants         = require('./constants');
+var EVENTS            = constants.EVENTS;
+var STATES            = constants.STATES;
+var MESSAGES          = constants.MESSAGES;
+var EXPERIMENT_STATUS = constants.EXPERIMENT_STATUS;
 
-function Microscope(url, hid, name) {
-	this.server = null;
+var Board = require('./board');
 
-	this.url = url;
-	this.hid = hid;
+
+function Microscope(ip, port, hid, name) {
+	this.hid  = hid;
 	this.name = name;
 
-	this.ip   = '127.0.0.1';
-	this.port = 8090;
+	this.ip     = ip;
+	this.port   = parseInt(port);
+	this.url    = null;
+	this.server = null;
+	this.client = null; // only controller connects for now,
+                        // change this to list when multiple controllers can connect,
+                        // cloud based resource sharing
 
-	this.state        = {};
-	this.state.hid    = hid;
-	this.state.status = STATES.CONNECTING;
+	this.errors = [];  // {type, message}
 
-	// this.board = new Board();
-	// this.board.configure();
+	this.state            = {};
+	this.state.hid        = hid;
+	this.state.name       = name;
+	this.state.status     = STATES.CONNECTING;
+	this.state.connected  = false;
+	this.state.experiment = null;
 
-	// get config from mainConfig
-	// get socket events to respond to
+	// todo get estimate of time left if experiment running
+
+	this.board = new Board();
+	this.board.configure();
 }
 
-Microscope.prototype.onConnected = function(payload){}
-
-Microscope.prototype.onStatus = function(payload){
+Microscope.prototype.initialize = function () {
 	var that = this;
 
-	logger.debug(`=== onStatus ===`);
-	that.sendMessage(MESSAGE.STATUS, that.status());
+	var httpServer = http.createServer(function (req, res) {
+		res.writeHead(200, {
+			'Content-Type': 'application/json',
+		});
+		res.end();
+	});
+
+	httpServer.listen(that.port, that.ip);
+
+	that.server = socketIO(httpServer);
+
+	process.on('SIGINT', function () {
+		logger.warn("shutting down...");
+		that.onDisconnected('manual interrupt');
+
+		process.exit(1);
+	});
+
+	that.server.on(EVENTS.CONNECT, that.onConnected.bind(that));
+};
+
+Microscope.prototype.onConnected = function (socket) {
+	var that = this;
+
+	that.url = 'http://' + that.ip + ":" + that.port;
+	logger.info('microscope ' + that.name + ' connected at ' + that.url);
+
+	socket.on(EVENTS.MESSAGE, that.onMessage.bind(that));
+
+	socket.on(EVENTS.ERROR, that.onError.bind(that));
+
+	socket.on(EVENTS.DISCONNECT, that.onDisconnected.bind(that));
+
+	that.state.connected = true;
+
+	if (that.state.status === STATES.CONNECTING) {
+		that.state.status = STATES.IDLE;
+	}
+
+	that.sendMessage(MESSAGES.STATUS, that.status());
+
+	that.client = socket;
 }
 
-Microscope.prototype.onExperimentSet = function(payload){
-
+Microscope.prototype.onStatus = function (payload) {
+	var that = this;
+	that.sendMessage(MESSAGES.STATUS, that.status());
 }
 
-Microscope.prototype.onExperimentCancel = function(payload){
+Microscope.prototype.onExperimentSet = function (payload) {
+	var that = this;
 
+	if (that.isAvailable()) {
+
+		//reset board
+		that.board.configure();
+
+		that.state.status = STATES.QUEUED;
+
+		var experiment = payload.experiment;
+
+		// todo: create a folder to save
+
+		// todo: get events to run
+
+		that.state.experiment             = experiment;
+		that.state.experiment.status      = EXPERIMENT.QUEUED;
+		that.state.experiment.submittedAt = new Date();
+	}
+
+	// 	var emitStr = app.socketStrs.bpu_setExp;
+	// 	var retStr  = emitStr + 'Res';
+	// 	var resObj  = {err: null, bpuStatus: app.bpuStatus};
+	//
+	// 	if (app.exp !== null) {
+	// 		resObj.err = 'already has exp';
+	// 		//Return
+	// 		if (typeof callback === 'function') callback(resObj.err, resObj);
+	// 	} else if (app.bpuStatus !== app.bpuStatusTypes.resetingDone) {
+	// 		resObj.err = 'status is not app.bpuStatusTypes.resetingDone its ' + app.bpuStatus;
+	// 		//Return
+	// 		if (typeof callback === 'function') callback(resObj.err, resObj);
+	// 	} else if (exp.exp_eventsToRun.length === 0) {
+	// 		resObj.err = 'app.exp.exp_eventsToRun.length===0';
+	// 		//Return
+	// 		if (typeof callback === 'function') callback(resObj.err, resObj);
+	// 	} else {
+	// 		app.bpuStatus = app.bpuStatusTypes.pendingRun;
+	// 		app.exp       = exp;
+	//
+	// 		app.exp.exp_eventsToRun.sort(function (objA, objB) {
+	// 			return objB.time - objA.time
+	// 		});
+	// 		app.exp_eventsRunTime = app.exp.exp_eventsToRun[0].time;
+	//
+	// 		app.didConfirmRun        = false;
+	// 		app.didConfirmTimeoutRun = false;
+	// 		setTimeout(function () {
+	// 			if (!app.didConfirmRun) {
+	// 				app.didConfirmTimeoutRun = true;
+	// 				app.script_resetBpu(app, deps, opts, function (err) {
+	// 					if (app.bpu === null || app.bpu === undefined) {
+	// 						app.logger.error('socketBpu bpu_setExp reseting issue no app.bpu');
+	// 					} else if (err) {
+	// 						app.logger.error('socketBpu bpu_setExp reseting ' + err);
+	// 					} else {
+	// 						app.logger.debug('socketBpu bpu_setExp READY FOR EXPERIMENT');
+	// 					}
+	// 				});
+	// 			}
+	// 		}, resetTimeout);
+	// 		//Return
+	// 		if (typeof callback === 'function') callback(resObj.err, resObj);
+	//}
 }
 
-Microscope.prototype.onExperimentRun = function(payload){
+Microscope.prototype.onExperimentCancel = function (payload) {
+	if (this.isQueued() || this.isRunning()) {
+		this.state.experiment.status      = EXPERIMENT_STATUS.CANCELLED;
+		this.state.experiment.cancelledAt = new Date();
 
+		// todo save this experiment
+
+		this.state.experiment = null;
+
+		// todo : other cleanup activities
+
+		//reset board
+		this.board.configure();
+		this.state.status = STATES.IDLE;
+	}
 }
 
-Microscope.prototype.onStimulus = function(payload){
+Microscope.prototype.onExperimentRun = function (payload) {
 
+	// 	if (!app.didConfirmTimeoutRun && app.exp !== null) {
+	// 		app.didConfirmRun = true;
+	//
+	// 		//If Live Add setleds
+	// 		if (app.exp.group_experimentType === 'live') {
+	// 			//Set LEDs
+	// 			var ledsSet = function (lightData, cb_fn) {
+	// 				//Init
+	// 				var emitStr = app.socketStrs.bpu_runExpLedsSet;
+	// 				var retStr  = emitStr + 'Res';
+	// 				var resObj  = {err: null, bpuStatus: app.bpuStatus};
+	//
+	// 				//Log
+	// 				//app.logger.info(moduleName+' '+emitStr);
+	//
+	// 				//Run
+	// 				var timeNow       = new Date().getTime();
+	// 				lightData.setTime = timeNow;
+	// 				var doReset       = false;
+	// 				resObj            = app.bpu.ledsSet(lightData, doReset);
+	// 				resObj.err        = null;
+	// 				app.exp.exp_eventsRan.push(resObj);
+	// 				//Return
+	// 				if (typeof cb_fn === 'function') cb_fn(resObj.err, resObj);
+	// 			};
+	//
+	// 			//Listener
+	// 			socket.on(app.socketStrs.bpu_runExpLedsSet, ledsSet);
+	// 		}
+	//
+	// 		//Run
+	// 		var options = {};
+	// 		app.logger.debug(moduleName + ' script_runExperiment start');
+	// 		app.script_runExperiment(app, deps, options, app.exp, function (err) {
+	// 			app.logger.debug(moduleName + ' script_runExperiment end');
+	//
+	// 			//If Live Add setleds
+	// 			if (app.exp.group_experimentType === 'live') {
+	// 				socket.removeListener(app.socketStrs.bpu_runExpLedsSet, ledsSet);
+	// 			}
+	//
+	// 			if (err) {
+	// 				app.logger.error(moduleName + ' script_runExperiment ' + err);
+	// 			} else {
+	// 				// if no error set flag for pick, used in get status ping
+	// 				if (app.bpuStatus === app.bpuStatusTypes.finalizingDone) {
+	// 					app.isExperimentOverAndWaitingForPickup = true;
+	// 				}
+	// 			}
+	// 		});
+	//
+	// 		//Return
+	// 		if (typeof callback === 'function') callback({err: null});
+	// 	} else {
+	// 		//Return
+	// 		if (typeof callback === 'function') callback('already canceled', null);
+	// 	}
 }
 
-Microscope.prototype.onExecuteEvent = function(payload){
+Microscope.prototype.onStimulus = function (payload) {
+	var that = this;
 
+	if (that.isRunning()) {
+
+		if ('event' in payload) {
+			that.onExecuteEvent(payload.event);
+		}
+	}
 }
 
-Microscope.prototype.onExperimentClear = function(payload){
+Microscope.prototype.onExecuteEvent = function (payload) {
+	var that = this;
 
+	var currentTime = new Date();
+
+	lodash.each(payload, function (device) {
+		that.board.setDevice(device.name, device.value);
+	});
+
+	that.state.experiment.actualEvents.push({
+		time:  currentTime,
+		event: payload
+	});
 }
 
-Microscope.prototype.onMaintenance = function(payload){
+Microscope.prototype.onExperimentClear = function (payload) {
+	var that = this;
 
+	if (that.isRunning()) {
+		that.state.experiment.status      = EXPERIMENT_STATUS.EXECUTED;
+		that.state.experiment.completedAt = new Date();
+
+		// todo save that experiment
+		// 
+
+		// todo : other cleanup activities
+
+		//reset board
+		that.board.configure();
+		that.state.experiment    = null;
+		that.state.allowStimulus = false;
+		that.state.status        = STATES.IDLE;
+
+	}
 }
 
-Microscope.prototype.onDisconnected = function(payload){
+Microscope.prototype.onMaintenance = function (payload) {
+	var that = this;
+	if (that.isAvailable()) {
+		var duration = 1; // default duration of 1 ms  // todo push it to config
 
+		that.state.status = STATES.MAINTENANCE;
+
+		if ('devices' in payload) {
+			var devices = payload.devices;
+
+			lodash.each(devices, function (device) {
+				that.board.setDevice(device.name, device.value);
+			});
+		}
+
+		if ('flush' in payload) {
+			var flush = payload.flush;
+			that.board.flush(flush.duration);
+			duration = flush.duration;
+		}
+
+		setTimeout(function () {
+			that.state.status = STATES.IDLE;
+		}, duration);
+	}
 }
 
+Microscope.prototype.onDisconnected = function (reason) {
+	var that = this;
+
+	logger.error('disconnected due to ' + reason);
+
+	that.state.status    = STATES.CONNECTING;
+	that.state.connected = false;
+
+	that.sendMessage(MESSAGES.STATUS, that.status());
+}
+
+// todo look into this function
 Microscope.prototype.onSaveExperiment = function (exp) {
 	"use strict";
 
@@ -124,22 +376,17 @@ Microscope.prototype.onSaveExperiment = function (exp) {
 	}
 };
 
-
-Microscope.prototype.handleMessage = function(message){
+Microscope.prototype.onMessage = function (message) {
 	var that = this;
 
-	var type = message.type;
+	var type    = message.type;
 	var payload = message.payload;
 
-	logger.debug('====================================');
-	logger.debug('[RX] ' + type);
-	if(payload) logger.debug(payload);
+	logger.info('=============[C » M]=============');
+	logger.info('type: ', type);
+	if (payload) logger.info('payload: ', payload);
 
 	switch (type) {
-		case MESSAGES.CONNECTED:
-			that.onConnected(payload);
-			break;
-
 		case MESSAGES.STATUS:
 			that.onStatus(payload);
 			break;
@@ -168,34 +415,29 @@ Microscope.prototype.handleMessage = function(message){
 			that.onMaintenance(payload);
 			break;
 
-		case MESSAGES.DISCONNECTED:
-			that.onDisconnected(payload);
-			break;
-
 		default:
 			logger.error('invalid message: message type not handled');
 			break;
 	}
 }
 
-Microscope.prototype.handleError = function(payload){
-
+Microscope.prototype.onError = function (payload) {
+	logger.error(payload)
 }
 
-Microscope.prototype.sendMessage = function(type, payload){
-	var newMessage = {};
-	newMessage.type = type;
+Microscope.prototype.sendMessage = function (type, payload) {
+	var newMessage     = {};
+	newMessage.type    = type;
 	newMessage.payload = payload;
 
-	logger.debug('[TX -> C]: ' + type);
-	if(payload) logger.debug(payload);
+	logger.debug('=============[M » C]=============');
+	logger.debug('type: ', type);
+
+	if (newMessage.payload) {
+		logger.debug('payload: ', newMessage.payload);
+	}
 
 	this.server.emit(EVENTS.MESSAGE, newMessage);
-}
-
-
-Microscope.prototype.disconnect = function(payload){
-
 }
 
 Microscope.prototype.status = function () {
@@ -232,276 +474,6 @@ Microscope.prototype.getLocalIP = function () {
 		port:       0,
 		cameraPort: 80
 	};
-};
-
-Microscope.prototype.connect = function () {
-	var that = this;
-
-	var httpServer = http.createServer();
-	httpServer.listen(that.port, that.ip);
-
-	that.server = socketIO(httpServer);
-
-	that.server.on(EVENTS.CONNECT, function (socket) {
-		logger.info('microscope connected at '+ that.ip + ':'+ that.port);
-
-		// socket.on(app.socketStrs.bpu_ping, function (callback) {
-		// 	var emitStr = app.socketStrs.bpu_ping;
-		// 	var retStr  = emitStr + 'Res';
-		// 	var resObj  = {err: null, bpuStatus: app.bpuStatus};
-		// 	//Log
-		// 	//app.logger.info(moduleName+' '+emitStr);
-		//
-		// 	//Run
-		//
-		// 	//Return
-		// 	socket.emit(retStr, resObj);
-		// 	if (typeof callback === 'function') callback(resObj.err, resObj);
-		// });
-
-		socket.on(EVENTS.MESSAGE, that.handleMessage.bind(that));
-
-		socket.on(EVENTS.ERROR, that.handleError.bind(that));
-
-		that.state.connected = 1;
-
-		if (that.state.status === STATES.CONNECTING) {
-			that.state.status = STATES.IDLE;
-		}
-
-		that.sendMessage(MESSAGES.STATUS, that.status());
-
-		// socket.on(app.socketStrs.bpu_getStatus, function (callback) {
-		// 	//Init
-		// 	var emitStr = app.socketStrs.bpu_getStatus;
-		// 	var retStr  = emitStr + 'Res';
-		// 	var resObj  = {
-		// 		//id
-		// 		index:       app.bpuConfig.index,
-		// 		name:        app.bpuConfig.name,
-		// 		//status
-		// 		err:         null,
-		// 		bpuStatus:   app.bpuStatus,
-		// 		expOverId:   null,
-		// 		//Exp
-		// 		exp:         null,
-		// 		expTimeLeft: 0
-		// 	};
-		//
-		// 	//Log
-		// 	//app.logger.info(moduleName+' '+emitStr+':'+app.bpuStatus);
-		//
-		// 	//Run
-		// 	if (app.exp) {
-		// 		resObj.exp = app.exp;
-		// 		if (app.isExperimentOverAndWaitingForPickup) {
-		// 			app.isExperimentOverAndWaitingForPickup = false;
-		// 			resObj.expOverId                        = app.exp._id;
-		// 			var opts                                = {};
-		// 			app.logger.debug(moduleName + ' script_resetBpu ' + 'start');
-		// 			app.script_resetBpu(app, deps, opts, function (err) {
-		// 				app.logger.debug(moduleName + ' script_resetBpu ' + 'end');
-		// 				if (err) {
-		// 					app.logger.error(moduleName + ' script_resetBpu ' + err);
-		// 				} else {
-		// 					app.logger.debug(moduleName + ' run experiment done READY FOR Next EXPERIMENT');
-		// 					callback(null);
-		// 				}
-		// 			});
-		//
-		// 			//While Bpu Has Exp: Check for Run Bad Status
-		// 		} else {
-		// 			if (app.bpuStatus === app.bpuStatusTypes.runningFailed) {
-		// 				app.logger.error('app.exp***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
-		// 				app.logger.error('app.exp           Make sure this is not a big deal and force reset here');
-		//
-		// 			} else if (app.bpuStatus === app.bpuStatusTypes.finalizingFailed) {
-		// 				app.logger.error('app.exp***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
-		// 				app.logger.error('app.exp           Make sure this is not a big deal and force reset here');
-		//
-		// 			} else if (app.bpuStatus === app.bpuStatusTypes.resetingFailed) {
-		// 				app.logger.error('app.exp***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
-		// 				app.logger.error('app.exp           Make sure this is not a big deal...reset is being forced');
-		// 				app.script_resetBpu(app, deps, {}, function (err) {
-		// 					app.logger.debug(moduleName + ' script_resetBpu ' + 'end');
-		// 					if (err) {
-		// 						app.logger.error(moduleName + 'app.exp force script_resetBpu ' + err);
-		// 					} else {
-		// 						app.logger.debug(moduleName + 'app.exp force reset done done READY FOR Next EXPERIMENT');
-		// 						callback(null);
-		// 					}
-		// 				});
-		//
-		// 			} else {
-		// 				console.log('1', app.exp_eventsRunTime, (new Date().getTime() - app.exp.exp_runStartTime));
-		// 				resObj.expTimeLeft = app.exp_eventsRunTime || 0;
-		// 				if (app.bpuStatus !== app.bpuStatusTypes.pendingRun) {
-		// 					if (app.exp_eventsRunTime && app.exp.exp_runStartTime) {
-		// 						resObj.expTimeLeft = app.exp_eventsRunTime - (new Date().getTime() - app.exp.exp_runStartTime);
-		// 					}
-		// 				}
-		// 				app.logger.trace('Exp Time Left:' + resObj.expTimeLeft);
-		// 			}
-		// 		}
-		//
-		// 		//While Bpu Does Not Have Exp: Check for Bad Status
-		// 	} else {
-		//
-		// 		if (app.bpuStatus === app.bpuStatusTypes.initializingFailed) {
-		// 			app.logger.error('***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
-		// 			app.logger.error('           Make sure this is not a big deal and force reset here');
-		//
-		// 		} else if (app.bpuStatus === app.bpuStatusTypes.resetingFailed) {
-		// 			app.logger.error('***********Get Status Bpu Status ' + app.bpuStatus + ' Error*********' + app.bpuStatusError);
-		// 			app.logger.error('           Make sure this is not a big deal and force reset here');
-		// 		}
-		// 	}
-		//
-		// 	//Return
-		// 	if (typeof callback === 'function') callback(resObj);
-		// });
-		//
-		// socket.on(app.socketStrs.bpu_setExp, function (exp, resetTimeout, callback) {
-		// 	//Init
-		// 	var emitStr = app.socketStrs.bpu_setExp;
-		// 	var retStr  = emitStr + 'Res';
-		// 	var resObj  = {err: null, bpuStatus: app.bpuStatus};
-		//
-		// 	//Log
-		// 	app.logger.info(moduleName + ' ' + emitStr);
-		//
-		// 	if (app.exp !== null) {
-		// 		resObj.err = 'already has exp';
-		// 		//Return
-		// 		if (typeof callback === 'function') callback(resObj.err, resObj);
-		// 	} else if (app.bpuStatus !== app.bpuStatusTypes.resetingDone) {
-		// 		resObj.err = 'status is not app.bpuStatusTypes.resetingDone its ' + app.bpuStatus;
-		// 		//Return
-		// 		if (typeof callback === 'function') callback(resObj.err, resObj);
-		// 	} else if (exp.exp_eventsToRun.length === 0) {
-		// 		resObj.err = 'app.exp.exp_eventsToRun.length===0';
-		// 		//Return
-		// 		if (typeof callback === 'function') callback(resObj.err, resObj);
-		// 	} else {
-		// 		app.bpuStatus = app.bpuStatusTypes.pendingRun;
-		// 		app.exp       = exp;
-		//
-		// 		app.exp.exp_eventsToRun.sort(function (objA, objB) {
-		// 			return objB.time - objA.time
-		// 		});
-		// 		app.exp_eventsRunTime = app.exp.exp_eventsToRun[0].time;
-		//
-		// 		app.didConfirmRun        = false;
-		// 		app.didConfirmTimeoutRun = false;
-		// 		setTimeout(function () {
-		// 			if (!app.didConfirmRun) {
-		// 				app.didConfirmTimeoutRun = true;
-		// 				app.script_resetBpu(app, deps, opts, function (err) {
-		// 					if (app.bpu === null || app.bpu === undefined) {
-		// 						app.logger.error('socketBpu bpu_setExp reseting issue no app.bpu');
-		// 					} else if (err) {
-		// 						app.logger.error('socketBpu bpu_setExp reseting ' + err);
-		// 					} else {
-		// 						app.logger.debug('socketBpu bpu_setExp READY FOR EXPERIMENT');
-		// 					}
-		// 				});
-		// 			}
-		// 		}, resetTimeout);
-		// 		//Return
-		// 		if (typeof callback === 'function') callback(resObj.err, resObj);
-		// 	}
-		// });
-		//
-		// socket.on(app.socketStrs.bpu_runExp, function (callback) {
-		// 	if (!app.didConfirmTimeoutRun && app.exp !== null) {
-		// 		app.didConfirmRun = true;
-		// 		//If Live Add setleds
-		// 		if (app.exp.group_experimentType === 'live') {
-		// 			//Set LEDs
-		// 			var ledsSet = function (lightData, cb_fn) {
-		// 				//Init
-		// 				var emitStr = app.socketStrs.bpu_runExpLedsSet;
-		// 				var retStr  = emitStr + 'Res';
-		// 				var resObj  = {err: null, bpuStatus: app.bpuStatus};
-		//
-		// 				//Log
-		// 				//app.logger.info(moduleName+' '+emitStr);
-		//
-		// 				//Run
-		// 				var timeNow       = new Date().getTime();
-		// 				lightData.setTime = timeNow;
-		// 				var doReset       = false;
-		// 				resObj            = app.bpu.ledsSet(lightData, doReset);
-		// 				resObj.err        = null;
-		// 				app.exp.exp_eventsRan.push(resObj);
-		// 				//Return
-		// 				if (typeof cb_fn === 'function') cb_fn(resObj.err, resObj);
-		// 			};
-		// 			//Listender
-		// 			socket.on(app.socketStrs.bpu_runExpLedsSet, ledsSet);
-		// 		}
-		//
-		// 		//Run
-		// 		var options = {};
-		// 		app.logger.debug(moduleName + ' script_runExperiment start');
-		// 		app.script_runExperiment(app, deps, options, app.exp, function (err) {
-		// 			app.logger.debug(moduleName + ' script_runExperiment end');
-		//
-		// 			//If Live Add setleds
-		// 			if (app.exp.group_experimentType === 'live') {
-		// 				socket.removeListener(app.socketStrs.bpu_runExpLedsSet, ledsSet);
-		// 			}
-		//
-		// 			if (err) {
-		// 				app.logger.error(moduleName + ' script_runExperiment ' + err);
-		// 			} else {
-		// 				// if no error set flag for pick, used in get status ping
-		// 				if (app.bpuStatus === app.bpuStatusTypes.finalizingDone) {
-		// 					app.isExperimentOverAndWaitingForPickup = true;
-		// 				}
-		// 			}
-		// 		});
-		//
-		// 		//Return
-		// 		if (typeof callback === 'function') callback({err: null});
-		// 	} else {
-		// 		//Return
-		// 		if (typeof callback === 'function') callback('already canceled', null);
-		// 	}
-		// });
-		//
-		// socket.on(app.socketStrs.bpu_resetBpu, function (isUserCancel, userSessionID) {
-		// 	var doReset = true;
-		// 	if (isUserCancel) {
-		// 		if (app.exp === null || app.exp.session.sessionID !== userSessionID) {
-		// 			doReset = false;
-		// 		}
-		// 	}
-		// 	if (doReset) {
-		// 		//Init
-		// 		var emitStr = app.socketStrs.bpu_resetBpu;
-		// 		var retStr  = emitStr + 'Res';
-		// 		var resObj  = {err: null, bpuStatus: app.bpuStatus};
-		//
-		// 		//Log
-		// 		app.logger.info(moduleName + ' ' + emitStr);
-		//
-		// 		//Run
-		// 		app.script_resetBpu(app, deps, opts, function (err, data) {
-		// 			resObj.resetData = data;
-		//
-		// 			//Return
-		// 			if (typeof callback === 'function') callback(resObj.err, resObj);
-		//
-		// 		});
-		// 	}
-		// });
-
-		socket.on(EVENTS.DISCONNECT, function (reason) {
-			logger.error('disconnected due to ' + reason);
-		});
-
-	});
 };
 
 module.exports = Microscope;

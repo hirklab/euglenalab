@@ -26,7 +26,8 @@
                 'finalizing': 'processing',
                 'finalizingDone': 'processing over',
                 'resetingDone': 'ready',
-                'offline': 'offline'
+                'offline': 'offline',
+                'unknown': 'offline',
             },
             thresholds: {
                 'activity': [

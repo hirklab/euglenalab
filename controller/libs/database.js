@@ -4,31 +4,31 @@ var config = require('../config');
 var logger = require('./logging');
 
 module.exports = function (app, callback) {
-    "use strict";
+	"use strict";
 
-    app.db = mongoose.createConnection(config.DB_URL);
-    app.db.on('error', function (err) {
-        logger.error(err);
-        callback(err);
-    });
+	app.db = mongoose.createConnection(config.DB_URL);
+	app.db.on('error', function (err) {
+		logger.error(err);
+		callback(err);
+	});
 
-    app.db.once('open', function () {
-        logger.info('database => ' + config.DB_URL);
+	app.db.once('open', function () {
+		logger.info('database => ' + config.DB_URL);
 
-        require('./models')(app, mongoose);
-        callback(null);
-    });
+		require('./models')(app, mongoose);
+		callback(null);
+	});
 
-    app.db.getExperiments = function (callback) {
-        app.db.models.ListExperiment.getInstanceDocument(callback);
-    }
+	app.db.getExperiments = function (callback) {
+		app.db.models.ListExperiment.getInstanceDocument(callback);
+	}
 
-    app.db.getBPUs = function (callback) {
-        var query = app.db.models.Bpu.find({
-            isOn: true
-        });
+	app.db.getBPUs = function (callback) {
+		var query = app.db.models.Bpu.find({
+			isOn: true
+		});
 
-        query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
-        query.exec(callback);
-    }
+		query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
+		query.exec(callback);
+	}
 };

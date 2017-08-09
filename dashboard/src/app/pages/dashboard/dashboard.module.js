@@ -14,7 +14,7 @@
 				controller:   'DashboardPageCtrl',
 				controllerAs: 'vm',
 				sidebarMeta:  {
-					icon:  'ion-android-home',
+					icon:  'ion-android-desktop',
 					order: 0
 				},
 				authenticate: true
