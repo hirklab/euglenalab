@@ -41,12 +41,6 @@ controller/node_modules/
 deployment\.js
 
 db/*
-web/dist/*
-web/node_modules/*
-web/frontend/dist/*
-web/frontend/dll/*
-web/frontend/docs/*
-web/frontend/node_modules/*
 
 \.DS_Store
 

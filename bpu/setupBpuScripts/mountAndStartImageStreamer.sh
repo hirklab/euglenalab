@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./bashFunctions.sh
+. bashFunctions.sh
 source sourcefile
 echo "LD_LIBRARY_PATH:"$LD_LIBRARY_PATH
 #*********Output Statements*************

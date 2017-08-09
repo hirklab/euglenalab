@@ -29,6 +29,7 @@ exports = module.exports = function(app, deps, options, exp, mainCallback) {
         //Series Vars
         var outcome = {};
         var num = 0;
+        
         //Series Funcs
         var checkExp = function(callback) {
             num++;
@@ -128,12 +129,12 @@ exports = module.exports = function(app, deps, options, exp, mainCallback) {
             app.bpuStatus = app.bpuStatusTypes.finalizing;
             num++;
             var fName = num + ' finalizeData';
-            app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
-            app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.group_experimentType:' + app.exp.group_experimentType);
-            app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.eventsToRun:' + app.exp.exp_eventsToRun.length);
-            app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsToRunFinal:' + app.exp.exp_eventsToRunFinal.length);
-            app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsRan:' + app.exp.exp_eventsRan.length);
-            app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_metaData:' + app.exp.exp_metaData);
+            // app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
+            // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.group_experimentType:' + app.exp.group_experimentType);
+            // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.eventsToRun:' + app.exp.exp_eventsToRun.length);
+            // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsToRunFinal:' + app.exp.exp_eventsToRunFinal.length);
+            // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsRan:' + app.exp.exp_eventsRan.length);
+            // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_metaData:' + app.exp.exp_metaData);
 
             app.exp.exp_metaData.numFrames = -1;
             deps.fs.readdir(app.expDataDir, function(err, files) {

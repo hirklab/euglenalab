@@ -25,11 +25,11 @@ function Microscope(ip, port, hid, name) {
 	this.name = name;
 
 	this.ip     = ip;
-	this.port   = parseInt(port);
+	this.port   = parseInt(port, 10);
 	this.url    = null;
 	this.server = null;
 	this.client = null; // only controller connects for now,
-                        // change this to list when multiple controllers can connect,
+                        // todo: change this to list when multiple controllers can connect,
                         // cloud based resource sharing
 
 	this.errors = [];  // {type, message}
@@ -142,7 +142,6 @@ Microscope.prototype.onExperimentSet = function (payload) {
 		that.state.experiment.submittedAt = new Date();
 	}else{
 		// already has experiment -> faillll
-
 
 
 	}
@@ -260,7 +259,7 @@ Microscope.prototype.onExperimentClear = function (payload) {
 		that.state.experiment.completedAt = new Date();
 
 		// todo save that experiment
-		// 
+
 
 		// todo : other cleanup activities
 
@@ -269,7 +268,6 @@ Microscope.prototype.onExperimentClear = function (payload) {
 		that.state.experiment    = null;
 		that.state.allowStimulus = false;
 		that.state.status        = STATES.IDLE;
-
 	}
 }
 
@@ -442,8 +440,8 @@ Microscope.prototype.getPublicIP = function () {
 	publicIp.v4().then(function (ip) {
 		this.state.publicAddress = {
 			ip:         ip,
-			port:       0,
-			cameraPort: 20005  // todo
+			port:       0,      //todo
+			cameraPort: 20005   // todo
 		};
 
 		//this.sendMessage(MESSAGE.STATUS, this.status());
@@ -453,8 +451,8 @@ Microscope.prototype.getPublicIP = function () {
 Microscope.prototype.getLocalIP = function () {
 	this.state.localAddress = {
 		ip:         internalIp.v4(),
-		port:       0,
-		cameraPort: 80
+		port:       8090,
+		cameraPort: 8080
 	};
 };
 

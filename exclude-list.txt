@@ -1,7 +1,0 @@
-*node_modules*
-*.swp
-*.swo
-*.svg
-server/views/account/*.json
-bpu/ImageStreamer/*.so
-bpu/ImageStreamer/mjpg_streamer
