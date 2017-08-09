@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <stdbool.h>
 #include "singleton_factory.hpp"
 
@@ -11,6 +12,8 @@
 
 #include <iostream>
 #include <chrono>
+
+#define PI 3.14159265
 
 // Create a Kalman Filter class used to predict the position of euglena for more accurate live tracking
 class KFTracker {
@@ -63,6 +66,7 @@ class EuglenaProcessor : public Processor {
         bool drawOnTrackedEuglena;
         bool viewEuglenaPaths;
         bool sandboxMode = false;
+        bool sandboxModeFirstIteration = true;
 
         // Sandbox mode variables
         std::map<int, cv::Point2f> euglenaPositionsSandbox;
@@ -288,12 +292,74 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
     // Draw simulation on top of image if in sandbox mode.
     if (sandboxMode) {
-        // cv::rectangle(im, cv::Point(0.0, 0.0), cv::Point(640.0, 480.0), cv::Scalar(0, 0, 0, 255), -1);
+        cv::rectangle(im, cv::Point(0.0, 0.0), cv::Point(640.0, 480.0), cv::Scalar(0, 0, 0, 255), -1);
 
-        // std::map<int, cv::Point2f> euglenaPositionsSandbox;
-        // std::map<int, double> euglenaVelocitiesSandbox;
-        // std::map<int, double> euglenaAccelerationsSandbox;
-        // std::map<int, float> euglenaAnglesSandbox;
+        if (sandboxModeFirstIteration) {
+            euglenaPositionsSandbox[0] = cv::Point2f(50.0, 50.0);
+            euglenaPositionsSandbox[1] = cv::Point2f(120.0, 120.0);
+            euglenaPositionsSandbox[2] = cv::Point2f(190.0, 190.0);
+            euglenaPositionsSandbox[3] = cv::Point2f(260.0, 260.0);
+            euglenaPositionsSandbox[4] = cv::Point2f(330.0, 330.0);
+            euglenaAnglesSandbox[0] = rand() % 360;
+            euglenaAnglesSandbox[1] = rand() % 360;
+            euglenaAnglesSandbox[2] = rand() % 360;
+            euglenaAnglesSandbox[3] = rand() % 360;
+            euglenaAnglesSandbox[4] = rand() % 360;
+            euglenaVelocitiesSandbox[0] = 1.5 + ((double)rand() / RAND_MAX)*2;
+            euglenaVelocitiesSandbox[1] = 0.1 + ((double)rand() / RAND_MAX)*2;
+            euglenaVelocitiesSandbox[2] = 1.5 + ((double)rand() / RAND_MAX)*2;
+            euglenaVelocitiesSandbox[3] = 0.1 + ((double)rand() / RAND_MAX)*2;
+            euglenaVelocitiesSandbox[4] = 0.5 + ((double)rand() / RAND_MAX)*2;
+            euglenaAccelerationsSandbox[0] = 0.0;
+            euglenaAccelerationsSandbox[1] = 0.0;
+            euglenaAccelerationsSandbox[2] = 0.0;
+            euglenaAccelerationsSandbox[3] = 0.0;
+            euglenaAccelerationsSandbox[4] = 0.0;
+            sandboxModeFirstIteration = false;
+        }
+
+        // Draw all Euglenas based on position and rotation.
+        int i;
+        int j;
+
+        // Update rotation of Euglena if they collide.
+        for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
+            for (j = 0; j < euglenaPositionsSandbox.size(); j++) {
+                if (i != j) {
+                    if (euglenaPositionsSandbox[i].x - 2 < euglenaPositionsSandbox[j].x 
+                        && euglenaPositionsSandbox[i].x + 2 > euglenaPositionsSandbox[j].x
+                        && euglenaPositionsSandbox[i].y - 2 < euglenaPositionsSandbox[j].y
+                        && euglenaPositionsSandbox[i].y + 2 < euglenaPositionsSandbox[j].y) {
+                        euglenaAnglesSandbox[i] = rand() % 360;
+                        euglenaAnglesSandbox[j] = rand() % 360;
+                    }
+                }
+            }
+        }
+
+        // Add wobbly motion to Euglena.
+
+        // Update position of Euglena based on velocity and angle.
+        for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
+            euglenaPositionsSandbox[i].x += euglenaVelocitiesSandbox[i]*cos(euglenaAnglesSandbox[i] * PI / 180.0);
+            euglenaPositionsSandbox[i].y += euglenaVelocitiesSandbox[i]*sin(euglenaAnglesSandbox[i] * PI / 180.0);
+            if (euglenaPositionsSandbox[i].x > 640 + 40) {
+                euglenaPositionsSandbox[i].x = -20;
+            } else if (euglenaPositionsSandbox[i].x < -40) {
+                euglenaPositionsSandbox[i].x = 640 + 20;
+            } else if (euglenaPositionsSandbox[i].y > 480 + 40) {
+                euglenaPositionsSandbox[i].y = -20;
+            } else if (euglenaPositionsSandbox[i].y < -40) {
+                euglenaPositionsSandbox[i].y = 480 + 20;
+            }
+        }
+
+        for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
+            cv::ellipse(im, euglenaPositionsSandbox[i], cv::Size(20, 10), euglenaAnglesSandbox[i], 0.0, 360.0, cv::Scalar(0, 255, 0, 255), -1);
+        }
+
+    } else {
+        sandboxModeFirstIteration = true;
     }
 
     // Assign calculated velocity, accelleration, and angle of rotation for a target euglena to user facing variables 
