@@ -12,6 +12,10 @@ exports.savefile = function(req, res) {
   var fileName = "NO_NAME_ASSIGNED";
   if (req.body.fileName.length > 1) {
     fileName = req.body.fileName;
+    if (req.body.fileName.split('/').length > 1) {
+      res.json('ERR_DIRECTORY_READ');
+      return;
+    }
   }
   var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName;
   var gameFileToSave = req.body.runCode + "-----" + req.body.startCode
@@ -64,6 +68,10 @@ exports.getgamecode = function(req, res) {
 
 exports.writeuserfile = function(req, res) {
   console.log("Writing user's file...");
+  if (req.body.fileName.split('/').length > 1) {
+    res.json('ERR_DIRECTORY_SAVE');
+    return;
+  }
   var filePath = __dirname + "/userfiles/" + req.body.fileName;
   var userFileToSave = req.body.userText;
   var fileMode = req.body.fileMode;
@@ -84,6 +92,10 @@ exports.writeuserfile = function(req, res) {
 
 exports.readuserfile = function(req, res) {
   console.log("Reading user's file...");
+  if (req.body.userFile.split('/').length > 1) {
+    res.json('ERR_DIRECTORY_READ');
+    return;
+  }
   var fileToOpen = req.body.userFile;
   var filePath = __dirname + "/userfiles/" + fileToOpen;
   console.log('Opening file: ' + filePath);
