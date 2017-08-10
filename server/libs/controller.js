@@ -17,37 +17,36 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
     var waitTimePerBpuName = {};
     var updatePerSessionID = {};
 
-    var addBpuToSessionID = function (sessID, bpuExp) {
-        if (sessID !== null && sessID !== undefined) {
-            if (updatePerSessionID[sessID] === null || updatePerSessionID[sessID] === undefined) {
-                updatePerSessionID[sessID]         = {};
-                updatePerSessionID[sessID].bpuExps = [];
-                updatePerSessionID[sessID].expTags = [];
-            }
-            updatePerSessionID[sessID].bpuExps.push(bpuExp);
-        }
-    };
+    // var addBpuToSessionID = function (sessID, bpuExp) {
+    //     if (sessID !== null && sessID !== undefined) {
+    //         if (updatePerSessionID[sessID] === null || updatePerSessionID[sessID] === undefined) {
+    //             updatePerSessionID[sessID]         = {};
+    //             updatePerSessionID[sessID].bpuExps = [];
+    //             updatePerSessionID[sessID].expTags = [];
+    //         }
+    //         updatePerSessionID[sessID].bpuExps.push(bpuExp);
+    //     }
+    // };
+    //
+    // var addExpToSessionID = function (sessID, expTag) {
+    //     if (sessID !== null && sessID !== undefined) {
+    //         if (updatePerSessionID[sessID] === null || updatePerSessionID[sessID] === undefined) {
+    //             updatePerSessionID[sessID]         = {};
+    //             updatePerSessionID[sessID].bpuExps = [];
+    //             updatePerSessionID[sessID].expTags = [];
+    //         }
+    //         updatePerSessionID[sessID].expTags.push(expTag);
+    //     }
+    // };
 
-    var addExpToSessionID = function (sessID, expTag) {
-        if (sessID !== null && sessID !== undefined) {
-            if (updatePerSessionID[sessID] === null || updatePerSessionID[sessID] === undefined) {
-                updatePerSessionID[sessID]         = {};
-                updatePerSessionID[sessID].bpuExps = [];
-                updatePerSessionID[sessID].expTags = [];
-            }
-            updatePerSessionID[sessID].expTags.push(expTag);
-        }
-
-    };
-
-    var bpuGroupsCrossCheckWithUser = function (user, bpuDoc) {
-        for (var ind = 0; ind < bpuDoc.allowedGroups.length; ind++) {
-            for (var jnd = 0; jnd < user.groups.length; jnd++) {
-                if (bpuDoc.allowedGroups[ind] === user.groups[jnd]) return true;
-            }
-        }
-        return false;
-    };
+    // var bpuGroupsCrossCheckWithUser = function (user, bpuDoc) {
+    //     for (var ind = 0; ind < bpuDoc.allowedGroups.length; ind++) {
+    //         for (var jnd = 0; jnd < user.groups.length; jnd++) {
+    //             if (bpuDoc.allowedGroups[ind] === user.groups[jnd]) return true;
+    //         }
+    //     }
+    //     return false;
+    // };
 
     var isLiveActive = function (status) {
         return (status === that.config.mainConfig.bpuStatusTypes.running ||
@@ -81,10 +80,12 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
                     bpu_processingTime: bpuDoc.bpu_processingTime,
                     liveBpuExperiment:  liveBpuExperimentPart
                 };
+
                 //Add to Session Update
-                if (bpuObj.liveBpuExperiment) {
-                    addBpuToSessionID(bpuDoc.liveBpuExperiment.sessionID, JSON.parse(JSON.stringify(bpuObj)));
-                }
+                // if (bpuObj.liveBpuExperiment) {
+                //     addBpuToSessionID(bpuDoc.liveBpuExperiment.sessionID, JSON.parse(JSON.stringify(bpuObj)));
+                // }
+
                 bpuObj.allowedGroups = bpuDoc.allowedGroups;                 //should be deleted before going out
 
                 if (bpuDoc.name in runningQueueTimesPerBpuName) {
@@ -100,17 +101,17 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
     }
 
     //Sort Queue Exps and New Exp By sessionID
-    Object.keys(listExperiment).forEach(function (key) {
-        if (key[0] !== '_') {
-            if (key.search('eug') > -1 || key === 'newExps') {
-                listExperiment[key].forEach(function (expTag) {
-                    if (expTag.session) {
-                        addExpToSessionID(expTag.session.sessionID, expTag);
-                    }
-                });
-            }
-        }
-    });
+    // Object.keys(listExperiment).forEach(function (key) {
+    //     if (key[0] !== '_') {
+    //         if (key.search('eug') > -1 || key === 'newExps') {
+    //             listExperiment[key].forEach(function (expTag) {
+    //                 if (expTag.session) {
+    //                     addExpToSessionID(expTag.session.sessionID, expTag);
+    //                 }
+    //             });
+    //         }
+    //     }
+    // });
 
     var users = _.map(Object.values(that.userManager.users), function (user) {
         "use strict";
@@ -162,39 +163,49 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
 Controller.prototype.connect = function (cb) {
     var that = this;
 
-    var serverInfo = {
-        Identifier:             that.config.myWebServerIdentifier,
-        name:                   that.config.myWebServerName,
-        socketClientServerPort: that.config.myControllerPort
-    };
+    // var serverInfo = {
+    //     Identifier:             that.config.myWebServerIdentifier,
+    //     name:                   that.config.myWebServerName,
+    //     socketClientServerPort: that.config.myControllerPort
+    // };
 
-    var addr = that.config.controllerAddress;
+    var address = that.config.controllerAddress;
     that.logger.debug('connecting controller...');
 
-    that.socket = socketClient(addr, {multiplex: false, reconnection: true});
+    that.socket = socketClient(address, {multiplex: false, reconnection: true});
 
     that.socket.on('disconnect', function () {
         that.logger.warn('controller disconnected');
     });
 
-    that.socket.on('connect', function () {
-        that.logger.info('controller => ' + addr);
+    that.socket.on('connection', function () {
+        that.logger.info('controller => ' + address);
 
-        that.socket.emit('setConnection', serverInfo, function (err, auth) {
-            if (err) {
-                that.logger.error('controller authentication failed: ' + err);
-                cb(err, that);
-            } else {
-                that.logger.info('controller authenticated: ' + auth.Name);
-                that.auth = auth;
-                cb(null, that);
-            }
-        });
+        // that.socket.emit('setConnection', serverInfo, function (err, auth) {
+        //     if (err) {
+        //         that.logger.error('controller authentication failed: ' + err);
+        //         cb(err, that);
+        //     } else {
+        //         that.logger.info('controller authenticated: ' + auth.Name);
+        //         that.auth = auth;
+        //         cb(null, that);
+        //     }
+        // });
+
+	    cb(null, that);
     });
 
     //update is joined in user socket connection
-    that.socket.on('update', function (bpuDocs, listExperiment, runningQueueTimesPerBpuName) {
-        that.compileClientUpdateFromController(bpuDocs, listExperiment, runningQueueTimesPerBpuName);
+    that.socket.on('message', function (message) {
+        var type = message.type;
+        var payload = message.payload;
+
+	    // that.logger.debug('=============[C » W]=============');
+	    // that.logger.debug('type: ', type);
+
+        if(type=='update' && payload){
+	        that.compileClientUpdateFromController(payload.microscopes, payload.experiments, payload.queueTimes);
+        }
     });
 
     //Routes calls to user sockets if found

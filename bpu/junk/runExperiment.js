@@ -205,6 +205,7 @@ exports = module.exports = function(app, deps, options, exp, mainCallback) {
         });
     }
 };
+
 //General Functions
 var runBashCommand = function(cmdStr, callback) {
     var child = _exec(cmdStr, function(error, stdout, stderr) {
@@ -217,33 +218,6 @@ var runBashCommand = function(cmdStr, callback) {
         } else {
             callback(null, null);
         }
-    });
-};
-//Camera functions
-var toggleWebCamSave = function(startStop, cb_fn) {
-    if (startStop === 'stop' || startStop === 'start') {
-        var net = require('net');
-        var client = new net.Socket();
-        client.connect(32000, 'localhost', function() {
-            client.write(startStop);
-            cb_fn(null);
-        });
-        client.on('error', function(err) {
-            cb_fn(err);
-        });
-    } else {
-        cb_fn("1st param needs to be 'start' or 'stop'");
-    }
-};
-
-var initializeProjector = function(cb_fn) {
-    var net = require('net');
-    var client = new net.Socket();
-    client.connect(32001, 'localhost', function() {
-        cb_fn(null, client);
-    });
-    client.on('error', function(err) {
-
     });
 };
 

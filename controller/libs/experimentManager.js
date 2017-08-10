@@ -6,6 +6,7 @@ var _     = require('underscore');
 var config    = require('../config');
 var constants = require('../constants');
 var logger    = require('./logging');
+var MESSAGES  = constants.MESSAGES;
 
 module.exports = function (app) {
 	var addExpToBpu = function (app, exp, bpuDoc, bpuSocket, callback) {
@@ -204,73 +205,63 @@ module.exports = function (app) {
 	return {
 		//pulls ListExperiment doc each time
 		checkExperiments: function (callback) {
-
-			//Checks each experiment tag in listExperiment doc
 			var ExpRejectMax = 10;
-
-			var cnt = 0; //cnts expTags for cnsole logging
+			var cnt          = 0; //cnts expTags for cnsole logging
 
 			app.experimentsCache = []; //BpuExperiments are pulled from db for each expTag, they are kept though the rest of the loop
 
-			Object.keys(app.microscopesIndex).forEach(function (key) {
-				var bpuObj = app.microscopesIndex[key];
-				//Set Queue Time
-				if (app.microscopesIndex[bpuObj.doc.name].queueTime === null || app.microscopesIndex[bpuObj.doc.name].queueTime === undefined) {
-					if (bpuObj.doc.liveBpuExperiment) {
-						app.microscopesIndex[bpuObj.doc.name].queueTime = bpuObj.doc.liveBpuExperiment.bc_timeLeft;
-					} else {
-						app.microscopesIndex[bpuObj.doc.name].queueTime = 0;
-					}
-
-					// if (!bpuObj.isConnected) {
-					//     delete app.microscope[bpuObj.doc.name].queueTime;
-					// }
-				}
-			});
-
 			var checkExpAndResort = function (checkExpCallback) {
 				cnt++;
+
 				var expTag = this;
-				logger.debug(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(age:' + (app.startDate.getTime() - expTag.exp_submissionTime) + ')');
-				logger.debug(cnt + ':checkExpAndResort:(user:' + expTag.user.name + ', bpu:' + expTag.exp_wantsBpuName + ')');
+
 				app.db.models.BpuExperiment.findById(expTag.id, function (err, expDoc) {
 
 					//Failed
 					if (err) {
 						err = cnt + ':checkExpAndResort BpuExperiment.findById :' + err;
 						logger.error(err);
+
 						expTag.exp_lastResort.rejectionCounter++;
 						expTag.exp_lastResort.rejectionReason = err;
+
 						checkExpCallback(null);
 
 						//Failed
 					} else if (expDoc === null || expDoc === undefined) {
 						err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'expDoc===null || expDoc===undefined';
 						logger.error(err);
+
 						expTag.exp_lastResort.rejectionCounter++;
 						expTag.exp_lastResort.rejectionReason = err;
+
 						checkExpCallback(null);
 
 						//Canceled
 					} else if (expDoc.exp_isCanceled) {
 						err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'expDoc.exp_isCanceled';
 						logger.error(err);
+
 						expTag.exp_lastResort.rejectionCounter = ExpRejectMax;
 						expTag.exp_lastResort.rejectionReason  = err;
+
 						checkExpCallback(null);
 
 						//Incorrect status, should alreay be out of queue
 					} else if (expDoc.exp_status !== 'queued' && expDoc.exp_status !== 'submited' && expDoc.exp_status !== 'created') {
 						err = cnt + ':checkExpAndResort BpuExperiment.findById error:' + 'Incorrect status:' + expDoc.exp_status + ', should alreay be out of queue';
 						logger.error(err);
+
 						expTag.exp_lastResort.rejectionCounter = ExpRejectMax;
 						expTag.exp_lastResort.rejectionReason  = err;
+
 						checkExpCallback(null);
 
 						//Okay -- we have the doc, expTag is removed and the expDoc is used from now on
 					} else {
 						//add exptag to expDoc
 						expDoc.tag = app.newExperimentsIndex[expDoc._id];
+
 						//Remove expTag from main object
 						delete app.newExperimentsIndex[expDoc._id];
 
@@ -283,15 +274,20 @@ module.exports = function (app) {
 						//Get Bpus In Groups
 						Object.keys(app.microscopesIndex).forEach(function (key) {
 							var bpuObj = app.microscopesIndex[key];
+
 							if (bpuObj.isConnected) {
+
 								//Filter bpus by experiment user groups
 								for (var bgnd = 0; bgnd < bpuObj.doc.allowedGroups.length; bgnd++) {
 									for (var ugnd = 0; ugnd < expDoc.user.groups.length; ugnd++) {
+
 										if (bpuObj.doc.allowedGroups[bgnd] === expDoc.user.groups[ugnd]) {
+
 											//Score Bpu
 											var scoreObj           = bpuObj.doc.scoreBpu(app.microscopesIndex[bpuObj.doc.name].queueTime);
 											scoreObj.bpuName       = bpuObj.doc.name;
 											scoreObj.totalWaitTime = app.microscopesIndex[bpuObj.doc.name].queueTime;
+
 											//Check Specific Bpu and add to exps canidate bpus list
 											if (expDoc.exp_wantsBpuName !== null) {
 												if (bpuObj.doc.name === expTag.exp_wantsBpuName) {
@@ -308,9 +304,11 @@ module.exports = function (app) {
 
 						//Only one canidated bpu
 						if (expDoc.exp_lastResort.canidateBpus.length === 1) {
+
 							//choose bpu from score and wait time
 							expDoc.exp_lastResort.bpuName       = expDoc.exp_lastResort.canidateBpus[0].bpuName;
 							expDoc.exp_lastResort.totalWaitTime = expDoc.exp_lastResort.canidateBpus[0].totalWaitTime;
+
 							//Update running bpu queue time
 							app.microscopesIndex[expDoc.exp_lastResort.canidateBpus[0].bpuName].queueTime += expDoc.exp_eventsRunTime;
 
@@ -321,6 +319,7 @@ module.exports = function (app) {
 							expDoc.exp_lastResort.canidateBpus.sort(function (objA, objB) {
 								return objB.finalScore - objA.finalScore;
 							});
+
 							//choose bpu from score and wait time
 							var zeroScore     = expDoc.exp_lastResort.canidateBpus[0].finalScore;
 							var scoreInt      = 0.2;
@@ -328,6 +327,7 @@ module.exports = function (app) {
 								if (scoreObj.finalScore <= zeroScore + scoreInt && scoreObj.finalScore >= zeroScore - scoreInt) return true;
 								else return false;
 							});
+
 							if (sameScoreObjs.length > 0) {
 								//Sort similar final scores by wait time.
 								sameScoreObjs.sort(function (objA, objB) {
@@ -347,7 +347,6 @@ module.exports = function (app) {
 						}
 
 						if (true) {
-							logger.debug(cnt + ':checkExpAndResort:(sess:' + expTag.session.sessionID + ', id:' + expTag.id + '):' + expTag.group_experimentType + ':(cans:' + expDoc.exp_lastResort.canidateBpus.length + ')');
 							expDoc.exp_lastResort.canidateBpus.forEach(function (canBpu) {
 								logger.debug(canBpu.bpuName + ' ' + canBpu.finalScore + ' ' + canBpu.totalWaitTime);
 							});
@@ -589,26 +588,31 @@ module.exports = function (app) {
 		},
 
 		notifyClients: function (callback) {
-			if (app.clients.length > 0) {
+			if (app.webserver && app.webserver.state.connected) {
 
-				var bpuDocs = _.map(_.values(app.microscopesIndex), function (microscope) {
-					if (microscope.isConnected) {
+				var microscopes = _.values(app.microscopesIndex);
+
+				var bpuDocs = _.chain(microscopes)
+					.filter(function (microscope) {
+						return microscope.isConnected;
+					})
+					.map(function (microscope) {
 						return microscope.doc.toJSON();
-					}
-				});
+					});
 
 				var queueTimes = _.mapObject(app.microscopesIndex, function (val, key) {
 					return val.queueTime;
 				});
 
-				app.clients.forEach(function (client) {
-					if (client.connected) {
-						client.emit('update', bpuDocs, app.experiments.toJSON(), queueTimes);
-					}
+				app.webserver.sendMessage(MESSAGES.UPDATE, {
+					microscopes: bpuDocs,
+					experiments: app.experiments.toJSON(),
+					queueTimes:  queueTimes
 				});
 			}
 
 			return callback(null);
 		}
 	}
-};
+}
+;

@@ -90,59 +90,6 @@ UserManager.prototype.connect = function (controller, cb) {
 			that.controller.setStimulus(data);
 		});
 
-		// socket.emit(that.config.mainConfig.userSocketStrs.user_setConnection, function (sessDocJson) {
-		//     //Update and find session
-		//     var updateObj = {
-		//         lastUpdateTime: new Date().getTime(),
-		//         isVerified:     true,
-		//         sessionID:      sessDocJson.sessionID,
-		//         socketHandle:   sessDocJson.socketHandle,
-		//         socketID:       sessDocJson.socketID
-		//     };
-		//
-		//     that.db.models.Session.findOneAndUpdate({'sessionID': sessDocJson.sessionID}, updateObj, {new: true}, function (err, sessDoc) {
-		//         if (err) {
-		//             socket.emit(that.config.mainConfig.userSocketStrs.user_serverError, 'Session:' + err);
-		//         } else if (sessDoc === null || sessDoc === undefined) {
-		//             socket.emit(that.config.mainConfig.userSocketStrs.user_serverError, 'Session:' + 'dne');
-		//         } else {
-		//             var hasLiveExp     = false;
-		//             var checkLiveExpId = 'fake';
-		//
-		//             if (sessDoc.liveBpuExperiment && sessDoc.liveBpuExperiment.id) {
-		//                 checkLiveExpId = sessDoc.liveBpuExperiment.id;
-		//             }
-		//
-		//             that.db.models.BpuExperiment.findById(checkLiveExpId, {exp_status: 1}, function (err, expDoc) {
-		//                 if (err || expDoc === null || expDoc === undefined) {
-		//                 } else {
-		//                     if (expDoc.exp_status === 'addingtobpu' || expDoc.exp_status === 'running') {
-		//                         hasLiveExp = true;
-		//                     }
-		//                 }
-		//
-		//                 if (!hasLiveExp) {
-		//                     sessDoc.liveBpuExperiment.id = null;
-		//                     sessDoc.save();
-		//                 }
-		//
-		//                 socket.sessionDoc = sessDoc;
-		//
-		//                 //Allow clients to send experiment requests to bpu controller
-		//                 socket.on(that.config.mainConfig.userSocketStrs.user_submitExperimentRequest, function (joinQueueDataArray, callbackToClient) {
-		//                     that.logger.debug("submitting experiment to controller...");
-		//                     that.controller.submitExperiment(joinQueueDataArray, callbackToClient);
-		//                 });
-		//
-		//                 socket.on(that.config.mainConfig.userSocketStrs.user_ledsSet, function (data) {
-		//                     that.logger.debug("sending data to controller...");
-		//                     that.controller.setStimulus(data);
-		//                 });
-		//             });
-		//         }
-		//     });
-		// });
-
 	});
 
 	cb(null);

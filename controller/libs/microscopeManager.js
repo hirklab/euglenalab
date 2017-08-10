@@ -1,15 +1,9 @@
 "use strict";
 var async          = require('async');
-var socketIO       = require('socket.io');
-var socketIOClient = require('socket.io-client');
 
 var config = require('../config');
 var logger = require('./logging');
-
 var constants    = require('../constants');
-var BPU_STATES   = constants.BPU_STATES;
-var BPU_EVENTS   = constants.BPU_EVENTS;
-var BPU_MESSAGES = constants.BPU_MESSAGES;
 
 var Microscope = require('./microscope');
 
@@ -55,11 +49,12 @@ module.exports = function (app) {
 				logger.info(microscope.doc.name + '(' + microscope.address + ')');
 
 				if (microscope.isConnected) {
-					logger.info('\tConnected:\t' + microscope.isConnected);
+					logger.info('\tconnected:\t' + microscope.isConnected);
+					logger.info('\tqueueTime:\t' + microscope.queueTime);
 					// logger.info('\tTimeout:\t' + microscope.inactiveCount);
 				}
 				else {
-					logger.error('\tConnected:\t' + microscope.isConnected);
+					logger.error('\tconnected:\t' + microscope.isConnected);
 					// logger.error('\tTimeout:\t' + microscope.inactiveCount);
 				}
 
@@ -67,6 +62,6 @@ module.exports = function (app) {
 
 			return callback(null);
 
-		},
+		}
 	}
 };

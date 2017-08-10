@@ -7,6 +7,7 @@ var Agenda           = require('agenda');
 
 var config = require('./config');
 var logger = require('./libs/logging');
+var Webserver = require('./libs/webserver');
 
 var filename = path.basename(__filename);
 
@@ -23,9 +24,6 @@ var app = {
 
     // object list of connected microscopes
     microscopesIndex: {},
-
-    // list of connected servers
-    clients: [],
 
     // object list of experiments from database
     experiments: null,
@@ -44,32 +42,32 @@ var app = {
 
     bpuLedsSetMatch: {},
 
-    Auth: {
-        C422691AA38F9A86EC02CB7B55D5F542: {
-            Name:            'radiantllama',
-            Identifier:      'C422691AA38F9A86EC02CB7B55D5F542',
-            arePassKeysOpen: false,
-            PassKeys:        ['R-OpYLbT6Kk-GXyEmX1SOOOHDw157mJc'],
-            socketID:        null,
-            serverInfo:      null
-        },
-        b3cagcde2684ebd2cba325555ec2703b: {
-            Name:            'InternalWeb1',
-            Identifier:      'b3cagcde2684ebd2cba325555ec2703b',
-            arePassKeysOpen: true,
-            PassKeys:        [],
-            socketID:        null,
-            serverInfo:      null
-        },
-        b3cagcde2684ebd2cba325555ec2703c: {
-            Name:            'InternalWeb2',
-            Identifier:      'b3cagcde2684ebd2cba325555ec2703c',
-            arePassKeysOpen: true,
-            PassKeys:        [],
-            socketID:        null,
-            serverInfo:      null
-        }
-    }
+    // Auth: {
+    //     C422691AA38F9A86EC02CB7B55D5F542: {
+    //         Name:            'radiantllama',
+    //         Identifier:      'C422691AA38F9A86EC02CB7B55D5F542',
+    //         arePassKeysOpen: false,
+    //         PassKeys:        ['R-OpYLbT6Kk-GXyEmX1SOOOHDw157mJc'],
+    //         socketID:        null,
+    //         serverInfo:      null
+    //     },
+    //     b3cagcde2684ebd2cba325555ec2703b: {
+    //         Name:            'InternalWeb1',
+    //         Identifier:      'b3cagcde2684ebd2cba325555ec2703b',
+    //         arePassKeysOpen: true,
+    //         PassKeys:        [],
+    //         socketID:        null,
+    //         serverInfo:      null
+    //     },
+    //     b3cagcde2684ebd2cba325555ec2703c: {
+    //         Name:            'InternalWeb2',
+    //         Identifier:      'b3cagcde2684ebd2cba325555ec2703c',
+    //         arePassKeysOpen: true,
+    //         PassKeys:        [],
+    //         socketID:        null,
+    //         serverInfo:      null
+    //     }
+    // }
 };
 
 
@@ -87,11 +85,11 @@ var setupScheduler = function(callback){
 
 		callback(null);
 	});
-}
+};
 
-var setupSocketClientServer = function (callback) {
+var setupWebserver = function (callback) {
     logger.debug('setting socket server...');
-    require('./libs/socketServer')(app, callback);
+    app.webserver = new Webserver(callback);
 };
 
 var getExperiments = function (callback) {
@@ -114,7 +112,7 @@ var init = function (callback) {
     async.series([
         setupMongoose,
 	    setupScheduler,
-        setupSocketClientServer,
+	    setupWebserver,
         getExperiments
     ], function (err) {
         if (err) {
@@ -132,7 +130,7 @@ var loop = function () {
     app.startDate = new Date();
 
     var microscopeUtils = require('./libs/microscopeManager')(app);
-    var experimentUtils = require('./libs/experiment')(app);
+    var experimentUtils = require('./libs/experimentManager')(app);
 
     async.series([
         microscopeUtils.getMicroscopes,

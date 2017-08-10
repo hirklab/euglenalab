@@ -37,7 +37,6 @@ function Microscope(config) {
 	});
 }
 
-
 Microscope.prototype.connect = function (callback) {
 	var that = this;
 

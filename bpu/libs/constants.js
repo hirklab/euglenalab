@@ -55,4 +55,4 @@ module.exports.EXPERIMENT_TYPE = {
 	BATCH: 'batch'
 };
 
-module.exports.LOG_LEVELS = ['log', 'trace', 'debug', 'info', 'warn', 'error']
+module.exports.LOG_LEVELS = ['log', 'trace', 'debug', 'info', 'warn', 'error'];

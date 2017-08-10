@@ -15,7 +15,7 @@ exports.mongodb = {
 };
 
 exports.companyName = 'Riedel-Kruse Lab';
-exports.projectName = 'Interactive Online Biology';
+exports.projectName = 'Interactive Microbiology Lab';
 exports.systemEmail= 'euglena.hirk@gmail.com';
 
 exports.cryptoKey = 'k3yb0ardc4t';
@@ -30,7 +30,7 @@ exports.requireAccountVerification = false;
 
 exports.smtp = {
   from: {
-    name: process.env.SMTP_FROM_NAME || exports.projectName +' Website',
+    name: process.env.SMTP_FROM_NAME || exports.projectName,
     address: process.env.SMTP_FROM_ADDRESS || exports.systemEmail
   },
   credentials: {
