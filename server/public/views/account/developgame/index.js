@@ -1251,17 +1251,19 @@
 
       if (!app.mainView.alreadyKicked) {
         app.mainView.alreadyKicked = true;
+      } else {
+        return;
       }
 
-      if (app.mainView.updateLoopInterval) {
-        clearInterval(app.mainView.updateLoopInterval);
-        app.mainView.updateLoopInterval = null;
-      }
+      // if (app.mainView.updateLoopInterval) {
+      //   clearInterval(app.mainView.updateLoopInterval);
+      //   app.mainView.updateLoopInterval = null;
+      // }
 
-      if (app.mainView.keyboardTimeout) {
-        clearTimeout(app.mainView.keyboardTimeout);
-        app.mainView.keyboardTimeout = null;
-      }
+      // if (app.mainView.keyboardTimeout) {
+      //   clearTimeout(app.mainView.keyboardTimeout);
+      //   app.mainView.keyboardTimeout = null;
+      // }
 
       //console.log('kicking user!');
       // if (app.mainView.bpuExp != null) {
@@ -1434,14 +1436,15 @@
             //console.log('KICKING USER CODE');
             app.mainView.kickUser(null, 'complete');
 
-            clearInterval(app.mainView.updateLoopInterval);
-            app.mainView.updateLoopInterval = null;
+            // clearInterval(app.mainView.updateLoopInterval);
+            // app.mainView.updateLoopInterval = null;
 
-            clearTimeout(app.mainView.keyboardTimeout);
-            app.mainView.keyboardTimeout = null;
+            // clearTimeout(app.mainView.keyboardTimeout);
+            // app.mainView.keyboardTimeout = null;
           }
           
-        } else {
+        } 
+        //else {
           if (app.mainView.isSocketInitialized && !app.mainView.hadJoyActivity) {
             if (timerActivatedJoystick > 1000) {
               timerActivatedJoystick = 0;
@@ -1454,7 +1457,8 @@
           } else {
             timerActivatedJoystick = 0;
           }
-        }
+        //}
+
         app.mainView.myJoyStick.update('Joystick');
       }, 20);
     },
