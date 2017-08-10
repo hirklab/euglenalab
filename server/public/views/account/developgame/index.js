@@ -351,6 +351,8 @@
       app.mainView.setInstructionText(" ");
       app.mainView.setJoystickVisible(true);
       app.mainView.codeEditorReadOnly = false;
+      app.mainView.joystickIntensity = 0;
+      app.mainView.joystickDirection = 0;
       // app.mainView.codeVariablesEditor.setOption("readOnly", false);
       // app.mainView.runEditor.setOption("readOnly", false);
       // app.mainView.startEditor.setOption("readOnly", false);
@@ -505,10 +507,12 @@
     gameEndCode: "",
     gameKeypressCode: "",
     gameJoystickCode: "",
-    gameJoystickCodeAngle: "",
-    gameJoystickCodeIntensity: "",
     gameEuglenaCount: -1,
     gameDemoMode: false,
+
+    // Joystick info.
+    joystickDirection: 0,
+    joystickIntensity: 0,
 
     // drawCircle
     drawCircleCenterX: [],
@@ -1151,26 +1155,34 @@
       //console.log('setLED function called');
       //console.log(led);
       //console.log(intensity);
-      if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
-        return;
-      }
+
+      // if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
+      //   return;
+      // }
+
+      app.mainView.joystickIntensity = intensity;
+
       switch (led.split('.')[1]) {
         case 'RIGHT':
+          app.mainView.joystickDirection = 0;
           var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
           ledsSetObj.rightValue = parseInt(intensity);
           app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
           break;
         case 'LEFT':
+          app.mainView.joystickDirection = 180;
           var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, intensity);
           ledsSetObj.leftValue = parseInt(intensity);
           app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
           break;
         case 'UP':
+          app.mainView.joystickDirection = 90;
           var ledsSetObj = app.mainView.setLEDhelper(intensity, 0, 0, 0);
           ledsSetObj.topValue = parseInt(intensity);
           app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
           break;
         case 'DOWN':
+          app.mainView.joystickDirection = 270;
           var ledsSetObj = app.mainView.setLEDhelper(0, 0, intensity, 0);
           ledsSetObj.bottomValue = parseInt(intensity);
           app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');

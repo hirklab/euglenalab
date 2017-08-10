@@ -256,6 +256,10 @@ Canvas_Joystick.prototype.setLightValuesFromXY=function(ledsSetObj, from) {
     this.sin_evt=this.dy_evt/this.mag_evt;
     this.cos_evt=this.dx_evt/this.mag_evt;
   }
+  app.mainView.joystickIntensity = this.mag_evt;
+  var rads_evt_in_degrees = this.rads_evt*180.0 / Math.PI;
+  if (rads_evt_in_degrees < 0) app.mainView.joystickDirection = Math.abs(rads_evt_in_degrees);
+  else app.mainView.joystickDirection = 360 - rads_evt_in_degrees;
 
   //Check parameters outside joystick radius
   //  scale down to max

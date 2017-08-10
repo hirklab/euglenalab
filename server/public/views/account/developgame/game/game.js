@@ -151,6 +151,8 @@ function processNextImage()
                 gameDrawOnTrackedEuglena: app.mainView.gameDrawOnTrackedEuglena,
                 magnification: app.mainView.magnification,
                 sandboxMode: app.mainView.sandboxMode,
+                joystickIntensity: app.mainView.joystickIntensity,
+                joystickDirection: app.mainView.joystickDirection,
                 // drawCircle
                 drawCircleCenterX: app.mainView.drawCircleCenterX,
                 drawCircleCenterY: app.mainView.drawCircleCenterY,

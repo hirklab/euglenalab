@@ -119,6 +119,8 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
 
       ((EuglenaProcessor*)processor.get())->magnification = var_dict.Get("magnification").AsInt();
       ((EuglenaProcessor*)processor.get())->sandboxMode = var_dict.Get("sandboxMode").AsBool();
+      ((EuglenaProcessor*)processor.get())->joystickIntensity = var_dict.Get("joystickIntensity").AsInt();
+      ((EuglenaProcessor*)processor.get())->joystickDirection = var_dict.Get("joystickDirection").AsInt();
     }
 
     // Post message with C++ variables back to JavaScript layer.

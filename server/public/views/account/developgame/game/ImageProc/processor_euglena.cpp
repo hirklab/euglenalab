@@ -73,6 +73,8 @@ class EuglenaProcessor : public Processor {
         std::map<int, double> euglenaVelocitiesSandbox;
         std::map<int, double> euglenaAccelerationsSandbox;
         std::map<int, float> euglenaAnglesSandbox;
+        double joystickIntensity = 0;
+        double joystickDirection = 0;
         
         // Euglena tracking variables
         std::vector<EuglenaObject> trackedEuglenas;
@@ -340,9 +342,14 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         // Add wobbly motion to Euglena.
 
         // Update position of Euglena based on velocity and angle.
+        cv::putText(im, std::to_string(joystickDirection), cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
         for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
+            // Add LED stimulus effects.
+            euglenaAnglesSandbox[i] = ((1000.0 - joystickIntensity)*euglenaAnglesSandbox[i] + joystickIntensity*joystickDirection) / 1000.0;
+            // Increase position by r*cos(theta) in x direction and r*sin(theta) in y direction.
             euglenaPositionsSandbox[i].x += euglenaVelocitiesSandbox[i]*cos(euglenaAnglesSandbox[i] * PI / 180.0);
             euglenaPositionsSandbox[i].y += euglenaVelocitiesSandbox[i]*sin(euglenaAnglesSandbox[i] * PI / 180.0);
+            // Adjust for Euglena that have left the screen.
             if (euglenaPositionsSandbox[i].x > 640 + 40) {
                 euglenaPositionsSandbox[i].x = -20;
             } else if (euglenaPositionsSandbox[i].x < -40) {
@@ -719,6 +726,9 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         //getEuglenaRotationByID
         rotationID = 0;
         targetEuglenaRotation = 0;
+
+        joystickDirection = 0;
+        joystickIntensity = 0;
     }
 
     // Display game over if that's the case.
