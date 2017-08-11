@@ -19,27 +19,44 @@
 
                 scope.numUsers = 0;
 
+	            var MESSAGES = {
+		            CONNECTED:         'connected',
+		            STATUS:            'status',
+		            UPDATE:            'update',
+		            CONFIRMATION:      'confirmation',
+		            LIVE:              'live',
+		            EXPERIMENT_SET:    'experimentSet',
+		            EXPERIMENT_CANCEL: 'experimentCancel',
+		            STIMULUS:          'stimulus',
+		            MAINTENANCE:       'maintenance',
+		            DISCONNECTED:      'disconnected'
+	            };
 
+	            var unhook = $rootScope.$on("message", function (e, message) {
+		            if (message) {
+			            var type    = message.type;
+			            var payload = message.payload;
 
-                // scope.socket = socket;
-                //
-                // scope.$watch(socket.isConnected, function(newVal, oldVal){
-                // 	console.log(socket);
-                // 	console.log(newVal);
-                //
-                // 	if(newVal!==oldVal && newVal!= null){
-		         //        scope.isConnected = newVal;
-	             //    }
-                // })
+			            if(type == MESSAGES.STATUS){
+				            var users = angular.copy(payload.users);
 
-	            var unhook = $rootScope.$on("message", function (e, updates) {
-
-		            var users      = angular.copy(updates.users);
-
-		            scope.$apply(function () {
-			            scope.numUsers = users.length;
-		            });
+				            scope.$apply(function () {
+					            scope.numUsers = users.length;
+				            });
+			            }
+		            }
 	            });
+
+	            // scope.socket = socket;
+	            //
+	            // scope.$watch(socket.isConnected, function(newVal, oldVal){
+	            // 	console.log(socket);
+	            // 	console.log(newVal);
+	            //
+	            // 	if(newVal!==oldVal && newVal!= null){
+	            //        scope.isConnected = newVal;
+	            //    }
+	            // })
 
             }]
         };

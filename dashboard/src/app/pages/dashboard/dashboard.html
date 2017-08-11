@@ -23,7 +23,7 @@
                             </div>
 
                             <ul class="nav navbar-nav">
-                                <li style="text-transform: uppercase" ng-class="{'active':vm.mode=='live'}"
+                                <li style="text-transform: uppercase" ng-class="{'active':vm.experiment.type=='live'}"
                                     tour-step
                                     tour-step-belongs-to="demo"
                                     tour-step-title="Live mode"
@@ -35,7 +35,7 @@
                                     tour-step-backdrop="true"
                                     tour-step-append-to-body="true"><a
                                         ng-click="vm.selectMode('live')" style="cursor: pointer">Live</a></li>
-                                <li style="text-transform: uppercase" ng-class="{'active':vm.mode=='batch'}"
+                                <li style="text-transform: uppercase" ng-class="{'active':vm.experiment.type=='batch'}"
                                     tour-step
                                     tour-step-belongs-to="demo"
                                     tour-step-title="Batch mode"
@@ -64,14 +64,14 @@
                      tour-step-backdrop="true"
                      tour-step-append-to-body="true">
                     <button type="submit" class="btn btn-primary experiment-progress" progress-button="vm.start()"
-                            style="line-height: 50px;">Start {{vm.mode}} experiment <span ng-if="vm.selected">on {{vm.selected.name}}</span>
+                            style="line-height: 50px;">Start {{vm.experiment.type}} experiment <span ng-if="vm.selected">on {{vm.selected.name}}</span>
                         <i class="glyphicon glyphicon-play"></i>
                     </button>
                 </div>
             </div>
 
 
-            <div class="row" ng-if="vm.mode=='batch'" style="margin-bottom: 4px;">
+            <div class="row" ng-if="vm.experiment.type=='batch'" style="margin-bottom: 4px;">
                 <div class="col-xs-12">
                     <div class="panel bootstrap-panel" style="box-shadow: none">
                         <div class="panel-heading">
@@ -133,10 +133,10 @@
                              tour-step-append-to-body="true">
                             <div class="row">
                                 <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-6 col-xs-12"
-                                     ng-repeat="microscope in vm.activeMicroscopes | orderBy:vm.ordering">
+                                     ng-repeat="microscope in vm.activeMicroscopes">
 
                                     <div class="panel microscope bootstrap-panel enabled"
-                                         ng-click="vm.toggle(microscope)"
+                                         ng-click="vm.toggleSelection(microscope)"
                                          ng-class="{'selected':vm.selected && vm.selected.name==microscope.name}">
                                         <div class="panel-heading clearfix" style="height: 64px;">
                                             <!--<button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button>-->

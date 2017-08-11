@@ -143,6 +143,7 @@ Microscope.prototype.onExperimentCancel = function (payload) {
 };
 
 Microscope.prototype.onExperimentRun = function (payload) {
+	// start time - update
 
 	// todo keep updating queueTime
 
@@ -217,10 +218,8 @@ Microscope.prototype.onExperimentRun = function (payload) {
 	// 	app.exp.exp_eventsToRun.sort(function(objA, objB) {
 	// 		return objA.time - objB.time;
 	// 	});
-	// 	app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.group_experimentType:' + app.exp.group_experimentType);
-	// 	app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.eventsToRun:' + app.exp.exp_eventsToRun.length);
-	// 	app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_metaData:' + app.exp.exp_metaData);
 	// 	var retObj = _checkEventsArray(JSON.parse(JSON.stringify(app.exp.exp_eventsToRun)));
+
 	// 	if (retObj.err) {
 	// 		app.bpuStatus = app.bpuStatusTypes.runningFailed;
 	// 		return callback('fName ' + retObj.err);
@@ -229,6 +228,7 @@ Microscope.prototype.onExperimentRun = function (payload) {
 	// 		return callback(null);
 	// 	}
 	// };
+
 	// var experimentLoop = function(callback) {
 	// 	num++;
 	// 	var fName = num + ' experimentLoop';
@@ -302,73 +302,12 @@ Microscope.prototype.onExperimentRun = function (payload) {
 	// 	});
 	// };
 	//
-	// var finalizeData = function(callback) {
-	//
-	// 	app.bpuStatus = app.bpuStatusTypes.finalizing;
-	// 	num++;
-	// 	var fName = num + ' finalizeData';
-	// 	// app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
-	// 	// app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.group_experimentType:' + app.exp.group_experimentType);
-	// 	// app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.eventsToRun:' + app.exp.exp_eventsToRun.length);
-	// 	// app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsToRunFinal:' + app.exp.exp_eventsToRunFinal.length);
-	// 	// app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsRan:' + app.exp.exp_eventsRan.length);
-	// 	// app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_metaData:' + app.exp.exp_metaData);
-	//
-	// 	app.exp.exp_metaData.numFrames = -1;
-	// 	deps.fs.readdir(app.expDataDir, function(err, files) {
-	// 		if (err) {
-	// 			app.exp.exp_metaData.numFrames = -1;
-	// 		} else {
-	// 			var jpgs = files.filter(function(filename) {
-	// 				return filename.search('.jpg') > -1;
-	// 			});
-	// 			app.exp.exp_metaData.numFrames = jpgs.length;
-	// 		}
-	// 		app.db.BpuExperiment.save(app.exp, function(err) {
-	// 			if (err) {
-	// 				return callback('script_fakeMongo ' + err);
-	// 			} else {
-	// 				return callback(null);
-	// 			}
-	// 		});
-	// 	});
-	//
-	// };
-	// var movePackageToMountedDrive = function(callback) {
-	// 	num++;
-	// 	var fName = num + ' movePackageToMountedDrive';
-	// 	app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
-	//
-	// 	//Directories
-	// 	var saveImageFolder = app.expDataDir || '/home/pi/bpuData/tempExpData';
-	// 	var finalPath = app.mountedDataDir + '/' + app.exp._id;
-	// 	//Commands
-	// 	//var rmPreCmd='rm -r '+finalPath;
-	// 	var mkdirCmd = 'mkdir ' + finalPath;
-	// 	//var changeOwnershipCmd='chown pi:bpudata '+finalPath;   //change ownership was removed since we're not running under sudo
-	// 	var moveCmd = 'cp ' + saveImageFolder + '/' + '*' + ' ' + finalPath;
-	// 	var rmTempFiles = 'rm ' + saveImageFolder + '/*.jpg' + ' && ' + 'rm ' + saveImageFolder + '/*.json';
-	// 	//Final and Run
-	// 	//var cmdStr=mkdirCmd+' && '+changeOwnershipCmd+' && '+moveCmd+ ' && '+rmTempFiles;
-	// 	var cmdStr = mkdirCmd + ' && ' + moveCmd + ' && ' + rmTempFiles;
-	// 	runBashCommand(cmdStr, function(err) {
-	// 		if (err) {
-	// 			app.bpuStatus = app.bpuStatusTypes.finalizingFailed;
-	// 			app.bpuStatusError = fName + ' ' + err;
-	// 			err = fName + ' ' + err;
-	// 			return callback(err);
-	// 		} else {
-	// 			app.bpuStatus = app.bpuStatusTypes.finalizingDone;
-	// 			return callback(null);
-	// 		}
-	// 	});
-	// };
+
 	// //Build Series
 	// var funcs = [];
 	// funcs.push(checkExp);
 	// funcs.push(experimentLoop);
-	// funcs.push(finalizeData);
-	// funcs.push(movePackageToMountedDrive);
+
 	//
 	// //Start Series
 	// var startDate = new Date();
@@ -427,6 +366,74 @@ Microscope.prototype.onExperimentClear = function (payload) {
 		that.state.allowStimulus = false;
 		that.state.status        = STATES.IDLE;
 	}
+
+	// funcs.push(finalizeData);
+	// funcs.push(movePackageToMountedDrive);
+
+	// app.async.series(funcs, function(err) {
+	// 	app.logger.info(moduleName + ' end in ' + (new Date() - startDate) + ' ms');
+	// 	if (err) {
+	// 		mainCallback(err);
+	// 	} else {
+	// 		mainCallback(null);
+	// 	}
+	// });
+
+	// var finalizeData = function(callback) {
+	//
+	// 	app.bpuStatus = app.bpuStatusTypes.finalizing;
+	// 	num++;
+	// 	var fName = num + ' finalizeData';
+	//
+	// 	app.exp.exp_metaData.numFrames = -1;
+	// 	deps.fs.readdir(app.expDataDir, function(err, files) {
+	// 		if (err) {
+	// 			app.exp.exp_metaData.numFrames = -1;
+	// 		} else {
+	// 			var jpgs = files.filter(function(filename) {
+	// 				return filename.search('.jpg') > -1;
+	// 			});
+	// 			app.exp.exp_metaData.numFrames = jpgs.length;
+	// 		}
+	// 		app.db.BpuExperiment.save(app.exp, function(err) {
+	// 			if (err) {
+	// 				return callback('script_fakeMongo ' + err);
+	// 			} else {
+	// 				return callback(null);
+	// 			}
+	// 		});
+	// 	});
+	//
+	// };
+	// var movePackageToMountedDrive = function(callback) {
+	// 	num++;
+	// 	var fName = num + ' movePackageToMountedDrive';
+	// 	app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
+	//
+	// 	//Directories
+	// 	var saveImageFolder = app.expDataDir || '/home/pi/bpuData/tempExpData';
+	// 	var finalPath = app.mountedDataDir + '/' + app.exp._id;
+	// 	//Commands
+	// 	//var rmPreCmd='rm -r '+finalPath;
+	// 	var mkdirCmd = 'mkdir ' + finalPath;
+	// 	//var changeOwnershipCmd='chown pi:bpudata '+finalPath;   //change ownership was removed since we're not running under sudo
+	// 	var moveCmd = 'cp ' + saveImageFolder + '/' + '*' + ' ' + finalPath;
+	// 	var rmTempFiles = 'rm ' + saveImageFolder + '/*.jpg' + ' && ' + 'rm ' + saveImageFolder + '/*.json';
+	// 	//Final and Run
+	// 	//var cmdStr=mkdirCmd+' && '+changeOwnershipCmd+' && '+moveCmd+ ' && '+rmTempFiles;
+	// 	var cmdStr = mkdirCmd + ' && ' + moveCmd + ' && ' + rmTempFiles;
+	// 	runBashCommand(cmdStr, function(err) {
+	// 		if (err) {
+	// 			app.bpuStatus = app.bpuStatusTypes.finalizingFailed;
+	// 			app.bpuStatusError = fName + ' ' + err;
+	// 			err = fName + ' ' + err;
+	// 			return callback(err);
+	// 		} else {
+	// 			app.bpuStatus = app.bpuStatusTypes.finalizingDone;
+	// 			return callback(null);
+	// 		}
+	// 	});
+	// };
 
 	// var finishInit = function () {
 	// 	//Series Vars

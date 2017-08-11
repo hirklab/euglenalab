@@ -2,6 +2,8 @@ var socketClient = require('socket.io-client');
 var _            = require('lodash');
 
 var myFunctions = require('../../shared/myFunctions.js');
+var constants = require('../constants');
+var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
 
 // Constructor
 function Controller(config, logger, userManager) {
@@ -125,7 +127,7 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
 
         _.map(user.sockets, function (socket) {
 
-            var socketUpdateObj = {
+            var payload = {
                 microscopes: bpusUpdate,
                 // queueExpTags: [],
                 // groupBpus:    [],
@@ -155,7 +157,10 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
             //     // }
             // });
 
-            socket.emit('message', socketUpdateObj);
+	        var newMessage = {};
+	        newMessage.type = CLIENT_MESSAGES.STATUS;
+			newMessage.payload = payload;
+            socket.emit('message', newMessage);
         });
     });
 };

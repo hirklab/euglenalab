@@ -5,11 +5,7 @@
 		.controller('DashboardPageCtrl', DashboardPageCtrl);
 
 	/** @ngInject */
-	function DashboardPageCtrl($scope, $rootScope, $http, $q, $timeout, $element, lodash, Microscope, socket, uiTourService) {
-		uiTourService.createDetachedTour('demo');
-
-		//todo
-		// handle actions when no bpu available
+	function DashboardPageCtrl($scope, $rootScope, $http, $q, $state, $log, $timeout, $element, lodash, Microscope, socket, uiTourService) {
 
 
 		var socketStrs = {
@@ -20,27 +16,35 @@
 			sendUserToLiveLab:       '/#sendUserToLiveLab'
 		};
 
-		var vm        = this;
-		vm.connected  = false;
-		vm.max        = 5;
-		vm.isDisabled = false;
-
+		var vm          = this;
+		vm.connected    = false;
+		vm.max          = 5;
+		vm.isDisabled   = false;
 		vm.isSubmitting = false;
+		vm.file         = null;
+		vm.noFile       = true;
 
-		vm.mode = 'live';
-
-		$http.get('http://ipinfo.io/json').success(function (data) {
-			vm.machine = data;
-		});
-
-		vm.showDemo = function(){
-
-			uiTourService.getTourByName('demo').start();
+		vm.experiment = {
+			type:'live',
+			duration:0, // seconds
+			proposedEvents : []
 		};
 
-		var unhook = null;
+		var unhook      = null;
+		var thresholds  = Microscope.thresholds;
 
-		var thresholds = Microscope.thresholds;
+		var MESSAGES = {
+			CONNECTED:         'connected',
+			STATUS:            'status',
+			UPDATE:            'update',
+			CONFIRMATION:      'confirmation',
+			LIVE:              'live',
+			EXPERIMENT_SET:    'experimentSet',
+			EXPERIMENT_CANCEL: 'experimentCancel',
+			STIMULUS:          'stimulus',
+			MAINTENANCE:       'maintenance',
+			DISCONNECTED:      'disconnected'
+		};
 
 		var findClass = function (statType, value) {
 			if (statType !== null || statType !== '') {
@@ -53,137 +57,142 @@
 			return '';
 		};
 
-		vm.ordering = function (microscope) {
-			return parseFloat(microscope.name.replace(/,(?=\d)/g, "").match(/-?\.?\d.*/g));
+		vm.initialize = function () {
+			// attach a demo tour
+			uiTourService.createDetachedTour('demo');
+
+			// get machine ip and location - demographics
+			$http.get('http://ipinfo.io/json').success(function (data) {
+				vm.experiment.machine = data;
+			});
+
+			// get list of microscopes
+			Microscope.list().then(function (res) {
+				vm.activeMicroscopes = lodash.chain(res.data.results)
+					.filter(function (microscope) {
+						return microscope.name !== 'fake' && microscope.isOn;
+					})
+					.sortBy('index')
+					.map(function (microscope) {
+						microscope.panelClass = 'microscope bootstrap-panel';
+
+						microscope.panelClass += microscope.isOn ? ' enabled' : ' disabled';
+
+						if (microscope.isOn) {
+							microscope.address = 'http://' + microscope.publicAddr.ip + ':' + microscope.publicAddr.webcamPort + '?action=snapshot';
+						} else {
+							microscope.address = '/assets/img/bpu-disabled.jpg'
+						}
+
+						microscope.statistics = microscope.stats.map(function (stat) {
+							var newValue = {
+								'name':  stat.statType,
+								'value': stat.data.inverseTimeWeightedAvg,
+								'max':   stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
+							};
+
+							newValue['percent'] = newValue['value'] * 100 / newValue['max'];
+							newValue['class']   = findClass(stat.statType, newValue['percent']);
+
+							return newValue;
+						});
+
+						if (microscope.statistics.length === 0) {
+							microscope.statistics = [{}, {}, {}];
+							microscope.quality    = 0;
+						} else {
+							var response = lodash.find(microscope.statistics, function (stat) {
+								return stat.name === 'response';
+							});
+
+							var activity = lodash.find(microscope.statistics, function (stat) {
+								return stat.name === 'activity';
+							});
+
+							var population = lodash.find(microscope.statistics, function (stat) {
+								return stat.name === 'population';
+							});
+
+							microscope.quality = (5 * response['percent'] / 100 + 2 * activity['percent'] / 100 + 3 * population['percent'] / 100) / 10;
+						}
+
+						microscope.status = Microscope.BPU_STATUS_DISPLAY[microscope.bpuStatus];
+
+						return microscope;
+					})
+					.value();
+
+				// todo
+				// handle actions when no bpu available
+
+				// connect to webserver and keep updating microscopes' status
+				unhook = $rootScope.$on("message", vm.onMessage.bind(vm));
+
+				// remove listener when view goes out of context
+				$scope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
+					if (fromState.name === 'dashboard') {
+						$scope.$on('$destroy', unhook);
+
+					}
+				});
+			});
+
+
 		};
 
-		Microscope.list().then(function (res) {
-			var microscopes = res.data.results
-				.filter(function (microscope) {
-					return microscope.name !== 'fake';
-				})
-				.map(function (microscope) {
-					microscope.panelClass = 'microscope bootstrap-panel';
+		vm.initialize();
 
-					microscope.panelClass += microscope.isOn ? ' enabled' : ' disabled';
+		vm.showDemo = function () {
+			uiTourService.getTourByName('demo').start();
+		};
 
-					if (microscope.isOn) {
-						microscope.address = 'http://' + microscope.publicAddr.ip + ':' + microscope.publicAddr.webcamPort + '?action=snapshot';
-					} else {
-						microscope.address = '/assets/img/bpu-disabled.jpg'
-					}
+		vm.onMessage = function (e, message) {
+			var that = this;
 
-					microscope.statistics = microscope.stats.map(function (stat) {
-						var newValue = {
-							'name':  stat.statType,
-							'value': stat.data.inverseTimeWeightedAvg,
-							'max':   stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
-						};
+			if (message) {
+				var type    = message.type;
+				var payload = message.payload;
 
-						newValue['percent'] = newValue['value'] * 100 / newValue['max'];
-						newValue['class']   = findClass(stat.statType, newValue['percent']);
+				$log.log('[RX] ' + type);
+				if (payload) $log.log(payload);
 
-						return newValue;
-					});
+				switch (type) {
+					case MESSAGES.STATUS:
+						that.onStatus(payload);
+						break;
 
-					if (microscope.statistics.length === 0) {
-						microscope.statistics = [{}, {}, {}];
-						microscope.quality    = 0;
-					} else {
-						var response = lodash.find(microscope.statistics, function (stat) {
-							return stat.name === 'response';
-						});
+					case MESSAGES.CONFIRMATION:
+						that.onGetConfirmation(payload);
+						break;
 
-						var activity = lodash.find(microscope.statistics, function (stat) {
-							return stat.name === 'activity';
-						});
+					case MESSAGES.LIVE:
+						that.onLiveExperiment(payload);
+						break;
 
-						var population = lodash.find(microscope.statistics, function (stat) {
-							return stat.name === 'population';
-						});
+					default:
+						$log.error('invalid message: message type not handled');
+						break;
+				}
+			}
+		};
 
-						microscope.quality = (5 * response['percent'] / 100 + 2 * activity['percent'] / 100 + 3 * population['percent'] / 100) / 10;
-					}
+		vm.onGetConfirmation = function (payload) {
+			// confirmationTimeout
 
-					microscope.status = Microscope.BPU_STATUS_DISPLAY[microscope.bpuStatus];
+			// 	_joinLabConfirmAlert(confirmTimeout, function (err, didConfirm) {
+			// 		resData.didConfirm = didConfirm;
+			// 		resData.err = err;
+			// 		if (callbackToServer) callbackToServer(resData);
+			// 	});
+		};
 
-					return microscope;
-				});
+		vm.onLiveExperiment = function (payload) {
+			$state.go('livelab'); // shift to game mode
+		};
 
-			var microscopeByStatus = lodash.groupBy(microscopes, 'isOn');
-			vm.activeMicroscopes   = microscopeByStatus[true];
-
-		});
-
-		//Activate Live User/Prompt for Join Confirm
-		// socket.on(socketStrs.activateLiveUser, function (sessDoc, confirmTimeout, callbackToServer) {
-		// 	var resData = {didConfirm: false};
-		// 	_joinLabConfirmAlert(confirmTimeout, function (err, didConfirm) {
-		// 		resData.didConfirm = didConfirm;
-		// 		resData.err = err;
-		// 		if (callbackToServer) callbackToServer(resData);
-		// 	});
-		// });
-		//
-		// //Send Live User to lab
-		// socket.on(socketStrs.sendUserToLiveLab, function (reqObj, callbackToServer) {
-		// 	if (callbackToServer) callbackToServer({err: null});
-		// 	console.log("app.gameSession: " + app.gameSession);
-		// 	if (app.gameSession) location.href = '/account/developgame/';
-		// 	else location.href = '/account/livelab/';
-		// });
-
-		//Update Info
-		// socket.on('/#update', function (updateObj) {
-		// 	var clientUpdateObj = {};
-		//
-		// 	//Queue info for UI update
-		// 	clientUpdateObj.queueExps = [];
-		// 	clientUpdateObj.liveQueueExp = null;
-		// 	clientUpdateObj.textTotalRunTime = 0;
-		// 	clientUpdateObj.textTotalExps = 0;
-		//
-		// 	//Bpu Info for UI update
-		// 	clientUpdateObj.bpuLiveExp = null;
-		// 	clientUpdateObj.bpuLiveFinishTime = 0;
-		// 	clientUpdateObj.bpuTextTotalRunTime = 0;
-		// 	clientUpdateObj.bpuTextTotalExps = 0;
-		//
-		// 	//Go through active bpu exps
-		// 	updateObj.bpuExps.forEach(function (bpuExp) {
-		// 		if (bpuExp.liveBpuExperiment.group_experimentType === 'live') {
-		// 			clientUpdateObj.bpuLiveExp = bpuExp;
-		// 			clientUpdateObj.bpuLiveFinishTime = bpuExp.liveBpuExperiment.bc_timeLeft;
-		// 		} else {
-		// 			clientUpdateObj.bpuTextTotalRunTime += bpuExp.liveBpuExperiment.bc_timeLeft;
-		// 			clientUpdateObj.bpuTextTotalExps++;
-		// 		}
-		// 	});
-		//
-		// 	//Go through queue bpu exps
-		// 	updateObj.queueExpTags.forEach(function (expTag) {
-		// 		if (expTag.session.sessionID !== null && expTag.session.sessionID !== undefined) {
-		// 			if (expTag.group_experimentType === 'live') {
-		// 				clientUpdateObj.liveQueueExp = expTag;
-		// 			} else {
-		// 				clientUpdateObj.textTotalRunTime += expTag.exp_eventsRunTime + expTag.exp_lastResort.totalWaitTime;
-		// 				clientUpdateObj.textTotalExps++;
-		// 			}
-		// 		}
-		// 	});
-		//
-		// 	//Go through bpu groups
-		// 	clientUpdateObj.bpusPackage = [];
-		// 	updateObj.groupBpus.forEach(function (bpu) {
-		// 		clientUpdateObj.bpusPackage.push(bpu);
-		// 	});
-		// 	app.mainView.updateFromServer(clientUpdateObj);
-		//
-		// });
-
-		unhook = $rootScope.$on("message", function (e, updates) {
-			var bpuUpdates = angular.copy(updates.microscopes);
-			var users      = angular.copy(updates.users);
+		vm.onStatus = function (payload) {
+			var bpuUpdates = angular.copy(payload.microscopes);
+			var users      = angular.copy(payload.users);
 
 			$scope.$apply(function () {
 
@@ -191,7 +200,7 @@
 
 				lodash.map(vm.activeMicroscopes, function (microscope) {
 
-					var bpu = _.find(bpuUpdates, function (bpu) {
+					var bpu = lodash.find(bpuUpdates, function (bpu) {
 						return bpu.id === microscope.id;
 					});
 
@@ -263,7 +272,7 @@
 
 				});
 			});
-		});
+		};
 
 		vm.ms2min = function (ms) {
 			return Math.floor(ms / 60000);
@@ -273,7 +282,6 @@
 			return Math.round(ms / 1000);
 		};
 
-
 		vm.start = function () {
 			var errors = false;
 
@@ -281,6 +289,13 @@
 				// $timeout(function() {
 				if (!vm.isSubmitting) {
 					vm.isSubmitting = true;
+
+					if(vm.validate()){
+						vm.experiment.submittedAt = new Date();
+						vm.experiment.tag = '';
+						vm.experiment.description = '';
+					}
+
 
 
 					resolve();
@@ -295,19 +310,21 @@
 		};
 
 		vm.selectMode = function (mode) {
-			vm.mode = mode;
+			vm.experiment.type = mode;
 		};
 
-		vm.toggle = function (microscope) {
+		vm.toggleSelection = function (microscope) {
 			if (vm.selected && vm.selected.name == microscope.name) {
 				vm.selected = null;
+				vm.experiment.chosenBPU = null;
+				vm.experiment.selection   = 'auto';
 			} else {
 				vm.selected = microscope;
+				vm.experiment.chosenBPU = microscope;
+				vm.experiment.selection   = 'user';
 			}
 		};
 
-		vm.file   = null;
-		vm.noFile = true;
 
 		vm.upload = function (file) {
 			if (window.FileReader) {
@@ -323,6 +340,8 @@
 		};
 
 		function loadHandler(event) {
+			// Papa library in global context
+
 			var csv  = event.target.result;
 			var file = Papa.parse(csv, {skipEmptyLines: false, header: true, dynamicTyping: true, comments: true});
 
@@ -367,13 +386,6 @@
 			// similiar checks are also done on server side
 		};
 
-		$scope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
-			if (fromState.name === 'dashboard') {
-				$scope.$on('$destroy', unhook);
-
-			}
-		});
-
 
 	}
 
@@ -386,18 +398,19 @@ function submitExperiment(type, microscope, file, machine, user) {
 		user:                 {
 			id:     user.get('_id'),
 			name:   user.get('username'),
-			groups: user.get('groups'),
+			groups: user.get('groups')
 		},
 		session:              {
 			id:        null,
 			sessionID: null,
-			socketID:  null,
+			socketID:  null
 		},
+
 		group_experimentType: type,
 		exp_wantsBpuName:     (microscope == null) ? null : microscope.name,
 
 		exp_eventsToRun: [],
-		exp_metaData:    {},
+		metadata:        {},
 
 		liveUserLabTime: app.mainConfig.liveUserLabTime, // todo let user pick some duration and cap it
 
@@ -418,19 +431,10 @@ function submitExperiment(type, microscope, file, machine, user) {
 		}
 	};
 
-	experiment.exp_metaData.machine              = machine;
-	experiment.exp_metaData.type                 = type;
-	experiment.exp_metaData.chosenBPU            = (microscope == null) ? null : microscope.name;
-	experiment.exp_metaData.selection            = (microscope == null) ? 'auto' : 'user';
-	experiment.exp_metaData.tag                  = type; //todo get some user specific tag
-	experiment.exp_metaData.group_experimentType = type;
-	experiment.exp_metaData.description          = '';
-	experiment.exp_metaData.clientCreationDate   = new Date();
-
 	if (type === 'batch') {
 		// todo get events to run from file
 		// data.exp_eventsToRun        = file.eventsToRun;
-		// data.exp_metaData           = file.metaData || {};
+		// data.metadata           = file.metaData || {};
 	}
 
 	// todo create rest call instead

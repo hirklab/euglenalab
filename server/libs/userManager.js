@@ -1,6 +1,8 @@
 "use strict";
 
 var _ = require('underscore');
+var constants = require('../constants');
+var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
 
 // constructor
 function UserManager(config, logger, io, sessionMiddleware, db) {
