@@ -5,16 +5,9 @@
 		.controller('DashboardPageCtrl', DashboardPageCtrl);
 
 	/** @ngInject */
-	function DashboardPageCtrl($scope, $rootScope, $http, $q, $state, $log, $timeout, $element, lodash, Microscope, socket, uiTourService) {
-
-
-		var socketStrs = {
-			setConnection:           '/#setConnection',
-			serverError:             '/#serverError',
-			submitExperimentRequest: '/#submitExperimentRequest',
-			activateLiveUser:        '/#activateLiveUser',
-			sendUserToLiveLab:       '/#sendUserToLiveLab'
-		};
+	function DashboardPageCtrl($scope, $rootScope, $http, $q, $state, $log, $timeout,
+	                           lodash, uiTourService, toastr,
+	                           Microscope, Experiment, socket) {
 
 		var vm          = this;
 		vm.connected    = false;
@@ -25,14 +18,17 @@
 		vm.noFile       = true;
 
 		vm.experiment = {
-			type:'live',
-			duration:0, // seconds
-			proposedEvents : []
+			type:           'live',
+			tag:            '',
+			description:    '',
+			duration:       0, // seconds
+			proposedEvents: []
 		};
 
-		var unhook      = null;
-		var thresholds  = Microscope.thresholds;
+		var unhook     = null;
+		var thresholds = Microscope.thresholds;
 
+		// todo push it to constants
 		var MESSAGES = {
 			CONNECTED:         'connected',
 			STATUS:            'status',
@@ -126,7 +122,7 @@
 				// handle actions when no bpu available
 
 				// connect to webserver and keep updating microscopes' status
-				unhook = $rootScope.$on("message", vm.onMessage.bind(vm));
+				unhook = $rootScope.$on("message", onMessage.bind(vm));
 
 				// remove listener when view goes out of context
 				$scope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
@@ -146,27 +142,27 @@
 			uiTourService.getTourByName('demo').start();
 		};
 
-		vm.onMessage = function (e, message) {
+		var onMessage = function (e, message) {
 			var that = this;
 
 			if (message) {
 				var type    = message.type;
 				var payload = message.payload;
-
-				$log.log('[RX] ' + type);
-				if (payload) $log.log(payload);
+				//
+				// $log.log('[RX] ' + type);
+				// if (payload) $log.log(payload);
 
 				switch (type) {
 					case MESSAGES.STATUS:
-						that.onStatus(payload);
+						onStatus(payload);
 						break;
 
 					case MESSAGES.CONFIRMATION:
-						that.onGetConfirmation(payload);
+						onGetConfirmation(payload);
 						break;
 
 					case MESSAGES.LIVE:
-						that.onLiveExperiment(payload);
+						onLiveExperiment(payload);
 						break;
 
 					default:
@@ -176,21 +172,29 @@
 			}
 		};
 
-		vm.onGetConfirmation = function (payload) {
-			// confirmationTimeout
+		var onGetConfirmation = function (payload) {
+			var confirmationTimeout = 10; // seconds
 
-			// 	_joinLabConfirmAlert(confirmTimeout, function (err, didConfirm) {
-			// 		resData.didConfirm = didConfirm;
-			// 		resData.err = err;
-			// 		if (callbackToServer) callbackToServer(resData);
-			// 	});
+			timedCall(
+				confirmationTimeout,
+				function (resolve, reject) {
+					if (confirm('Go to live lab. Please confirm in ' + confirmationTimeout + 'seconds.')) {
+						// todo update socket that user confirmed
+
+
+						resolve();
+					} else {
+						reject('canceled');
+					}
+				}
+			);
 		};
 
-		vm.onLiveExperiment = function (payload) {
-			$state.go('livelab'); // shift to game mode
+		var onLiveExperiment = function (payload) {
+			$state.go('livelab'); // shift to livelab page
 		};
 
-		vm.onStatus = function (payload) {
+		var onStatus = function (payload) {
 			var bpuUpdates = angular.copy(payload.microscopes);
 			var users      = angular.copy(payload.users);
 
@@ -211,74 +215,22 @@
 						microscope.processingTimePerExperiment = bpu.bpu_processingTime;
 						microscope.timePending                 = (bpu.timePending > 0 ? bpu.timePending : 0);
 
-						// if (bpu.hasOwnProperty('liveBpuExperiment') && bpu.liveBpuExperiment != null && bpu.liveBpuExperiment.hasOwnProperty('id') && bpu.liveBpuExperiment.id != null) {
-						//     vm.microscope.currentExperiment = bpu.liveBpuExperiment;
-						//
-						//     setTimeout(function(){
-						//         var experimentIndex = _.findIndex(vm.microscope.queue, function (experiment) {
-						//             return experiment.id = bpu.liveBpuExperiment.id;
-						//         });
-
-						// if (experimentIndex < 0) {
-						//     vm.microscope.queue.push({
-						//         'index':vm.microscope.queue.length,
-						//         'id': bpu.liveBpuExperiment.id,
-						//         'user': bpu.liveBpuExperiment.username,
-						//         'type': bpu.liveBpuExperiment.group_experimentType,
-						//         'submittedAt': moment().subtract(bpu.bpu_processingTime / 1000, 'seconds').add(60 - (bpu.liveBpuExperiment.bc_timeLeft / 1000), 'seconds'),
-						//         'runTime': bpu.liveBpuExperiment.bc_timeLeft / 1000,
-						//         'status': 'in progress'
-						//     });
-						// }
-						// else {
-						//         vm.microscope.queue[experimentIndex] = {
-						//             'id': bpu.liveBpuExperiment.id,
-						//             'user': bpu.liveBpuExperiment.username,
-						//             'type': bpu.liveBpuExperiment.group_experimentType,
-						//             'submittedAt': moment().subtract(bpu.bpu_processingTime / 1000, 'seconds').add(60 - (bpu.liveBpuExperiment.bc_timeLeft / 1000), 'seconds'),
-						//             'runTime': bpu.bpu_processingTime / 1000,
-						//             'status': 'in progress'
-						//         };
-						//     }
-						// }, 10000);
+						// todo show time left
+						// show running experiment
+						// user involved
 
 
-						/*
-						 "currentExperiment": {
-						 "id": "58d49efb4e2de22a9f5caf46",
-						 "username": "scripterActivity",
-						 "sessionID": null,
-						 "bc_timeLeft": 3844,
-						 "group_experimentType": "text"
-						 },
-						 * */
-
-						//
-						// workflow.outcome.pending = (experiments[req.params.name] || [])
-						//     .filter(function (experiment) {
-						//         return experiment.exp_wantsBpuName == req.params.name;
-						//     })
-						//     .map(function (experiment) {
-						//         return {
-						//             'bpu': req.params.name,
-						//             'user': experiment.user.name,
-						//             'type': experiment.group_experimentType,
-						//             'submittedAt': experiment.exp_submissionTime,
-						//             'runTime': experiment.exp_eventsRunTime,
-						//             'status': 'pending'
-						//         }
-						//     });
 					}
 
 				});
 			});
 		};
 
-		vm.ms2min = function (ms) {
-			return Math.floor(ms / 60000);
-		};
+		// vm.ms2min = function (ms) {
+		// 	return Math.floor(ms / 60000);
+		// };
 
-		vm.ms2s = function (ms) {
+		var ms2s = function (ms) {
 			return Math.round(ms / 1000);
 		};
 
@@ -286,26 +238,35 @@
 			var errors = false;
 
 			return $q(function (resolve, reject) {
-				// $timeout(function() {
 				if (!vm.isSubmitting) {
 					vm.isSubmitting = true;
 
-					if(vm.validate()){
+					if (vm.validate()) {
 						vm.experiment.submittedAt = new Date();
-						vm.experiment.tag = '';
-						vm.experiment.description = '';
+
+						//todo remove any non-essential info from microscope object in experiment
+
+
+						// make a rest call to server
+						Experiment.create(vm.experiment)
+							.then(function (response, status) {
+								resolve();
+							}, function (error, status) {
+								toastr.error(error.message, 'Experiment submission failed!');
+								reject(error.message);
+							});
+
+						vm.isSubmitting = false;
+
+					} else {
+						toastr.error("Please check if experiment has correct data to execute.", 'Invalid experiment!');
+						vm.isSubmitting = false;
+						reject();
 					}
-
-
-
-					resolve();
-
 				} else {
 					vm.isSubmitting = false;
 					reject();
 				}
-
-				// }, 10000);
 			});
 		};
 
@@ -315,441 +276,116 @@
 
 		vm.toggleSelection = function (microscope) {
 			if (vm.selected && vm.selected.name == microscope.name) {
-				vm.selected = null;
+				vm.selected             = null;
 				vm.experiment.chosenBPU = null;
-				vm.experiment.selection   = 'auto';
+				vm.experiment.selection = 'auto';
 			} else {
-				vm.selected = microscope;
+				vm.selected             = microscope;
 				vm.experiment.chosenBPU = microscope;
-				vm.experiment.selection   = 'user';
+				vm.experiment.selection = 'user';
 			}
 		};
 
-
 		vm.upload = function (file) {
 			if (window.FileReader) {
+
 				if (file && typeof(file)) {
-					var fileReader = new FileReader();
+					// toastr.info('Uploading file...');
+
+					var fileReader      = new FileReader();
+					fileReader.filename = file.name;
+					fileReader.type     = file.type;
+					fileReader.size     = (file.size / 1024).toFixed(2);  // in kb
 					fileReader.readAsText(file);
 					fileReader.onload = loadHandler;
 				}
+				// else {
+				// 	toastr.error('Only CSV (.csv) files are supported.', 'Error');
+				// }
+
 			} else {
-				//todo convert to angular error
-				alert('FileReader is not supported in this browser.');
+				toastr.error('FileReader is not supported in this browser.', 'Error');
 			}
 		};
 
 		function loadHandler(event) {
 			// Papa library in global context
+			var csv = event.target.result;
 
-			var csv  = event.target.result;
-			var file = Papa.parse(csv, {skipEmptyLines: false, header: true, dynamicTyping: true, comments: true});
+			var file = Papa.parse(csv, {
+				skipEmptyLines: true,
+				header:         true,
+				dynamicTyping:  true,
+				comments:       true,
+				complete:       function (results) {
+					vm.file = {
+						data:     results.data,
+						filename: event.target.filename,
+						type:     event.target.type,
+						size:     event.target.size
+					};
 
-			// todo validate if file has some data and other checks
-			vm.file = file.data;
+					toastr.success('File loaded successfully');
 
-			// app.mainView.userExpInfo.loadTextFiles = [];
-			//
-			// me.setLoadTextLabel("Loading " + evt.target.files.length + " file(s)");
-			//
-			// var availableTextExps = app.mainView.userExpInfo.MaxTextFileLoad - app.mainView.userExpInfo.queueTextFiles;
-			// var availableTextRunTime = app.mainView.userExpInfo.MaxTextTime - app.mainView.userExpInfo.queueTextRunTime;
-			//
-			// console.log(availableTextExps, availableTextRunTime, app.mainView.userExpInfo.MaxTextFileLoad, app.mainView.userExpInfo.queueTextFiles);
-			//
-			// _loadTextExperiments(availableTextExps, availableTextRunTime, evt.target.files, function(err, loadedTextFilesOutcome) {
-			// 	// console.log(err);
-			// 	// console.log(loadedTextFilesOutcome);
-			//
-			// 	if (Math.round(loadedTextFilesOutcome.totalRunTime / 1000) <= 1) {
-			// 		err = "Experiment is too short to be executed";
-			// 	}
-			//
-			// 	if (err) {
-			// 		me.setLoadTextLabel("Error:" + err, "alert-danger");
-			// 		app.mainView.userExpInfo.loadedTextFiles = [];
-			// 	} else {
-			// 		// console.log("loaded");
-			// 		app.mainView.userExpInfo.loadedTextFiles = loadedTextFilesOutcome.fileObjects;
-			// 		app.mainView.userExpInfo.loadedTextRunTime = loadedTextFilesOutcome.totalRunTime;
-			//
-			// 		var secs = Math.round(loadedTextFilesOutcome.totalRunTime / 1000);
-			// 		me.setLoadTextLabel("Loaded " + loadedTextFilesOutcome.filesLoaded + " file(s). RunTime:" + secs + " seconds.", "alert-success");
-			//
-			// 	}
-			// });
+					var events = lodash.sortBy(vm.file.data, 'time');
+
+					if (events.length > 0) {
+						var duration = ms2s(parseInt(events[events.length - 1].time, 10)); // 1 sec
+
+						if (duration <= 1) {
+							// min duration allowed
+							toastr.error('Experiment is too short to be executed', 'Invalid experiment');
+						} else if (duration > 60 * 60) { // 1 hr
+							// max duration allowed
+							toastr.error('Experiment is too long to be executed', 'Invalid experiment');
+						} else {
+							// parse file and massage data type
+							var proposedEvents = lodash.map(events, function (event) {
+								return lodash.mapValues(event, function (o) {
+									return parseFloat(o);
+								});
+							});
+
+							vm.experiment.duration       = duration;
+							vm.experiment.proposedEvents = proposedEvents;
+							vm.experiment.tag            = vm.file.filename;
+						}
+					} else {
+						// invalid time values
+						toastr.error('Experiment has no events to execute', 'Invalid experiment');
+					}
+				},
+				error:          function (err, file) {
+					toastr.error('Please check the file format.' + err, 'File parsing failed!');
+				}
+			});
 		}
 
 		vm.validate = function () {
-			// always call this function before submitting experiment
+			var result = false;
+
+			if (vm.experiment.type.indexOf('live') > -1) {
+				// checks for live
+				result = true;
+			} else {
+				// checks for batch
+				result = vm.experiment.proposedEvents.length > 0 && vm.experiment.duration > 1 && vm.experiment.duration < 60 * 60;
+			}
 
 			// similiar checks are also done on server side
+
+			return result;
 		};
 
+		var timedCall = function (timeout, callback) {
+			return $q(function (resolve, reject) {
+				callback(resolve, reject);
 
+				$timeout(function () {
+					reject('timeout');
+				}, timeout);
+			});
+		};
 	}
 
 })();
-
-function submitExperiment(type, microscope, file, machine, user) {
-	"use strict";
-
-	var experiment = {
-		user:                 {
-			id:     user.get('_id'),
-			name:   user.get('username'),
-			groups: user.get('groups')
-		},
-		session:              {
-			id:        null,
-			sessionID: null,
-			socketID:  null
-		},
-
-		group_experimentType: type,
-		exp_wantsBpuName:     (microscope == null) ? null : microscope.name,
-
-		exp_eventsToRun: [],
-		metadata:        {},
-
-		liveUserLabTime: app.mainConfig.liveUserLabTime, // todo let user pick some duration and cap it
-
-		zeroLedEvent: {
-			time:              0,
-			topValue:          0,
-			rightValue:        0,
-			bottomValue:       0,
-			leftValue:         0,
-			diffuserValue:     0,
-			culturelightValue: 0,
-			backlightValue:    0,
-			ambientlightValue: 0,
-			projectorX:        -1,
-			projectorY:        -1,
-			projectorColor:    0,
-			projectorClear:    0
-		}
-	};
-
-	if (type === 'batch') {
-		// todo get events to run from file
-		// data.exp_eventsToRun        = file.eventsToRun;
-		// data.metadata           = file.metaData || {};
-	}
-
-	// todo create rest call instead
-	socket.emit(socketStrs.submitExperimentRequest, experiment, function (err, validationObjs) {
-		if (!didCallback) {
-			didCallback = true;
-
-			if (err) {
-				console.log(err);
-			}
-
-			if (validations && validations.forEach) {
-				validations.forEach(function (validation) {
-					console.log('runtime: ' + validation.expInfo.exp_eventsRunTime + ', valid:' + validation.expInfo.isValid);
-
-					validation.errs.forEach(function (err) {
-						console.log(err);
-					});
-				});
-			}
-
-			$timeout(function () {
-				vm.isSubmitting = false;
-			}, 2500);
-		}
-	})
-}
-
-//Pop up and time out
-// var _joinLabConfirmAlert = function (confirmTimeout, callback) {
-// 	if (_joinLabConfirmAlertCalled) {
-// 		callback('join lab confirm aleart already called', false);
-// 	} else {
-// 		_joinLabConfirmAlertCalled = true;
-// 		var didCallback = false;
-// 		var resTimeout = setTimeout(function () {
-// 			if (!didCallback) {
-// 				didCallback = true;
-// 				_joinLabConfirmAlertCalled = false;
-// 				callback('timed out', null);
-// 			}
-// 		}, confirmTimeout);
-// 		//Alert
-// 		var confirmTime = Math.round(confirmTimeout / 1000);
-// 		if (confirm('Go To Lab.' + new Date() + '\n' + confirmTime + ' seconds to confirm.') === true) {
-// 			if (!didCallback) {
-// 				didCallback = true;
-// 				_joinLabConfirmAlertCalled = false;
-// 				callback(null, true);
-// 			}
-// 		} else {
-// 			if (!didCallback) {
-// 				didCallback = true;
-// 				_joinLabConfirmAlertCalled = false;
-// 				callback(null, false);
-// 			}
-// 		}
-// 	}
-// };
-
-//Load and Check Text Experiments
-// var _loadTextExperiments = function(MaxFileLoad, MaxTime, files, callback) {
-// 	var index = -1;
-// 	var outcome = {
-// 		err: null,
-// 		filesLoaded: 0,
-// 		totalRunTime: 0,
-// 		fileObjects: [],
-// 	};
-// 	var next = function() {
-// 		index++;
-// 		if (index < files.length && outcome.filesLoaded < MaxFileLoad && outcome.totalRunTime <= MaxTime) {
-// 			var fileObj = {
-// 				errTryCatch: null,
-// 				errJson: null,
-// 				errColumn: null,
-// 				eventsToRun: [],
-// 				metaData: null,
-// 			};
-// 			var file = files[index];
-// 			var fr = new FileReader();
-// 			fr.onload = function() {
-// 				try {
-// 					_tryJson(fr.result, 0, function(err, fileData) {
-// 						if (err) {
-// 							fileObj.errJson = "tryJson err:" + err;
-// 							_tryColumn(fr.result, function(err, fileData) {
-// 								if (err) {
-// 									fileObj.errColumn = "tryColumn err:" + err;
-// 								} else {
-// 									if (fileData.metaData.runTime < 1000) {
-// 										fileObj.errColumn = "tryColumn err:" + "time less than 1 second";
-// 									} else {
-// 										fileObj.errJson = null;
-// 										fileObj.errColumn = null;
-// 										fileObj.errTryCatch = null;
-// 										fileObj.metaData = fileData.metaData;
-// 										fileObj.eventsToRun = fileData.eventsToRun;
-// 										outcome.totalRunTime += fileData.metaData.runTime;
-// 										outcome.filesLoaded++;
-// 									}
-// 								}
-// 							});
-// 						} else {
-// 							if (fileData.metaData.runTime < 1000) {
-// 								fileObj.errColumn = "tryJson err:" + "time less than 1 second";
-// 							} else {
-// 								fileObj.metaData = fileData.metaData;
-// 								fileObj.eventsToRun = fileData.eventsToRun;
-// 								outcome.totalRunTime += fileData.metaData.runTime;
-// 								outcome.filesLoaded++;
-// 							}
-// 						}
-// 					});
-// 				} catch (err) {
-// 					fileObj.errTryCatch = err;
-// 				} finally {
-// 					outcome.err = fileObj.errJson || fileObj.errColumn || fileObj.errTryCatch;
-// 					outcome.fileObjects.push(fileObj);
-// 					next();
-// 				}
-// 			};
-// 			fr.readAsText(file);
-// 		} else {
-// 			outcome.totalRunTimeSec = Math.round(outcome.totalRunTime / 1000);
-// 			outcome.totalRunTimeMin = Math.round(outcome.totalRunTime / 60000);
-// 			callback(outcome.err, outcome);
-// 		}
-// 	};
-// 	next();
-// };
-// var _tryJson = function(data, tries, cb_fn) {
-//
-// 	var tryError = null;
-// 	var catchError = null;
-// 	var fileData = null;
-// 	try {
-// 		var jsonData = JSON.parse(data);
-// 		if (typeof jsonData === 'object') {
-// 			//Check for Major Objects
-// 			fileData = {
-// 				metaData: {},
-// 				eventsToRun: [],
-// 			};
-// 			var keys = Object.keys(jsonData);
-// 			var eventsToRun = null;
-// 			keys.forEach(function(key) {
-// 				if (key === 'metaData') fileData.metaData = jsonData.metaData;
-// 				if (key === 'eventsToRun') eventsToRun = jsonData.eventsToRun;
-// 			});
-// 			//Check Events To Run
-// 			if (eventsToRun !== null && typeof eventsToRun.forEach === 'function') {
-// 				if (eventsToRun.length === 0) {
-// 					tryError = "try JSON LightData Err:" + "No light data in eventsToRun";
-// 				} else {
-// 					var errDataCheck = null;
-//
-// 					for (var i = 0; i < eventsToRun.length; i++) {
-// 						var dat = eventsToRun[i];
-// 						if (true) { //typeof dat.topValue === 'number' && typeof dat.rightValue === 'number' && typeof dat.bottomValue === 'number' && typeof dat.leftValue === 'number' && typeof dat.diffuserValue === 'number' && typeof dat.backlightValue === 'number' && typeof dat.culturelightValue === 'number' && typeof dat.ambientlightValue === 'number' && typeof dat.time === 'number') {
-// 							var lightDataObj = {
-// 								topValue: dat['topValue'] || 0,
-// 								rightValue: dat['rightValue'] || 0,
-// 								bottomValue: dat['bottomValue'] || 0,
-// 								leftValue: dat['leftValue'] || 0,
-// 								diffuserValue: dat['diffuserValue'] || 0,
-// 								backlightValue: dat['backlightValue'] || 0,
-// 								culturelightValue: dat['culturelightValue'] || 0,
-// 								ambientlightValue: dat['ambientlightValue'] || 0,
-// 								time: dat['time'] || 0
-// 							};
-// 							fileData.eventsToRun.push(lightDataObj);
-// 						} else {
-// 							errDataCheck = "properties needed: topValue rightValue bottomValue leftValue diffuserValue backlightValue culturelightValue ambientlightValue time";
-// 							break;
-// 						}
-// 					}
-//
-// 					if (errDataCheck === null) {
-// 						fileData.eventsToRun.sort(function(a, b) {
-// 							return a.time - b.time;
-// 						});
-//
-// 						fileData.metaData.runTime = fileData.eventsToRun[fileData.eventsToRun.length - 1].time - fileData.eventsToRun[0].time;
-//
-// 						if ((fileData.metaData.runTime <= 0) || (fileData.eventsToRun[fileData.eventsToRun.length - 1].time === 0)) {
-// 							tryError = "try JSON LightData Check Err:" + "Zero time length";
-// 						} else {
-// 							if (fileData.eventsToRun.length === 1) {
-// 								var zeroLightDataObj = {
-// 									topValue: 0,
-// 									rightValue: 0,
-// 									bottomValue: 0,
-// 									leftValue: 0,
-// 									diffuserValue: 0,
-// 									backlightValue: 0,
-// 									culturelightValue: 0,
-// 									ambientlightValue: 0,
-// 									time: 0,
-// 								};
-//
-// 								fileData.eventsToRun.push(zeroLightDataObj);
-// 							}
-//
-// 							var timeZero = fileData.eventsToRun[0].time;
-//
-// 							fileData.eventsToRun.forEach(function(dat) {
-// 								dat.time -= timeZero;
-// 							});
-// 						}
-// 					} else {
-// 						tryError = "try JSON LightData Check Err:" + errDataCheck;
-// 					}
-// 				}
-// 			} else {
-// 				tryError = "try JSON Parse Err:" + "eventsToRun not an object";
-// 			}
-// 		} else {
-// 			tryError = "try JSON Parse Err:" + "jsonData not an object";
-// 		}
-// 	} catch (err) {
-// 		catchError = "catch JSON Parse Err:" + err;
-// 	} finally {
-// 		if (tryError) {
-// 			cb_fn(tryError, null);
-// 		} else if (catchError) {
-// 			cb_fn(catchError, null);
-// 		} else {
-// 			cb_fn(null, fileData);
-// 		}
-// 	}
-// };
-// var _tryColumn = function(data, cb_fn) {
-// 	var jsonData = {
-// 		metaData: {},
-// 		eventsToRun: []
-// 	};
-//
-// 	var catchErr = null;
-//
-// 	try {
-// 		var header = {};
-//
-// 		data.split('\n').forEach(function(line) {
-//
-// 			var colonIndex = line.search(':');
-// 			if (colonIndex > -1) {
-// 				var key = line.substr(0, colonIndex);
-// 				var value = line.substr(colonIndex + 1, line.length);
-// 				jsonData.metaData[key] = value;
-//
-// 			} else {
-//
-// 				var parts = line.replace(/(\r\n|\n|\r)/gm,"").split(',');
-//
-// 				var doKeep = true;
-//
-// 				if (parts.length >= 2) {
-//
-// 					var check = parts.join('').replace(/\s/g, '');
-//
-// 					if (check == '') {
-// 						doKeep = false;
-// 					} else {
-// 						parts.forEach(function(part) {
-// 							if (part == null) {
-// 								doKeep = false;
-// 							}
-// 						});
-// 					}
-// 				} else {
-// 					doKeep = false;
-// 				}
-//
-// 				var cols = ["time", "topValue", "rightValue", "bottomValue", "leftValue", "diffuserValue", "culturelightValue", "ambientlightValue", "backlightValue"];
-//
-// 				if (doKeep) {
-//
-// 					var check = parts.join('').replace(/\s/g, '');
-//
-// 					if (check.indexOf('time') > -1) {
-// 						parts.forEach(function(part) {
-// 							if (cols.indexOf(part) > -1) {
-// 								header[part] = cols.indexOf(part);
-// 							}
-// 						});
-// 					} else {
-// 						if (JSON.stringify(header) !== '{}') {
-// 							jsonData.eventsToRun.push({
-// 								time: Number(parts[header['time']]),
-// 								topValue: Number(parts[header['topValue']] || 0),
-// 								rightValue: Number(parts[header['rightValue']] || 0),
-// 								bottomValue: Number(parts[header['bottomValue']] || 0),
-// 								leftValue: Number(parts[header['leftValue']] || 0),
-// 								diffuserValue: Number(parts[header['diffuserValue']] || 0),
-// 								backlightValue: Number(parts[header['backlightValue']] || 0),
-// 								culturelightValue: Number(parts[header['culturelightValue']] || 0),
-// 								ambientlightValue: Number(parts[header['ambientlightValue']] || 0),
-// 							});
-// 						}
-// 					}
-// 				}
-// 			}
-// 		});
-// 	} catch (err) {
-// 		catchErr = err;
-// 	} finally {
-// 		if (catchErr) {
-// 			cb_fn(catchErr, {});
-// 		} else {
-// 			if (jsonData.eventsToRun.length > 0) {
-// 				_tryJson(JSON.stringify(jsonData), 1, cb_fn);
-// 			} else {
-// 				cb_fn("No events to run", {});
-// 			}
-// 		}
-// 	}
-// };

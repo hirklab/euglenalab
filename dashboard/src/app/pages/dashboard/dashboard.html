@@ -97,8 +97,10 @@
                                     </a>
 
                                     <div class="btn btn-default" ngf-select="vm.upload($file)" ng-model="file"
-                                         name="file" ngf-pattern="'text/csv'"
-                                         ngf-accept="'text/csv'" ngf-max-size="2MB"
+                                         name="file"
+                                         ngf-pattern="'text/csv'"
+                                         ngf-accept="'.csv'"
+                                         ngf-max-size="2MB"
                                          style="height:100px;width:100px;cursor: pointer;text-align: center"><img
                                             src="assets/img/app/csv.png" style="max-width: 70px"><br><i
                                             class="fa fa-upload"></i> Upload
@@ -132,7 +134,7 @@
                              tour-step-backdrop="true"
                              tour-step-append-to-body="true">
                             <div class="row">
-                                <div class="col-xlg-3 col-lg-3 col-md-4 col-sm-6 col-xs-12"
+                                <div class="col-xlg-2 col-lg-3 col-md-4 col-sm-6 col-xs-12"
                                      ng-repeat="microscope in vm.activeMicroscopes">
 
                                     <div class="panel microscope bootstrap-panel enabled"

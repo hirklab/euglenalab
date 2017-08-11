@@ -13,24 +13,25 @@
 	function Experiment($cookies, $http, $q, $window) {
 
 		var Experiment = {
-			list:       list,
-			detail:     detail,
-			health:     health,
-			queue:      queue,
-			addNote:    addNote,
-			removeNote: removeNote,
+			create:         create,
+			list:           list,
+			detail:         detail,
+			health:         health,
+			queue:          queue,
+			addNote:        addNote,
+			removeNote:     removeNote,
 			STATUS_DISPLAY: {
-				'created': 'created',
-				'submited': 'created',
-				'queued': 'queued',
-				'addingtobpu': 'submitting',
-				'running': 'running',
+				'created':       'created',
+				'submited':      'created',
+				'queued':        'queued',
+				'addingtobpu':   'submitting',
+				'running':       'running',
 				'servercleared': 'pending processing',
-				'processing': 'processing',
-				'failed': 'failed',
-				'finished': 'finished'
+				'processing':    'processing',
+				'failed':        'failed',
+				'finished':      'finished'
 			},
-			thresholds: {
+			thresholds:     {
 				'activity':   [
 					{
 						min:   75,
@@ -89,10 +90,14 @@
 
 
 		function list(page, limit, sortBy, search) {
-			if(!page) page =1;
-			if(!limit) limit =10;
+			if (!page) page = 1;
+			if (!limit) limit = 10;
 
-			return $http.get('/api/experiments/?'+'page='+page + '&limit='+limit);
+			return $http.get('/api/experiments/?' + 'page=' + page + '&limit=' + limit);
+		}
+
+		function create(experiment) {
+			return $http.post('/api/experiments/', experiment);
 		}
 
 		function detail(id) {
