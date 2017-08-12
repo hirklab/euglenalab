@@ -17,7 +17,48 @@ var ensureAccount       = utils.ensureAccount;
 
 // POST /experiment/ (Choose BPU to experiment with)
 // Response: experimentID, queueID and waitTime
+var create = function(req, res){
+	// todo check if experiment is valid
+	// type, events, length, max and min duration allowed
+	// user and group permission for microscope chosen
+	// microscope available or not
 
+	var workflow = req.app.utility.workflow(req, res);
+
+	workflow.on('validate', function () {
+		if (!req.body.type) {
+			workflow.outcome.errfor.type = 'required';
+		}
+
+		if (!req.body.proposedEvents) {
+			workflow.outcome.errfor.proposedEvents = 'required';
+		}
+
+		if (workflow.hasErrors()) {
+			return workflow.emit('response');
+		}
+
+		workflow.emit('create');
+	});
+
+	workflow.on('create', function () {
+		if (!req.body.experiment) {
+			workflow.outcome.errfor.experiment = 'required';
+		}
+
+		if (!req.body.rating) {
+			workflow.outcome.errfor.rating = 'required';
+		}
+
+		if (workflow.hasErrors()) {
+			return workflow.emit('response');
+		}
+
+		workflow.emit('response');
+	});
+
+	workflow.emit('validate');
+};
 
 // GET /experiment/{id}/status/ (Get status of experiment)
 // Response: status and waitTime
@@ -337,31 +378,31 @@ var download = function (req, res) {
 			}
 		};
 
-		var tarFolderToServerPublicMedia = function (cb_fn) {
-			//untar and move
-			var src    = outcome.srcPath;
-			var dest   = outcome.destPath + '/' + outcome.filename + '.tar.gz';
-			//var dest=outcome.filename+'.tar.gz';
-			var cmdStr = 'tar -cvzf ' + dest + ' -C ' + src + ' .';
-			var child  = exec(cmdStr, function (error, stdout, stderr) {
-				if (error !== null) {
-					return cb_fn('tarFolderToServerPublicMedia exec error ' + stderr);
-				} else if (stderr) {
-					//it may exist
-					fs.stat(dest, function (err, stat) {
-						if (err) {
-							return cb_fn('tarFolderToServerPublicMedia fs.stat ' + stderr);
-						} else {
-							return cb_fn(null);
-						}
-					});
-				} else if (stdout) {
-					return cb_fn(null);
-				} else {
-					return cb_fn(null);
-				}
-			});
-		};
+		// var tarFolderToServerPublicMedia = function (cb_fn) {
+		// 	//untar and move
+		// 	var src    = outcome.srcPath;
+		// 	var dest   = outcome.destPath + '/' + outcome.filename + '.tar.gz';
+		// 	//var dest=outcome.filename+'.tar.gz';
+		// 	var cmdStr = 'tar -cvzf ' + dest + ' -C ' + src + ' .';
+		// 	var child  = exec(cmdStr, function (error, stdout, stderr) {
+		// 		if (error !== null) {
+		// 			return cb_fn('tarFolderToServerPublicMedia exec error ' + stderr);
+		// 		} else if (stderr) {
+		// 			//it may exist
+		// 			fs.stat(dest, function (err, stat) {
+		// 				if (err) {
+		// 					return cb_fn('tarFolderToServerPublicMedia fs.stat ' + stderr);
+		// 				} else {
+		// 					return cb_fn(null);
+		// 				}
+		// 			});
+		// 		} else if (stdout) {
+		// 			return cb_fn(null);
+		// 		} else {
+		// 			return cb_fn(null);
+		// 		}
+		// 	});
+		// };
 
 		var zipFolderToServerPublicMedia = function (cb_fn) {
 			//untar and move
@@ -432,10 +473,10 @@ var download = function (req, res) {
 	workflow.emit('find');
 };
 
-var survey = function(req, res) {
+var survey = function (req, res) {
 	var workflow = req.app.utility.workflow(req, res);
 
-	workflow.on('validate', function() {
+	workflow.on('validate', function () {
 		if (!req.body.experiment) {
 			workflow.outcome.errfor.experiment = 'required';
 		}
@@ -450,14 +491,14 @@ var survey = function(req, res) {
 
 		workflow.emit('createSurvey');
 	});
-	workflow.on('createSurvey', function() {
+	workflow.on('createSurvey', function () {
 		var fieldsToSet = {
 			experiment: req.body.experiment,
-			rating: req.body.rating,
-			notes: req.body.notes
+			rating:     req.body.rating,
+			notes:      req.body.notes
 		};
 
-		req.app.db.models.Survey.create(fieldsToSet, function(err, survey) {
+		req.app.db.models.Survey.create(fieldsToSet, function (err, survey) {
 			if (err) {
 				return workflow.emit('exception', err);
 			}
@@ -469,7 +510,7 @@ var survey = function(req, res) {
 };
 
 router.get('/', ensureAuthenticated, ensureAccount, list);
-// router.post('/', ensureAuthenticated, require('./views/index').create_experiment);
+router.post('/', ensureAuthenticated, ensureAccount, create);
 router.get('/:id/', ensureAuthenticated, ensureAccount, detail);
 router.get('/:id/status/', ensureAuthenticated, ensureAccount, status);
 router.get('/:id/download/', download);

@@ -60,7 +60,8 @@ exports.init = function (req, res, next) {
     var getLengthScale100um = function (zoom) {
         // in percentage with respect to 640
         return Math.round((((30.0 * zoom) / 4.0) * 100.0) / 640.0);
-    }
+    };
+
     var getBpuData = function (callback) {
         req.app.db.models.Bpu.findById(outcome.exp.liveBpu.id, {}, function (err, bpuDoc) {
             if (err) {

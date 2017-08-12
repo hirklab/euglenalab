@@ -70,6 +70,7 @@ parts.forEach(function (part) {
 
 app.mainConfig = app.config.mainConfig;
 
+mongoose.Promise = global.Promise;
 app.db = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', app.logger.error.bind(app.logger, 'db connection error: '));
 
