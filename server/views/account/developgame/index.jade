@@ -209,22 +209,26 @@ block body
         |BioticProgram() {
         br
         br
-        font(color='green')
-          |&nbsp;&nbsp;&nbsp;&nbsp;/*
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the "Run Program" button is pressed.
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
-        br
-        |&nbsp;&nbsp;&nbsp;&nbsp;
-        font(color='#0F6BA0')
-          |this
-        |.startProgram = 
-        font(color='purple')
-          |function
-        |() {
-        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
+          div.col-xs-11
+            font(color='green')#startComment
+              |&nbsp;&nbsp;&nbsp;&nbsp;/*
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the "Run Program" button is pressed.
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+            br
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            font(color='#0F6BA0')
+              |this
+            |.startProgram = 
+            font(color='purple')
+              |function
+            |() {
+            |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          div.col-xs-1
+            img#toggleStartCodeSection(src="/media/arrow_down.jpg" width="30px")
+        div.row#startCodeRow
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeStart
@@ -242,22 +246,26 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         br
 
-        font(color='green')
-          |&nbsp;&nbsp;&nbsp;&nbsp;/*
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is the main update loop and is called approximately every millisecond.
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
-        br
-        |&nbsp;&nbsp;&nbsp;&nbsp;
-        font(color='#0F6BA0')
-          |this
-        |.run = 
-        font(color='purple')
-          |function
-        |() {
-        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
+          div.col-xs-11
+            font(color='green')#runComment
+              |&nbsp;&nbsp;&nbsp;&nbsp;/*
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is the main update loop and is called approximately every millisecond.
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+            br
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            font(color='#0F6BA0')
+              |this
+            |.run = 
+            font(color='purple')
+              |function
+            |() {
+            |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          div.col-xs-1
+            img#toggleRunCodeSection(src="/media/arrow_down.jpg" width="30px")
+        div.row#runCodeRow
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeRun
@@ -270,22 +278,26 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         br
 
-        font(color='green')
-          |&nbsp;&nbsp;&nbsp;&nbsp;/*
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the "Stop Program" button is pressed.
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
-        br
-        |&nbsp;&nbsp;&nbsp;&nbsp;
-        font(color='#0F6BA0')
-          |this
-        |.endProgram = 
-        font(color='purple')
-          |function
-        |() {
-        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
+          div.col-xs-11
+            font(color='green')#endComment
+              |&nbsp;&nbsp;&nbsp;&nbsp;/*
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the "Stop Program" button is pressed.
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+            br
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            font(color='#0F6BA0')
+              |this
+            |.endProgram = 
+            font(color='purple')
+              |function
+            |() {
+            |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          div.col-xs-1
+            img#toggleEndCodeSection(src="/media/arrow_down.jpg" width="30px")
+        div.row#endCodeRow
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeEnd
@@ -296,27 +308,31 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         br
 
-        font(color='green')
-          |&nbsp;&nbsp;&nbsp;&nbsp;/*
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the user moves the joystick.
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* The angle is between 0 and 360 and the 'intensity' variable is between 0.0 and 1.0.
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
-        br
-        |&nbsp;&nbsp;&nbsp;&nbsp;
-        font(color='#0F6BA0')
-          |this
-        |.onJoystickChange = 
-        font(color='purple')
-          |function
-        |(
-        font(color='blue')
-          |angle, intensity
-        |) {
-        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
+          div.col-xs-11
+            font(color='green')#joystickComment
+              |&nbsp;&nbsp;&nbsp;&nbsp;/*
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is called when the user moves the joystick.
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* The angle is between 0 and 360 and the 'intensity' variable is between 0.0 and 1.0.
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+            br
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            font(color='#0F6BA0')
+              |this
+            |.onJoystickChange = 
+            font(color='purple')
+              |function
+            |(
+            font(color='blue')
+              |angle, intensity
+            |) {
+            |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          div.col-xs-1
+            img#toggleJoystickCodeSection(src="/media/arrow_down.jpg" width="30px")
+        div.row#joystickCodeRow
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeJoystick
@@ -337,25 +353,29 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         br
 
-        font(color='green')
-          |&nbsp;&nbsp;&nbsp;&nbsp;/*
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is fired whenever the user presses a key on the keyboard.
-          br
-          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
-        br
-        |&nbsp;&nbsp;&nbsp;&nbsp;
-        font(color='#0F6BA0')
-          |this
-        |.onKeypress = 
-        font(color='purple')
-          |function
-        |(
-        font(color='blue')
-          |key
-        |) {
-        |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         div.row
+          div.col-xs-11
+            font(color='green')#keypressComment
+              |&nbsp;&nbsp;&nbsp;&nbsp;/*
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* This method is fired whenever the user presses a key on the keyboard.
+              br
+              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+            br
+            |&nbsp;&nbsp;&nbsp;&nbsp;
+            font(color='#0F6BA0')
+              |this
+            |.onKeypress = 
+            font(color='purple')
+              |function
+            |(
+            font(color='blue')
+              |key
+            |) {
+            |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          div.col-xs-1
+            img#toggleKeypressCodeSection(src="/media/arrow_down.jpg" width="30px")
+        div.row#keypressCodeRow
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeKeypress

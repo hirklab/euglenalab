@@ -191,6 +191,86 @@
         });
     });
 
+    $('#toggleStartCodeSection').on({
+      'click': function() {
+        if (app.mainView.startCodeExpanded) {
+          app.mainView.startCodeExpanded = false;
+          $("#toggleStartCodeSection").attr("src", "/media/arrow_right.jpg");
+          $('#startCodeRow').hide();
+          $('#startComment').hide();
+        } else {
+          app.mainView.startCodeExpanded = true;
+          $("#toggleStartCodeSection").attr("src", "/media/arrow_down.jpg");
+          $('#startCodeRow').show();
+          $('#startComment').show();
+        }
+      }
+    });
+
+    $('#toggleRunCodeSection').on({
+      'click': function() {
+        if (app.mainView.runCodeExpanded) {
+          app.mainView.runCodeExpanded = false;
+          $("#toggleRunCodeSection").attr("src", "/media/arrow_right.jpg");
+          $('#runCodeRow').hide();
+          $('#runComment').hide();
+        } else {
+          app.mainView.runCodeExpanded = true;
+          $("#toggleRunCodeSection").attr("src", "/media/arrow_down.jpg");
+          $('#runCodeRow').show();
+          $('#runComment').show();
+        }
+      }
+    });
+
+    $('#toggleEndCodeSection').on({
+      'click': function() {
+        if (app.mainView.endCodeExpanded) {
+          app.mainView.endCodeExpanded = false;
+          $("#toggleEndCodeSection").attr("src", "/media/arrow_right.jpg");
+          $('#endCodeRow').hide();
+          $('#endComment').hide();
+        } else {
+          app.mainView.endCodeExpanded = true;
+          $("#toggleEndCodeSection").attr("src", "/media/arrow_down.jpg");
+          $('#endCodeRow').show();
+          $('#endComment').show();
+        }
+      }
+    });
+
+    $('#toggleJoystickCodeSection').on({
+      'click': function() {
+        if (app.mainView.joystickCodeExpanded) {
+          app.mainView.joystickCodeExpanded = false;
+          $("#toggleJoystickCodeSection").attr("src", "/media/arrow_right.jpg");
+          $('#joystickCodeRow').hide();
+          $('#joystickComment').hide();
+        } else {
+          app.mainView.joystickCodeExpanded = true;
+          $("#toggleJoystickCodeSection").attr("src", "/media/arrow_down.jpg");
+          $('#joystickCodeRow').show();
+          $('#joystickComment').show();
+        }
+      }
+    });
+
+    $('#toggleKeypressCodeSection').on({
+      'click': function() {
+        if (app.mainView.keypressCodeExpanded) {
+          app.mainView.keypressCodeExpanded = false;
+          $("#toggleKeypressCodeSection").attr("src", "/media/arrow_right.jpg");
+          $('#keypressCodeRow').hide();
+          $('#keypressComment').hide();
+        } else {
+          app.mainView.keypressCodeExpanded = true;
+          $("#toggleKeypressCodeSection").attr("src", "/media/arrow_down.jpg");
+          $('#keypressCodeRow').show();
+          $('#keypressComment').show();
+        }
+      }
+    });
+
     $('#drawingFunctionsButton').click(function() {
       if ($('#drawingFunctionsButton').text() === "Show drawing functions") {
         $('#drawingFunctionsButton').html("Hide drawing functions");
@@ -490,6 +570,12 @@
     gameErrorMessage: "",
     gameName: "guessLedGame.peter",
     previousKey: "",
+
+    startCodeExpanded: true,
+    runCodeExpanded: true,
+    endCodeExpanded: true,
+    joystickCodeExpanded: true,
+    keypressCodeExpanded: true,
 
     // Sandbox mode.
     sandboxMode: false,
@@ -1279,7 +1365,7 @@
       // $('#btnStopGame').prop("disabled", true);
       // $('#btnLoadGame').prop("disabled", true);
       app.mainView.gameInSession = false;
-      app.mainView.gameInstructionText = 'So that other users can use the online microscope, your session has timed out. You are now in sandbox mode. Your code will run on the video stream, meaning some functions like setLED will not work. If you want to work with real Euglena again, please save your code and then return to the home page in order to join a new session.';
+      app.mainView.gameInstructionText = 'So that other users can use the online microscope, your session has timed out. You are now in sandbox mode. Your code will run on the virtual simulation shown above. If you want to work with real Euglena again, please save your code and then return to the home page in order to join a new session.';
       alert(app.mainView.gameInstructionText);
       $('#instructionText').text(app.mainView.gameInstructionText);
       $('#instructionText').css('color', 'red');
