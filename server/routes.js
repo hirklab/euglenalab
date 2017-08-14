@@ -275,6 +275,8 @@ exports = module.exports = function (app, passport) {
     app.post('/account/developgame/loguserdata/', require('./views/account/developgame/index').loguserdata);
     app.post('/account/developgame/isuserdemographicsaved/', require('./views/account/developgame/index').isuserdemographicsaved);
     app.post('/account/developgame/saveuserdemographicinfo/', require('./views/account/developgame/index').saveuserdemographicinfo);
+    app.post('/account/developgame/savereadme/', require('./views/account/developgame/index').savereadme);
+    app.post('/account/developgame/getreadme/', require('./views/account/developgame/index').getreadme);
 
     //route not found
     app.all('*', require('./views/http/index').http404);

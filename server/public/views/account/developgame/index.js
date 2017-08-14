@@ -39,6 +39,31 @@
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
+    app.mainView.readmeEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeREADME'), {
+        lineNumbers: false,
+        theme: "text/html",
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          app.mainView.readmeEditor.setLineClass(hlLineReadme, null, null);
+          hlLineReadme = app.mainView.readmeEditor.setLineClass(app.mainView.readmeEditor.getCursor().line, null, "activeline");
+        },
+        onChange: function() {
+          var gameName = app.mainView.gameName;
+          if (gameName === "avoidEuglenaGame.peter" || gameName === "euglenaHeatmaps.peter"
+              || gameName === "helloWorld.peter" || gameName === "euglenaCountExperiment.peter"
+              || gameName === "guessLedGame.peter" || gameName === "movingBoxGame.peter"
+              || gameName === "userInteractionLogging.peter") {
+            gameName += "_" + app.mainView.userName;
+          }
+          $.post('/account/developgame/savereadme/', { userName: app.mainView.userName,
+                                                       readmeText:  app.mainView.readmeEditor.getValue(),
+                                                       fileName: gameName + "_README.txt" } )
+              .done(function(data) {});
+        }
+    });
+    var hlLineReadme = app.mainView.readmeEditor.setLineClass(0, "activeline");
+
     app.mainView.runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
         lineNumbers: false,
         theme: "default",
@@ -138,6 +163,11 @@
       }
       app.mainView.gameName = gameName;
       $('#gameNameText').val(app.mainView.gameName);
+
+      $.post('/account/developgame/savereadme/', { userName: app.mainView.userName,
+                                                       readmeText:  app.mainView.readmeEditor.getValue(),
+                                                       fileName: gameName + "_README.txt" } )
+              .done(function(data) {});
       $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
                                                  runCode: codeRun,
                                                  startCode: codeStart,
@@ -471,6 +501,11 @@
       }
       app.mainView.gameName = gameName;
       $('#gameNameText').val(app.mainView.gameName);
+
+      $.post('/account/developgame/savereadme/', { userName: app.mainView.userName,
+                                                       readmeText:  app.mainView.readmeEditor.getValue(),
+                                                       fileName: gameName + "_README.txt" } )
+              .done(function(data) {});
       $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
                                                  runCode: codeRun,
                                                  startCode: codeStart,
@@ -495,6 +530,11 @@
 
     $(".gameFile").click(function() {
         var codeInd = $(this).index();
+        $.post('/account/developgame/getreadme/', { userName: app.mainView.userName,
+                                                    gameIndex: codeInd } )
+        .done(function(data) {
+          app.mainView.readmeEditor.setValue(data);
+        });
         $.post('/account/developgame/getgamecode/', { userName: app.mainView.userName,
                                                       gameIndex: codeInd } )
         .done(function(data) {

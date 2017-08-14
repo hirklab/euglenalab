@@ -7,6 +7,60 @@ var gameFileNames = '';
 
 // Functions for saving game files.
 
+exports.savereadme = function(req, res) {
+  console.log("Saving README text...");
+  var fileName = "NO_NAME_ASSIGNED";
+  if (req.body.fileName.length > 1) {
+    fileName = req.body.fileName;
+  }
+  var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName;
+  var gameFileToSave = req.body.readmeText;
+  fs.writeFile (filePath, gameFileToSave, function(err) {
+      if (err) throw err;
+      console.log('game file writing complete');
+  });
+  res.json('success writing game');
+};
+
+exports.getreadme = function(req, res) {
+  console.log("Getting README text...");
+  var fileIndex = req.body.gameIndex;
+  var gameFileNamesFixed = gameFileNames.split(';').slice(1, -1);
+  var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
+  var filePath = "";
+  // Check user specific path.
+  fs.readdir(__dirname + "/games/" + req.body.userName + "/", function(err, files) {
+    if (err) {} //throw err;
+    files.forEach(function(file) {
+      if (file === fileToOpen) {
+        filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen + "_README.txt";
+      }
+    });
+    // Check example code path.
+    fs.readdir(__dirname + "/games/", function(err, files) {
+      if (err) {} //throw err;
+      files.forEach(function(file) {
+        if (file === fileToOpen) {
+          filePath = __dirname + "/games/" + fileToOpen + "_README.txt";
+        }
+      });
+      // Open file.
+      if (filePath.length < 2) {
+        console.log("Early return!");
+        res.json("");
+        return;
+      } else {
+        console.log('Opening file: ' + filePath + '---' + fileToOpen);
+        fs.readFile(filePath, 'utf8', function (err, data) {
+          if (err) throw err;
+          var returnVal = data;
+          res.json(returnVal);
+        });
+      }
+    });
+  });
+};
+
 exports.savefile = function(req, res) {
   console.log("Saving game code...");
   var fileName = "NO_NAME_ASSIGNED";
@@ -248,14 +302,16 @@ exports.init = function(req, res, next) {
       files.forEach(function(file) {
         console.log(file);
         if (!fs.lstatSync(__dirname + "/games/" + outcome.user.username + "/" + file).isDirectory()) {
-          gameNames += file + ';';
+          if (file.indexOf("_README.txt") === -1)
+            gameNames += file + ';';
         }
       });
       fs.readdir(__dirname + "/games/", function(err, files2) {
         files2.forEach(function(file2) {
           console.log(file2);
           if (!fs.lstatSync(__dirname + "/games/" + file2).isDirectory()) {
-            gameNames += file2 + ';';
+            if (file.indexOf("_README.txt") === -1)
+              gameNames += file2 + ';';
           }
         });
         outcome.gameNames = gameNames;
