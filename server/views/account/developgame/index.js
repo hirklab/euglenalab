@@ -4,8 +4,68 @@ var fs = require('fs');
 var glob = require('glob');
 
 var gameFileNames = '';
+var userHelperFunctionFiles = '';
 
 // Functions for saving game files.
+
+exports.savehelperfunction = function(req, res) {
+  console.log("Saving helper function code...");
+  var fileName = "NO_NAME_ASSIGNED";
+  if (req.body.functionName.length > 1) {
+    fileName = req.body.functionName;
+  }
+  var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName + "_helper_function.txt";
+
+  var argsString = "";
+  for (var i = 0; i < req.body.functionArgs.length; i++) {
+    argsString += req.body.functionArgs[i] + "&&&&&";
+  }
+  var gameFileToSave = argsString + "-----" + req.body.functionCode + "-----" + req.body.functionName;
+  fs.writeFile (filePath, gameFileToSave, function(err) {
+      if (err) throw err;
+      console.log('game file writing complete');
+  });
+  res.json('success writing game');
+};
+
+exports.gethelperfunction = function(req, res) {
+  console.log("Getting helper function code...");
+  var fileIndex = req.body.helperIndex;
+  var gameFileNamesFixed = userHelperFunctionFiles.split(';').slice(1, -1);
+  var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
+  var filePath = "";
+  // Check user specific path.
+  fs.readdir(__dirname + "/games/" + req.body.userName + "/", function(err, files) {
+    if (err) {} //throw err;
+    files.forEach(function(file) {
+      if (file === fileToOpen) {
+        filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen + "";
+      }
+    });
+    // Check example code path.
+    fs.readdir(__dirname + "/games/", function(err, files) {
+      if (err) {} //throw err;
+      files.forEach(function(file) {
+        if (file === fileToOpen) {
+          filePath = __dirname + "/games/" + fileToOpen + "";
+        }
+      });
+      // Open file.
+      if (filePath.length < 2) {
+        console.log("Early return!");
+        res.json("");
+        return;
+      } else {
+        console.log('Opening file: ' + filePath + '---' + fileToOpen);
+        fs.readFile(filePath, 'utf8', function (err, data) {
+          if (err) {  }
+          var returnVal = data;
+          res.json(returnVal);
+        });
+      }
+    });
+  });
+};
 
 exports.savereadme = function(req, res) {
   console.log("Saving README text...");
@@ -295,6 +355,7 @@ exports.init = function(req, res, next) {
   };
   var getGameNames = function(callback) {
     var gameNames = ';';
+    var helperFunctionNames = ';';
     if (!fs.existsSync(__dirname + "/games/" + outcome.user.username + "/")) {
       fs.mkdirSync(__dirname + "/games/" + outcome.user.username + "/");
     }
@@ -302,20 +363,30 @@ exports.init = function(req, res, next) {
       files.forEach(function(file) {
         console.log(file);
         if (!fs.lstatSync(__dirname + "/games/" + outcome.user.username + "/" + file).isDirectory()) {
-          if (file.indexOf("_README.txt") === -1)
+          if (file.indexOf("_README.txt") === -1) {
             gameNames += file + ';';
+          }
+          if (file.indexOf("_helper_function.txt") !== -1) {
+            helperFunctionNames += file + ';';
+          }
         }
       });
       fs.readdir(__dirname + "/games/", function(err, files2) {
         files2.forEach(function(file2) {
           console.log(file2);
           if (!fs.lstatSync(__dirname + "/games/" + file2).isDirectory()) {
-            if (file2.indexOf("_README.txt") === -1)
+            if (file2.indexOf("_README.txt") === -1) {
               gameNames += file2 + ';';
+            }
+            if (file2.indexOf("_helper_function.txt") !== -1) {
+              helperFunctionNames += file2 + ';';
+            }
           }
         });
         outcome.gameNames = gameNames;
         gameFileNames = gameNames;
+        outcome.helperFunctionNames = helperFunctionNames;
+        userHelperFunctionFiles = helperFunctionNames;
         return callback(null);
       });
     });
@@ -334,6 +405,7 @@ exports.init = function(req, res, next) {
       var startingAlpha = 0.0;
       res.render(outcome.renderJade, {
         data: {
+          helperFunctionNames: escape(JSON.stringify(outcome.helperFunctionNames)),
           gameNames: escape(JSON.stringify(outcome.gameNames)),
           user: escape(JSON.stringify(outcome.user)),
           bpu: escape(JSON.stringify(outcome.bpu)),

@@ -423,16 +423,35 @@ block body
         br
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button#addHelperFunctionButton(type="button" class="btn btn-primary" data-toggle="collapse") Add or Edit Helper Function
+        button#loadHelperFunctionButton(type="button" class="btn btn-primary" data-toggle="modal" data-target="#loadHelperFunctionModal" ) Load Helper Function
+        |&nbsp;&nbsp;&nbsp;&nbsp;
+        button#saveHelperFunctionButton(type="button" class="btn btn-primary" data-toggle="modal" data-target="#saveHelperFunctionModal" ) Write Helper Function
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         br
         div#helperFunctionArea
-          br
-          br
-          textarea#txtCodeHelper
-            |&nbsp;&nbsp;&nbsp;&nbsp;/*Helper function*/
-          br
-          br
+          div.row
+            div.col-xs-11
+              br
+              font(color='purple')
+                |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;
+              font(color='black')#helperNameText
+                |helperFunction
+              |&nbsp;=&nbsp;
+              font(color='purple')
+                |function
+              |(
+              font(color='black')#helperArgsText
+                |arg1, arg2
+              |)&nbsp;{
+            div.col-xs-1
+              img#toggleHelperCodeSection(src="/media/arrow_down.jpg" width="30px")
+          div.row#helperCodeRow
+            div.col-xs-1
+            div.col-xs-11
+              textarea#txtCodeHelper
+                |&nbsp;
+          |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+        br
         br
         |};
         br
@@ -1054,6 +1073,47 @@ block body
           div.modal-footer
             button.btn.btn-default(type="button", data-dismiss="modal") Close
 
+
+    div.modal.fade#saveHelperFunctionModal(role="dialog")
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type="button", data-dismiss="modal")
+            h4.modal-title
+              |Save Helper Function
+          div.modal-body
+            div.form-group
+              label(for="usr") Helper function name:
+              input.form-control.demographicData#helperFunctionNameInput(type="text")
+              br
+              label(for="usr") Helper function arguments (comma-separated):
+              input.form-control.demographicData#helperFunctionArgsInput(type="text")
+              br
+            button.btn.btn-primary#btnSaveHelper(type="save", value="save", data-toggle="modal" data-target="#saveHelperFunctionModal") Save Helper Function
+          div.modal-footer
+            button.btn.btn-default(type="button", data-dismiss="modal") Close
+
+    div.modal.fade#loadHelperFunctionModal(role="dialog")
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type="button", data-dismiss="modal")
+            h4.modal-title
+              |Choose Saved Helper Function
+          div.modal-body
+            div.dropdown
+              button.btn.btn-default.dropdown-toggle(type="button" data-toggle="dropdown") Select A Function
+                span.caret
+              ul.dropdown-menu#existingHelperFunctionsDropdown
+                - for (var j=0; j < data.helperFunctionNames.split('%3B').length; j++)
+                  - if (data.helperFunctionNames.split('%3B')[j] !== '%22')
+                    li.helperFile
+                      a(href="#") 
+                        | #{data.helperFunctionNames.split('%3B')[j]}
+            br
+          div.modal-footer
+            button.btn.btn-default(type="button", data-dismiss="modal") Close
+
     div.modal.fade#loadGameModal(role="dialog")
       div.modal-dialog
         div.modal-content
@@ -1072,7 +1132,6 @@ block body
                       a(href="#") 
                         | #{data.gameNames.split('%3B')[j]}
             br
-            //-button.btn.btn-primary#btnLoadGame(type="save", value="save") Open Game
           div.modal-footer
             button.btn.btn-default(type="button", data-dismiss="modal") Close
 

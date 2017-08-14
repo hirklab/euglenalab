@@ -73,7 +73,7 @@
           }
           $.post('/account/developgame/savereadme/', { userName: app.mainView.userName,
                                                        readmeText:  app.mainView.readmeEditor.getValue(),
-                                                       fileName: gameName + "_README.txt" } )
+                                                       fileName: app.mainView.gameName + "_README.txt" } )
               .done(function(data) {});
         }
     });
@@ -241,23 +241,39 @@
         });
     });
 
-    $('#addHelperFunctionButton').click(function() {
-      if (app.mainView.helperFunctionShown) {
-        $('#helperFunctionArea').hide();
-        $('#addHelperFunctionButton').html("Add or Edit Helper Function");
-        $('#addHelperFunctionButton').addClass('btn-primary');
-        $('#addHelperFunctionButton').removeClass('btn-success');
+    $('#btnSaveHelper').click(function() {
+      $('#helperArgsText').html($('#helperFunctionArgsInput').val());
+      $('#helperNameText').html($('#helperFunctionNameInput').val());
+      $('#txtCodeHelper').html(app.mainView.helperFunctionEditor.getValue());
+      $('#helperFunctionArea').show();
+      $("#saveHelperFunctionButton").html("Save Helper Function");
+      app.mainView.parseHelperCode(app.mainView.helperFunctionEditor.getValue(), 
+                                   $('#helperFunctionArgsInput').val(),
+                                   $('#helperFunctionNameInput').val());
+      $.post('/account/developgame/savehelperfunction/', { userName: app.mainView.userName,
+                                                             functionCode:  app.mainView.helperFunctionEditor.getValue(),
+                                                             functionName: $('#helperFunctionNameInput').val(),
+                                                             functionArgs: $('#helperFunctionArgsInput').val().split(","),
+                                                             fileName: app.mainView.gameName } )
+              .done(function(data) {});
         app.mainView.helperFunctionShown = false;
-      } else {
-        $('#helperFunctionArea').show();
-        $('#addHelperFunctionButton').html("Save Function");
-        $('#addHelperFunctionButton').removeClass('btn-primary');
-        $('#addHelperFunctionButton').addClass('btn-success');
-        app.mainView.helperFunctionShown = true;
-      }
     });
 
     $('#helperFunctionArea').hide();
+
+    $('#toggleHelperCodeSection').on({
+      'click': function() {
+        if (app.mainView.helperCodeExpanded) {
+          app.mainView.helperCodeExpanded = false;
+          $("#toggleHelperCodeSection").attr("src", "/media/arrow_right.jpg");
+          $('#helperCodeRow').hide();
+        } else {
+          app.mainView.helperCodeExpanded = true;
+          $("#toggleHelperCodeSection").attr("src", "/media/arrow_down.jpg");
+          $('#helperCodeRow').show();
+        }
+      }
+    });
 
     $('#toggleStartCodeSection').on({
       'click': function() {
@@ -541,8 +557,8 @@
       $('#gameNameText').val(app.mainView.gameName);
 
       $.post('/account/developgame/savereadme/', { userName: app.mainView.userName,
-                                                       readmeText:  app.mainView.readmeEditor.getValue(),
-                                                       fileName: gameName + "_README.txt" } )
+                                                   readmeText:  app.mainView.readmeEditor.getValue(),
+                                                   fileName: app.mainView.gameName + "_README.txt" } )
               .done(function(data) {});
       $.post('/account/developgame/savefile/', { userName: app.mainView.userName,
                                                  runCode: codeRun,
@@ -565,6 +581,44 @@
           //console.log( "Data Loaded log user data: " + data);
         });
     });
+
+    $(".helperFile").click(function() {
+      var codeInd = $(this).index();
+
+      $('#saveHelperFunctionButton').html("Save Helper Function");
+
+      $('#loadHelperFunctionModal').modal('toggle');
+      $.post('/account/developgame/gethelperfunction/', { userName: app.mainView.userName,
+                                                          helperIndex: codeInd } )
+        .done(function(data) {
+          var helperArgs = data.split('-----')[0].split('&&&&&');
+          var helperCode = data.split('-----')[1];
+          var helperName = data.split('-----')[2];
+          //console.log('args: ' + helperArgs);
+          //console.log('code: ' + helperCode);
+          //console.log('name: ' + helperName);
+          app.mainView.helperFunctionEditor.setValue(helperCode);
+          $('#helperArgsText').html(helperArgs.toString().slice(0,-1));
+          $('#helperNameText').html(helperName);
+          $('#txtCodeHelper').html(helperCode);
+          app.mainView.parseHelperCode(helperCode, 
+                                   helperArgs.toString().slice(0,-1),
+                                   helperName);
+          $.post('/account/developgame/loguserdata/', { userName: app.mainView.userName,
+                                                        fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                        logTimestamp: Date.now().toString(),
+                                                        logText: "User " + app.mainView.userName + " loaded helper function " + helperName + "----- \n" } )
+            .done(function(data2) {
+              $("#helperFunctionArea").show();
+              $("#saveHelperFunctionButton").html("Save Helper Function");
+            });
+        });
+    });
+
+    $.post('/account/developgame/savereadme/', { userName: app.mainView.userName,
+                                                 readmeText:  app.mainView.readmeEditor.getValue(),
+                                                 fileName: app.mainView.gameName + "_README.txt" } )
+              .done(function(data) {});
 
     $(".gameFile").click(function() {
         var codeInd = $(this).index();
@@ -652,6 +706,7 @@
     currentHelperFunctionCode: "",
     helperFunctionShown: false,
 
+    helperCodeExpanded: true,
     startCodeExpanded: true,
     runCodeExpanded: true,
     endCodeExpanded: true,
@@ -998,6 +1053,17 @@
       modifiedCode = modifiedCode.split('KEY.M').join('\'m\'');
       modifiedCode = modifiedCode.split('key').join('\'' + key + '\'');
       app.mainView.generalParser(modifiedCode);
+    },
+    parseHelperCode: function(helperCode, helperArgs, helperName) {
+      var codeToParse = "var ";
+      codeToParse += helperName;
+      codeToParse += " = function(";
+      codeToParse += helperArgs;
+      codeToParse += ") { ";
+      codeToParse += helperCode
+      codeToParse += " }";
+      //console.log("HELPER FUNCTION::::: " + codeToParse);
+      app.mainView.generalParser(codeToParse);
     },
 
     /*
