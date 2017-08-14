@@ -310,7 +310,7 @@ exports.init = function(req, res, next) {
         files2.forEach(function(file2) {
           console.log(file2);
           if (!fs.lstatSync(__dirname + "/games/" + file2).isDirectory()) {
-            if (file.indexOf("_README.txt") === -1)
+            if (file2.indexOf("_README.txt") === -1)
               gameNames += file2 + ';';
           }
         });
