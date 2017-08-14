@@ -52,7 +52,7 @@ exports.getreadme = function(req, res) {
       } else {
         console.log('Opening file: ' + filePath + '---' + fileToOpen);
         fs.readFile(filePath, 'utf8', function (err, data) {
-          if (err) throw err;
+          if (err) {  }
           var returnVal = data;
           res.json(returnVal);
         });

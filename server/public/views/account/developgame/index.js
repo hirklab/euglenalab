@@ -39,6 +39,21 @@
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
 
+    app.mainView.helperFunctionEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeHelper'), {
+        lineNumbers: false,
+        theme: "default",
+        autoMatchParens: true,
+        lineWrapping: true,
+        onCursorActivity: function() {
+          app.mainView.helperFunctionEditor.setLineClass(hlLineHelper, null, null);
+          hlLineHelper = app.mainView.helperFunctionEditor.setLineClass(app.mainView.helperFunctionEditor.getCursor().line, null, "activeline");
+        },
+        onChange: function() {
+          $('#savedStatus').html("Unsaved Program");
+        }
+    });
+    var hlLineHelper = app.mainView.helperFunctionEditor.setLineClass(0, "activeline");
+
     app.mainView.readmeEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeREADME'), {
         lineNumbers: false,
         theme: "text/html",
@@ -63,6 +78,11 @@
         }
     });
     var hlLineReadme = app.mainView.readmeEditor.setLineClass(0, "activeline");
+
+    $.post('/account/developgame/savereadme/', { userName: app.mainView.userName,
+                                                       readmeText:  app.mainView.readmeEditor.getValue(),
+                                                       fileName: app.mainView.gameName + "_README.txt" } )
+              .done(function(data) {});
 
     app.mainView.runEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeRun'), {
         lineNumbers: false,
@@ -220,6 +240,24 @@
           //console.log( "Data Loaded demographic data: " + data);
         });
     });
+
+    $('#addHelperFunctionButton').click(function() {
+      if (app.mainView.helperFunctionShown) {
+        $('#helperFunctionArea').hide();
+        $('#addHelperFunctionButton').html("Add or Edit Helper Function");
+        $('#addHelperFunctionButton').addClass('btn-primary');
+        $('#addHelperFunctionButton').removeClass('btn-success');
+        app.mainView.helperFunctionShown = false;
+      } else {
+        $('#helperFunctionArea').show();
+        $('#addHelperFunctionButton').html("Save Function");
+        $('#addHelperFunctionButton').removeClass('btn-primary');
+        $('#addHelperFunctionButton').addClass('btn-success');
+        app.mainView.helperFunctionShown = true;
+      }
+    });
+
+    $('#helperFunctionArea').hide();
 
     $('#toggleStartCodeSection').on({
       'click': function() {
@@ -611,6 +649,9 @@
     gameName: "guessLedGame.peter",
     previousKey: "",
 
+    currentHelperFunctionCode: "",
+    helperFunctionShown: false,
+
     startCodeExpanded: true,
     runCodeExpanded: true,
     endCodeExpanded: true,
@@ -713,6 +754,7 @@
 
       app.mainView.gameSessionName = JSON.parse(unescape($('#data-session').html()))["liveBpuExperiment"]["id"];
       app.mainView.userName = JSON.parse(unescape($('#data-user').html()))["username"];
+      app.mainView.gameName = "guessLedGame.peter_" + app.mainView.username;
 
       $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
                                                     logTimestamp: Date.now().toString(),
