@@ -15,7 +15,7 @@ var IO = {
 
 var TYPE = {
 	STATE:   0,
-	NUMERIC: 1,
+	NUMERIC: 1
 };
 
 
@@ -105,7 +105,7 @@ var BoardConfig = {
 			},
 			default: 'stop'
 		}
-	},{
+	}, {
 		name:    'projector',
 		pin:     32001,
 		mode:    MODE.SOCKET,

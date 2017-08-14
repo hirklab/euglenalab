@@ -1,9 +1,9 @@
-var _app = null;
-var _fs = null;
+var _app  = null;
+var _fs   = null;
 var _exec = null;
 
-var assert = require('assert');
-var path = require('path');
+var assert   = require('assert');
+var path     = require('path');
 var filename = path.basename(__filename);
 
 exports = module.exports = function (app, deps, options, mainCallback) {
@@ -22,15 +22,15 @@ exports = module.exports = function (app, deps, options, mainCallback) {
 
 	} else {
 
-		_app = app;
-		_fs = deps.fs;
+		_app  = app;
+		_fs   = deps.fs;
 		_exec = deps.exec;
 
 		app.bpuStatus = app.bpuStatusTypes.reseting;
 
 		//Check Options
 		var o_doFlushFlag = options.doFlushFlag || false;
-		var o_flushTime = options.flushTime || 20 * 1000;
+		var o_flushTime   = options.flushTime || 20 * 1000;
 
 
 	}

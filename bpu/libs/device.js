@@ -3,10 +3,10 @@ var lodash = require('lodash');
 var constants = require('./constants');
 var rpi       = require(constants.IS_FAKE ? './raspberrypi' : 'wiring-pi');
 
-var logger = require('./logging');
+var logger      = require('./logging');
 var boardConfig = require('./boardConfig').BoardConfig;
-var MODE = require('./boardConfig').MODE;
-var TYPE = require('./boardConfig').TYPE;
+var MODE        = require('./boardConfig').MODE;
+var TYPE        = require('./boardConfig').TYPE;
 
 
 function Device(device) {
@@ -65,13 +65,13 @@ Device.prototype.setValue = function (value) {
 		case MODE.DIGITAL:
 			rpi.digitalWrite(this.pin, value);
 			this.value = value;
-			logger.debug(this.name + ': '+ value);
+			logger.debug(this.name + ': ' + value);
 			break;
 
 		case MODE.SOFTPWM:
 			rpi.softPwmWrite(this.pin, value);
 			this.value = value;
-			logger.debug(this.name + ': '+ value);
+			logger.debug(this.name + ': ' + value);
 			break;
 
 		case MODE.SOCKET:
@@ -82,22 +82,22 @@ Device.prototype.setValue = function (value) {
 				client.connect(this.pin, 'localhost', function () {
 					client.write(value);
 					self.value = value;
-					logger.debug(self.name + ': '+ value);
+					logger.debug(self.name + ': ' + value);
 				});
 
 				client.on('error', function (err) {
-					logger.error(self.name + ': '+ err);
+					logger.error(self.name + ': ' + err);
 				});
 			} else {
 				rpi.socketWrite(this.pin, value);
 				this.value = value;
-				logger.debug(this.name + ': '+ value);
+				logger.debug(this.name + ': ' + value);
 			}
 			break;
 
 		default:
 			this.value = value;
-			logger.debug(this.name + ': '+ value);
+			logger.debug(this.name + ': ' + value);
 			break;
 	}
 }

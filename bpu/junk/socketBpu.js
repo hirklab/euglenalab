@@ -1,6 +1,6 @@
-var assert = require('assert');
-var path = require('path');
-var http =require('http');
+var assert   = require('assert');
+var path     = require('path');
+var http     = require('http');
 var filename = path.basename(__filename);
 
 exports = module.exports = function (app, deps, opts, mainCallback) {
@@ -36,8 +36,8 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 			//Ping
 			socket.on(app.socketStrs.bpu_ping, function (callback) {
 				var emitStr = app.socketStrs.bpu_ping;
-				var retStr = emitStr + 'Res';
-				var resObj = {err: null, bpuStatus: app.bpuStatus};
+				var retStr  = emitStr + 'Res';
+				var resObj  = {err: null, bpuStatus: app.bpuStatus};
 				//Log
 				//app.logger.info(moduleName+' '+emitStr);
 
@@ -55,17 +55,17 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 			socket.on(app.socketStrs.bpu_getStatus, function (callback) {
 				//Init
 				var emitStr = app.socketStrs.bpu_getStatus;
-				var retStr = emitStr + 'Res';
-				var resObj = {
+				var retStr  = emitStr + 'Res';
+				var resObj  = {
 					//id
-					index: app.bpuConfig.index,
-					name: app.bpuConfig.name,
+					index:       app.bpuConfig.index,
+					name:        app.bpuConfig.name,
 					//status
-					err: null,
-					bpuStatus: app.bpuStatus,
-					expOverId: null,
+					err:         null,
+					bpuStatus:   app.bpuStatus,
+					expOverId:   null,
 					//Exp
-					exp: null,
+					exp:         null,
 					expTimeLeft: 0
 				};
 
@@ -77,8 +77,8 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 					resObj.exp = app.exp;
 					if (app.isExperimentOverAndWaitingForPickup) {
 						app.isExperimentOverAndWaitingForPickup = false;
-						resObj.expOverId = app.exp._id;
-						var opts = {};
+						resObj.expOverId                        = app.exp._id;
+						var opts                                = {};
 						app.logger.debug(moduleName + ' script_resetBpu ' + 'start');
 						app.script_resetBpu(app, deps, opts, function (err) {
 							app.logger.debug(moduleName + ' script_resetBpu ' + 'end');
@@ -148,8 +148,8 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 			socket.on(app.socketStrs.bpu_setExp, function (exp, resetTimeout, callback) {
 				//Init
 				var emitStr = app.socketStrs.bpu_setExp;
-				var retStr = emitStr + 'Res';
-				var resObj = {err: null, bpuStatus: app.bpuStatus};
+				var retStr  = emitStr + 'Res';
+				var resObj  = {err: null, bpuStatus: app.bpuStatus};
 
 				//Log
 				app.logger.info(moduleName + ' ' + emitStr);
@@ -168,14 +168,14 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 					if (typeof callback === 'function') callback(resObj.err, resObj);
 				} else {
 					app.bpuStatus = app.bpuStatusTypes.pendingRun;
-					app.exp = exp;
+					app.exp       = exp;
 
 					app.exp.exp_eventsToRun.sort(function (objA, objB) {
 						return objB.time - objA.time
 					});
 					app.exp_eventsRunTime = app.exp.exp_eventsToRun[0].time;
 
-					app.didConfirmRun = false;
+					app.didConfirmRun        = false;
 					app.didConfirmTimeoutRun = false;
 					setTimeout(function () {
 						if (!app.didConfirmRun) {
@@ -204,18 +204,18 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 						var ledsSet = function (lightData, cb_fn) {
 							//Init
 							var emitStr = app.socketStrs.bpu_runExpLedsSet;
-							var retStr = emitStr + 'Res';
-							var resObj = {err: null, bpuStatus: app.bpuStatus};
+							var retStr  = emitStr + 'Res';
+							var resObj  = {err: null, bpuStatus: app.bpuStatus};
 
 							//Log
 							//app.logger.info(moduleName+' '+emitStr);
 
 							//Run
-							var timeNow = new Date().getTime();
+							var timeNow       = new Date().getTime();
 							lightData.setTime = timeNow;
-							var doReset = false;
-							resObj = app.bpu.ledsSet(lightData, doReset);
-							resObj.err = null;
+							var doReset       = false;
+							resObj            = app.bpu.ledsSet(lightData, doReset);
+							resObj.err        = null;
 							app.exp.exp_eventsRan.push(resObj);
 							//Return
 							if (typeof cb_fn === 'function') cb_fn(resObj.err, resObj);
@@ -266,8 +266,8 @@ exports = module.exports = function (app, deps, opts, mainCallback) {
 				if (doReset) {
 					//Init
 					var emitStr = app.socketStrs.bpu_resetBpu;
-					var retStr = emitStr + 'Res';
-					var resObj = {err: null, bpuStatus: app.bpuStatus};
+					var retStr  = emitStr + 'Res';
+					var resObj  = {err: null, bpuStatus: app.bpuStatus};
 
 					//Log
 					app.logger.info(moduleName + ' ' + emitStr);

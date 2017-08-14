@@ -52,7 +52,7 @@ module.exports = {
 		MAINTENANCE:       'maintenance',
 		DISCONNECTED:      'disconnected'
 	},
-	STATES:   {
+	STATES:       {
 		CONNECTING:  'connecting',
 		IDLE:        'idle',
 		QUEUED:      'queued',

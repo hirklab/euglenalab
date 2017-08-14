@@ -36,7 +36,7 @@ function Microscope(ip, port, hid, name) {
 	// only state gets pushed to upstream
 	// PUSH ONLY RELEVANT DATA IN STATE
 	this.state            = {};
-	this.state.hid        = hid;
+	this.state.hid        = hid;  // todo use this as primary identity of device
 	this.state.name       = name;
 	this.state.status     = STATES.CONNECTING;
 	this.state.connected  = false;
@@ -51,7 +51,7 @@ Microscope.prototype.initialize = function () {
 
 	var httpServer = http.createServer(function (req, res) {
 		res.writeHead(200, {
-			'Content-Type': 'application/json',
+			'Content-Type': 'application/json'
 		});
 		res.end();
 	});
@@ -331,7 +331,7 @@ Microscope.prototype.onStimulus = function (payload) {
 			that.onExecuteEvent(payload.event);
 		}
 	}
-}
+};
 
 Microscope.prototype.onExecuteEvent = function (payload) {
 	var that = this;
@@ -346,7 +346,7 @@ Microscope.prototype.onExecuteEvent = function (payload) {
 		time:  currentTime,
 		event: payload
 	});
-}
+};
 
 Microscope.prototype.onExperimentClear = function (payload) {
 	var that = this;

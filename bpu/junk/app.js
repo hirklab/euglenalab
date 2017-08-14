@@ -1,12 +1,12 @@
-var async = require('async');
-var os = require('os');
-var fs = require('fs');
-var exec = require('child_process').exec;
+var async    = require('async');
+var os       = require('os');
+var fs       = require('fs');
+var exec     = require('child_process').exec;
 var socketIo = require('socket.io');
-var lodash = require('lodash');
-var tracer = require('tracer');
-var colors = require('colors');
-var path = require('path');
+var lodash   = require('lodash');
+var tracer   = require('tracer');
+var colors   = require('colors');
+var path     = require('path');
 
 var script_initializeBpu = require('./initializeBpu.js');
 
@@ -22,51 +22,51 @@ var isFake = MACHINE !== 'raspberrypi';
 
 var app = {
 	//Basic
-	name: filename,
+	name:      filename,
 	startDate: new Date(),
 
 	//Logger
-	logger: null,
+	logger:      null,
 	loggerLevel: 'log',
 
 	//Other Constant Scripts/Data
-	MainConfig: require('../shared/mainConfig.js'),
+	MainConfig:       require('../shared/mainConfig.js'),
 	BpuAutoLightData: require('../shared/autoUserData.json'),
 	BpuTestLightData: require('../shared/testLightUserData.json'),
-	myFunctions: require('../shared/myFunctions.js'),
+	myFunctions:      require('../shared/myFunctions.js'),
 
 	//Scripts for longer seequences
-	script_socketBpu: require('./socketBpu.js'),
-	script_resetBpu: require('./resetBpu.js'),
+	script_socketBpu:     require('./socketBpu.js'),
+	script_resetBpu:      require('./resetBpu.js'),
 	script_runExperiment: require('./runExperiment.js'),
-	script_fakeMongo: require('./fakeMongo.js'),
+	script_fakeMongo:     require('./fakeMongo.js'),
 
 	//Deps needed throughout application
 	async: async,
 
 	//Init Flags
 	//Init Objects
-	bpu: null,
-	bpuConfig: null,
-	db: null,
+	bpu:            null,
+	bpuConfig:      null,
+	db:             null,
 	//Init Info
-	mainDataDir: home_dir + '/bpuData',
-	expDataDir: home_dir + '/bpuData/tempExpData',
-	mountedDataDir:  (isFake? home_dir + '/bpuEuglenaData/eug100': '/mnt/bpuEuglenaData/' + os.hostname()),
+	mainDataDir:    home_dir + '/bpuData',
+	expDataDir:     home_dir + '/bpuData/tempExpData',
+	mountedDataDir: (isFake ? home_dir + '/bpuEuglenaData/eug100' : '/mnt/bpuEuglenaData/' + os.hostname()),
 	bpuStatusTypes: null,
 
 	//Run Flags
-	isFlushing: false,
-	isExperimentAdded: false,
+	isFlushing:                          false,
+	isExperimentAdded:                   false,
 	isExperimentOverAndWaitingForPickup: false,
 
 	//Run Objects
-	exp: null,
-	didConfirmRun: false,
+	exp:                  null,
+	didConfirmRun:        false,
 	didConfirmTimeoutRun: false,
 	//Run Info
-	bpuStatus: null,
-	bpuStatusError: null,
+	bpuStatus:            null,
+	bpuStatusError:       null,
 
 };
 
@@ -74,15 +74,15 @@ app.tracer = tracer;
 
 app.logger = app.tracer.colorConsole(
 	{
-		format: "{{timestamp}} <{{file}}:{{line}}> {{message}}",
+		format:     "{{timestamp}} <{{file}}:{{line}}> {{message}}",
 		dateformat: "HH:MM:ss.L",
-		level: LOGGER_LEVELS[0],
-		filters: {
-			log: colors.white,
+		level:      LOGGER_LEVELS[0],
+		filters:    {
+			log:   colors.white,
 			trace: colors.magenta,
 			debug: colors.blue,
-			info: colors.green,
-			warn: colors.yellow,
+			info:  colors.green,
+			warn:  colors.yellow,
 			error: [colors.red, colors.bold]
 		}
 	});

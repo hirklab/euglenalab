@@ -1,25 +1,25 @@
 var http     = require('http');
 var socketIO = require('socket.io');
-var lodash = require('lodash');
+var lodash   = require('lodash');
 
-var config = require('../config');
-var logger = require('./logging');
+var config    = require('../config');
+var logger    = require('./logging');
 var constants = require('../constants');
-var EVENTS = constants.EVENTS;
-var MESSAGES = constants.MESSAGES;
-var STATES = constants.STATES;
+var EVENTS    = constants.EVENTS;
+var MESSAGES  = constants.MESSAGES;
+var STATES    = constants.STATES;
 
 function Webserver(callback) {
-	var that = this;
-	that.url = null;
-	that.ip = config.SERVER_IP;
-	that.port = config.SERVER_PORT;
-	that.server  = null;
+	var that    = this;
+	that.url    = null;
+	that.ip     = config.SERVER_IP;
+	that.port   = config.SERVER_PORT;
+	that.server = null;
 	that.client = null; // single connection to webserver
-	
-	that.state = {};
-	this.state.status     = STATES.CONNECTING;
-	this.state.connected  = false;
+
+	that.state           = {};
+	this.state.status    = STATES.CONNECTING;
+	this.state.connected = false;
 
 	var httpServer = http.createServer(function (req, res) {
 		res.writeHead(200, {
@@ -245,7 +245,7 @@ Webserver.prototype.onDisconnected = function (reason) {
 	that.state.connected = false;
 
 	that.sendMessage(MESSAGES.STATUS, that.status());
-	
+
 };
 
 Webserver.prototype.sendMessage = function (type, payload) {

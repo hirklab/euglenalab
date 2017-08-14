@@ -62,22 +62,24 @@ import (
 )
 
 const (
-	WORKERS            int    = 5
-	MAXRETRIES         int    = 3
-	ROOT               string = "/home/mserver/"
-	BPU_PATH                  = ROOT + "bpuEuglenaData_forMounting/"
-	FINAL_PATH                = ROOT + "finalBpuData/"
-	MINIMUM_JPG_FILES         = 20
-	COLLECTION                = "bpuexperiments"
-	BPUCOLLECTION             = "bpus"
-	MOVIEEXEC                 = "./tools/euglenamovie"
-	MOVIE_POST_PROCESS        = "./tools/tracks.sh"
-	MOVE_DATA                 = "./tools/movedata.sh"
-	PYTHON_SCRIPT_ROOT        = "../shared/python-scripts/"
+	WORKERS           int    = 5
+	MAX_RETRIES       int    = 3
+	ROOT              string = "/home/mserver/"
+	BPU_PATH                 = ROOT + "bpuEuglenaData_forMounting/"
+	FINAL_PATH               = ROOT + "finalBpuData/"
+	MINIMUM_JPG_FILES        = 20
+
+	COLLECTION     = "bpuexperiments"
+	BPU_COLLECTION = "bpus"
+
+	MOVIE_EXE          = "./tools/euglenamovie"
+	MOVIE_POST_PROCESS = "./tools/tracks.sh"
+	MOVE_DATA          = "./tools/movedata.sh"
+	PYTHON_SCRIPT_ROOT = "../shared/python-scripts/"
 )
 
-var MONGODB_URI        string = os.Getenv("MONGODB_HOST")
-var DATABASE                  = os.Getenv("MONGODB_DATABASE")
+var MONGODB_URI string = os.Getenv("MONGODB_HOST")
+var DATABASE = os.Getenv("MONGODB_DATABASE")
 
 type ExpUser struct {
 	Id     bson.ObjectId `bson:"id,omitempty"`
@@ -88,25 +90,28 @@ type ExpUser struct {
 type ExpLastResort struct {
 	BPUName string `bson:"bpuName"`
 }
+
 type ExpMetaData struct {
 	//ExpName             string `bson:"ExpName"`
 	//ExpFullPath         string `bson:"ExpFullPath"`
 	//LightDataPath       string `bson:"lightDataPath"`
 	//LightDataSoapPath   string `bson:"lightDataSoapPath"`
 	//SaveTime            string `bson:"saveTime"`
-	NumFrames int32 `bson:"numFrames"`
+
 	//UserURL             string `bson:"userUrl"`
 	//ClientCreationDate  string `bson:"clientCreationDate"`
 	//GroupExperimentType string `bson:"group_experimentType"`
 	//RunTime             int32  `bson:"runTime"`
 	//Tag                 string `bson:"tag"`
+
+	NumFrames     int32 `bson:"numFrames"`
 	Magnification int32 `bson:"magnification"`
 }
 
 type Stat struct {
-	ScripterResponse	float64		`bson:"scripterResponse"`
-	ScripterActivity	float64		`bson:"scripterActivity"`
-	ScripterPopulation	float64		`bson:"scripterPopulation"`
+	ScripterResponse   float64        `bson:"scripterResponse"`
+	ScripterActivity   float64        `bson:"scripterActivity"`
+	ScripterPopulation float64        `bson:"scripterPopulation"`
 }
 
 type Experiment struct {
@@ -190,7 +195,6 @@ func (ws *WorkerStatus) finishJob() {
 }
 
 func (ws *WorkerStatus) startJob(exp *Experiment) {
-
 	ws.currentStatus.exp = exp
 	ws.currentStatus.message = ""
 }
@@ -248,7 +252,7 @@ func compileMovie(wid int, exp *Experiment) error {
 	// fmt.Printf("Worker %d, Experiment ID: %s - Compiling Movie\n", wid, exp.Id.Hex())
 	g_workStatuses[wid].currentStatus.message = "Compiling Movie"
 	g_statusCond.Signal()
-	_, err := exec.Command(MOVIEEXEC, "-i", exp.ProcStartPath).Output()
+	_, err := exec.Command(MOVIE_EXE, "-i", exp.ProcStartPath).Output()
 	if err != nil {
 		return errors.New("compileMovie:" + err.Error())
 	}
@@ -325,7 +329,7 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 
 	currStat, err := strconv.ParseFloat(stat, 64)
 	statValue := reflect.ValueOf(&exp.Stats)
-	statValue.Elem().FieldByName("Scripter"+varName).SetFloat(currStat)
+	statValue.Elem().FieldByName("Scripter" + varName).SetFloat(currStat)
 
 	if err != nil {
 		return errors.New("processScripter:" + scripterName + ":" + err.Error())
@@ -334,7 +338,7 @@ func processScripter(wid int, exp *Experiment, session *mgo.Session) error {
 	sessionCopy := session.Copy()
 	defer sessionCopy.Close()
 
-	collection := session.DB(DATABASE).C(BPUCOLLECTION)
+	collection := session.DB(DATABASE).C(BPU_COLLECTION)
 
 	var bpu BPU
 	queryProjection := getQueryProjection(bpu)
@@ -570,7 +574,7 @@ func enqueueExperiments(c *mgo.Collection, jobChannel chan<- Experiment) {
 			"_id":               bson.M{"$gte": fromDate, "$lte": toDate},
 			"proc_doNotProcess": false,
 			"exp_status":        "servercleared",
-			"proc_attempts":     bson.M{"$lte": MAXRETRIES},
+			"proc_attempts":     bson.M{"$lte": MAX_RETRIES},
 		}
 
 		// query = bson.M{

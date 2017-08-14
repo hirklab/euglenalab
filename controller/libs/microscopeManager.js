@@ -1,9 +1,9 @@
 "use strict";
-var async          = require('async');
+var async = require('async');
 
-var config = require('../config');
-var logger = require('./logging');
-var constants    = require('../constants');
+var config    = require('../config');
+var logger    = require('./logging');
+var constants = require('../constants');
 
 var Microscope = require('./microscope');
 

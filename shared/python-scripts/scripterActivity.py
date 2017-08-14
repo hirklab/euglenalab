@@ -1,21 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 15 22:31:41 2015
-
-@author: zhossain
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 15 16:44:30 2015
-
-@author: zhossain
-"""
-
-#import sys
-#print 102.2340
-#sys.exit(0)
-
 import numpy as np
 import cv2
 import sys
@@ -27,6 +9,7 @@ THRESHOLD = 127
 DEBUG = False
 
 #cap = cv2.VideoCapture(sys.argv[1])
+
 cap = Media(sys.argv[1])
 zoomLevel = float(sys.argv[2]) if len(sys.argv) > 2 else 10
 

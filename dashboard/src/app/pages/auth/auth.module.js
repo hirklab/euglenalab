@@ -32,6 +32,20 @@
 				// controllerAs: 'vm'
 				isAdmin:     false
 			})
+			.state('auth.forgot_password', {
+				url:         '/forgot-password',
+				templateUrl: 'app/pages/auth/forgot_password.html',
+				controller:  'ForgotPasswordPageCtrl',
+				// controllerAs: 'vm'
+				isAdmin:     false
+			})
+			.state('auth.reset_password', {
+				url:         '/reset-password',
+				templateUrl: 'app/pages/auth/reset_password.html',
+				controller:  'ResetPasswordPageCtrl',
+				// controllerAs: 'vm'
+				isAdmin:     false
+			})
 		;
 	}
 

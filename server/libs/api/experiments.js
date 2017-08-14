@@ -35,23 +35,17 @@ var create = function(req, res){
 		}
 
 		if (workflow.hasErrors()) {
-			return workflow.emit('response');
+			return workflow.emit('exception');
 		}
 
 		workflow.emit('create');
 	});
 
 	workflow.on('create', function () {
-		if (!req.body.experiment) {
-			workflow.outcome.errfor.experiment = 'required';
-		}
 
-		if (!req.body.rating) {
-			workflow.outcome.errfor.rating = 'required';
-		}
 
 		if (workflow.hasErrors()) {
-			return workflow.emit('response');
+			return workflow.emit('exception');
 		}
 
 		workflow.emit('response');

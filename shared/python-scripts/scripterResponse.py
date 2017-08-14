@@ -1,8 +1,3 @@
-
-# import sys
-# print 0.512349218342304
-# sys.exit(0)
-
 import numpy as np
 import sys
 from euglena.detector import EuglenaDetector
@@ -47,6 +42,7 @@ x = []
 y = []
 r = []
 frameAngles = []
+
 for i in range(len(detector._frameAngles)):
     angles = detector._frameAngles[i]
 
@@ -54,6 +50,7 @@ for i in range(len(detector._frameAngles)):
         npAngles = np.array(angles)
         x.append(i * T)
         frameAngles.append( npAngles )
+
         if DEBUG:
             totalAngles = len(angles)
             vertical = np.sum(np.abs(npAngles) > 45)
@@ -113,9 +110,6 @@ for seg in range(4):
         if DEBUG:
             frac.append(0)
 
-#print np.sum(frac) / 4.0
-#print len(npx)
-#print probs
 if len(probs)  == 4:
     #print min(np.prod(probs) * 1000.0 / 3.0,1.0)
     #print np.prod(probs) * 1000.0 / 3.0

@@ -1,4 +1,3 @@
-
 module.exports.CLIENT_MESSAGES = {
 	CONNECTED:         'connected',
 	STATUS:            'status',

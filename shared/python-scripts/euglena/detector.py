@@ -90,6 +90,7 @@ class Media(object):
 class EuglenaDetector(object):
     # __KERNEL_ERODE          = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
     # __KERNEL_DILATE         = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+
     __FGBG                  = cv2.createBackgroundSubtractorMOG2(detectShadows=False)
     __CONTOUR_AREA_TRESHOLD = (150,1500)
 
@@ -133,6 +134,7 @@ class EuglenaDetector(object):
 
             for i in xrange(len(contours)):
                 contourArea = cv2.contourArea(contours[i])
+
                 if  (contourArea > self.__CONTOUR_AREA_TRESHOLD[0] * self._areaFactor) and (contourArea < self.__CONTOUR_AREA_TRESHOLD[1] * self._areaFactor) :
                     rect = cv2.minAreaRect(contours[i])
                     rectangles.append( rect )
@@ -142,10 +144,7 @@ class EuglenaDetector(object):
                         for ii in range(4):
                           cv2.line(drawFrame,tuple(box[ii]),tuple(box[(ii+1)%4]),(0,255,255))
 
-                    #image,"Hello World!!!", (x,y),
                     xy = np.int0(np.array(rect[0]))
-                    #xy = np.int0((np.array(rect[0]) + np.array(rect[1]))/2.0)
-                    #print
                     x = xy[0]
                     y = xy[1]
 
@@ -168,7 +167,6 @@ class EuglenaDetector(object):
                     angle = -angle
                     angles.append(angle)
                     if self._debug :
-                        #color = (255,0,0) if flag else (255,255,255)
                         color = (255,255,255)
                         cv2.putText(drawFrame,"%0.1f"%(angle),(x,y),cv2.FONT_HERSHEY_DUPLEX, 0.5, color)
 

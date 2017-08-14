@@ -1,7 +1,7 @@
 "use strict";
 
-var _ = require('underscore');
-var constants = require('../constants');
+var _               = require('underscore');
+var constants       = require('../constants');
 var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
 
 // constructor
@@ -28,7 +28,7 @@ UserManager.prototype.connect = function (controller, cb) {
 		});
 
 	that.io.sockets.on('connection', function (socket) {
-		var found = false;
+		var found       = false;
 		var currentUser = socket.request.session.passport.user;
 
 		if (currentUser !== undefined && currentUser !== null) {
@@ -42,8 +42,8 @@ UserManager.prototype.connect = function (controller, cb) {
 				});
 			} else {
 				that.users[currentUser._id] = {
-					userID:   currentUser._id,
-					username: currentUser.username,
+					userID:    currentUser._id,
+					username:  currentUser.username,
 					sockets:   [],
 					sessionID: socket.request.sessionID
 				}

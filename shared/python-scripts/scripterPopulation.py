@@ -1,20 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 15 22:31:41 2015
-
-@author: zhossain
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 15 16:44:30 2015
-
-@author: zhossain
-"""
-# import sys
-# print 15
-# sys.exit(0)
-
 import numpy as np
 import cv2
 import sys
