@@ -13,107 +13,8 @@ function Controller(config, logger, userManager) {
 }
 
 // class methods
-Controller.prototype.compileClientUpdateFromController = function (bpuDocs, listExperiment, runningQueueTimesPerBpuName) {
+Controller.prototype.compileClientUpdateFromController = function (microscopes, listExperiment) {
 	var that = this;
-
-	var waitTimePerBpuName = {};
-	var updatePerSessionID = {};
-
-	// var addBpuToSessionID = function (sessID, bpuExp) {
-	//     if (sessID !== null && sessID !== undefined) {
-	//         if (updatePerSessionID[sessID] === null || updatePerSessionID[sessID] === undefined) {
-	//             updatePerSessionID[sessID]         = {};
-	//             updatePerSessionID[sessID].bpuExps = [];
-	//             updatePerSessionID[sessID].expTags = [];
-	//         }
-	//         updatePerSessionID[sessID].bpuExps.push(bpuExp);
-	//     }
-	// };
-	//
-	// var addExpToSessionID = function (sessID, expTag) {
-	//     if (sessID !== null && sessID !== undefined) {
-	//         if (updatePerSessionID[sessID] === null || updatePerSessionID[sessID] === undefined) {
-	//             updatePerSessionID[sessID]         = {};
-	//             updatePerSessionID[sessID].bpuExps = [];
-	//             updatePerSessionID[sessID].expTags = [];
-	//         }
-	//         updatePerSessionID[sessID].expTags.push(expTag);
-	//     }
-	// };
-
-	// var bpuGroupsCrossCheckWithUser = function (user, bpuDoc) {
-	//     for (var ind = 0; ind < bpuDoc.allowedGroups.length; ind++) {
-	//         for (var jnd = 0; jnd < user.groups.length; jnd++) {
-	//             if (bpuDoc.allowedGroups[ind] === user.groups[jnd]) return true;
-	//         }
-	//     }
-	//     return false;
-	// };
-
-	var isLiveActive = function (status) {
-		return (status === that.config.mainConfig.bpuStatusTypes.running ||
-			status === that.config.mainConfig.bpuStatusTypes.pendingRun ||
-			status === that.config.mainConfig.bpuStatusTypes.finalizing ||
-			status === that.config.mainConfig.bpuStatusTypes.reseting);
-	};
-
-	//Create bpu updates and sort active bpus experiments into session id
-	var bpusUpdate = [];
-
-	if (bpuDocs) {
-		bpuDocs.forEach(function (bpuDoc) {
-
-			if (bpuDoc) {
-				var liveBpuExperimentPart = null;
-
-				if (isLiveActive(bpuDoc.bpuStatus)) {
-					liveBpuExperimentPart = {
-						username:             bpuDoc.liveBpuExperiment.username,
-						bc_timeLeft:          bpuDoc.liveBpuExperiment.bc_timeLeft,
-						group_experimentType: bpuDoc.liveBpuExperiment.group_experimentType
-					};
-				}
-
-				var bpuObj = {
-					id:                 bpuDoc._id,
-					name:               bpuDoc.name,
-					index:              bpuDoc.index,
-					bpuStatus:          bpuDoc.bpuStatus,
-					bpu_processingTime: bpuDoc.bpu_processingTime,
-					liveBpuExperiment:  liveBpuExperimentPart
-				};
-
-				//Add to Session Update
-				// if (bpuObj.liveBpuExperiment) {
-				//     addBpuToSessionID(bpuDoc.liveBpuExperiment.sessionID, JSON.parse(JSON.stringify(bpuObj)));
-				// }
-
-				bpuObj.allowedGroups = bpuDoc.allowedGroups;                 //should be deleted before going out
-
-				if (bpuDoc.name in runningQueueTimesPerBpuName) {
-					bpuObj.timePending = runningQueueTimesPerBpuName[bpuDoc.name];
-				} else {
-					bpuObj.timePending = 0;
-				}
-
-				//Add to bpu Update
-				bpusUpdate.push(bpuObj);
-			}
-		});
-	}
-
-	//Sort Queue Exps and New Exp By sessionID
-	// Object.keys(listExperiment).forEach(function (key) {
-	//     if (key[0] !== '_') {
-	//         if (key.search('eug') > -1 || key === 'newExps') {
-	//             listExperiment[key].forEach(function (expTag) {
-	//                 if (expTag.session) {
-	//                     addExpToSessionID(expTag.session.sessionID, expTag);
-	//                 }
-	//             });
-	//         }
-	//     }
-	// });
 
 	var users = _.map(Object.values(that.userManager.users), function (user) {
 		"use strict";
@@ -121,41 +22,14 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
 	});
 
 	Object.values(that.userManager.users).forEach(function (user) {
-
-		// var socketID = socketKey;
-		// if (socketKey.split('#').length > 0) socketID = socketKey.split('#')[1];
-
 		_.map(user.sockets, function (socket) {
 
 			var payload = {
-				microscopes: bpusUpdate,
-				// queueExpTags: [],
-				// groupBpus:    [],
+				microscopes: microscopes,
 				users:       users
 			};
 
-			// if (updatePerSessionID[socket.sessionDoc.sessionID]) {
-			// 	if (updatePerSessionID[socket.sessionDoc.sessionID].bpuExps) {
-			// 		socketUpdateObj.bpuExps = updatePerSessionID[socket.sessionDoc.sessionID].bpuExps;
-			// 	}
-			// 	if (updatePerSessionID[socket.sessionDoc.sessionID].expTags) {
-			// 		socketUpdateObj.queueExpTags = updatePerSessionID[socket.sessionDoc.sessionID].expTags;
-			// 	}
-			// }
-
-			// bpuDocs.forEach(function (bpuDoc) {
-			//     //Check if bpu is in session user groups
-			//     // if (bpuGroupsCrossCheckWithUser({groups: socket.sessionDoc.user.groups}, bpuDoc)) {
-			//     var bpuDocJson = JSON.parse(JSON.stringify(bpuDoc));
-			//     if (runningQueueTimesPerBpuName[bpuDoc.name]) {
-			//         bpuDocJson.runningQueueTime = runningQueueTimesPerBpuName[bpuDoc.name];
-			//     } else {
-			//         bpuDocJson.runningQueueTime = 0;
-			//     }
-			//     delete bpuDocJson.allowedGroups;
-			//     socketUpdateObj.groupBpus.push(bpuDocJson);
-			//     // }
-			// });
+			// todo filter microscopes which are not in user group
 
 			var newMessage     = {};
 			newMessage.type    = CLIENT_MESSAGES.STATUS;
@@ -167,12 +41,6 @@ Controller.prototype.compileClientUpdateFromController = function (bpuDocs, list
 
 Controller.prototype.connect = function (cb) {
 	var that = this;
-
-	// var serverInfo = {
-	//     Identifier:             that.config.myWebServerIdentifier,
-	//     name:                   that.config.myWebServerName,
-	//     socketClientServerPort: that.config.myControllerPort
-	// };
 
 	var address = that.config.controllerAddress;
 	that.logger.debug('connecting controller...');
@@ -186,17 +54,6 @@ Controller.prototype.connect = function (cb) {
 	that.socket.on('connection', function () {
 		that.logger.info('controller => ' + address);
 
-		// that.socket.emit('setConnection', serverInfo, function (err, auth) {
-		//     if (err) {
-		//         that.logger.error('controller authentication failed: ' + err);
-		//         cb(err, that);
-		//     } else {
-		//         that.logger.info('controller authenticated: ' + auth.Name);
-		//         that.auth = auth;
-		//         cb(null, that);
-		//     }
-		// });
-
 		cb(null, that);
 	});
 
@@ -209,7 +66,7 @@ Controller.prototype.connect = function (cb) {
 		// that.logger.debug('type: ', type);
 
 		if (type == 'update' && payload) {
-			that.compileClientUpdateFromController(payload.microscopes, payload.experiments, payload.queueTimes);
+			that.compileClientUpdateFromController(payload.microscopes, payload.experiments);
 		}
 	});
 

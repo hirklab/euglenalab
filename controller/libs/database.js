@@ -28,7 +28,7 @@ module.exports = function (app, callback) {
 			isOn: true
 		});
 
-		query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
+		query.select('_id isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
 		query.exec(callback);
 	}
 };

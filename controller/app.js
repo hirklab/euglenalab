@@ -43,7 +43,6 @@ var app = {
 	bpuLedsSetMatch: {}
 };
 
-
 var setupMongoose = function (callback) {
 	logger.debug('setting database...');
 	require('./libs/database')(app, callback);
@@ -84,7 +83,7 @@ var getExperiments = function (callback) {
 var init = function (callback) {
 	async.series([
 		setupMongoose,
-		setupScheduler,
+		// setupScheduler,
 		setupWebserver,
 		getExperiments
 	], function (err) {
@@ -125,6 +124,23 @@ var loop = function () {
 	});
 };
 
+var gracefulShutdown = function() {
+	logger.info('shutting down controller...');
+
+	if (app.scheduler) {
+		logger.info('shutting down scheduler...');
+
+		// app.scheduler.stop(function () {
+		// 	process.exit(0);
+		// });
+	} else {
+		process.exit(0);
+	}
+};
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);
+
 init(function (err) {
 	if (err) {
 		logger.error(err);
@@ -132,3 +148,4 @@ init(function (err) {
 		loop();
 	}
 });
+

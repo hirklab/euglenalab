@@ -19,16 +19,27 @@ module.exports = function (app) {
 					return callback(err);
 				} else {
 					microscopes.forEach(function (microscope) {
-						if (app.microscopesIndex[microscope.name]) {
+						if (microscope.name in app.microscopesIndex) {
+							// database sync
 							app.microscopesIndex[microscope.name].doc = microscope;
+
+							// todo perform live sync here
+
+							// todo remove microscopes which are not in passed list
 						} else {
+
+							// new microscope introduced in database
 							app.microscopesIndex[microscope.name] = new Microscope({
+								id:      microscope._id,
 								name:    microscope.name,
 								doc:     microscope,
 								address: 'http://' + microscope.localAddr.ip + ':' + microscope.localAddr.serverPort
 							});
+
+							// todo a new queue needs to be created for this microscope
 						}
 					});
+
 					return callback(null);
 				}
 			});

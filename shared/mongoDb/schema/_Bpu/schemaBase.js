@@ -62,6 +62,7 @@ exports = module.exports = function(app, mongoose) {
       scripterResponse: { type: Number, default: 0 },
       scripterResponseDate: { type: Number, default: new Date(0).getTime() }
     },
+
     pastPerformanceScores: { type: Array, default: [] },
  
     //Flush Object

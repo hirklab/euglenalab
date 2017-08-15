@@ -112,7 +112,9 @@
 							microscope.quality = (5 * response['percent'] / 100 + 2 * activity['percent'] / 100 + 3 * population['percent'] / 100) / 10;
 						}
 
-						microscope.status = Microscope.BPU_STATUS_DISPLAY[microscope.bpuStatus];
+						microscope.status = "offline"; // Microscope.BPU_STATUS_DISPLAY[microscope.bpuStatus];
+						microscope.queueTime = 0;
+						microscope.isConnected = false;
 
 						return microscope;
 					})
@@ -194,34 +196,33 @@
 			$state.go('livelab'); // shift to livelab page
 		};
 
+		// syncing live
 		var onStatus = function (payload) {
 			var bpuUpdates = angular.copy(payload.microscopes);
 			var users      = angular.copy(payload.users);
 
 			$scope.$apply(function () {
-
 				vm.users = users;
 
 				lodash.map(vm.activeMicroscopes, function (microscope) {
 
 					var bpu = lodash.find(bpuUpdates, function (bpu) {
-						return bpu.id === microscope.id;
+						return bpu.name === microscope.name;
 					});
 
 					if (bpu != null) {
-						microscope.status = Microscope.BPU_STATUS_DISPLAY[bpu.bpuStatus];
+						microscope.status = bpu.status;
+						microscope.isConnected = bpu.isConnected;
+						microscope.queueTime = bpu.queueTime || 0;
 
-						microscope.allowedGroups               = bpu.allowedGroups;
-						microscope.processingTimePerExperiment = bpu.bpu_processingTime;
-						microscope.timePending                 = (bpu.timePending > 0 ? bpu.timePending : 0);
+						// microscope.allowedGroups               = bpu.allowedGroups;
+						// microscope.processingTimePerExperiment = bpu.bpu_processingTime;
+						// microscope.timePending                 = (bpu.timePending > 0 ? bpu.timePending : 0);
 
 						// todo show time left
 						// show running experiment
 						// user involved
-
-
 					}
-
 				});
 			});
 		};

@@ -2,6 +2,7 @@
 
 var async = require('async');
 var _     = require('underscore');
+var lodash     = require('lodash');
 
 var config    = require('../config');
 var constants = require('../constants');
@@ -597,17 +598,41 @@ module.exports = function (app) {
 						return microscope.isConnected;
 					})
 					.map(function (microscope) {
-						return microscope.doc.toJSON();
-					});
+						var data = lodash.clone(microscope);
+						delete data.doc;
+						delete data.socket;
 
-				var queueTimes = _.mapObject(app.microscopesIndex, function (val, key) {
-					return val.queueTime;
-				});
+
+						// if (isLiveActive(bpuDoc.bpuStatus)) {
+						// 	liveBpuExperimentPart = {
+						// 		username:             bpuDoc.liveBpuExperiment.username,
+						// 		bc_timeLeft:          bpuDoc.liveBpuExperiment.bc_timeLeft,
+						// 		group_experimentType: bpuDoc.liveBpuExperiment.group_experimentType
+						// 	};
+						// }
+						// 	// bpu_processingTime: bpuDoc.bpu_processingTime,
+
+						// is live
+						//(status === that.config.mainConfig.bpuStatusTypes.running ||
+						// status === that.config.mainConfig.bpuStatusTypes.pendingRun ||
+						// status === that.config.mainConfig.bpuStatusTypes.finalizing ||
+						// status === that.config.mainConfig.bpuStatusTypes.reseting);
+
+						// var bpuGroupsCrossCheckWithUser = function (user, bpuDoc) {
+						//     for (var ind = 0; ind < bpuDoc.allowedGroups.length; ind++) {
+						//         for (var jnd = 0; jnd < user.groups.length; jnd++) {
+						//             if (bpuDoc.allowedGroups[ind] === user.groups[jnd]) return true;
+						//         }
+						//     }
+						//     return false;
+						// };
+
+						return data; //.doc.toJSON();
+					});
 
 				app.webserver.sendMessage(MESSAGES.UPDATE, {
 					microscopes: bpuDocs,
-					experiments: app.experiments.toJSON(),
-					queueTimes:  queueTimes
+					experiments: app.experiments.toJSON()
 				});
 			}
 

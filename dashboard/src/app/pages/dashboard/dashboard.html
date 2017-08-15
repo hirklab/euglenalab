@@ -144,7 +144,7 @@
                                             <!--<button class="btn btn-primary pull-right" ng-click="vm.join(microscope)">Start</button>-->
 
                                             <h3 class="panel-title" style="margin-bottom: 8px;">{{microscope.name}}<span
-                                                    class="pull-right">~{{microscope.timePending/1000|number:0}} sec</span>
+                                                    class="pull-right" ng-if="microscope.isConnected">~{{microscope.queueTime/1000|number:0}} sec</span>
                                             </h3>
                                             <!--<h4 style="font-size: 16px;margin-bottom: 6px;">Time left: <span>{{microscope.timePending/1000|number:0}} sec</span>-->
                                             </h4>
