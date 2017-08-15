@@ -367,7 +367,7 @@ exports.init = function(req, res, next) {
       files.forEach(function(file) {
         console.log(file);
         if (!fs.lstatSync(__dirname + "/games/" + outcome.user.username + "/" + file).isDirectory()) {
-          if (file.indexOf("_README.txt") === -1) {
+          if (file.indexOf("_README.txt") === -1 && file.indexOf("_helper_function.txt") === -1) {
             gameNames += file + ';';
           }
           if (file.indexOf("_helper_function.txt") !== -1) {
@@ -379,7 +379,7 @@ exports.init = function(req, res, next) {
         files2.forEach(function(file2) {
           console.log(file2);
           if (!fs.lstatSync(__dirname + "/games/" + file2).isDirectory()) {
-            if (file2.indexOf("_README.txt") === -1) {
+            if (file2.indexOf("_README.txt") === -1 && file2.indexOf("_helper_function.txt") === -1) {
               gameNames += file2 + ';';
             }
             if (file2.indexOf("_helper_function.txt") !== -1) {
