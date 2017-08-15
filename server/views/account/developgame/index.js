@@ -8,6 +8,10 @@ var userHelperFunctionFiles = '';
 
 // Functions for saving game files.
 
+exports.gethelperfunctioncount = function(req, res) {
+  res.json(userHelperFunctionFiles.split(';').length);
+};
+
 exports.savehelperfunction = function(req, res) {
   console.log("Saving helper function code...");
   var fileName = "NO_NAME_ASSIGNED";

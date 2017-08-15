@@ -279,6 +279,7 @@ exports = module.exports = function (app, passport) {
     app.post('/account/developgame/getreadme/', require('./views/account/developgame/index').getreadme);
     app.post('/account/developgame/savehelperfunction/', require('./views/account/developgame/index').savehelperfunction);
     app.post('/account/developgame/gethelperfunction/', require('./views/account/developgame/index').gethelperfunction);
+    app.post('/account/developgame/gethelperfunctioncount/', require('./views/account/developgame/index').gethelperfunctioncount);
 
     //route not found
     app.all('*', require('./views/http/index').http404);

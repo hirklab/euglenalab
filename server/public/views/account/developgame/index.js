@@ -6,8 +6,6 @@
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
-    //alert("JS HINT::: " + JSHINT(["'use strict';", "console.log('hello, world!');"]));
-
     var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     if (!isChrome) {
       alert('This feature only works on Google Chrome!!! Navigating back to homepage.');
@@ -15,6 +13,27 @@
     }
 
     var myVar = setInterval(app.mainView.runLoop, 1);
+
+    $.post('/account/developgame/gethelperfunctioncount/', {})
+      .done(function(data0) {
+        var helperFunctionCount = parseInt(data0);
+        for (var i = 0; i < helperFunctionCount; i++) {
+          $.post('/account/developgame/gethelperfunction/', { userName: app.mainView.userName,
+                                                              helperIndex: i } )
+              .done(function(data) {
+                var helperArgs = data.split('-----')[0].split('&&&&&');
+                var helperCode = data.split('-----')[1];
+                var helperName = data.split('-----')[2];
+                //console.log('args: ' + helperArgs);
+                //console.log('code: ' + helperCode);
+                //console.log('name: ' + helperName);
+                app.mainView.parseHelperCode(helperCode, 
+                                             helperArgs.toString().slice(0,-1),
+                                             helperName);
+              });
+
+        }
+      });
 
     document.onkeypress = function (e) {
       e = e || window.event;
