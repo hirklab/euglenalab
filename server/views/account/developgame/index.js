@@ -36,14 +36,14 @@ exports.gethelperfunction = function(req, res) {
   console.log("Getting helper function code...");
   var fileIndex = req.body.helperIndex;
   var gameFileNamesFixed = userHelperFunctionFiles.split(';').slice(1, -1);
-  var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
+  var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)] + "_helper_function.txt";
   var filePath = "";
   // Check user specific path.
   fs.readdir(__dirname + "/games/" + req.body.userName + "/", function(err, files) {
     if (err) {} //throw err;
     files.forEach(function(file) {
       if (file === fileToOpen) {
-        filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen + "";
+        filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen;
       }
     });
     // Check example code path.
@@ -51,7 +51,7 @@ exports.gethelperfunction = function(req, res) {
       if (err) {} //throw err;
       files.forEach(function(file) {
         if (file === fileToOpen) {
-          filePath = __dirname + "/games/" + fileToOpen + "";
+          filePath = __dirname + "/games/" + fileToOpen;
         }
       });
       // Open file.
@@ -60,7 +60,6 @@ exports.gethelperfunction = function(req, res) {
         res.json("");
         return;
       } else {
-        console.log('Opening file: ' + filePath + '---' + fileToOpen);
         fs.readFile(filePath, 'utf8', function (err, data) {
           if (err) {  }
           var returnVal = data;
@@ -371,7 +370,7 @@ exports.init = function(req, res, next) {
             gameNames += file + ';';
           }
           if (file.indexOf("_helper_function.txt") !== -1) {
-            helperFunctionNames += file + ';';
+            helperFunctionNames += file.split("_helper_function.txt")[0] + ';';
           }
         }
       });
@@ -383,7 +382,7 @@ exports.init = function(req, res, next) {
               gameNames += file2 + ';';
             }
             if (file2.indexOf("_helper_function.txt") !== -1) {
-              helperFunctionNames += file2 + ';';
+              helperFunctionNames += file2.split("_helper_function.txt")[0] + ';';
             }
           }
         });
