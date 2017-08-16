@@ -644,7 +644,9 @@
         $.post('/account/developgame/getreadme/', { userName: app.mainView.userName,
                                                     gameIndex: codeInd } )
         .done(function(data) {
-          app.mainView.readmeEditor.setValue(data);
+          if (data !== undefined && data != null) {
+            if (data.length > 1) app.mainView.readmeEditor.setValue(data);
+          }
         });
         $.post('/account/developgame/getgamecode/', { userName: app.mainView.userName,
                                                       gameIndex: codeInd } )
