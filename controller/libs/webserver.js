@@ -133,9 +133,9 @@ Webserver.prototype.onExperimentSet = function (payload) {
 		// 				app.didConfirmTimeoutRun = true;
 		// 				app.script_resetBpu(app, deps, opts, function (err) {
 		// 					if (app.bpu === null || app.bpu === undefined) {
-		// 						app.logger.error('socketBpu bpu_setExp reseting issue no app.bpu');
+		// 						app.logger.error('socketBpu bpu_setExp resetting issue no app.bpu');
 		// 					} else if (err) {
-		// 						app.logger.error('socketBpu bpu_setExp reseting ' + err);
+		// 						app.logger.error('socketBpu bpu_setExp resetting ' + err);
 		// 					} else {
 		// 						app.logger.debug('socketBpu bpu_setExp READY FOR EXPERIMENT');
 		// 					}
@@ -255,8 +255,8 @@ Webserver.prototype.sendMessage = function (type, payload) {
 	newMessage.type    = type;
 	newMessage.payload = payload;
 
-	logger.debug('=============[C » W]=============');
-	logger.debug('type: ', type);
+	// logger.debug('=============[C » W]=============');
+	// logger.debug('type: ', type);
 
 	// if (newMessage.payload) {
 	// 	logger.debug('payload: ', newMessage.payload);

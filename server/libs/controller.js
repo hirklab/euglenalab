@@ -108,12 +108,17 @@ Controller.prototype.connect = function (cb) {
 	cb(null, that);
 };
 
-Controller.prototype.submitExperiment = function (queue, cb) {
+Controller.prototype.submitExperiment = function (experiment, cb) {
 	var that = this;
 
-	this.socket.emit(that.config.mainConfig.socketStrs.bpuCont_submitExperimentRequest, that.auth, queue, function (err, resDataArray) {
+	var message = {
+		type: 'experimentSet',
+		payload: experiment
+	};
+
+	this.socket.emit('message', message, function (err, submittedExperiment) {
 		that.logger.debug("experiment submitted to controller");
-		cb(err, resDataArray);
+		cb(err, submittedExperiment);
 	});
 };
 

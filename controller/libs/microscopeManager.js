@@ -36,6 +36,8 @@ module.exports = function (app) {
 								address: 'http://' + microscope.localAddr.ip + ':' + microscope.localAddr.serverPort
 							});
 
+							app.scheduler.addQueue(microscope.name);
+
 							// todo a new queue needs to be created for this microscope
 						}
 					});
@@ -62,10 +64,12 @@ module.exports = function (app) {
 				if (microscope.isConnected) {
 					logger.info('\tconnected:\t' + microscope.isConnected);
 					logger.info('\tqueueTime:\t' + microscope.queueTime);
+					logger.info('\texperiment:\t' + microscope.experiment);
 					// logger.info('\tTimeout:\t' + microscope.inactiveCount);
 				}
 				else {
 					logger.error('\tconnected:\t' + microscope.isConnected);
+					logger.info('\texperiment:\t' + microscope.experiment);
 					// logger.error('\tTimeout:\t' + microscope.inactiveCount);
 				}
 

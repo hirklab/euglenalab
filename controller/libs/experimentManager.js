@@ -599,8 +599,10 @@ module.exports = function (app) {
 					})
 					.map(function (microscope) {
 						var data = lodash.clone(microscope);
+
 						delete data.doc;
 						delete data.socket;
+						delete data.queue;
 
 
 						// if (isLiveActive(bpuDoc.bpuStatus)) {
@@ -627,9 +629,10 @@ module.exports = function (app) {
 						//     return false;
 						// };
 
-						return data; //.doc.toJSON();
+						return data;
 					});
 
+				// todo better to filter data only for microscopes which user is allowed to see
 				app.webserver.sendMessage(MESSAGES.UPDATE, {
 					microscopes: bpuDocs,
 					experiments: app.experiments.toJSON()

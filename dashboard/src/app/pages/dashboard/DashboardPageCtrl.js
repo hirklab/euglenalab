@@ -21,7 +21,7 @@
 			type:           'live',
 			tag:            '',
 			description:    '',
-			duration:       0, // seconds
+			duration:       60, // seconds - default duration
 			proposedEvents: []
 		};
 
@@ -235,7 +235,7 @@
 			return Math.round(ms / 1000);
 		};
 
-		vm.start = function () {
+		vm.startExperiment = function () {
 			var errors = false;
 
 			return $q(function (resolve, reject) {

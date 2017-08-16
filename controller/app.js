@@ -3,13 +3,15 @@ var socketIoClient = require('socket.io-client');
 var async          = require('async');
 var mongoose       = require('mongoose');
 var path           = require('path');
-var Agenda         = require('agenda');
+
 
 var config    = require('./config');
 var logger    = require('./libs/logging');
 var Webserver = require('./libs/webserver');
+var Scheduler = require('./libs/scheduler');
 
 var filename = path.basename(__filename);
+logger.debug(filename);
 
 
 //Main Object
@@ -50,13 +52,8 @@ var setupMongoose = function (callback) {
 
 var setupScheduler = function (callback) {
 	logger.debug('setting job scheduler...');
-	app.scheduler = new Agenda({db: {address: config.DB_URL, collection: 'jobs'}});
-
-	app.scheduler.on('ready', function () {
-		app.scheduler.start();
-
-		callback(null);
-	});
+	app.scheduler = new Scheduler();
+	app.scheduler.initialize(callback);
 };
 
 var setupWebserver = function (callback) {
@@ -83,7 +80,7 @@ var getExperiments = function (callback) {
 var init = function (callback) {
 	async.series([
 		setupMongoose,
-		// setupScheduler,
+		setupScheduler,
 		setupWebserver,
 		getExperiments
 	], function (err) {
@@ -98,7 +95,7 @@ var init = function (callback) {
 };
 
 var loop = function () {
-	app.utils.clearConsole();
+	// app.utils.clearConsole();
 	app.startDate = new Date();
 
 	var microscopeUtils = require('./libs/microscopeManager')(app);
@@ -106,11 +103,11 @@ var loop = function () {
 
 	async.series([
 		microscopeUtils.getMicroscopes,
-		microscopeUtils.showStatus,
+		// microscopeUtils.showStatus,
 
-		experimentUtils.checkExperiments,
-		experimentUtils.scheduleExperiments,
-		experimentUtils.updateExperimentsQueue,
+		// experimentUtils.checkExperiments,
+		// experimentUtils.scheduleExperiments,
+		// experimentUtils.updateExperimentsQueue,
 
 		experimentUtils.notifyClients
 	], function (err) {
@@ -124,18 +121,20 @@ var loop = function () {
 	});
 };
 
-var gracefulShutdown = function() {
+var gracefulShutdown = function () {
 	logger.info('shutting down controller...');
 
-	if (app.scheduler) {
-		logger.info('shutting down scheduler...');
+	process.exit(0);
 
-		// app.scheduler.stop(function () {
-		// 	process.exit(0);
-		// });
-	} else {
-		process.exit(0);
-	}
+	// if (app.scheduler) {
+	// 	logger.info('shutting down scheduler...');
+	//
+	// 	// app.scheduler.stop(function () {
+	// 	// 	process.exit(0);
+	// 	// });
+	// } else {
+	// 	process.exit(0);
+	// }
 };
 
 process.on('SIGTERM', gracefulShutdown);
@@ -145,6 +144,38 @@ init(function (err) {
 	if (err) {
 		logger.error(err);
 	} else {
+		setInterval(function () {
+			var experiment = {
+				type:           'batch',
+				description:    new Date(),
+				duration:       85,
+				machine:        {
+					ip:       "171.65.103.56",
+					hostname: "sr17-4dd5a61365.stanford.edu",
+					city:     "Stanford",
+					region:   "California"
+				},
+				microscope:{
+					name:'eug100'
+				},
+				proposedEvents: [
+					{time: 0, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 0},
+					{time: 15000, topValue: 100, rightValue: 0, bottomValue: 0, leftValue: 0},
+					{time: 30000, topValue: 0, rightValue: 100, bottomValue: 0, leftValue: 0},
+					{time: 45000, topValue: 0, rightValue: 0, bottomValue: 100, leftValue: 0},
+					{time: 60000, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 100},
+					{time: 75000, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 0}
+				],
+				submittedAt:    "2017-08-16T19:44:35.333Z",
+				tag:            "4leds.csv"
+			};
+
+			app.scheduler.addExperiment(experiment, function () {
+
+			})
+		}, 5000); // send experiment every 10 seconds
+
+
 		loop();
 	}
 });

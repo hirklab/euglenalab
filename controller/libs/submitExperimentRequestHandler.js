@@ -156,6 +156,7 @@ exports = module.exports = function (app, socketServerInfo, joinQueueDataArray, 
 				newBpuExp.exp_eventsRunTime  = joinQueueData.exp_eventsRunTime;
 				newBpuExp.tag                = newBpuExp.getExperimentTag();
 				newBpuExp.exp_submissionTime = new Date().getTime();
+
 				newBpuExp.save(function (err, savedExp) {
 					if (err) {
 						validationObj.saveErr = 'could not save new exp err:' + err;

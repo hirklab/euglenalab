@@ -21,7 +21,7 @@ module.exports = function (app, callback) {
 
 	app.db.getExperiments = function (callback) {
 		app.db.models.ListExperiment.getInstanceDocument(callback);
-	}
+	};
 
 	app.db.getBPUs = function (callback) {
 		var query = app.db.models.Bpu.find({
@@ -30,5 +30,5 @@ module.exports = function (app, callback) {
 
 		query.select('_id isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
 		query.exec(callback);
-	}
+	};
 };

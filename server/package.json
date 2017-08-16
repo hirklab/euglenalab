@@ -14,6 +14,7 @@
     "bootstrap": "^3.x.x",
     "bootstrap-colorpicker": "^2.5.1",
     "bootstrap-rating": "0.0.1",
+    "bull-arena": "^2.1.1",
     "compression": "^1.7.0",
     "connect-mongo": "^0.8.2",
     "cookie-parser": "^1.4.3",

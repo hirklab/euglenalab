@@ -9,6 +9,8 @@ var http  = require('http');
 var exec           = require('child_process').exec;
 var socketIOClient = require('socket.io-client');
 var lodash         = require('lodash');
+var Queue          = require('bee-queue');
+
 
 var logger    = require('./logging');
 var config    = require('../config');
@@ -19,17 +21,25 @@ var STATES   = constants.BPU_STATES;
 var MESSAGES = constants.BPU_MESSAGES;
 
 function Microscope(config) {
-	this.name          = config.name;
-	this.doc           = config.doc;
-	this.address       = config.address;
-	this.socket        = null;
-	this.inactiveCount = 0;
-	this.queueTime     = 0;
-	this.messages      = [];
-	this.isConnected   = false;
-	this.status = STATES.OFFLINE;
+	var that           = this;
+	that.id            = config.name; // use id everywhere to find this microscope
+	that.name          = config.name;
+	that.doc           = config.doc;
+	that.address       = config.address;
+	that.socket        = null;
+	that.inactiveCount = 0;
+	that.queueTime     = 0;
+	that.messages      = [];
+	that.isConnected   = false;
+	that.status        = STATES.OFFLINE;
+	that.queue         = new Queue(that.name);
 
-	this.connect(function (err) {
+	// only expose this state - keep rest of variables as internal state
+	that.state = {
+
+	};
+
+	that.connect(function (err) {
 		if (err) {
 			logger.error(err);
 		}
@@ -130,13 +140,13 @@ Microscope.prototype.connect = function (callback) {
 Microscope.prototype.onConnected = function (payload) {
 	var that         = this;
 	that.isConnected = true;
-	that.status = STATES.IDLE;
+	that.status      = STATES.IDLE;
 };
 
 Microscope.prototype.onStatus = function (payload) {
 	var that         = this;
 	that.isConnected = true;
-	that.status = STATES.IDLE;
+	that.status      = STATES.IDLE;
 };
 
 // Microscope.prototype.onExperimentSet = function(payload){

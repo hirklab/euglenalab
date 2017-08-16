@@ -17,7 +17,7 @@ var ensureAccount       = utils.ensureAccount;
 
 // POST /experiment/ (Choose BPU to experiment with)
 // Response: experimentID, queueID and waitTime
-var create = function(req, res){
+var create = function (req, res) {
 	// todo check if experiment is valid
 	// type, events, length, max and min duration allowed
 	// user and group permission for microscope chosen
@@ -43,12 +43,30 @@ var create = function(req, res){
 
 	workflow.on('create', function () {
 
+		// var fieldsToSet = {
+		// 	experiment: req.body.experiment,
+		// 	rating:     req.body.rating,
+		// 	notes:      req.body.notes
+		// };
 
-		if (workflow.hasErrors()) {
-			return workflow.emit('exception');
-		}
+		// todo filter fields we will keep - run sanity check on each one
 
-		workflow.emit('response');
+		req.app.db.models.BpuExperiment.create(req.body, function (err, experiment) {
+			if (err) {
+				return workflow.emit('exception', err);
+			}
+
+			req.app.controller.submitExperiment(experiment, function (err, savedExperiment) {
+				if (err) {
+					return workflow.emit('exception', err);
+				}
+
+				// that.logger.debug("experiment submitted to controller");
+
+				workflow.emit('response');
+			});
+
+		});
 	});
 
 	workflow.emit('validate');

@@ -19,6 +19,7 @@ var express          = require('express'),
     tracer           = require('tracer'),
     socketIO         = require('socket.io'),
     async            = require('async'),
+
     config           = require('./config'),
     Controller       = require('./libs/controller'),
     UserManager      = require('./libs/userManager'),
