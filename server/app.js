@@ -82,12 +82,12 @@ app.sessionMiddleware = session({
 	store:             new mongoStore({url: config.mongodb.uri})
 });
 
-require('../shared/mongoDb/schema/models')(app, mongoose);
+require('../shared/models')(app, mongoose);
 
 app.disable('x-powered-by');
 app.set('port', config.port);
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'jade');
 
 //middleware
 app.use(require('morgan')('dev'));

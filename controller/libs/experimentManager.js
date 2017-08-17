@@ -520,6 +520,7 @@ module.exports = function (app) {
 			app.experimentsCache.sort(function (objA, objB) {
 				return objA.exp_submissionTime - objB.exp_submissionTime;
 			});
+
 			var expPerBpu = {};
 			for (var ind = 0; ind < app.experimentsCache.length; ind++) {
 				if (expPerBpu[app.experimentsCache[ind].exp_lastResort.bpuName] === null || expPerBpu[app.experimentsCache[ind].exp_lastResort.bpuName] === undefined) {
@@ -529,6 +530,7 @@ module.exports = function (app) {
 					if (Object.keys(expPerBpu).length >= Object.keys(app.microscopesIndex).length) break;
 				}
 			}
+
 			//Build Parallel - Match Available Bpus with Queue Experiments
 			var runParallelFuncs = [];
 

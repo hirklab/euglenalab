@@ -72,7 +72,7 @@ Microscope.prototype.connect = function (callback) {
 
 				logger.debug('====================================');
 				logger.debug('[RX] ' + that.doc.name + ': ' + type);
-				if (payload) logger.debug(payload);
+				if (payload) logger.debug(Object.values(payload).join(' / '));
 
 				switch (type) {
 					case MESSAGES.CONNECTED:

@@ -52,7 +52,7 @@ Scheduler.prototype.initialize = function (callback) {
 	var that = this;
 
 	that.queue.process(1, function (job, done) { // process 1 job at a time
-		logger.debug('processing job ' + job.id);
+		// logger.debug('processing job ' + job.id);
 
 		var experiment = job.data;
 

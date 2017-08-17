@@ -20,9 +20,9 @@ var app = {
 
 	scheduler: null,
 
-	utils:                          require('../shared/myFunctions.js'),
-	mainConfig:                     require('../shared/mainConfig.js'),
-	submitExperimentRequestHandler: require('./libs/submitExperimentRequestHandler.js'),
+	utils:      require('../shared/myFunctions.js'),
+	mainConfig: require('../shared/mainConfig.js'),
+	// submitExperimentRequestHandler: require('./libs/submitExperimentRequestHandler.js'),
 
 	// object list of connected microscopes
 	microscopesIndex: {},
@@ -124,17 +124,15 @@ var loop = function () {
 var gracefulShutdown = function () {
 	logger.info('shutting down controller...');
 
-	process.exit(0);
+	if (app.scheduler) {
+		logger.info('shutting down scheduler...');
 
-	// if (app.scheduler) {
-	// 	logger.info('shutting down scheduler...');
-	//
-	// 	// app.scheduler.stop(function () {
-	// 	// 	process.exit(0);
-	// 	// });
-	// } else {
-	// 	process.exit(0);
-	// }
+		// app.scheduler.stop(function () {
+		process.exit(0);
+		// });
+	} else {
+		process.exit(0);
+	}
 };
 
 process.on('SIGTERM', gracefulShutdown);
@@ -155,8 +153,8 @@ init(function (err) {
 					city:     "Stanford",
 					region:   "California"
 				},
-				microscope:{
-					name:'eug100'
+				bpu:            {
+					name: 'eug100'
 				},
 				proposedEvents: [
 					{time: 0, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 0},
@@ -166,14 +164,13 @@ init(function (err) {
 					{time: 60000, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 100},
 					{time: 75000, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 0}
 				],
-				submittedAt:    "2017-08-16T19:44:35.333Z",
-				tag:            "4leds.csv"
+				submittedAt:    "2017-08-16T19:44:35.333Z"
 			};
 
 			app.scheduler.addExperiment(experiment, function () {
 
 			})
-		}, 5000); // send experiment every 10 seconds
+		}, 60000); // send experiment every 10 seconds
 
 
 		loop();
