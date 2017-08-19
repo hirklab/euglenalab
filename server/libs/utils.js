@@ -23,26 +23,29 @@ function checkGoLabz(req, res, next) {
 
 function ensureAccount(req, res, next) {
 
-	if (req.user.canPlayRoleOf('account')) {
-		if (req.app.config.requireAccountVerification) {
-			if (req.user.roles.account.isVerified !== 'yes' && !/^\/account\/verification\//.test(req.url)) {
-				return res.redirect('/account/verification/');
-			} else {
-				// return next();
-				checkGoLabz(req, res, next);
-			}
-		} else {
-			// return next();
-			checkGoLabz(req, res, next);
-		}
+	if (req.user && req.user.role) {
+		// if (req.app.config.requireAccountVerification) {
+		// 	if (req.user.roles.account.isVerified !== 'yes' && !/^\/account\/verification\//.test(req.url)) {
+		// 		return res.redirect('/account/verification/');
+		// 	} else {
+		// 		// return next();
+		// 		checkGoLabz(req, res, next);
+		// 	}
+		// } else {
+		// 	// return next();
+		// 	checkGoLabz(req, res, next);
+		// }
+		return next();
+		// checkGoLabz(req, res, next);
 	} else {
+		console.log(req.user);
 		res.redirect('/');
 	}
 }
 
 
 module.exports = {
-	ensureAuthenticated: passport.authenticate('jwt', {session: false}),
+	ensureAuthenticated: passport.authenticate('jwt'),
 	ensureAccount:       ensureAccount,
 	ensureAdmin:         ensureAdmin
 };

@@ -75,6 +75,7 @@ mongoose.Promise = global.Promise;
 app.db           = mongoose.createConnection(config.mongodb.uri);
 app.db.on('error', app.logger.error.bind(app.logger, 'db connection error: '));
 
+
 app.sessionMiddleware = session({
 	resave:            true,
 	saveUninitialized: true,
@@ -82,12 +83,12 @@ app.sessionMiddleware = session({
 	store:             new mongoStore({url: config.mongodb.uri})
 });
 
-require('../shared/models')(app, mongoose);
+require('../shared/models/index')(app, mongoose);
 
 app.disable('x-powered-by');
 app.set('port', config.port);
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'jade');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 //middleware
 app.use(require('morgan')('dev'));
@@ -137,8 +138,6 @@ app.use(function (req, res, next) {
 // app.locals.cacheBreaker = 'br34k-01';
 
 require('./libs/passport')(app, passport);
-
-// require('./routes')(app, passport);
 
 // app.use(require('./views/http/index').http500);
 

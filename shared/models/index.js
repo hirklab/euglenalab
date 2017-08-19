@@ -2,13 +2,13 @@
 
 var schemaPath = './';
 
-exports = module.exports = function (app, mongoose) {
-	require(schemaPath + '/LoginAttempt')(app, mongoose);
-	require(schemaPath + '/User')(app, mongoose);
-	require(schemaPath + '/Group')(app, mongoose);
-	require(schemaPath + '/Bpu')(app, mongoose);
-	require(schemaPath + '/Experiment')(app, mongoose);
-	require(schemaPath + '/Survey')(app, mongoose);
-	require(schemaPath + '/Note')(app, mongoose);
-	require(schemaPath + '/Score')(app, mongoose);
+module.exports = function (app, mongoose) {
+	app.db.model('LoginAttempt', require(schemaPath + '/LoginAttempt'));
+	app.db.model('User', require(schemaPath + '/User'));
+	app.db.model('Group', require(schemaPath + '/Group'));
+	app.db.model('Bpu', require(schemaPath + '/Bpu'));
+	app.db.model('Experiment', require(schemaPath + '/Experiment'));
+	app.db.model('Survey', require(schemaPath + '/Survey'));
+	app.db.model('Note', require(schemaPath + '/Note'));
+	app.db.model('Score', require(schemaPath + '/Score'));
 };

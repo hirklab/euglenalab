@@ -13,11 +13,11 @@ var ensureAccount = utils.ensureAccount;
 // c) MP -> API : GET / (List of bio processing units)
 // 	Response: list of units
 var get_bio_units = function (req, res) {
-    // console.log('get microsco');
     var workflow = req.app.utility.workflow(req, res);
 
     workflow.on('find', function () {
         req.query.search = req.query.search ? req.query.search : '';
+        req.query.isActive = req.query.isActive ? req.query.isActive=='true' : true;
         req.query.status = req.query.status ? req.query.status : '';
         req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
         req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
@@ -28,13 +28,17 @@ var get_bio_units = function (req, res) {
             filters.search = new RegExp('^.*?' + req.query.search + '.*$', 'i');
         }
 
-        if (req.query.status) {
-            filters['status.id'] = req.query.status;
+        if (req.query.isActive) {
+            filters['isActive'] = req.query.isActive;
         }
+
+	    if (req.query.status) {
+		    filters['status'] = req.query.status;
+	    }
 
         req.app.db.models.Bpu.pagedFind({
             filters: filters,
-            keys: 'name index isOn currentStatus magnification allowedGroups localAddr publicAddr avgStatsData',
+            keys: 'name index isActive status magnification groups localAddr publicAddr queueTime isConnected',
             limit: req.query.limit,
             page: req.query.page,
             sort: req.query.sort
@@ -44,63 +48,65 @@ var get_bio_units = function (req, res) {
             }
 
             var data = _.map(results.data, function (result) {
-                var newResult = {};
+                return result;
 
-                if (result.currentStatus === null || result.currentStatus === undefined) {
-
-                    newResult.id = result._id;
-                    newResult.name = result.name;
-                    newResult.index = result.index;
-                    newResult.magnification = result.magnification;
-                    newResult.isOn = result.isOn;
-                    newResult.processingTimePerExperiment = 'unknown';
-                    newResult.bpuStatus = 'unknown';
-                    newResult.expId = 'unknown';
-                    newResult.username = 'unknown';
-                    newResult.allowedGroups = 'unknown';
-                    newResult.isReady = false;
-                    newResult.isOver = false;
-                    newResult.isCanceled = false;
-                    newResult.err = null;
-                    newResult.setTime = 'unknown';
-                    newResult.runTime = 'unknown';
-                    newResult.timeLeft = 0;
-                    newResult.stats = result.avgStatsData;
-                    newResult.localAddr = result.localAddr;
-                    newResult.publicAddr = result.publicAddr;
-
-                    return newResult;
-                } else {
-                    newResult.id = result._id;
-                    newResult.name = result.name;
-                    newResult.index = result.index;
-                    newResult.magnification = result.magnification;
-                    newResult.isOn = result.isOn;
-                    //newResult.processingTimePerExperiment = result.currentStatus.processingTimePerExperiment;
-                    newResult.bpuStatus = result.currentStatus.bpuStatus;
-                    newResult.expId = result.currentStatus.expId;
-                    newResult.username = result.currentStatus.username;
-                    newResult.allowedGroups = result.currentStatus.allowedGroups;
-                    newResult.isReady = result.currentStatus.isReady;
-                    newResult.isOver = result.currentStatus.isOver;
-                    newResult.isCanceled = result.currentStatus.isCanceled;
-                    newResult.stats = result.avgStatsData;
-                    newResult.localAddr = result.localAddr;
-                    newResult.publicAddr = result.publicAddr;
-                    newResult.err = result.currentStatus.err;
-
-                    if (typeof result.currentStatus.setTime.getTime === 'function') {
-                        newResult.setTime = Math.round((new Date() - result.currentStatus.setTime) / 60000);
-                    }
-                    if (typeof result.currentStatus.setTime.timeLeft === 'number') {
-                        newResult.timeLeft = Math.round(result.currentStatus.timeLeft / 1000);
-                    }
-                    if (typeof result.currentStatus.setTime.runTime === 'number') {
-                        newResult.runTime = Math.round(result.currentStatus.runTime / 1000);
-                    }
-
-                    return newResult;
-                }
+                // var newResult = {};
+                //
+                // if (result.currentStatus === null || result.currentStatus === undefined) {
+                //
+                //     newResult.id = result._id;
+                //     newResult.name = result.name;
+                //     newResult.index = result.index;
+                //     newResult.magnification = result.magnification;
+                //     newResult.isOn = result.isOn;
+                //     newResult.processingTimePerExperiment = 'unknown';
+                //     newResult.bpuStatus = 'unknown';
+                //     newResult.expId = 'unknown';
+                //     newResult.username = 'unknown';
+                //     newResult.allowedGroups = 'unknown';
+                //     newResult.isReady = false;
+                //     newResult.isOver = false;
+                //     newResult.isCanceled = false;
+                //     newResult.err = null;
+                //     newResult.setTime = 'unknown';
+                //     newResult.runTime = 'unknown';
+                //     newResult.timeLeft = 0;
+                //     newResult.stats = result.avgStatsData;
+                //     newResult.localAddr = result.localAddr;
+                //     newResult.publicAddr = result.publicAddr;
+                //
+                //     return newResult;
+                // } else {
+                //     newResult.id = result._id;
+                //     newResult.name = result.name;
+                //     newResult.index = result.index;
+                //     newResult.magnification = result.magnification;
+                //     newResult.isOn = result.isOn;
+                //     //newResult.processingTimePerExperiment = result.currentStatus.processingTimePerExperiment;
+                //     newResult.bpuStatus = result.currentStatus.bpuStatus;
+                //     newResult.expId = result.currentStatus.expId;
+                //     newResult.username = result.currentStatus.username;
+                //     newResult.allowedGroups = result.currentStatus.allowedGroups;
+                //     newResult.isReady = result.currentStatus.isReady;
+                //     newResult.isOver = result.currentStatus.isOver;
+                //     newResult.isCanceled = result.currentStatus.isCanceled;
+                //     newResult.stats = result.avgStatsData;
+                //     newResult.localAddr = result.localAddr;
+                //     newResult.publicAddr = result.publicAddr;
+                //     newResult.err = result.currentStatus.err;
+                //
+                //     if (typeof result.currentStatus.setTime.getTime === 'function') {
+                //         newResult.setTime = Math.round((new Date() - result.currentStatus.setTime) / 60000);
+                //     }
+                //     if (typeof result.currentStatus.setTime.timeLeft === 'number') {
+                //         newResult.timeLeft = Math.round(result.currentStatus.timeLeft / 1000);
+                //     }
+                //     if (typeof result.currentStatus.setTime.runTime === 'number') {
+                //         newResult.runTime = Math.round(result.currentStatus.runTime / 1000);
+                //     }
+                //
+                //     return newResult;
+                // }
             });
 
             workflow.outcome.results = data;

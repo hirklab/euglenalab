@@ -1,89 +1,89 @@
 'use strict';
 
-exports = module.exports = function (app, mongoose) {
-	var schema = new mongoose.Schema({
-		index: {type: Number, default: -1},
-		name:  {type: String, unique: true},
-		hid:   {type: String, default: ''},
+var mongoose = require('mongoose');
 
-		isActive: {type: Boolean, default: false},
+var schema = new mongoose.Schema({
+	index: {type: Number, default: -1},
+	name:  {type: String, unique: true},
+	hid:   {type: String, default: ''},
 
-		status: {
-			type:    String, enum: [
-				'connecting',
-				'idle',
-				'queued',
-				'running',
-				'maintenance',
-				'offline'],
-			default: 'offline'
-		},
+	isActive: {type: Boolean, default: false},
 
-		magnification: {type: Number, default: 10},
+	status: {
+		type:    String, enum: [
+			'connecting',
+			'idle',
+			'queued',
+			'running',
+			'maintenance',
+			'offline'],
+		default: 'offline'
+	},
 
-		groups: {type: Array, default: ['all']},
+	magnification: {type: Number, default: 10},
 
-		localAddr: {
-			ip:         {type: String, default: 'default'},
-			serverPort: {type: String, default: 'default'},
-			webcamPort: {type: String, default: 'default'}
-		},
+	groups: {type: Array, default: ['all']},
 
-		publicAddr: {
-			ip:         {type: String, default: 'default'},
-			serverPort: {type: String, default: 'default'},
-			webcamPort: {type: String, default: 'default'}
-		},
+	localAddr: {
+		ip:         {type: String, default: 'default'},
+		serverPort: {type: String, default: 'default'},
+		webcamPort: {type: String, default: 'default'}
+	},
 
-		notes: {type: Array, default: []},
+	publicAddr: {
+		ip:         {type: String, default: 'default'},
+		serverPort: {type: String, default: 'default'},
+		webcamPort: {type: String, default: 'default'}
+	},
 
-		internalRating: {
-			type:    Number,
-			default: 0
-		},
+	notes: {type: Array, default: []},
 
-		externalRating: {
-			type:    Number,
-			default: 0
-		},
+	internalRating: {
+		type:    Number,
+		default: 0
+	},
 
-		lastMaintainedAt: {
-			type:    Date,
-			default: null
-		}
-	});
+	externalRating: {
+		type:    Number,
+		default: 0
+	},
 
-	schema.plugin(require('./plugins/pagedFind'));
-	schema.index({name: 1});
-	schema.set('autoIndex', app.config.isDevelopment);
+	lastMaintainedAt: {
+		type:    Date,
+		default: null
+	}
+});
 
-	schema.methods.getWebStreamUrl   = function () {
-		return 'http://' + this.publicAddr.ip + ':' + this.publicAddr.webcamPort + '/?action=stream';
-	};
-	schema.methods.getWebSnapShotUrl = function () {
-		return 'http://' + this.publicAddr.ip + ':' + this.publicAddr.webcamPort + '/?action=snapshot';
-	};
-	schema.methods.getSideStreamUrl  = function () {
-		return 'http://' + this.publicAddr.ip + ':' + '8082' + '/?action=stream';
-	};
+schema.plugin(require('./plugins/pagedFind'));
+schema.index({name: 1});
+// schema.set('autoIndex', app.config.isDevelopment);
 
-	//Browser Display
-	schema.methods.getMainImageStream   = function () {
-		return 'http://' + this.publicAddr.ip + ':' + this.publicAddr.webcamPort + '/?action=stream';
-	};
-	schema.methods.getMainImageSnapshot = function () {
-		return 'http://' + this.publicAddr.ip + ':' + this.publicAddr.webcamPort + '/?action=snapshot';
-	};
-
-	schema.methods.getSideImageStream   = function () {
-		return 'http://' + this.publicAddr.ip + ':' + '8081' + '/?action=stream';
-	};
-	schema.methods.getSideImageSnapshot = function () {
-		return 'http://' + this.publicAddr.ip + ':' + '8081' + '/?action=snapshot';
-	};
-
-	app.db.model('Bpu', schema);
+schema.methods.getWebStreamUrl   = function () {
+	return 'http://' + this.publicAddr.ip + ':' + this.publicAddr.webcamPort + '/?action=stream';
 };
+schema.methods.getWebSnapShotUrl = function () {
+	return 'http://' + this.publicAddr.ip + ':' + this.publicAddr.webcamPort + '/?action=snapshot';
+};
+schema.methods.getSideStreamUrl  = function () {
+	return 'http://' + this.publicAddr.ip + ':' + '8082' + '/?action=stream';
+};
+
+//Browser Display
+schema.methods.getMainImageStream   = function () {
+	return 'http://' + this.publicAddr.ip + ':' + this.publicAddr.webcamPort + '/?action=stream';
+};
+schema.methods.getMainImageSnapshot = function () {
+	return 'http://' + this.publicAddr.ip + ':' + this.publicAddr.webcamPort + '/?action=snapshot';
+};
+
+schema.methods.getSideImageStream   = function () {
+	return 'http://' + this.publicAddr.ip + ':' + '8081' + '/?action=stream';
+};
+schema.methods.getSideImageSnapshot = function () {
+	return 'http://' + this.publicAddr.ip + ':' + '8081' + '/?action=snapshot';
+};
+
+module.exports = schema;
 
 //Directories
 // var mserverBaseDir              = __dirname.substr(0, __dirname.search('shared'));

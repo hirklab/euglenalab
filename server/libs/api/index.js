@@ -2,17 +2,6 @@
 
 var passport = require('passport');
 var router = require('express').Router();
-// var Arena = require('bull-arena');
-// var arena = Arena({"queues":[
-// 	{
-// 		"name": "scheduler",
-// 		"port": 5000,
-// 		"host": "127.0.0.1",
-// 		"hostId": "main"
-// 	}
-// ]}, {
-// 	disableListen:false
-// });
 
 router.use('/auth', require('./auth'));
 router.use('/users', require('./users'));

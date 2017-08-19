@@ -2,16 +2,12 @@
 var LocalStrategy = require('passport-local').Strategy,
     JwtStrategy   = require('passport-jwt').Strategy,
     ExtractJwt    = require('passport-jwt').ExtractJwt;
-//TwitterStrategy = require('passport-twitter').Strategy,
-//GitHubStrategy = require('passport-github').Strategy,
-//FacebookStrategy = require('passport-facebook').Strategy,
-//GoogleStrategy = require('passport-google-oauth').OAuth2Strategy,
-//TumblrStrategy = require('passport-tumblr').Strategy;
 
 module.exports = function (app, passport) {
 	passport.use(new LocalStrategy(
 		function (username, password, done) {
-			var conditions = {isActive: 'yes'};
+			var conditions = {isActive: true};
+
 			if (username.indexOf('@') === -1) {
 				conditions.username = username;
 			}
@@ -19,12 +15,13 @@ module.exports = function (app, passport) {
 				conditions.email = username.toLowerCase();
 			}
 
-			app.db.models.User.findOne(conditions).populate('roles.admin').populate('roles.account').exec(function (err, user) {
+			app.db.models.User.findOne(conditions).exec(function (err, user) {
 				if (err) {
 					return done(err);
 				}
 
 				if (!user) {
+					console.log('unknown');
 					return done(null, false, {message: 'Unknown user'});
 				}
 
@@ -37,13 +34,7 @@ module.exports = function (app, passport) {
 						return done(null, false, {message: 'Invalid password'});
 					}
 
-					if (user.roles && user.roles.admin) {
-						user.roles.admin.populate("groups", function (err, admin) {
-							return done(err, user);
-						});
-					} else {
-						return done(err, user);
-					}
+					return done(err, user);
 				});
 			});
 		}
@@ -55,19 +46,13 @@ module.exports = function (app, passport) {
 	};
 
 	passport.use(new JwtStrategy(app.jwtOptions, function (jwt_payload, done) {
-		app.db.models.User.findOne({_id: jwt_payload.id}).populate('roles.admin').populate('roles.account').exec(function (err, user) {
+		app.db.models.User.findOne({_id: jwt_payload.id}).exec(function (err, user) {
 			if (err) {
 				return done(err, false);
 			}
 
 			if (user) {
-				if (user.roles && user.roles.admin) {
-					user.roles.admin.populate("groups", function (err, admin) {
-						done(err, user);
-					});
-				} else {
-					done(err, user);
-				}
+				done(err, user);
 			} else {
 				done(null, false);
 			}
@@ -75,19 +60,14 @@ module.exports = function (app, passport) {
 	}));
 
 	passport.serializeUser(function (user, done) {
+		delete user.password;
+		delete user.search;
 		done(null, user);
 	});
 
 	passport.deserializeUser(function (id, done) {
-		app.db.models.User.findOne({_id: id}).populate('roles.admin').populate('roles.account').exec(function (err, user) {
-			if (user && user.roles && user.roles.admin) {
-				user.roles.admin.populate("groups", function (err, admin) {
-					done(err, user);
-				});
-			}
-			else {
-				done(err, user);
-			}
+		app.db.models.User.findOne({_id: id}).exec(function (err, user) {
+			done(err, user);
 		});
 	});
 

@@ -6,7 +6,7 @@
 
 	/** @ngInject */
 	function DashboardPageCtrl($scope, $rootScope, $http, $q, $state, $log, $timeout,
-	                           lodash, uiTourService, toastr,
+	                           lodash, uiTourService, toastr,ip,
 	                           Microscope, Experiment, socket) {
 
 		var vm          = this;
@@ -58,7 +58,7 @@
 			uiTourService.createDetachedTour('demo');
 
 			// get machine ip and location - demographics
-			$http.get('http://ipinfo.io/json').success(function (data) {
+			ip.success(function (data) {
 				vm.experiment.machine = data;
 			});
 
@@ -66,50 +66,52 @@
 			Microscope.list().then(function (res) {
 				vm.activeMicroscopes = lodash.chain(res.data.results)
 					.filter(function (microscope) {
-						return microscope.name !== 'fake' && microscope.isOn;
+						return microscope.name !== 'fake' && microscope.isActive;
 					})
 					.sortBy('index')
 					.map(function (microscope) {
 						microscope.panelClass = 'microscope bootstrap-panel';
 
-						microscope.panelClass += microscope.isOn ? ' enabled' : ' disabled';
+						microscope.panelClass += microscope.isActive ? ' enabled' : ' disabled';
 
-						if (microscope.isOn) {
+						if (microscope.isActive) {
 							microscope.address = 'http://' + microscope.publicAddr.ip + ':' + microscope.publicAddr.webcamPort + '?action=snapshot';
 						} else {
 							microscope.address = '/assets/img/bpu-disabled.jpg'
 						}
 
-						microscope.statistics = microscope.stats.map(function (stat) {
-							var newValue = {
-								'name':  stat.statType,
-								'value': stat.data.inverseTimeWeightedAvg,
-								'max':   stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
-							};
+						if(microscope.stats) {
+							microscope.statistics = microscope.stats.map(function (stat) {
+								var newValue = {
+									'name':  stat.statType,
+									'value': stat.data.inverseTimeWeightedAvg,
+									'max':   stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
+								};
 
-							newValue['percent'] = newValue['value'] * 100 / newValue['max'];
-							newValue['class']   = findClass(stat.statType, newValue['percent']);
+								newValue['percent'] = newValue['value'] * 100 / newValue['max'];
+								newValue['class']   = findClass(stat.statType, newValue['percent']);
 
-							return newValue;
-						});
-
-						if (microscope.statistics.length === 0) {
-							microscope.statistics = [{}, {}, {}];
-							microscope.quality    = 0;
-						} else {
-							var response = lodash.find(microscope.statistics, function (stat) {
-								return stat.name === 'response';
+								return newValue;
 							});
 
-							var activity = lodash.find(microscope.statistics, function (stat) {
-								return stat.name === 'activity';
-							});
+							if (microscope.statistics.length === 0) {
+								microscope.statistics = [{}, {}, {}];
+								microscope.quality    = 0;
+							} else {
+								var response = lodash.find(microscope.statistics, function (stat) {
+									return stat.name === 'response';
+								});
 
-							var population = lodash.find(microscope.statistics, function (stat) {
-								return stat.name === 'population';
-							});
+								var activity = lodash.find(microscope.statistics, function (stat) {
+									return stat.name === 'activity';
+								});
 
-							microscope.quality = (5 * response['percent'] / 100 + 2 * activity['percent'] / 100 + 3 * population['percent'] / 100) / 10;
+								var population = lodash.find(microscope.statistics, function (stat) {
+									return stat.name === 'population';
+								});
+
+								microscope.quality = (5 * response['percent'] / 100 + 2 * activity['percent'] / 100 + 3 * population['percent'] / 100) / 10;
+							}
 						}
 
 						microscope.status = "offline"; // Microscope.BPU_STATUS_DISPLAY[microscope.bpuStatus];

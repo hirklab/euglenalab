@@ -1,166 +1,167 @@
 'use strict';
+var mongoose = require('mongoose');
 
-exports = module.exports = function (app, mongoose) {
-	var schema = new mongoose.Schema({
-		type: {
-			type: String,
-			enum: ['live', 'batch']
-		},
 
-		description: {type: String, default: ''},
+var schema = new mongoose.Schema({
+	type: {
+		type: String,
+		enum: ['live', 'batch']
+	},
 
-		duration: {
-			type:    Number,
-			default: 0
-		},
+	description: {type: String, default: ''},
 
-		machine: {
-			ip:       {type: String},
-			hostname: {type: String},
-			city:     {type: String},
-			region:   {type: String}
-		},
+	duration: {
+		type:    Number,
+		default: 0
+	},
 
-		user: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref:  'User'
-		},
+	machine: {
+		ip:       {type: String},
+		hostname: {type: String},
+		city:     {type: String},
+		region:   {type: String}
+	},
 
-		bpu: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref:  'Bpu'
-		},
+	user: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref:  'User'
+	},
 
-		proposedEvents: {
-			type:    Array,
-			default: []
-		},
+	bpu: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref:  'Bpu'
+	},
 
-		actualEvents: {
-			type:    Array,
-			default: []
-		},
+	proposedEvents: {
+		type:    Array,
+		default: []
+	},
 
-		status: {
-			type:    String,
-			enum:    ['created', 'queued', 'submitting', 'running', 'executed', 'processing', 'failed', 'finished', 'canceled'],
-			default: 'created'
-		},
+	actualEvents: {
+		type:    Array,
+		default: []
+	},
 
-		reason: {
-			type:    String,
-			default: null
-		},
+	status: {
+		type:    String,
+		enum:    ['created', 'queued', 'submitting', 'running', 'executed', 'processing', 'failed', 'finished', 'canceled'],
+		default: 'created'
+	},
 
-		isProfiling: {
+	reason: {
+		type:    String,
+		default: null
+	},
+
+	isProfiling: {
+		type:    Boolean,
+		default: false
+	},
+
+	submittedAt: {
+		type:    Date,
+		default: null
+	},
+
+	queuedAt: {
+		type:    Date,
+		default: null
+	},
+
+	startedAt: {
+		type:    Date,
+		default: null
+	},
+
+	executedAt: {
+		type:    Date,
+		default: null
+	},
+
+	failedAt: {
+		type:    Date,
+		default: null
+	},
+
+
+	canceledAt: {
+		type:    Date,
+		default: null
+	},
+
+	finishedAt: {
+		type:    Date,
+		default: null
+	},
+
+	rating: {
+		type:    Number,
+		default: 0
+	},
+
+	processing: {
+		disabled:   {
 			type:    Boolean,
 			default: false
 		},
-
-		submittedAt: {
+		startedAt:  {
 			type:    Date,
 			default: null
 		},
-
-		queuedAt: {
+		failedAt:   {
 			type:    Date,
 			default: null
 		},
-
-		startedAt: {
-			type:    Date,
-			default: null
-		},
-
-		executedAt: {
-			type:    Date,
-			default: null
-		},
-
-		failedAt: {
-			type:    Date,
-			default: null
-		},
-
-
 		canceledAt: {
 			type:    Date,
 			default: null
 		},
 
-		finishedAt: {
+		finishedAt:     {
 			type:    Date,
 			default: null
 		},
-
-		rating: {
-			type:    Number,
-			default: 0
+		status:         {
+			type:    String,
+			enum:    ['created', 'queued', 'running', 'failed', 'finished', 'canceled'],
+			default: 'created'
 		},
-
-		processing: {
-			disabled:   {
-				type:    Boolean,
-				default: false
-			},
-			startedAt:  {
-				type:    Date,
-				default: null
-			},
-			failedAt:   {
-				type:    Date,
-				default: null
-			},
-			canceledAt: {
-				type:    Date,
-				default: null
-			},
-
-			finishedAt:     {
-				type:    Date,
-				default: null
-			},
-			status:         {
-				type:    String,
-				enum:    ['created', 'queued', 'running', 'failed', 'finished', 'canceled'],
-				default: 'created'
-			},
-			images:         {
-				type:    Array,
-				default: []
-			},
-			lightData:      {
-				type:    Array,
-				default: []
-			},
-			inputFilePath:  {
-				type:    String,
-				default: null
-			},
-			outputFilePath: {
-				type:    String,
-				default: null
-			}
+		images:         {
+			type:    Array,
+			default: []
+		},
+		lightData:      {
+			type:    Array,
+			default: []
+		},
+		inputFilePath:  {
+			type:    String,
+			default: null
+		},
+		outputFilePath: {
+			type:    String,
+			default: null
 		}
-	});
+	}
+});
 
-	schema.plugin(require('./plugins/pagedFind'));
-	schema.plugin(require('./plugins/timestamps'));
+schema.plugin(require('./plugins/pagedFind'));
+schema.plugin(require('./plugins/timestamps'));
 
-	schema.index({bpu: 1});
-	schema.index({user: 1});
-	schema.index({name: 1});
-	schema.index({createdAt: 1});
+schema.index({bpu: 1});
+schema.index({user: 1});
+schema.index({name: 1});
+schema.index({createdAt: 1});
 
-	schema.set('autoIndex', app.config.isDevelopment);
+// schema.set('autoIndex', app.config.isDevelopment);
 
-	schema.methods.cancel = function (callback) {
-		this.status = 'canceled';
-		this.save(callback);
-	};
-
-	app.db.model('Experiment', schema);
+schema.methods.cancel = function (callback) {
+	this.status = 'canceled';
+	this.save(callback);
 };
+
+module.exports = schema;
+
 
 var checkNum = function (num, low, high) {
 	if (num !== null && num !== undefined) {

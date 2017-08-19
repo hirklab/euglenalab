@@ -88,7 +88,7 @@
 
 
         function list() {
-            return $http.get('/api/microscopes/');
+            return $http.get('/api/microscopes/?isActive=true');
         }
 
         function detail(id) {

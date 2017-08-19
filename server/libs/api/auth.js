@@ -160,20 +160,23 @@ var login = function (req, res) {
 		}
 
 		if (workflow.hasErrors()) {
-			return workflow.emit('response');
+			return workflow.emit('exception');
 		}
 
 		workflow.emit('attemptLogin');
 	});
 
 	workflow.on('attemptLogin', function () {
-		req._passport.instance.authenticate('local', function (err, user, info) {
+		req._passport.instance.authenticate('local', {session: false}, function (err, user, info) {
 			if (err) {
+				console.log(err);
 				return workflow.emit('exception', err);
 			}
 
 			req.login(user, function (err) {
 				if (err || workflow.hasErrors()) {
+					console.log(err);
+
 					return workflow.emit('exception', err);
 				}
 

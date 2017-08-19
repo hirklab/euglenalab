@@ -1,20 +1,21 @@
 'use strict';
 
-exports = module.exports = function (app, mongoose) {
-	var schema = new mongoose.Schema({
-		ip:   {type: String, default: ''},
-		user: {type: String, default: ''},
-		time: {type: Date, default: Date.now, expires: app.config.loginAttempts.logExpiration}
-	});
+var mongoose = require('mongoose');
 
-	schema.plugin(require('./plugins/pagedFind'));
-	schema.plugin(require('./plugins/timestamps'));
+var schema   = new mongoose.Schema({
+	ip:   {type: String, default: ''},
+	user: {type: String, default: ''},
+	time: {type: Date, default: Date.now, expires: '20m'}  // todo push this to config
+});
 
-	schema.index({ip: 1});
-	schema.index({user: 1});
-	schema.index({createdAt: 1});
+schema.plugin(require('./plugins/pagedFind'));
+schema.plugin(require('./plugins/timestamps'));
 
-	schema.set('autoIndex', app.config.isDevelopment);
+schema.index({ip: 1});
+schema.index({user: 1});
+schema.index({createdAt: 1});
 
-	app.db.model('LoginAttempt', schema);
-};
+// schema.set('autoIndex', app.config.isDevelopment);
+
+module.exports = schema;
+
