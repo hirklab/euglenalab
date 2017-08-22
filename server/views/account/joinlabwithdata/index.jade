@@ -88,6 +88,7 @@ block body
                   input.rating(type="hidden", value="#{Math.ceil(data.eugs[j].performanceScore)}", disabled)
           div.row
             div.col-xs-12
+              label.bpuLabelSM(name=data.eugs[j].magnification, style="position: absolute;text-align: right;float: right;right: 25px;font-size: 20px;color: #fff;text-shadow: 1px 1px 3px #000;") #{data.eugs[j].magnification}X
               img.myImage(name='myImageLive', style='margin-bottom:1%; width:100%; height:55%;', src=data.eugs[j].imageSrc)
 
 

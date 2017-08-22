@@ -35,6 +35,13 @@
     setJoinLiveNextLabel:function(msg) {
       var elem=app.liveJoinView.$el.find('[name="'+ 'joinLiveNextLabel' +'"]')[0];
       if(elem) elem.innerHTML=msg;
+      if(elem && msg.indexOf('Wait')>-1) {
+        elem.parentNode.style.backgroundColor = "#AA0000";
+        elem.parentNode.style.color = "#FFFFFF";
+      }else{
+        elem.parentNode.style.backgroundColor = "#acd0ef";
+        elem.parentNode.style.color = "#000000";
+      }
     },
 
     //Default

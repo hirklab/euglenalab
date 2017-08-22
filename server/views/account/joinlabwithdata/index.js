@@ -95,6 +95,7 @@ exports.find = function(req, res, next) {
           var bpuJadeObj = {};
           bpuJadeObj.name = bpu.name;
           bpuJadeObj.index = bpu.index;
+          bpuJadeObj.magnification = bpu.magnification;
 
           bpuJadeObj.titleLabelJadeName = 'BpuTitleLabel' + bpu.index;
           bpuJadeObj.titleLabel = bpu.name + ', User:None';
