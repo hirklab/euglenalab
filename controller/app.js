@@ -52,7 +52,7 @@ var setupMongoose = function (callback) {
 
 var setupScheduler = function (callback) {
 	logger.debug('setting job scheduler...');
-	app.scheduler = new Scheduler();
+	app.scheduler = new Scheduler(app);
 	app.scheduler.initialize(callback);
 };
 
@@ -82,7 +82,7 @@ var init = function (callback) {
 		setupMongoose,
 		setupScheduler,
 		setupWebserver,
-		getExperiments
+		// getExperiments
 	], function (err) {
 		if (err) {
 			logger.error(err);
@@ -157,12 +157,12 @@ init(function (err) {
 					name: 'eug100'
 				},
 				proposedEvents: [
-					{time: 0, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 0},
-					{time: 15000, topValue: 100, rightValue: 0, bottomValue: 0, leftValue: 0},
-					{time: 30000, topValue: 0, rightValue: 100, bottomValue: 0, leftValue: 0},
-					{time: 45000, topValue: 0, rightValue: 0, bottomValue: 100, leftValue: 0},
-					{time: 60000, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 100},
-					{time: 75000, topValue: 0, rightValue: 0, bottomValue: 0, leftValue: 0}
+					{time: 0, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0},
+					{time: 15000, topLED: 100, rightLED: 0, bottomLED: 0, leftLED: 0},
+					{time: 30000, topLED: 0, rightLED: 100, bottomLED: 0, leftLED: 0},
+					{time: 45000, topLED: 0, rightLED: 0, bottomLED: 100, leftLED: 0},
+					{time: 60000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 100},
+					{time: 75000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0}
 				],
 				submittedAt:    "2017-08-16T19:44:35.333Z"
 			};
@@ -170,7 +170,7 @@ init(function (err) {
 			app.scheduler.addExperiment(experiment, function () {
 
 			})
-		}, 60000); // send experiment every 10 seconds
+		}, 1 * 60000); // send experiment every 10 minute
 
 
 		loop();

@@ -11,13 +11,14 @@ var socketIO   = require('socket.io');
 var lodash     = require('lodash');
 
 var logger            = require('./logging');
+var Board             = require('./board');
 var constants         = require('./constants');
 var EVENTS            = constants.EVENTS;
 var STATES            = constants.STATES;
 var MESSAGES          = constants.MESSAGES;
 var EXPERIMENT_STATUS = constants.EXPERIMENT_STATUS;
+var EXPERIMENT_TYPE   = constants.EXPERIMENT_TYPE;
 
-var Board = require('./board');
 
 function Microscope(ip, port, hid, name) {
 	this.hid  = hid;
@@ -36,17 +37,18 @@ function Microscope(ip, port, hid, name) {
 	// only state gets pushed to upstream
 	// PUSH ONLY RELEVANT DATA IN STATE
 	this.state            = {};
-	this.state.hid        = hid;  // todo use this as primary identity of device
+	this.state.hid        = hid;  // todo use this as primary identity of device rather than name
 	this.state.name       = name;
 	this.state.status     = STATES.CONNECTING;
 	this.state.connected  = false;
 	this.state.experiment = null;
+	this.state.queueTime  = 0;
 
 	this.board = new Board();
 	this.board.configure();
 }
 
-Microscope.prototype.initialize = function () {
+Microscope.prototype.initialize = function (callback) {
 	var that = this;
 
 	var httpServer = http.createServer(function (req, res) {
@@ -68,6 +70,8 @@ Microscope.prototype.initialize = function () {
 	});
 
 	that.server.on(EVENTS.CONNECT, that.onConnected.bind(that));
+
+	if (callback) callback(null);
 };
 
 Microscope.prototype.onConnected = function (socket) {
@@ -88,7 +92,7 @@ Microscope.prototype.onConnected = function (socket) {
 		that.state.status = STATES.IDLE;
 	}
 
-	that.sendMessage(MESSAGES.STATUS, that.status());
+	that.onStatus();
 
 	that.client = socket;
 };
@@ -96,13 +100,12 @@ Microscope.prototype.onConnected = function (socket) {
 Microscope.prototype.onStatus = function (payload) {
 	var that = this;
 
-	// todo get estimate of time left if experiment running
-
 	that.sendMessage(MESSAGES.STATUS, that.status());
 };
 
-Microscope.prototype.onExperimentSet = function (payload) {
+Microscope.prototype.onExperimentSet = function (payload, callback) {
 	var that = this;
+	var err  = null;
 
 	if (that.isAvailable()) {
 
@@ -117,32 +120,135 @@ Microscope.prototype.onExperimentSet = function (payload) {
 		experiment.status      = EXPERIMENT_STATUS.QUEUED;
 		experiment.submittedAt = new Date();
 
-		that.state.experiment = experiment;
+		that.state.experiment              = experiment;
+		that.state.experiment.actualEvents = [];
 	} else {
 		// already has experiment -> faillll
-
-
+		err = 'microscope not idle';
 	}
+
+	that.onStatus();
+
+	if (callback) callback(err);
 };
 
 Microscope.prototype.onExperimentCancel = function (payload) {
-	if (this.isQueued() || this.isRunning()) {
-		this.state.experiment.status      = EXPERIMENT_STATUS.CANCELLED;
-		this.state.experiment.cancelledAt = new Date();
+	var that = this;
+
+	if (that.isQueued() || that.isRunning()) {
+		that.state.experiment.status      = EXPERIMENT_STATUS.CANCELLED;
+		that.state.experiment.cancelledAt = new Date();
 
 		// todo save this experiment
 
-		this.state.experiment = null;
+		that.state.experiment = null;
 
 		// todo : other cleanup activities
 
 		//reset board
-		this.board.configure();
-		this.state.status = STATES.IDLE;
+		that.board.configure();
+		that.state.status = STATES.IDLE;
 	}
+
+	that.onStatus();
 };
 
 Microscope.prototype.onExperimentRun = function (payload) {
+	var that = this;
+
+	if (that.isQueued()) {
+		that.state.experiment.status    = EXPERIMENT_STATUS.RUNNING;
+		that.state.experiment.startedAt = new Date();
+
+		that.state.status = STATES.RUNNING;
+
+		async.series([
+			function (callback) {
+				// that.board.startRecording();
+				// that.board.startProjector();
+
+				var events = that.state.experiment.proposedEvents;
+
+				var event = null;
+
+				var loop = setInterval(function () {
+					that.onStatus();
+
+					if (that.state.experiment) {
+
+						var now      = new Date().getTime();
+						var timeDiff = now - that.state.experiment.startedAt;
+
+						// if(timeDiff%100 == 50) logger.info(timeDiff);
+
+						if (event == null) {
+							// logger.info(timeDiff);
+
+							event = events.shift();
+							// logger.info('waiting for');
+							// logger.info(event);
+						}
+
+						if (event && parseInt(event.time) <= parseInt(timeDiff)) {
+							logger.info(timeDiff);
+							// logger.info('running');
+							// logger.info(event);
+
+							//run the event now
+							var devices = Object
+								.keys(event)
+								.filter(function (key) {
+									return key !== 'time';
+								})
+								.map(function (key) {
+									return {
+										name:  key,
+										value: event[key]
+									}
+								});
+
+
+							// logger.info(devices);
+							that.onExecuteEvent(devices);
+
+							event = null;
+						}
+
+
+						if (event == null && events.length === 0 && (timeDiff/1000)>=that.state.experiment.duration) {
+							clearInterval(loop);
+
+							return callback(null);
+						}
+					} else {
+						clearInterval(loop);
+						return callback(null);
+					}
+
+				}, 20); // run every 20 milliseconds
+
+			}
+		], function (err) {
+			// reconfigure device
+
+			// that.board.stopRecording();
+			// that.board.stopProjector();
+
+			if (err) {
+				// cancel experiment
+				logger.error(err);
+				that.onExperimentClear({
+					error: err
+				});
+			} else {
+				that.onExperimentClear({});
+
+
+			}
+		})
+	}
+
+
 	// start time - update
 
 	// todo keep updating queueTime
@@ -205,121 +311,11 @@ Microscope.prototype.onExperimentRun = function (payload) {
 	// 		if (typeof callback === 'function') callback('already canceled', null);
 	// 	}
 
-	//Series Vars
-	// var outcome = {};
-	// var num = 0;
-	//
-	// //Series Funcs
-	// var checkExp = function(callback) {
-	// 	num++;
-	// 	var fName = num + ' checkExp';
-	// 	app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
-	//
-	// 	app.exp.exp_eventsToRun.sort(function(objA, objB) {
-	// 		return objA.time - objB.time;
-	// 	});
-	// 	var retObj = _checkEventsArray(JSON.parse(JSON.stringify(app.exp.exp_eventsToRun)));
-
-	// 	if (retObj.err) {
-	// 		app.bpuStatus = app.bpuStatusTypes.runningFailed;
-	// 		return callback('fName ' + retObj.err);
-	// 	} else {
-	// 		app.exp.exp_eventsToRunFinal = retObj.eventsToRun;
-	// 		return callback(null);
-	// 	}
-	// };
-
-	// var experimentLoop = function(callback) {
-	// 	num++;
-	// 	var fName = num + ' experimentLoop';
-	// 	app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
-	//
-	// 	//Start Web Cam and Run Light Events
-	// 	toggleWebCamSave(_ToggleCameraOn, function(err) {
-	// 		if (err) {
-	// 			err = fName + ' ' + _ToggleCameraOn + ' ' + err;
-	// 			app.logger.error(err);
-	// 			return callback(err);
-	// 		} else {
-	// 			initializeProjector(function(err, projector) {
-	// 				if (err) {
-	// 					console.log("==== projector failed ====");
-	// 					console.log(err);
-	// 					err = fName + ' initializeProjector ' + err;
-	// 					return callback(err);
-	// 				} else {
-	// 					app.projector = projector;
-	// 				}
-	// 			});
-	//
-	// 			//Small Wait for camera lead in
-	// 			setTimeout(function() {
-	// 				//Run Experiment
-	// 				app.exp.exp_runStartTime = new Date().getTime();
-	// 				app.exp.exp_eventsToRunFinal.sort(function(objA, objB) {
-	// 					return objA.time - objB.time;
-	// 				});
-	// 				app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsToRunFinal:' + app.exp.exp_eventsToRunFinal.length);
-	// 				app.logger.trace(moduleName + ' ' + fName + ' ' + 'final events runTime:' + (app.exp.exp_eventsToRunFinal[app.exp.exp_eventsToRunFinal.length - 1].askTime));
-	// 				var evtCounter = 0;
-	// 				var runInt = setInterval(function() {
-	// 					var timeNow = new Date().getTime();
-	// 					var dtStart = timeNow - app.exp.exp_runStartTime;
-	// 					var doReset = false;
-	// 					if (dtStart > (app.exp.exp_eventsToRunFinal[0].askTime - 10)) {
-	// 						var evt = app.exp.exp_eventsToRunFinal.shift();
-	// 						evt.setTime = dtStart;
-	// 						evtCounter++;
-	// 						var msg = evt.setTime + ":" + evt.topValue + ", " + evt.rightValue + ", " + evt.bottomValue + ", " + evt.leftValue + ", " + evt.diffuserValue + ", " + evt.backlightValue + ", " + evt.culturelightValue + ", " + evt.ambientlightValue + ", " + evt.projectorX + ", " + evt.projectorY + ", " + evt.projectorColor + ", " + evt.projectorClear;
-	// 						app.logger.info('in:::' + fName + ' ' + evtCounter + '(' + msg + ')');
-	//
-	// 						var ranEvent = app.bpu.ledsSet(evt, doReset);
-	// 						app.exp.exp_eventsRan.push(ranEvent);
-	//
-	// 						if (app.exp.exp_eventsToRunFinal.length === 0) {
-	// 							clearInterval(runInt);
-	// 							//Stop Camera
-	// 							toggleWebCamSave(_ToggleCameraOff, function(err) {
-	// 								if (err) {
-	// 									err = fName + ' ' + _ToggleCameraOff + ' ' + err;
-	// 									app.logger.error(err);
-	// 								}
-	// 								app.exp.exp_runEndTime = timeNow;
-	// 								app.exp.exp_eventsRan.sort(function(objA, objB) {
-	// 									return objA.time - objB.time;
-	// 								});
-	//
-	// 								app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsRan:' + app.exp.exp_eventsRan.length);
-	// 								app.logger.trace(moduleName + ' ' + fName + ' ' + 'actual events runTime:' + (dtStart));
-	// 								app.logger.trace(moduleName + ' ' + fName + ' ' + 'expected events runTime:' + (app.exp.exp_eventsRan[app.exp.exp_eventsRan.length - 1].askTime));
-	// 								return callback(null);
-	// 							});
-	// 						}
-	// 					}
-	// 				}, 20);
-	// 			}, 2000);
-	// 		}
-	// 	});
-	// };
-	//
 
 	// //Build Series
 	// var funcs = [];
 	// funcs.push(checkExp);
 	// funcs.push(experimentLoop);
-
-	//
-	// //Start Series
-	// var startDate = new Date();
-	// app.logger.info(moduleName + ' start');
-	// app.async.series(funcs, function(err) {
-	// 	app.logger.info(moduleName + ' end in ' + (new Date() - startDate) + ' ms');
-	// 	if (err) {
-	// 		mainCallback(err);
-	// 	} else {
-	// 		mainCallback(null);
-	// 	}
-	// });
 };
 
 Microscope.prototype.onStimulus = function (payload) {
@@ -352,8 +348,14 @@ Microscope.prototype.onExperimentClear = function (payload) {
 	var that = this;
 
 	if (that.isRunning()) {
-		that.state.experiment.status      = EXPERIMENT_STATUS.EXECUTED;
-		that.state.experiment.completedAt = new Date();
+		if (payload.hasOwnProperty('error') && payload.error) {
+			that.state.experiment.status   = EXPERIMENT_STATUS.FAILED;
+			that.state.experiment.failedAt = new Date();
+			that.state.experiment.reason   = err;
+		} else {
+			that.state.experiment.status     = EXPERIMENT_STATUS.EXECUTED;
+			that.state.experiment.executedAt = new Date();
+		}
 
 		// todo save that experiment
 
@@ -362,10 +364,16 @@ Microscope.prototype.onExperimentClear = function (payload) {
 
 		//reset board
 		that.board.configure();
-		that.state.experiment    = null;
-		that.state.allowStimulus = false;
-		that.state.status        = STATES.IDLE;
+		that.state.experiment = null;
+		// that.state.allowStimulus = false;
+		that.state.status     = STATES.IDLE;
+		that.state.queueTime  = 0;
 	}
+
+	that.onStatus();
+
+	// mark experiment done and continue with post processing
+	// see if it can be kept in processing queue or pass this part to controller
 
 	// funcs.push(finalizeData);
 	// funcs.push(movePackageToMountedDrive);
@@ -659,7 +667,7 @@ Microscope.prototype.onSaveExperiment = function (exp) {
 	}
 };
 
-Microscope.prototype.onMessage = function (message) {
+Microscope.prototype.onMessage = function (message, callback) {
 	var that = this;
 
 	var type    = message.type;
@@ -675,7 +683,7 @@ Microscope.prototype.onMessage = function (message) {
 			break;
 
 		case MESSAGES.EXPERIMENT_SET:
-			that.onExperimentSet(payload);
+			that.onExperimentSet(payload, callback);
 			break;
 
 		case MESSAGES.EXPERIMENT_CANCEL:
@@ -724,6 +732,24 @@ Microscope.prototype.sendMessage = function (type, payload) {
 };
 
 Microscope.prototype.status = function () {
+	var that = this;
+
+	if (that.isRunning()) {
+
+		var now = new Date().getTime();
+
+		logger.info((now - that.state.experiment.startedAt));
+
+
+		var elapsed = ((now - that.state.experiment.startedAt) / 1000);
+
+		if (elapsed > that.state.experiment.duration) {
+			elapsed = that.state.experiment.duration;
+		}
+
+		that.state.queueTime = that.state.experiment.duration - elapsed;
+	}
+
 	return this.state;
 };
 

@@ -6,6 +6,7 @@ var logger = require('./logging');
 module.exports = function (app, callback) {
 	"use strict";
 
+	mongoose.Promise = global.Promise;
 	app.db = mongoose.createConnection(config.DB_URL);
 	app.db.on('error', function (err) {
 		logger.error(err);
@@ -25,10 +26,10 @@ module.exports = function (app, callback) {
 
 	app.db.getBPUs = function (callback) {
 		var query = app.db.models.Bpu.find({
-			isOn: true
+			isActive: true
 		});
 
-		query.select('_id isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
+		query.select('_id isActive status index name magnification groups localAddr publicAddr experiment');
 		query.exec(callback);
 	};
 };

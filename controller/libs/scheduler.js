@@ -13,8 +13,9 @@ var constants = require('../constants');
 // - clear experiments if not started at their required time
 // - clear completed experiments
 
-function Scheduler() {
+function Scheduler(app) {
 	var that    = this;
+	that.app = app;
 	that.queues = {};
 
 	that.queue = new Queue('scheduler', {
@@ -124,6 +125,16 @@ Scheduler.prototype.addQueue = function (name, callback) {
 
 				var experiment = job.data;
 
+				that.app.microscopesIndex[experiment.bpu.name].sendMessage(constants.BPU_MESSAGES.EXPERIMENT_SET, {
+					experiment:experiment
+				});
+
+				that.app.microscopesIndex[experiment.bpu.name].sendMessage(constants.BPU_MESSAGES.EXPERIMENT_RUN);
+
+				setTimeout(function(){
+					return done(null, 'completed');
+				},experiment.duration*1000);
+
 				// run the experiment here
 				// set experiment
 				// get confirmation if live
@@ -133,7 +144,7 @@ Scheduler.prototype.addQueue = function (name, callback) {
 				// wait for duration or user cancellation
 				// finish experiment
 
-				return done(null, 'completed');
+
 			});
 		}
 

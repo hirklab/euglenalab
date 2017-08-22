@@ -22,33 +22,37 @@ function Device(device) {
 }
 
 Device.prototype.configure = function () {
-	if (this.pin <= 40) {
-		rpi.pinMode(this.pin, this.io);
+	var self   = this;
+
+	if (self.pin <= 40) {
+		rpi.pinMode(self.pin, self.io);
 	}
 
-	switch (this.mode) {
+	switch (self.mode) {
 		case MODE.SOFTPWM:
-			rpi.softPwmCreate(this.pin, this.options.min, this.options.max);
+			rpi.softPwmCreate(self.pin, self.options.min, self.options.max);
 			break;
 		default:
 			break;
 	}
 
-	if (this && this.isValid(this.options.default)) {
-		this.setValue(this.options.default);
+	if (self && self.isValid(self.options.default)) {
+		self.setValue(self.options.default);
 	}
-}
+};
 
 Device.prototype.isValid = function (value) {
+	var self   = this;
+
 	var isValid = false;
 
 	switch (this.type) {
 		case TYPE.STATE:
-			isValid = lodash.includes(lodash.values(this.options.states), value);
+			isValid = lodash.includes(lodash.values(self.options.states), value);
 			// logger.debug('${lodash.values(this.options.states)} contains ${value} ? ${isValid}');
 			break;
 		case TYPE.NUMERIC:
-			isValid = (value >= this.options.min) && (value <= this.options.max);
+			isValid = (value >= self.options.min) && (value <= self.options.max);
 			// logger.debug('${this.options.min} <= ${value} <= ${this.options.max} ? ${isValid}');
 			break;
 		default:
@@ -58,28 +62,30 @@ Device.prototype.isValid = function (value) {
 	}
 
 	return isValid;
-}
+};
 
 Device.prototype.setValue = function (value) {
-	switch (this.mode) {
+	var self   = this;
+
+	switch (self.mode) {
 		case MODE.DIGITAL:
-			rpi.digitalWrite(this.pin, value);
+			rpi.digitalWrite(self.pin, value);
 			this.value = value;
-			logger.debug(this.name + ': ' + value);
+			logger.debug(self.name + ': ' + value);
 			break;
 
 		case MODE.SOFTPWM:
-			rpi.softPwmWrite(this.pin, value);
+			rpi.softPwmWrite(self.pin, value);
 			this.value = value;
-			logger.debug(this.name + ': ' + value);
+			logger.debug(self.name + ': ' + value);
 			break;
 
 		case MODE.SOCKET:
 			if (!constants.IS_FAKE) {
-				var self   = this;
+
 				var client = new net.Socket();
 
-				client.connect(this.pin, 'localhost', function () {
+				client.connect(self.pin, 'localhost', function () {
 					client.write(value);
 					self.value = value;
 					logger.debug(self.name + ': ' + value);
@@ -89,22 +95,22 @@ Device.prototype.setValue = function (value) {
 					logger.error(self.name + ': ' + err);
 				});
 			} else {
-				rpi.socketWrite(this.pin, value);
+				rpi.socketWrite(self.pin, value);
 				this.value = value;
-				logger.debug(this.name + ': ' + value);
+				logger.debug(self.name + ': ' + value);
 			}
 			break;
 
 		default:
 			this.value = value;
-			logger.debug(this.name + ': ' + value);
+			logger.debug(self.name + ': ' + value);
 			break;
 	}
-}
+};
 
 Device.prototype.getValue = function () {
 	return this.value;
-}
+};
 
 
 module.exports = Device;

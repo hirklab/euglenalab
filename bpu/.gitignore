@@ -67,4 +67,6 @@ ImageStreamer/**/*.lo
 #bpu/ImageStreamer/mjpg_streamer
 #bpu/ImageStreamer/raspicam
 
+.serial
+
 

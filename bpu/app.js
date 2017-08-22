@@ -1,4 +1,5 @@
 var constants  = require('./libs/constants');
+var logger  = require('./libs/logging');
 var Microscope = require('./libs/microscope');
 
 var microscope = new Microscope(
@@ -7,4 +8,8 @@ var microscope = new Microscope(
 	constants.NAME
 );
 
-microscope.initialize();
+microscope.initialize(function(err){
+	if(err){
+		logger.error(err);
+	}
+});

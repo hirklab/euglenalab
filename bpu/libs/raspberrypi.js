@@ -1,30 +1,30 @@
 module.exports = {
 
-	setup(name) {
+	setup: function (name) {
 
 	},
 
-	pinMode(pin, io) {
+	pinMode: function (pin, io) {
 
 	},
 
-	softPwmCreate(pin, min, max) {
+	softPwmCreate: function (pin, min, max) {
 
 	},
 
-	analogWrite(pin, value) {
+	analogWrite: function (pin, value) {
 
 	},
 
-	digitalWrite(pin, value) {
+	digitalWrite: function (pin, value) {
 
 	},
 
-	softPwmWrite(pin, value) {
+	softPwmWrite: function (pin, value) {
 
 	},
 
-	socketWrite(pin, value) {
+	socketWrite: function (pin, value) {
 
-	},
-}
+	}
+};

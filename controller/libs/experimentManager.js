@@ -45,7 +45,7 @@ module.exports = function (app) {
 					cb('bpu socket is null');
 				}
 			} else {
-				exp.exp_metaData.magnification = bpuDoc.magnification;
+				experiment.magnification = bpuDoc.magnification;
 
 				bpuSocket.emit(app.mainConfig.socketStrs.bpu_setExp, exp, config.USER_CONFIRMATION_TIMEOUT + 1000, function (err) {
 					if (!didCallback) {
@@ -61,11 +61,11 @@ module.exports = function (app) {
 									index:    bpuDoc.index,
 									socketId: bpuDoc.soc
 								},
-								exp_lastResort:        exp.exp_lastResort,
-								bc_startSendTime:      exp.bc_startSendTime,
-								bc_isLiveSendingToLab: true,
-								exp_status:            'addingtobpu',
-								exp_metaData:          exp.exp_metaData
+								// exp_lastResort:        exp.exp_lastResort,
+								// bc_startSendTime:      exp.bc_startSendTime,
+								// bc_isLiveSendingToLab: true,
+								status:            'queued',
+								// exp_metaData:          exp.exp_metaData
 							};
 
 							app.db.models.BpuExperiment.findByIdAndUpdate(exp.id, expUpdateObj, {
@@ -83,12 +83,12 @@ module.exports = function (app) {
 									var expDoc = savedExperiment;
 
 									var sessUpdateObj = {
-										liveBpuExperiment:     {
-											id:  expDoc.id,
-											tag: expDoc.getExperimentTag()
-										},
-										bc_startSendTime:      expDoc.bc_startSendTime,
-										bc_isLiveSendingToLab: true
+										// liveBpuExperiment:     {
+										// 	id:  expDoc.id,
+										// 	tag: expDoc.getExperimentTag()
+										// },
+										// bc_startSendTime:      expDoc.bc_startSendTime,
+										// bc_isLiveSendingToLab: true
 									};
 
 									app.db.models.Session.findByIdAndUpdate(exp.session.id, sessUpdateObj, {
@@ -192,7 +192,7 @@ module.exports = function (app) {
 		var seriesFuncs = [];
 		seriesFuncs.push(getSession);
 		seriesFuncs.push(sendExperimentToBpu);
-		seriesFuncs.push(exp.group_experimentType === 'live' ? liveExperiment : batchExperiment);
+		seriesFuncs.push(exp.type === 'live' ? liveExperiment : batchExperiment);
 
 		async.series(seriesFuncs, function (err) {
 			if (err) {
@@ -602,11 +602,6 @@ module.exports = function (app) {
 					.map(function (microscope) {
 						var data = lodash.clone(microscope);
 
-						delete data.doc;
-						delete data.socket;
-						delete data.queue;
-
-
 						// if (isLiveActive(bpuDoc.bpuStatus)) {
 						// 	liveBpuExperimentPart = {
 						// 		username:             bpuDoc.liveBpuExperiment.username,
@@ -631,13 +626,13 @@ module.exports = function (app) {
 						//     return false;
 						// };
 
-						return data;
+						return data.state;
 					});
 
 				// todo better to filter data only for microscopes which user is allowed to see
 				app.webserver.sendMessage(MESSAGES.UPDATE, {
 					microscopes: bpuDocs,
-					experiments: app.experiments.toJSON()
+					experiments: app.experiments//.toJSON()
 				});
 			}
 

@@ -21,6 +21,17 @@ file_exists(){
     fi
 }
 
+create_serial(){
+    FILE=".serial"
+
+    if [[ $(file_exists $FILE) == 'N' ]];
+    then
+        SERIAL=$(cat /var/lib/dbus/machine-id)
+        echo "$SERIAL" > $FILE
+    fi
+}
+
+
 WHAT_AM_I=$(uname -m)
 #echo "$WHAT_AM_I"
 
@@ -29,7 +40,9 @@ then
     echo -e '\e[31memulating RaspberryPi\e[0m'
     export MACHINE="ubuntu"
 
-    SERIAL_NUM="EMULATOR"
+    create_serial
+
+    SERIAL_NUM=$(cat $FILE)
 else
     echo -e '\e[32musing RaspberryPi\e[0m'
     export MACHINE="raspberrypi"
@@ -50,10 +63,10 @@ ENV_DEFAULT_FILE=".env.sample"
 ENV_FILE=".env"
 
 # Check if default environment file exists
-if [[ $(file_exists $ENV_DEFAULT_FILE) != 'N' ]]
+if [[ $(file_exists $ENV_DEFAULT_FILE) != 'N' ]];
 then
     # Check if user created environment file exists
-    if [[ $(file_exists $ENV_FILE) != 'Y' ]]
+    if [[ $(file_exists $ENV_FILE) != 'Y' ]];
     then
         # overwrite .env file if it exists
         echo "$ENV_FILE already exists"

@@ -9,7 +9,7 @@ var http  = require('http');
 var exec           = require('child_process').exec;
 var socketIOClient = require('socket.io-client');
 var lodash         = require('lodash');
-var Queue          = require('bee-queue');
+// var Queue          = require('bee-queue');
 
 
 var logger    = require('./logging');
@@ -32,12 +32,10 @@ function Microscope(config) {
 	that.messages      = [];
 	that.isConnected   = false;
 	that.status        = STATES.OFFLINE;
-	that.queue         = new Queue(that.name);
+	// that.queue         = new Queue(that.name);
 
 	// only expose this state - keep rest of variables as internal state
-	that.state = {
-
-	};
+	that.state = {};
 
 	that.connect(function (err) {
 		if (err) {
@@ -146,7 +144,16 @@ Microscope.prototype.onConnected = function (payload) {
 Microscope.prototype.onStatus = function (payload) {
 	var that         = this;
 	that.isConnected = true;
-	that.status      = STATES.IDLE;
+	that.status      = payload.status;
+	that.state       = {
+		id:that.id,
+		name:that.name,
+		status:that.status,
+		experiment:payload.experiment,
+		queueTime:payload.queueTime,
+		isConnected:that.isConnected
+	};
+
 };
 
 // Microscope.prototype.onExperimentSet = function(payload){
@@ -307,8 +314,12 @@ Microscope.prototype.sendMessage = function (type, payload) {
 	logger.debug('[TX -> M]: ' + this.name + ': ' + type);
 	if (payload) logger.debug(payload);
 
-	this.socket.emit(EVENTS.MESSAGE, newMessage);
-}
+	this.socket.emit(EVENTS.MESSAGE, newMessage, function (err) {
+		if (err) {
+			logger.error(err);
+		}
+	});
+};
 
 //
 //
