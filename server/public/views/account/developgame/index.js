@@ -1,11 +1,13 @@
 /* global app:true */
 (function() {
+
   'use strict';
   app = app || {};
 
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
+    // Kick user out if not using Chrome.
     var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     if (!isChrome) {
       alert('This feature only works on Google Chrome!!! Navigating back to homepage.');
@@ -939,10 +941,14 @@
      * Parsing functions.
      */
     generalParser: function(runCode) {
-      // TODO: Remove unnecessary / potentially sinister code here.
-
       // Replace EuglenaScript functions with appropriate function calls.
-      var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage');
+      var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage'); // Deprecated.
+
+      // Remove unnecessary / potentially sinister code here (continuously expand list).
+      modifiedCode = modifiedCode.split(/app.mainView./).join("");
+      modifiedCode = modifiedCode.split(/app./).join("");
+
+      // Expand 
       modifiedCode = modifiedCode.split('drawCircle').join('app.mainView.drawCircle');
       modifiedCode = modifiedCode.split('drawLine').join('app.mainView.drawLine');
       modifiedCode = modifiedCode.split('drawOnTrackedEuglena').join('app.mainView.drawOnTrackedEuglena');
