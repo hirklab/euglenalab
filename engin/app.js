@@ -26,8 +26,8 @@ var web_router = {
 var serverInfo = {
     Identifier: 'C422691AA38F9A86EC02CB7B55D5F542',
     name: 'radiantllama',
-    socketClientServerIP: 'biotic.stanford.edu',
-    socketClientServerPort: 8084
+    socketClientServerIP: 'controller.euglena.stanford.edu',
+    socketClientServerPort: 3200
 };
 
 var user = {
@@ -58,7 +58,7 @@ var statusList = {
 
 var webserver = "http://" + serverInfo.socketClientServerIP;
 
-var domain = "http://" + serverInfo.socketClientServerIP + ":" + serverInfo.socketClientServerPort;
+var domain = "http://" + serverInfo.socketClientServerIP+":" + serverInfo.socketClientServerPort;
 //*** DO NOT MODIFY THIS SECTION **********
 
 
