@@ -138,7 +138,8 @@ var exports = module.exports = {
       serverPort: 80,
     },
   },
-  bpus: [{
+  bpus: [
+    {
     index: 0,
     name: 'eug0',
     description: 'batch 1 bpu mics, 10x, 4 leds, static thor labs bg light',
@@ -281,7 +282,8 @@ var exports = module.exports = {
       serverPort: 20026,
       webcamPort: 20025,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index: 6,
     name: 'eug6',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -304,7 +306,8 @@ var exports = module.exports = {
       serverPort: 20031,
       webcamPort: 20030,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index: 7,
     name: 'eug7',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -327,7 +330,8 @@ var exports = module.exports = {
       serverPort: 20036,
       webcamPort: 20035,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index: 8,
     name: 'eug8',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -350,7 +354,8 @@ var exports = module.exports = {
       serverPort: 20041,
       webcamPort: 20040,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index:9,
     name: 'eug9',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -373,7 +378,8 @@ var exports = module.exports = {
       serverPort: 20046,
       webcamPort: 20045,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index: 10,
     name: 'eug10',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -396,7 +402,8 @@ var exports = module.exports = {
       serverPort: 20051,
       webcamPort: 20050,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index: 11,
     name: 'eug11',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -419,7 +426,8 @@ var exports = module.exports = {
       serverPort: 20056,
       webcamPort: 20055,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index: 12,
     name: 'eug12',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -442,7 +450,8 @@ var exports = module.exports = {
       serverPort: 20061,
       webcamPort: 20060,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index: 13,
     name: 'eug113',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -465,7 +474,8 @@ var exports = module.exports = {
       serverPort: 20066,
       webcamPort: 20065,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
-    },{
+    }
+  },{
     index: 14,
     name: 'eug14',
     description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
@@ -609,5 +619,5 @@ var exports = module.exports = {
       webcamPort: 20100,
       allowedPorts: [20100, 20101, 20102, 20103, 20104],
     },
-  }, ],
+  } ],
 };
