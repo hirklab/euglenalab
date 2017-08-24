@@ -56,37 +56,40 @@ var Canvas_Joystick=function(canvasDiv) {
   //Draw Updates
 
   this.updateDraw=function() {
+
     //Clear Draw Context
     context.clearRect(0, 0, thisJoy.canvas.width, thisJoy.canvas.height);
 
     //Resize Joystick Parameters
-    //thisJoy.maxJoyRadius=thisJoy.canvas.width*0.300;
-    //if(thisJoy.canvas.height<thisJoy.canvas.width) {thisJoy.maxJoyRadius=thisJoy.canvas.height*0.300;}
-    //thisJoy.joyHeadRadius=thisJoy.maxJoyRadius*0.200;
-    //thisJoy.centerPoint={x:thisJoy.canvas.width*0.500, y:thisJoy.canvas.height*0.550};
-    //thisJoy.textIntensity={x:10, y:44};
-    //thisJoy.textAngle={x:0, y:20};
+    // thisJoy.maxJoyRadius=thisJoy.canvas.width*0.300;
+    // if(thisJoy.canvas.height<thisJoy.canvas.width) {thisJoy.maxJoyRadius=thisJoy.canvas.height*0.300;}
+    // thisJoy.joyHeadRadius=thisJoy.maxJoyRadius*0.200;
+    // thisJoy.centerPoint={x:thisJoy.canvas.width*0.500, y:thisJoy.canvas.height*0.550};
+    // thisJoy.textIntensity={x:10, y:44};
+    // thisJoy.textAngle={x:0, y:20};
 
     //Draw Sequence
 
-    //Static
-    drawBoundingCircle();
-    drawBoundingCircleHalf();
+    if (app.mainView.gameJoystickView) {
+      //Static
+      drawBoundingCircle();
+      drawBoundingCircleHalf();
 
-    //Dynamic - Fillstyle(opacity) Depends on intensity of joystick
-    drawIntensityCircle(thisJoy.inten_evt);
+      //Dynamic - Fillstyle(opacity) Depends on intensity of joystick
+      drawIntensityCircle(thisJoy.inten_evt);
 
-    //Static
-    drawCenterMark();
+      //Static
+      drawCenterMark();
 
-    //Dynamic -
-    drawJoystickStick(thisJoy.x_evt, thisJoy.y_evt);
-    drawJoystickHead(thisJoy.x_evt, thisJoy.y_evt);
+      //Dynamic -
+      drawJoystickStick(thisJoy.x_evt, thisJoy.y_evt);
+      drawJoystickHead(thisJoy.x_evt, thisJoy.y_evt);
 
-    //Text
-    drawIntensityText(thisJoy.inten_evt);
-    drawAngleText(thisJoy.degs_evt);
-    drawJoystickTitle();
+      //Text
+      drawIntensityText(thisJoy.inten_evt);
+      drawAngleText(thisJoy.degs_evt);
+      drawJoystickTitle();
+    }
   };
 
   //Draw Functions
@@ -218,6 +221,9 @@ Canvas_Joystick.prototype.toggleJoystick=function(toggle) {
   if(this.canvas.className!==this.className + '-' +toggle) {
     this.canvas.className=this.className + '-' +toggle;
   }
+
+  // Run user's joystick update code.
+  app.mainView.parseJoystickCode(app.mainView.gameJoystickCode, this.degs_evt, this.inten_evt);
 };
 Canvas_Joystick.prototype.update=function(text) {
   this.updateDraw(text);
@@ -250,6 +256,10 @@ Canvas_Joystick.prototype.setLightValuesFromXY=function(ledsSetObj, from) {
     this.sin_evt=this.dy_evt/this.mag_evt;
     this.cos_evt=this.dx_evt/this.mag_evt;
   }
+  app.mainView.joystickIntensity = this.mag_evt;
+  var rads_evt_in_degrees = this.rads_evt*180.0 / Math.PI;
+  if (rads_evt_in_degrees < 0) app.mainView.joystickDirection = Math.abs(rads_evt_in_degrees);
+  else app.mainView.joystickDirection = 360 - rads_evt_in_degrees;
 
   //Check parameters outside joystick radius
   //  scale down to max

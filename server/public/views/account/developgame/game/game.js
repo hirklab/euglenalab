@@ -18,7 +18,37 @@ var downloaded = new Array();
 var downloadPaused = true;
 var transferPaused = true;
 
-console.log("Starting browser detection!!!");
+//console.log("Starting browser detection!!!");
+
+var allowedKeys = {
+  37: 'left',
+  38: 'up',
+  39: 'right',
+  40: 'down',
+  65: 'a',
+  66: 'b'
+};
+var konamiCode = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right', 'b', 'a'];
+var konamiCodePosition = 0;
+document.addEventListener('keydown', function(e) {
+  var key = allowedKeys[e.keyCode];
+  var requiredKey = konamiCode[konamiCodePosition];
+  if (key == requiredKey) {
+    konamiCodePosition++;
+    if (konamiCodePosition == konamiCode.length)
+      activateCheats();
+  } else
+    konamiCodePosition = 0;
+});
+
+function activateCheats() {
+  alert("DEMO GAME ACTIVATED!!!");
+  if (app.mainView.gameDemoMode) {
+    app.mainView.gameDemoMode = false;
+  } else {
+    app.mainView.gameDemoMode = true;
+  }
+}
 
 function enableDownload()
 {
@@ -42,8 +72,8 @@ function enableDownload()
       }
       var img = new Image();
       img.onload = imageOnLoad;
-      //img.src = "http://euglena.stanford.edu:20005/?action=snapshot&n=" + (++imageNr);
-      img.src = "http://192.168.1.220:8080/?action=snapshot&n=" + (++imageNr);
+      img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+      console.log("Game's BPU ADDRESS: " + img.src);
       img.crossOrigin = "Anonymous";
     }
 
@@ -79,7 +109,7 @@ function enableTransfer()
 
 
 function pageDidLoad() {
-  console.log("Page is loading...")
+  //console.log("Page is loading...")
   //getVideoSources();
   ImageProcModule = document.getElementById( "image_proc" );
   var listener = document.getElementById("listener");
@@ -115,6 +145,59 @@ function processNextImage()
                 width: imData.width,
                 height: imData.height,
                 data: imData.data,
+                gameEndMsg: app.mainView.gameOverText,
+                gameInSession: app.mainView.gameInSession,
+                gameDemoMode: app.mainView.gameDemoMode,
+                gameDrawOnTrackedEuglena: app.mainView.gameDrawOnTrackedEuglena,
+                magnification: app.mainView.magnification,
+                sandboxMode: app.mainView.sandboxMode,
+                joystickIntensity: app.mainView.joystickIntensity,
+                joystickDirection: app.mainView.joystickDirection,
+                // drawCircle
+                drawCircleCenterX: app.mainView.drawCircleCenterX,
+                drawCircleCenterY: app.mainView.drawCircleCenterY,
+                drawCircleRadius: app.mainView.drawCircleRadius,
+                drawCircleR: app.mainView.drawCircleR,
+                drawCircleG: app.mainView.drawCircleG,
+                drawCircleB: app.mainView.drawCircleB,
+                // drawLine
+                drawLineX1: app.mainView.drawLineX1,
+                drawLineY1: app.mainView.drawLineY1,
+                drawLineX2: app.mainView.drawLineX2,
+                drawLineY2: app.mainView.drawLineY2,
+                drawLineR: app.mainView.drawLineR,
+                drawLineG: app.mainView.drawLineG,
+                drawLineB: app.mainView.drawLineB,
+                // drawRect
+                drawRectUpperLeftX: app.mainView.drawRectUpperLeftX, 
+                drawRectUpperLeftY: app.mainView.drawRectUpperLeftY, 
+                drawRectLowerRightX: app.mainView.drawRectLowerRightX, 
+                drawRectLowerRightY: app.mainView.drawRectLowerRightY, 
+                drawRectR: app.mainView.drawRectR, 
+                drawRectG: app.mainView.drawRectG, 
+                drawRectB: app.mainView.drawRectB,
+                // drawText
+                drawTextdrawTxt: app.mainView.drawTextdrawTxt,
+                drawTextXPos: app.mainView.drawTextXPos,
+                drawTextYPos: app.mainView.drawTextYPos,
+                drawTextSize: app.mainView.drawTextSize,
+                drawTextR: app.mainView.drawTextR,
+                drawTextG: app.mainView.drawTextG,
+                drawTextB: app.mainView.drawTextB,
+                // getEuglenaInRect
+                getEuglenaInRectUpperLeftX: app.mainView.getEuglenaInRectUpperLeftX,
+                getEuglenaInRectUpperLeftY: app.mainView.getEuglenaInRectUpperLeftY,
+                getEuglenaInRectLowerRightX: app.mainView.getEuglenaInRectLowerRightX,
+                getEuglenaInRectLowerRightY: app.mainView.getEuglenaInRectLowerRightY,
+                // getEuglenaAccelerationByID
+                getEuglenaAccelerationID: app.mainView.getEuglenaAccelerationID,
+                // getEuglenaPositionByID
+                getEuglenaPositionID: app.mainView.getEuglenaPosID,
+                // getEuglenaRotationByID
+                getEuglenaRotationID: app.mainView.getEuglenaRotationID,
+                // getEuglenaVelocityByID
+                getEuglenaVelocityID: app.mainView.getEuglenaVelocityID,
+
                 processor: "Euglena" };
     startTime = performance.now();
     ImageProcModule.postMessage( cmd );
@@ -122,8 +205,28 @@ function processNextImage()
 
   var img = new Image();
   img.onload = imageOnLoad;
-  img.src = "http://192.168.1.220:8080/?action=snapshot&n=" + (++imageNr);
-  //img.src = "http://euglena.stanford.edu:20005/?action=snapshot&n=" + (++imageNr);
+  img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+  // if (app.mainView.sandboxMode) {
+  //   // 9 to 135 every 2, 136 to 318 every 2, 319 to 467 every 2, 468 to 528 every 2,
+  //   // 529 to 609 every 2, 610 to 680 every 2, 681 to 873 every 2, 
+  //   // 874 to 910 every 2
+  //   if (app.mainView.sandboxFrame > 910) app.mainView.sandboxFrame = 9;
+  //   var trailingZeros = "";
+  //   if (app.mainView.sandboxFrame < 10) {
+  //     trailingZeros = "00";
+  //   } else if (app.mainView.sandboxFrame >= 10 && app.mainView.sandboxFrame < 100) {
+  //     trailingZeros = "0";
+  //   }
+  //   img.src = "/media/videos/scene00" + trailingZeros + app.mainView.sandboxFrame + ".jpg";
+  //   app.mainView.sandboxFrame += 2;
+  //   if (app.mainView.sandboxFrame === 137) app.mainView.sandboxFrame = 136;
+  //   if (app.mainView.sandboxFrame === 320) app.mainView.sandboxFrame = 319;
+  //   if (app.mainView.sandboxFrame === 469) app.mainView.sandboxFrame = 468;
+  //   if (app.mainView.sandboxFrame === 530) app.mainView.sandboxFrame = 529;
+  //   if (app.mainView.sandboxFrame === 611) app.mainView.sandboxFrame = 610;
+  //   if (app.mainView.sandboxFrame === 682) app.mainView.sandboxFrame = 681;
+  //   if (app.mainView.sandboxFrame === 875) app.mainView.sandboxFrame = 874;
+  // }
   img.crossOrigin = "Anonymous";
 }
 
@@ -139,6 +242,16 @@ function drawImage(pixels){
 var lastTime = 0;
 function handleMessage(msg) {
   var res = msg.data;
+  if ( res.Type == "gamedata" ) {
+    app.mainView.gameEuglenaCount = parseInt(res.TotalEuglena);
+    app.mainView.gameEuglenaInRectReturn = res.EuglenaInRect;
+    app.mainView.getAllEuglenaPositionsStr = res.EuglenaPositionsStr;
+    app.mainView.getAllEuglenaIDsStr = res.EuglenaIDsStr;
+    app.mainView.getEuglenaAccelerationReturn = res.EuglenaAccelerationReturn;
+    app.mainView.getEuglenaPositionReturn = res.EuglenaPositionReturn;
+    app.mainView.getEuglenaVelocityReturn = res.EuglenaVelocityReturn;
+    app.mainView.getEuglenaRotationReturn = res.EuglenaRotationReturn;
+  }
   if ( res.Type == "completed" ) {
     if ( res.Data ) {
       endTime = performance.now();

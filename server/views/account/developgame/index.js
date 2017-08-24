@@ -1,8 +1,273 @@
 'use strict';
 var async = require('async');
-exports.init = function(req, res, next) {
-  var outcome = {};
+var fs = require('fs');
+var glob = require('glob');
 
+var gameFileNames = '';
+var userHelperFunctionFiles = '';
+
+// Functions for saving game files.
+
+exports.gethelperfunctioncount = function(req, res) {
+  res.json(userHelperFunctionFiles.split(';').length);
+};
+
+exports.savehelperfunction = function(req, res) {
+  console.log("Saving helper function code...");
+  var fileName = "NO_NAME_ASSIGNED";
+  if (req.body.functionName.length > 1) {
+    fileName = req.body.functionName;
+  }
+  var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName + "_helper_function.txt";
+
+  var argsString = "";
+  for (var i = 0; i < req.body.functionArgs.length; i++) {
+    argsString += req.body.functionArgs[i] + "&&&&&";
+  }
+  var gameFileToSave = argsString + "-----" + req.body.functionCode + "-----" + req.body.functionName;
+  fs.writeFile (filePath, gameFileToSave, function(err) {
+      if (err) throw err;
+      console.log('game file writing complete');
+  });
+  res.json('success writing game');
+};
+
+exports.gethelperfunction = function(req, res) {
+  console.log("Getting helper function code...");
+  var fileIndex = req.body.helperIndex;
+  var gameFileNamesFixed = userHelperFunctionFiles.split(';').slice(1, -1);
+  var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)] + "_helper_function.txt";
+  var filePath = "";
+  // Check user specific path.
+  fs.readdir(__dirname + "/games/" + req.body.userName + "/", function(err, files) {
+    if (err) {} //throw err;
+    files.forEach(function(file) {
+      if (file === fileToOpen) {
+        filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen;
+      }
+    });
+    // Check example code path.
+    fs.readdir(__dirname + "/games/", function(err, files) {
+      if (err) {} //throw err;
+      files.forEach(function(file) {
+        if (file === fileToOpen) {
+          filePath = __dirname + "/games/" + fileToOpen;
+        }
+      });
+      // Open file.
+      if (filePath.length < 2) {
+        console.log("Early return!");
+        res.json("");
+        return;
+      } else {
+        fs.readFile(filePath, 'utf8', function (err, data) {
+          if (err) {  }
+          var returnVal = data;
+          res.json(returnVal);
+        });
+      }
+    });
+  });
+};
+
+exports.savereadme = function(req, res) {
+  console.log("Saving README text...");
+  var fileName = "NO_NAME_ASSIGNED";
+  if (req.body.fileName.length > 1) {
+    fileName = req.body.fileName;
+  }
+  var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName;
+  var gameFileToSave = req.body.readmeText;
+  fs.writeFile (filePath, gameFileToSave, function(err) {
+      if (err) throw err;
+      console.log('game file writing complete');
+  });
+  res.json('success writing game');
+};
+
+exports.getreadme = function(req, res) {
+  console.log("Getting README text...");
+  var fileIndex = req.body.gameIndex;
+  var gameFileNamesFixed = gameFileNames.split(';').slice(1, -1);
+  var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
+  var filePath = "";
+  // Check user specific path.
+  fs.readdir(__dirname + "/games/" + req.body.userName + "/", function(err, files) {
+    if (err) {} //throw err;
+    files.forEach(function(file) {
+      if (file === fileToOpen) {
+        filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen + "_README.txt";
+      }
+    });
+    // Check example code path.
+    fs.readdir(__dirname + "/games/", function(err, files) {
+      if (err) {} //throw err;
+      files.forEach(function(file) {
+        if (file === fileToOpen) {
+          filePath = __dirname + "/games/" + fileToOpen + "_README.txt";
+        }
+      });
+      // Open file.
+      if (filePath.length < 2) {
+        console.log("Early return!");
+        res.json("");
+        return;
+      } else {
+        console.log('Opening file: ' + filePath + '---' + fileToOpen);
+        fs.readFile(filePath, 'utf8', function (err, data) {
+          if (err) {  }
+          var returnVal = data;
+          res.json(returnVal);
+        });
+      }
+    });
+  });
+};
+
+exports.savefile = function(req, res) {
+  console.log("Saving game code...");
+  var fileName = "NO_NAME_ASSIGNED";
+  if (req.body.fileName.length > 1) {
+    fileName = req.body.fileName;
+    if (req.body.fileName.split('/').length > 1) {
+      res.json('ERR_DIRECTORY_READ');
+      return;
+    }
+  }
+  var filePath = __dirname + "/games/" + req.body.userName + "/" + fileName;
+  var gameFileToSave = req.body.runCode + "-----" + req.body.startCode
+                                        + "-----" + req.body.endCode
+                                        + "-----" + req.body.joystickCode
+                                        + "-----" + req.body.keypressCode;
+  fs.writeFile (filePath, gameFileToSave, function(err) {
+      if (err) throw err;
+      console.log('game file writing complete');
+  });
+  res.json('success writing game');
+};
+
+exports.getgamecode = function(req, res) {
+  console.log("Getting game code...");
+  var fileIndex = req.body.gameIndex;
+  var gameFileNamesFixed = gameFileNames.split(';').slice(1, -1);
+  var fileToOpen = gameFileNamesFixed[parseInt(fileIndex)];
+  var filePath = "";
+  // Check user specific path.
+  fs.readdir(__dirname + "/games/" + req.body.userName + "/", function(err, files) {
+    if (err) {} //throw err;
+    files.forEach(function(file) {
+      if (file === fileToOpen) {
+        filePath = __dirname + "/games/" + req.body.userName + "/" + fileToOpen;
+      }
+    });
+    // Check example code path.
+    fs.readdir(__dirname + "/games/", function(err, files) {
+      if (err) {} //throw err;
+      files.forEach(function(file) {
+        if (file === fileToOpen) {
+          filePath = __dirname + "/games/" + fileToOpen;
+        }
+      });
+      // Open file.
+      console.log('Opening file: ' + filePath + '---' + fileToOpen);
+      fs.readFile(filePath, 'utf8', function (err, data) {
+        if (err) throw err;
+        var returnVal = data + "-----" + fileToOpen;
+        res.json(returnVal);
+      });
+    });
+  });
+};
+
+// Functions for saving user-defined files.
+
+exports.writeuserfile = function(req, res) {
+  console.log("Writing user's file...");
+  if (req.body.fileName.split('/').length > 1) {
+    res.json('ERR_DIRECTORY_SAVE');
+    return;
+  }
+  var filePath = __dirname + "/userfiles/" + req.body.fileName;
+  var userFileToSave = req.body.userText;
+  var fileMode = req.body.fileMode;
+  if (fileMode === 'FILE.OVERWRITE') {
+    fs.writeFile (filePath, userFileToSave, function(err) {
+      if (err) throw err;
+      console.log('user file writing complete');
+    });
+  } else if (fileMode === 'FILE.APPEND') {
+    fs.appendFile (filePath, userFileToSave, function(err) {
+      if (err) throw err;
+      console.log('user file writing complete');
+    });
+  }
+  
+  res.json('success writing user file');
+};
+
+exports.readuserfile = function(req, res) {
+  console.log("Reading user's file...");
+  if (req.body.userFile.split('/').length > 1) {
+    res.json('ERR_DIRECTORY_READ');
+    return;
+  }
+  var fileToOpen = req.body.userFile;
+  var filePath = __dirname + "/userfiles/" + fileToOpen;
+  console.log('Opening file: ' + filePath);
+  fs.readFile(filePath, 'utf8', function (err, data) {
+    if (err) throw err;
+    res.json(data);
+  });
+};
+
+// Functions for getting user demographic data.
+
+exports.isuserdemographicsaved = function(req, res) {
+  console.log("Checking if user has demographic info saved...");
+  glob(__dirname + "/userdata/" + req.body.userName + "_demographics.txt", function (er, files) {
+    console.log("MATCHING FILES: " + files);
+    if (files.length > 0) {
+      res.json('true');
+    } else {
+      res.json('false');
+    }
+  });
+};
+
+exports.saveuserdemographicinfo = function(req, res) {
+  console.log("Saving user's demographic info...");
+  var filePath = __dirname + "/userdata/" + req.body.userName + "_demographics.txt";
+  var fileToSave = "Name: " + req.body.fullName +
+                    "\nAge: " + req.body.age + 
+                    "\nProgramming: " + req.body.programExp + 
+                    "\nJavaScript: " + req.body.jsExp + 
+                    "\nBiology: " + req.body.bioExp;
+  fs.writeFile (filePath, fileToSave, function(err) {
+      if (err) throw err;
+      console.log('game file writing complete');
+  });
+  res.json('success');
+};
+
+// Functions for user logging.
+
+exports.loguserdata = function(req, res) {
+  var filePath = __dirname + "/userdata/" + req.body.fileName;
+  var userFileToSave = req.body.logTimestamp + "::: " + req.body.logText;
+
+  fs.appendFile (filePath, userFileToSave, function(err) {
+    if (err) throw err;
+    console.log('logging file writing complete');
+  });
+  
+  res.json('success writing logging data');
+};
+
+
+exports.init = function(req, res, next) {
+
+
+  var outcome = {};
   outcome.session = null;
   var getSessionData = function(callback) {
     if (req.sessionID === null || req.sessionID === undefined) {
@@ -26,6 +291,7 @@ exports.init = function(req, res, next) {
   outcome.user = null;
   var getUserData = function(callback) {
     req.app.db.models.User.findById(outcome.sess.user.id, {}, function(err, userDoc) {
+      console.log("USER DATA::: " + userDoc);
       if (err) {
         return callback('getUser err:' + err);
       } else if (userDoc === null) {
@@ -90,12 +356,51 @@ exports.init = function(req, res, next) {
       }
     });
   };
+  var getGameNames = function(callback) {
+    var gameNames = ';';
+    var helperFunctionNames = ';';
+    if (!fs.existsSync(__dirname + "/games/" + outcome.user.username + "/")) {
+      fs.mkdirSync(__dirname + "/games/" + outcome.user.username + "/");
+    }
+    fs.readdir(__dirname + "/games/" + outcome.user.username + "/", function(err, files) {
+      files.forEach(function(file) {
+        console.log(file);
+        if (!fs.lstatSync(__dirname + "/games/" + outcome.user.username + "/" + file).isDirectory()) {
+          if (file.indexOf("_README.txt") === -1 && file.indexOf("_helper_function.txt") === -1) {
+            gameNames += file + ';';
+          }
+          if (file.indexOf("_helper_function.txt") !== -1) {
+            helperFunctionNames += file.split("_helper_function.txt")[0] + ';';
+          }
+        }
+      });
+      fs.readdir(__dirname + "/games/", function(err, files2) {
+        files2.forEach(function(file2) {
+          console.log(file2);
+          if (!fs.lstatSync(__dirname + "/games/" + file2).isDirectory()) {
+            if (file2.indexOf("_README.txt") === -1 && file2.indexOf("_helper_function.txt") === -1) {
+              gameNames += file2 + ';';
+            }
+            if (file2.indexOf("_helper_function.txt") !== -1) {
+              helperFunctionNames += file2.split("_helper_function.txt")[0] + ';';
+            }
+          }
+        });
+        outcome.gameNames = gameNames;
+        gameFileNames = gameNames;
+        outcome.helperFunctionNames = helperFunctionNames;
+        userHelperFunctionFiles = helperFunctionNames;
+        return callback(null);
+      });
+    });
+  };
   var seriesFuncs = [];
   seriesFuncs.push(getSessionData);
   seriesFuncs.push(getUserData);
   seriesFuncs.push(getExperimentData);
   seriesFuncs.push(getBpuData);
   seriesFuncs.push(setupDiv);
+  seriesFuncs.push(getGameNames);
   async.series(seriesFuncs, function(err) {
     if (err) {
       return next(err);
@@ -103,6 +408,8 @@ exports.init = function(req, res, next) {
       var startingAlpha = 0.0;
       res.render(outcome.renderJade, {
         data: {
+          helperFunctionNames: escape(JSON.stringify(outcome.helperFunctionNames)),
+          gameNames: escape(JSON.stringify(outcome.gameNames)),
           user: escape(JSON.stringify(outcome.user)),
           bpu: escape(JSON.stringify(outcome.bpu)),
           lengthScale100um: escape(JSON.stringify(outcome.lengthScale100um)) + '%',

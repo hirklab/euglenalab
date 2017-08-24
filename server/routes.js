@@ -268,6 +268,18 @@ exports = module.exports = function (app, passport) {
 
     // Develop game
     app.get('/account/developgame/', require('./views/account/developgame/index').init);
+    app.post('/account/developgame/savefile/', require('./views/account/developgame/index').savefile);
+    app.post('/account/developgame/getgamecode/', require('./views/account/developgame/index').getgamecode);
+    app.post('/account/developgame/writeuserfile/', require('./views/account/developgame/index').writeuserfile);
+    app.post('/account/developgame/readuserfile/', require('./views/account/developgame/index').readuserfile);
+    app.post('/account/developgame/loguserdata/', require('./views/account/developgame/index').loguserdata);
+    app.post('/account/developgame/isuserdemographicsaved/', require('./views/account/developgame/index').isuserdemographicsaved);
+    app.post('/account/developgame/saveuserdemographicinfo/', require('./views/account/developgame/index').saveuserdemographicinfo);
+    app.post('/account/developgame/savereadme/', require('./views/account/developgame/index').savereadme);
+    app.post('/account/developgame/getreadme/', require('./views/account/developgame/index').getreadme);
+    app.post('/account/developgame/savehelperfunction/', require('./views/account/developgame/index').savehelperfunction);
+    app.post('/account/developgame/gethelperfunction/', require('./views/account/developgame/index').gethelperfunction);
+    app.post('/account/developgame/gethelperfunctioncount/', require('./views/account/developgame/index').gethelperfunctioncount);
 
     //route not found
     app.all('*', require('./views/http/index').http404);

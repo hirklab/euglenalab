@@ -556,6 +556,8 @@
     $(document).ready(function() {
         app.firstLoad = true;
 
+        app.gameSession = false;
+
         $.getJSON('//ipinfo.io/json', function(data) {
             app.clientInfo = data;
         });

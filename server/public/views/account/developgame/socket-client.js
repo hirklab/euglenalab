@@ -33,6 +33,7 @@ var socketStrs = {
     //Primary Connection
     var bpuAddr = app.mainView.bpu.get('localAddr');
     var addr = 'http://' + bpuAddr.ip + ':' + bpuAddr.serverPort;
+
     //Primary Connection
     //Primary Connection
     //Primary Connection

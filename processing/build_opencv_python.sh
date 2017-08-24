@@ -26,6 +26,8 @@ cmake \
     -D INSTALL_C_EXAMPLES=OFF \
     -D CMAKE_INSTALL_PREFIX=/usr/local \
     -D BUILD_SHARED_LIBS=ON \
+    -D WITH_FFMPEG=ON \
+    -D WITH_GSTREAMER=OFF \
     -D CMAKE_BUILD_TYPE=RELEASE ../euglenatracer/opencv/
 
 make -j 8

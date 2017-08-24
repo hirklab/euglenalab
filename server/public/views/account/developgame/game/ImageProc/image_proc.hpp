@@ -8,6 +8,7 @@ class ImageProc {
     explicit ImageProc() {
     };
     virtual ~ImageProc() {};
+    char gameOverStr[80];
     cv::Mat process( std::function<cv::Mat(cv::Mat)> const& f, cv::Mat im ) {
       return f(im);
     };

@@ -28,16 +28,23 @@
 
     events: {
       'click .btn-joinLiveBpu': 'btnClick_joinLiveBpu',
+      'click .btn-joinGameBpu': 'btnClick_joinGameBpu',
       'click .btn-submitTextBpu': 'btnClick_submitTextBpu'
     },
     //Join Button Action
     btnClick_joinLiveBpu: function(evt) {
+      //console.log('Live Button Pressed!!!!!' + app.gameSession);
       var wantsBpuName = 'eug' + evt.target.value;
       app.mainView.submitExperimentFromViews('live', wantsBpuName, function(err) {
         if (err) {
           console.log('btnClick_joinLiveBpu live submission err:' + err);
         }
       });
+    },
+    btnClick_joinGameBpu: function(evt) {
+      app.gameSession = true;
+      //console.log('Joining game BPU' + app.gameSession);
+      this.btnClick_joinLiveBpu(evt);
     },
     btnClick_submitTextBpu: function(evt) {
       var wantsBpuName = 'eug' + evt.target.value;
@@ -62,6 +69,8 @@
       if (me.disablePrintOn) console.log('disableLiveButton', index, bVal, caller);
       var btn = me.$el.find('[name="' + 'bpuJoinLiveButton' + index + '"]')[0];
       if (btn) btn.disabled = bVal;
+      var btn2 = me.$el.find('[name="' + 'bpuJoinGameButton' + index + '"]')[0];
+      if (btn2) btn2.disabled = bVal;
     },
     disableTextButton: function(index, bVal, caller) {
       var me = this;

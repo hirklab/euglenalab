@@ -49,3 +49,8 @@ web/frontend/docs/*
 web/frontend/node_modules/*
 
 \.DS_Store
+
+local/*
+
+server/public/views/account/developgame/game/ImageProc/*.pexe
+server/public/views/account/developgame/game/ImageProc/*.bc

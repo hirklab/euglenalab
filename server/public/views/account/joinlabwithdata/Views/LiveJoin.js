@@ -14,6 +14,7 @@
     },
     //Join Button Action
     btnClick_joinLiveNext:function() {
+      app.locals.gameSession = true;
       var wantsBpuName=null;
       app.mainView.submitExperimentFromViews('live', wantsBpuName);
     },
