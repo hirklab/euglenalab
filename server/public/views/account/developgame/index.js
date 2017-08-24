@@ -996,12 +996,11 @@
       modifiedCode = modifiedCode.split('COLORS.ORANGE').join('\"COLORS.ORANGE\"');
 
       try {
-        $.globalEval(modifiedCode);
-      }
-      catch (err) {
+        //$.globalEval(modifiedCode);
+        eval(modifiedCode);
+      } catch (err) {
         app.mainView.gameInstructionText = 'There was an error in your code.';
         app.mainView.gameErrorMessage = 'There was an error in your code.';
-        // TODO(PW): Find out why 'err' is not always accessible (race condition somewhere probably).
         try {
           app.mainView.gameErrorMessage = err.message;
           app.mainView.gameInstructionText = err.message;
