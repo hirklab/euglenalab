@@ -1,4 +1,5 @@
 var lodash = require('lodash');
+var net    = require('net');
 
 var constants = require('./constants');
 var rpi       = require(constants.IS_FAKE ? './raspberrypi' : 'wiring-pi');
@@ -7,6 +8,7 @@ var logger      = require('./logging');
 var boardConfig = require('./boardConfig').BoardConfig;
 var MODE        = require('./boardConfig').MODE;
 var TYPE        = require('./boardConfig').TYPE;
+var IO          = require('./boardConfig').IO;
 
 
 function Device(device) {
@@ -22,7 +24,7 @@ function Device(device) {
 }
 
 Device.prototype.configure = function () {
-	var self   = this;
+	var self = this;
 
 	if (self.pin <= 40) {
 		rpi.pinMode(self.pin, self.io);
@@ -42,7 +44,7 @@ Device.prototype.configure = function () {
 };
 
 Device.prototype.isValid = function (value) {
-	var self   = this;
+	var self = this;
 
 	var isValid = false;
 
@@ -65,7 +67,7 @@ Device.prototype.isValid = function (value) {
 };
 
 Device.prototype.setValue = function (value) {
-	var self   = this;
+	var self = this;
 
 	switch (self.mode) {
 		case MODE.DIGITAL:
@@ -83,6 +85,7 @@ Device.prototype.setValue = function (value) {
 		case MODE.SOCKET:
 			if (!constants.IS_FAKE) {
 
+				// var startSocket = function(){
 				var client = new net.Socket();
 
 				client.connect(self.pin, 'localhost', function () {
@@ -94,6 +97,12 @@ Device.prototype.setValue = function (value) {
 				client.on('error', function (err) {
 					logger.error(self.name + ': ' + err);
 				});
+
+				// 	client.on('close', function() {
+				// 		setTimeout(startSocket(), 5000);
+				// 	});
+				// };
+
 			} else {
 				rpi.socketWrite(self.pin, value);
 				this.value = value;

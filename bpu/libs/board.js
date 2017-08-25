@@ -2,17 +2,20 @@ var lodash = require('lodash');
 
 var logger      = require('./logging');
 var constants   = require('./constants');
+
 var boardConfig = require('./boardConfig').BoardConfig;
 var Device      = require('./device');
 
 function Board() {
-	this.state   = {};
 	this.devices = {};
 }
 
 Board.prototype.configure = function () {
 	var that = this;
 
+	// todo make it enable disable device based on config
+	// todo control from .env file for what devices can work
+	// todo control from controller so that we can do this from frontend
 	lodash.each(boardConfig.devices, function (device) {
 		that.devices[device.name] = new Device(device);
 		that.devices[device.name].configure();
@@ -20,7 +23,7 @@ Board.prototype.configure = function () {
 };
 
 Board.prototype.getState = function () {
-	return this.state;
+	return this.devices;
 };
 
 Board.prototype.setDevice = function (deviceName, value) {

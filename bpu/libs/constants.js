@@ -1,14 +1,27 @@
+var os  = require('os');
 var env = require('dotenv');
 env.config();
 
-var MACHINE            = process.env.MACHINE;
-module.exports.IS_FAKE = (MACHINE !== 'raspberrypi');
+var MACHINE            = process.env.MACHINE || 'ubuntu';
+var IS_FAKE            = (MACHINE !== 'raspberrypi');
+module.exports.IS_FAKE = IS_FAKE;
 
-module.exports.UNIQUE_ID = process.env.UNIQUE_ID || 'DEVICE_MISSING_UNIQUE_ID';
-module.exports.NAME      = process.env.NAME || 'DEVICE_MISSING_NAME';
-module.exports.IP        = process.env.IP || '127.0.0.1';
-module.exports.PORT      = process.env.PORT || '8090';
-module.exports.CAMERA_PORT      = process.env.CAMERA_PORT || '8080';
+var NAME                   = process.env.NAME || 'DEVICE_MISSING_NAME';
+module.exports.NAME        = NAME;
+module.exports.UNIQUE_ID   = process.env.UNIQUE_ID || 'DEVICE_MISSING_UNIQUE_ID';
+module.exports.IP          = process.env.IP || '127.0.0.1';
+module.exports.PORT        = process.env.PORT || '8090';
+module.exports.CAMERA_PORT = process.env.CAMERA_PORT || '8080';
+
+var HOME_DIR = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
+
+var DATA = {
+	ROOT:    HOME_DIR + '/bpuData',
+	EXPERIMENT:     HOME_DIR + '/bpuData/tempExpData',
+	MOUNTED: (IS_FAKE ? HOME_DIR + '/bpuEuglenaData/' + NAME.toLowerCase() : '/mnt/bpuEuglenaData/' + NAME.toLowerCase())
+};
+
+module.exports.DATA = DATA;
 
 module.exports.STATES = {
 	CONNECTING:  'connecting',

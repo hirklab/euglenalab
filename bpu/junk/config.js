@@ -12,9 +12,4 @@ var config = {
 	script_resetBpu:      require('./resetBpu.js'),
 	script_runExperiment: require('./runExperiment.js'),
 	script_fakeMongo:     require('./fakeMongo.js'),
-
-	//Init Info
-	mainDataDir:    home_dir + '/bpuData',
-	expDataDir:     home_dir + '/bpuData/tempExpData',
-	mountedDataDir: (isFake ? home_dir + '/bpuEuglenaData/eug100' : '/mnt/bpuEuglenaData/' + os.hostname())
 };
