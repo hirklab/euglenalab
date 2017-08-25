@@ -192,6 +192,7 @@ var setupSocketClientServer = function (callback) {
                         });
                     });
                     socket.on(app.mainConfig.socketStrs.bpu_runExpLedsSet, function (lightData) {
+                        console.log(lightData);
                         if (app.bpuLedsSetMatch[lightData.sessionID]) {
                             app.bpuLedsSetMatch[lightData.sessionID](lightData);
                         }

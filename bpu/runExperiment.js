@@ -117,12 +117,12 @@ exports = module.exports = function(app, deps, options, exp, mainCallback) {
       app.bpuStatus = app.bpuStatusTypes.finalizing;
       num++;
       var fName = num + ' finalizeData';
-      app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
-      app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.group_experimentType:' + app.exp.group_experimentType);
-      app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.eventsToRun:' + app.exp.exp_eventsToRun.length);
-      app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsToRunFinal:' + app.exp.exp_eventsToRunFinal.length);
-      app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsRan:' + app.exp.exp_eventsRan.length);
-      app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_metaData:' + app.exp.exp_metaData);
+      // app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
+      // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.group_experimentType:' + app.exp.group_experimentType);
+      // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.eventsToRun:' + app.exp.exp_eventsToRun.length);
+      // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsToRunFinal:' + app.exp.exp_eventsToRunFinal.length);
+      // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_eventsRan:' + app.exp.exp_eventsRan.length);
+      // app.logger.trace(moduleName + ' ' + fName + ' ' + 'app.exp.exp_metaData:' + app.exp.exp_metaData);
 
       app.exp.exp_metaData.numFrames = -1;
       deps.fs.readdir(app.expDataDir, function(err, files) {
@@ -252,7 +252,7 @@ var checkEventValues = function(evt) {
   return returnEvent;
 };
 var _checkEventsArray = function(eventsToRun) {
-  var MaxExperimentTime = 5 * 60 * 1000; //5 minutes
+  var MaxExperimentTime = 60 * 60 * 1000; //5 minutes
   var MinTimeBetweenEvents = 10; //ms
 
   var org_eventsToRun = JSON.parse(JSON.stringify(eventsToRun));
