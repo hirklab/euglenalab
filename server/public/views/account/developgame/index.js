@@ -223,6 +223,8 @@
         });
 
       app.mainView.gameInSession = true;
+      $('#runningStatus').css('color', 'green');
+      $('#runningStatus').html('Running');
       // app.mainView.codeVariablesEditor.setOption("readOnly", "nocursor");
       // app.mainView.runEditor.setOption("readOnly", "nocursor");
       // app.mainView.startEditor.setOption("readOnly", "nocursor");
@@ -527,6 +529,8 @@
     
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
+      $('#runningStatus').css('color', 'red');
+      $('#runningStatus').html('Stopped');
       var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, 0);
       ledsSetObj.rightValue = 0;
       ledsSetObj.leftValue = 0;
@@ -1009,6 +1013,8 @@
         $('#instructionText').text('Error in your code: ' + app.mainView.gameErrorMessage);
         $('#instructionText').css('color', 'red');
         app.mainView.gameInSession = false;
+        $('#runningStatus').css('color', 'red');
+        $('#runningStatus').html('Stopped');
         app.mainView.codeEditorReadOnly = false;
         app.mainView.runEditor.setOption("readOnly", false);
         app.mainView.startEditor.setOption("readOnly", false);
@@ -1298,6 +1304,8 @@
     endProgram: function() {
       //console.log('endProgram function called.');
       app.mainView.gameInSession = false;
+      $('#runningStatus').css('color', 'red');
+      $('#runningStatus').html('Stopped');
       app.mainView.parseEndCode(app.mainView.gameEndCode);
     },
     getAllEuglenaIDs: function() {
@@ -1539,6 +1547,8 @@
       // $('#btnStopGame').prop("disabled", true);
       // $('#btnLoadGame').prop("disabled", true);
       app.mainView.gameInSession = false;
+      $('#runningStatus').css('color', 'red');
+      $('#runningStatus').html('Stopped');
       app.mainView.gameInstructionText = 'So that other users can use the online microscope, your session has timed out. You are now in sandbox mode. Your code will run on the virtual simulation shown above. If you want to work with real Euglena again, please save your code and then return to the home page in order to join a new session.';
       alert(app.mainView.gameInstructionText);
       $('#instructionText').text(app.mainView.gameInstructionText);
