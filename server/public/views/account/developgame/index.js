@@ -90,7 +90,11 @@
               || gameName === "helloWorld.peter" || gameName === "euglenaCountExperiment.peter"
               || gameName === "guessLedGame.peter" || gameName === "movingBoxGame.peter"
               || gameName === "userInteractionLogging.peter") {
-            gameName += "_" + app.mainView.userName;
+            if (app.mainView.userName === undefined || app.mainView.userName === "undefined") {
+              gameName += "_modified"
+            } else {
+              gameName += "_" + app.mainView.userName;
+            }
           }
           $.post('/account/developgame/savereadme/', { userName: app.mainView.userName,
                                                        readmeText:  app.mainView.readmeEditor.getValue(),
@@ -200,7 +204,11 @@
           || gameName === "helloWorld.peter" || gameName === "euglenaCountExperiment.peter"
           || gameName === "guessLedGame.peter" || gameName === "movingBoxGame.peter"
           || gameName === "userInteractionLogging.peter") {
-        gameName += "_" + app.mainView.userName;
+        if (app.mainView.userName === undefined || app.mainView.userName === "undefined") {
+          gameName += "_modified"
+        } else {
+          gameName += "_" + app.mainView.userName;
+        }
       }
       app.mainView.gameName = gameName;
       $('#gameNameText').val(app.mainView.gameName);
@@ -576,7 +584,11 @@
           || gameName === "helloWorld.peter" || gameName === "euglenaCountExperiment.peter"
           || gameName === "guessLedGame.peter" || gameName === "movingBoxGame.peter"
           || gameName === "userInteractionLogging.peter") {
-        gameName += "_" + app.mainView.userName;
+        if (app.mainView.userName === undefined || app.mainView.userName === "undefined") {
+          gameName += "_modified"
+        } else {
+          gameName += "_" + app.mainView.userName;
+        }
       }
       app.mainView.gameName = gameName;
       $('#gameNameText').val(app.mainView.gameName);
@@ -836,7 +848,7 @@
 
       app.mainView.gameSessionName = JSON.parse(unescape($('#data-session').html()))["liveBpuExperiment"]["id"];
       app.mainView.userName = JSON.parse(unescape($('#data-user').html()))["username"];
-      app.mainView.gameName = "guessLedGame.peter_" + app.mainView.username;
+      app.mainView.gameName = "guessLedGame.peter_" + app.mainView.userName;
 
       $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
                                                     logTimestamp: Date.now().toString(),
