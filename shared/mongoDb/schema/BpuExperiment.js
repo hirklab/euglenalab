@@ -309,7 +309,7 @@ exports = module.exports = function(app, mongoose) {
         if (evt !== null && evt !== undefined) {
 
           if(evt.hasOwnProperty('time')){
-            var err = checkNum(evt.time, 0, 10 * 60 * 1000);
+            var err = checkNum(evt.time, 0, 60* 60 * 1000);
 
             if(err!=null){
               returnObj.validationErr = 'time:' + err;

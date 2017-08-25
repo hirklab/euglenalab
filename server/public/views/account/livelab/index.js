@@ -601,7 +601,7 @@
             window.addEventListener('resize', function (evt) {
                 // console.log(evt);
                 //Resize Joystick Canvas
-                var joystickContainer = app.mainView.$el.find('#camera')[0];
+                var joystickContainer = app.mainView.$el.find('#joystick-container')[0];
                 var joystickCanvas = app.mainView.$el.find('[name="' + 'myJoystick' + '"]')[0];
 
                 if (joystickContainer && joystickCanvas && app.mainView.myJoyStick) {
@@ -612,6 +612,7 @@
                     } catch (e) {
                         element = joystickContainer.currentStyle.height;
                     }
+                    console.log(element);
 
                     app.mainView.myJoyStick.resize(parseFloat(element.getPropertyValue('width')), parseFloat(element.getPropertyValue('height')));
                 }

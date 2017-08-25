@@ -241,7 +241,7 @@
         userExpInfo: {
             isSubmitting: false,
             MaxTextFileLoad: 10,
-            MaxTextTime: 10 * 60 * 1000,
+            MaxTextTime: 15 * 60 * 1000,
             loadedTextRunTime: 0,
             loadedTextFiles: [],
             queueTextRunTime: 0,

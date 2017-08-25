@@ -66,6 +66,7 @@ class EuglenaProcessor : public Processor {
         bool drawOnTrackedEuglena;
         bool viewEuglenaPaths;
         bool sandboxMode = false;
+        bool sandboxVideo = false;
         bool sandboxModeFirstIteration = true;
 
         // Sandbox mode variables
@@ -294,6 +295,11 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
     // Draw simulation on top of image if in sandbox mode.
     if (sandboxMode) {
+
+        if (sandboxVideo) {
+            
+        }
+
         cv::rectangle(im, cv::Point(0.0, 0.0), cv::Point(640.0, 480.0), cv::Scalar(0, 0, 0, 255), -1);
 
         if (sandboxModeFirstIteration) {

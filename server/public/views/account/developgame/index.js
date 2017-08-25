@@ -290,7 +290,18 @@
         app.mainView.helperFunctionShown = false;
     });
 
+    $('#btnSwitchSandbox').click(function() {
+      if (app.mainView.sandboxVideo) {
+        $('#btnSwitchSandbox').html('Switch To Video Mode');
+        app.mainView.sandboxVideo = false;
+      } else {
+        $('#btnSwitchSandbox').html('Switch To Simulation Mode');
+        app.mainView.sandboxVideo = true;
+      }
+    });
+
     $('#helperFunctionArea').hide();
+    $('#sandboxControls').hide();
 
     $('#toggleHelperCodeSection').on({
       'click': function() {
@@ -755,6 +766,7 @@
     // Sandbox mode.
     sandboxMode: false,
     sandboxFrame: 9,
+    sandboxVideo: false,
 
     // GAME-RELATED VARIABLES
     gameFileNames: [],
@@ -1554,6 +1566,7 @@
       // Entering sandbox mode.
       app.mainView.sandboxMode = true;
       $('#txtSandboxMode').show();
+      $('#sandboxControls').show();
       // $('#btnUpdateRun').prop("disabled", true);
       // $('#btnStartGame').prop("disabled", true);
       // $('#btnStopGame').prop("disabled", true);
