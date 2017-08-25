@@ -11,7 +11,7 @@ var util = require('util');
 
 var proxyMiddleware = require('http-proxy-middleware');
 
-var webserverIp = deployment[deployment.mode].publicIP;
+var webserverIp = "192.168.1.100";//deployment[deployment.mode].publicIP;
 var webserverPort = parseInt(deployment[deployment.mode].webserver.port);
 var adminPort = parseInt(deployment[deployment.mode].webserver.adminPort);
 
@@ -45,7 +45,10 @@ function browserSyncInit(baseDir, browser) {
         browser: browser,
         ghostMode: false,
         host:webserverIp,
-        port: adminPort
+        port: adminPort,
+        ui:{
+            port:7000
+        }
     });
 }
 

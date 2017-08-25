@@ -138,7 +138,8 @@ var exports = module.exports = {
       serverPort: 80,
     },
   },
-  bpus: [{
+  bpus: [
+    {
     index: 0,
     name: 'eug0',
     description: 'batch 1 bpu mics, 10x, 4 leds, static thor labs bg light',
@@ -256,6 +257,246 @@ var exports = module.exports = {
       ip: g_publicIP,
       serverPort: 20021,
       webcamPort: 20020,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    },
+  }, {
+    index: 5,
+    name: 'eug5',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.205',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20026,
+      webcamPort: 20025,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index: 6,
+    name: 'eug6',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.206',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20031,
+      webcamPort: 20030,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index: 7,
+    name: 'eug7',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.207',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20036,
+      webcamPort: 20035,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index: 8,
+    name: 'eug8',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.208',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20041,
+      webcamPort: 20040,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index:9,
+    name: 'eug9',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.209',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20046,
+      webcamPort: 20045,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index: 10,
+    name: 'eug10',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.210',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20051,
+      webcamPort: 20050,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index: 11,
+    name: 'eug11',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.211',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20056,
+      webcamPort: 20055,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index: 12,
+    name: 'eug12',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.212',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20061,
+      webcamPort: 20060,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index: 13,
+    name: 'eug113',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.213',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20066,
+      webcamPort: 20065,
+      allowedPorts: [20015, 20016, 20017, 20018, 20019],
+    }
+  },{
+    index: 14,
+    name: 'eug14',
+    description: 'batch 1 bpu mics, 4x, 4 leds, static thor labs bg light',
+    type: 'batch 1 bpu mics',
+    magnification: 4,
+    backgroundLighting: 'white',
+    stimulusType: '4leds',
+    stimulusDescription: '4 leds controls by arduino',
+    allowedGroups: ['admin', 'default', 'scripter', 'nwg', 'golabz'],
+    isOn: false,
+    isArduino: false,
+    maxLightIntentisy: 1, //percent of lightValues used on leds.js
+    localAddr: {
+      ip: '192.168.1.214',
+      serverPort: 8090,
+      webcamPort: 8080,
+    },
+    publicAddr: {
+      ip: g_publicIP,
+      serverPort: 20071,
+      webcamPort: 20070,
       allowedPorts: [20015, 20016, 20017, 20018, 20019],
     },
   }, {
@@ -378,5 +619,5 @@ var exports = module.exports = {
       webcamPort: 20100,
       allowedPorts: [20100, 20101, 20102, 20103, 20104],
     },
-  }, ],
+  } ],
 };
