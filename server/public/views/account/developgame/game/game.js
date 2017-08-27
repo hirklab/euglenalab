@@ -127,6 +127,7 @@ function getDataFromImage( img ) {
   // Get image data from specified canvas
   var display = document.getElementById("display");
   var ctx = display.getContext( "2d" );
+
   ctx.drawImage(img,0,0)
   var height = display.height;
   var width = display.width;
@@ -207,6 +208,7 @@ function processNextImage()
   var img = new Image();
   img.onload = imageOnLoad;
   img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+
   // if (app.mainView.sandboxMode) {
   //   // 9 to 135 every 2, 136 to 318 every 2, 319 to 467 every 2, 468 to 528 every 2,
   //   // 529 to 609 every 2, 610 to 680 every 2, 681 to 873 every 2, 

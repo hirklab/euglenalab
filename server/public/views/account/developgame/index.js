@@ -294,14 +294,31 @@
       if (app.mainView.sandboxVideo) {
         $('#btnSwitchSandbox').html('Switch To Video Mode');
         app.mainView.sandboxVideo = false;
+        $('#btnRecordVideoStream').hide();
       } else {
         $('#btnSwitchSandbox').html('Switch To Simulation Mode');
         app.mainView.sandboxVideo = true;
+        $('#btnRecordVideoStream').show();
+      }
+    });
+
+    $('#btnRecordVideoStream').click(function() {
+      if (app.mainView.sandboxVideoIsRecording) {
+        $('#btnRecordVideoStream').html('Start Recording');
+        app.mainView.sandboxVideoIsRecording = false;
+        app.mainView.sandboxFrame = 1;
+      } else {
+        $('#btnRecordVideoStream').html('Stop Recording');
+        app.mainView.sandboxVideoIsRecording = true;
       }
     });
 
     $('#helperFunctionArea').hide();
     $('#sandboxControls').hide();
+
+    $('#txtChooseSandboxVideo').hide();
+    $('#btnChooseSandboxVideo').hide();
+    $('#btnRecordVideoStream').hide();
 
     $('#toggleHelperCodeSection').on({
       'click': function() {
@@ -765,8 +782,10 @@
 
     // Sandbox mode.
     sandboxMode: false,
-    sandboxFrame: 9,
+    sandboxFrame: 1,
     sandboxVideo: false,
+    sandboxVideoIsRecording: false,
+    sandboxVideoName: "sandboxvideo",
 
     // GAME-RELATED VARIABLES
     gameFileNames: [],
@@ -962,6 +981,15 @@
         app.mainView.drawTextB = "";
 
         app.mainView.parseRunCode(app.mainView.gameRunCode);
+      }
+
+      if (app.mainView.sandboxVideoIsRecording) {
+        $.post('/account/developgame/saveframe/', { userName: app.mainView.userName,
+                                                    bpuAddress:  app.mainView.bpuAddress,
+                                                    imageNr: app.mainView.sandboxFrame,
+                                                    fileName: app.mainView.sandboxVideoName } )
+              .done(function(data) {});
+        app.mainView.sandboxFrame++;
       }
     },
 

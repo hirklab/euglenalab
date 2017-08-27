@@ -2,9 +2,29 @@
 var async = require('async');
 var fs = require('fs');
 var glob = require('glob');
+var request = require('request');
 
 var gameFileNames = '';
 var userHelperFunctionFiles = '';
+
+exports.saveframe = function(req, res) {
+
+  var download = function(uri, filename, callback) {
+    console.log('downloadingg...');
+    console.log("filename: " + filename);
+    console.log("uri: " + uri);
+    request.head(uri, function(err, res, body) {
+      //console.log('content-type:', res.headers['content-type']);
+      //console.log('content-length:', res.headers['content-length']);
+      request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+    });
+  };
+
+  download(req.body.bpuAddress + "/?action=snapshot&n=" + req.body.imageNr, __dirname + "/videos/" + req.body.userName + "-frame-" + req.body.fileName + "-" + req.body.imageNr + ".jpg", function() {
+    //console.log('done');
+  });
+  res.json('success');
+};
 
 // Functions for saving game files.
 

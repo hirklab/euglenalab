@@ -280,6 +280,7 @@ exports = module.exports = function (app, passport) {
     app.post('/account/developgame/savehelperfunction/', require('./views/account/developgame/index').savehelperfunction);
     app.post('/account/developgame/gethelperfunction/', require('./views/account/developgame/index').gethelperfunction);
     app.post('/account/developgame/gethelperfunctioncount/', require('./views/account/developgame/index').gethelperfunctioncount);
+    app.post('/account/developgame/saveframe/', require('./views/account/developgame/index').saveframe);
 
     //route not found
     app.all('*', require('./views/http/index').http404);

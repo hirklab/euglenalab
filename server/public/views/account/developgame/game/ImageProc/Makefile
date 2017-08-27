@@ -15,7 +15,7 @@ PNACL_CXX := $(PNACL_TC_PATH)/bin/pnacl-clang++
 PNACL_FINALIZE := $(PNACL_TC_PATH)/bin/pnacl-finalize
 PNACL_COMPRESS := $(PNACL_TC_PATH)/bin/pnacl-compress
 PNACL_CXXFLAGS := -O2 -I$(NACL_SDK_ROOT)/include $(CXXFLAGS)
-LDFLAGS := -lopencv_video -lopencv_objdetect -lopencv_imgproc -lopencv_core  -lz
+LDFLAGS := -lopencv_video -lopencv_objdetect -lopencv_imgproc -lopencv_core -lz
 PNACL_LDFLAGS := -L$(NACL_SDK_ROOT)/lib/pnacl/Release  -lppapi_cpp -lppapi -lpthread $(LDFLAGS)
 
 #PROCESSORS := $(wildcard processor_*.cpp) url_loader_handler.cpp
