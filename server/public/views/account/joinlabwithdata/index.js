@@ -504,7 +504,7 @@
                     isLiveDisabled = false;
                     isTextDisabled = false;
                 }
-                //app.liveJoinView.disableJoinLiveNextButton(isLiveDisabled, 'app.mainView.server update');
+                app.liveJoinView.disableJoinLiveNextButton(isLiveDisabled, 'app.mainView.server update');
 
                 //Set text join button
                 app.textSubmitView.disableSubmitTextNextButton(isTextDisabled, 'app.mainView.server update');
