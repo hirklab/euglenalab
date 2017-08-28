@@ -153,6 +153,7 @@ function processNextImage()
                 magnification: app.mainView.magnification,
                 sandboxMode: app.mainView.sandboxMode,
                 sandboxVideo: app.mainView.sandboxVideo,
+                sandboxVideoHasRecorded: app.mainView.sandboxVideoHasRecorded,
                 joystickIntensity: app.mainView.joystickIntensity,
                 joystickDirection: app.mainView.joystickDirection,
                 // drawCircle
@@ -208,6 +209,14 @@ function processNextImage()
   var img = new Image();
   img.onload = imageOnLoad;
   img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+
+  if (app.mainView.sandboxMode && app.mainView.sandboxVideo && app.mainView.sandboxVideoHasRecorded) {
+    img.src = "/media/videos/" + app.mainView.userName + "-frame-" + app.mainView.sandboxVideoName + "-" + app.mainView.sandboxVideoPlaybackFrame + ".jpg";
+    app.mainView.sandboxVideoPlaybackFrame++;
+    if (app.mainView.sandboxVideoPlaybackFrame >= app.mainView.sandboxFrame) {
+      app.mainView.sandboxVideoPlaybackFrame = 1;
+    }
+  }
 
   // if (app.mainView.sandboxMode) {
   //   // 9 to 135 every 2, 136 to 318 every 2, 319 to 467 every 2, 468 to 528 every 2,

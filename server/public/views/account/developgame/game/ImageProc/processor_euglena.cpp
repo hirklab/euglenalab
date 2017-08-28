@@ -67,6 +67,7 @@ class EuglenaProcessor : public Processor {
         bool viewEuglenaPaths;
         bool sandboxMode = false;
         bool sandboxVideo = false;
+        bool sandboxVideoHasRecorded = false;
         bool sandboxModeFirstIteration = true;
 
         // Sandbox mode variables
@@ -301,6 +302,11 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         if (sandboxVideo) {
 
             sandboxModeFirstIteration = true;
+
+            if (!sandboxVideoHasRecorded) {
+                cv::rectangle(im, cv::Point(0.0, 0.0), cv::Point(640.0, 480.0), cv::Scalar(0, 0, 0, 255), -1);
+                cv::putText(im, "Record a video using the tooltip above", cv::Point(10.0, 20.0), cv::FONT_HERSHEY_DUPLEX, 0.7, cv::Scalar(255,0,0,255));
+            }
 
         } else {
 

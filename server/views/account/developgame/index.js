@@ -9,10 +9,12 @@ var userHelperFunctionFiles = '';
 
 exports.saveframe = function(req, res) {
 
+  //console.log('dirname::: ' + __dirname);
+
   var download = function(uri, filename, callback) {
     console.log('downloadingg...');
-    console.log("filename: " + filename);
-    console.log("uri: " + uri);
+    //console.log("filename: " + filename);
+    //console.log("uri: " + uri);
     request.head(uri, function(err, res, body) {
       //console.log('content-type:', res.headers['content-type']);
       //console.log('content-length:', res.headers['content-length']);
@@ -20,7 +22,7 @@ exports.saveframe = function(req, res) {
     });
   };
 
-  download(req.body.bpuAddress + "/?action=snapshot&n=" + req.body.imageNr, __dirname + "/videos/" + req.body.userName + "-frame-" + req.body.fileName + "-" + req.body.imageNr + ".jpg", function() {
+  download(req.body.bpuAddress + "/?action=snapshot&n=" + req.body.imageNr, __dirname + "/../../../public/media/videos/" + req.body.userName + "-frame-" + req.body.fileName + "-" + req.body.imageNr + ".jpg", function() {
     //console.log('done');
   });
   res.json('success');

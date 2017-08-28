@@ -120,6 +120,7 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->magnification = var_dict.Get("magnification").AsInt();
       ((EuglenaProcessor*)processor.get())->sandboxMode = var_dict.Get("sandboxMode").AsBool();
       ((EuglenaProcessor*)processor.get())->sandboxVideo = var_dict.Get("sandboxVideo").AsBool();
+      ((EuglenaProcessor*)processor.get())->sandboxVideoHasRecorded = var_dict.Get("sandboxVideoHasRecorded").AsBool();
       ((EuglenaProcessor*)processor.get())->joystickIntensity = var_dict.Get("joystickIntensity").AsInt();
       ((EuglenaProcessor*)processor.get())->joystickDirection = var_dict.Get("joystickDirection").AsInt();
     }

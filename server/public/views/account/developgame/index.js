@@ -306,9 +306,11 @@
       if (app.mainView.sandboxVideoIsRecording) {
         $('#btnRecordVideoStream').html('Start Recording');
         app.mainView.sandboxVideoIsRecording = false;
-        app.mainView.sandboxFrame = 1;
+        app.mainView.sandboxVideoPlaybackFrame = 1;
       } else {
+        app.mainView.sandboxVideoHasRecorded = true;
         $('#btnRecordVideoStream').html('Stop Recording');
+        app.mainView.sandboxFrame = 1;
         app.mainView.sandboxVideoIsRecording = true;
       }
     });
@@ -783,8 +785,10 @@
     // Sandbox mode.
     sandboxMode: false,
     sandboxFrame: 1,
+    sandboxVideoPlaybackFrame: 1,
     sandboxVideo: false,
     sandboxVideoIsRecording: false,
+    sandboxVideoHasRecorded: false,
     sandboxVideoName: "sandboxvideo",
 
     // GAME-RELATED VARIABLES
