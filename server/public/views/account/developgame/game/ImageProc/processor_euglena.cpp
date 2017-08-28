@@ -152,15 +152,17 @@ class EuglenaProcessor : public Processor {
 
         //getEuglenaVelocityByID
         int velocityID;
-        float targetEuglenaVelocity;
+        char targetEuglenaVelocityStr[10000];
 
         //getEuglenaAccelerationByID;
         int accelerationID;
-        float targetEuglenaAcceleration;
+        char targetEuglenaAccelerationStr[10000];
 
         //getEuglenaRotationByID
         int rotationID;
-        float targetEuglenaRotation;
+        char targetEuglenaRotationStr[10000];
+
+
         std::string targetEuglenaDirection;  //Not necessary
 
     private:
@@ -393,9 +395,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
     } 
 
     // Assign calculated velocity, accelleration, and angle of rotation for a target euglena to user facing variables 
-    targetEuglenaVelocity = euglenaVelocities[velocityID];
-    targetEuglenaAcceleration = euglenaAccelerations[accelerationID];
-    targetEuglenaRotation = euglenaAngles[rotationID];
 
     cv::Mat fgmask;
     (*_fgbg)(im,fgmask,-1);
@@ -560,6 +559,15 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         memset(targetEuglenaPositionStr, 0, 10000*sizeof(char));
         std::strcpy(targetEuglenaPositionStr, " ");
 
+        memset(targetEuglenaAccelerationStr, 0, 10000*sizeof(char));
+        std::strcpy(targetEuglenaAccelerationStr, " ");
+
+        memset(targetEuglenaVelocityStr, 0, 10000*sizeof(char));
+        std::strcpy(targetEuglenaVelocityStr, " ");
+
+        memset(targetEuglenaRotationStr, 0, 10000*sizeof(char));
+        std::strcpy(targetEuglenaRotationStr, " ");
+
         int position = -1;
         float xPosition;
         float yPosition;
@@ -611,6 +619,10 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     }
                 }
                 euglenaAngles[e.ID] = angle;
+                std::strcat(targetEuglenaRotationStr, std::to_string(e.ID).c_str());
+                std::strcat(targetEuglenaRotationStr, ":");
+                std::strcat(targetEuglenaRotationStr, std::to_string(angle).c_str());
+                std::strcat(targetEuglenaRotationStr, ";");
 
                 // Return acceleration, velocity, position, rotation
                 if (frameCount%10 == 0) {
@@ -627,6 +639,10 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                                         double deltaVelocity = std::abs(velocity - euglenaVelocities[e.ID]);
                                         double acceleration = deltaVelocity/elapsedTimeInMilliseconds.count();
                                         euglenaAccelerations[e.ID] = acceleration;
+                                        std::strcat(targetEuglenaAccelerationStr, std::to_string(e.ID).c_str());
+                                        std::strcat(targetEuglenaAccelerationStr, ":");
+                                        std::strcat(targetEuglenaAccelerationStr, std::to_string(acceleration).c_str());
+                                        std::strcat(targetEuglenaAccelerationStr, ";");
                                     } else {
                                         euglenaAccelerations[e.ID] = -1;
                                     }
@@ -637,6 +653,10 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                                 euglenaAccelerations[e.ID] = -1;
                             }
                             euglenaVelocities[e.ID] = velocity;
+                            std::strcat(targetEuglenaVelocityStr, std::to_string(e.ID).c_str());
+                            std::strcat(targetEuglenaVelocityStr, ":");
+                            std::strcat(targetEuglenaVelocityStr, std::to_string(velocity).c_str());
+                            std::strcat(targetEuglenaVelocityStr, ";");
                         } else {
                             euglenaVelocities[e.ID] = -1;
                         } 
@@ -741,15 +761,15 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
         //getEuglenaVelocityByID
         velocityID = 0;
-        targetEuglenaVelocity = 0;
+        memset(targetEuglenaVelocityStr, 0, 10000*sizeof(char));
 
         //getEuglenaAccelerationByID;
         accelerationID = 0;
-        targetEuglenaAcceleration = 0;
+        memset(targetEuglenaAccelerationStr, 0, 10000*sizeof(char));
 
         //getEuglenaRotationByID
         rotationID = 0;
-        targetEuglenaRotation = 0;
+        memset(targetEuglenaRotationStr, 0, 10000*sizeof(char));
 
         joystickDirection = 0;
         joystickIntensity = 0;

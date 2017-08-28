@@ -938,18 +938,22 @@
     // getEuglenaPositionByID
     getEuglenaPosID: 30,
     getEuglenaPositionReturn: "",
+    getEuglenaPositionCache: {},
 
     // getEuglenaVelocityByID
     getEuglenaVelocityID: 0,
     getEuglenaVelocityReturn: "",
+    getEuglenaVelocityCache: {},
 
     // getEuglenaAccelerationByID
     getEuglenaAccelerationID: 0,
     getEuglenaAccelerationReturn: "",
+    getEuglenaAccelerationCache: {},
 
     // getEuglenaRotationByID
     getEuglenaRotationID: 0,
     getEuglenaRotationReturn: "",
+    getEuglenaRotationCache: {},
 
     //Tag-Initialize
     initialize: function() {
@@ -1492,10 +1496,21 @@
       return Array.from(idSet);
     },
     getEuglenaAcceleration: function(id) {
-      //console.log('getEuglenaAccelerationByID function called.');
       app.mainView.getEuglenaAccelerationID = id;
-      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
-      return app.mainView.getEuglenaAccelerationReturn;
+      var idToAcceleration = {};
+      var eachAcceleration = app.mainView.getEuglenaAccelerationReturn.split(';');
+      for (var i = 0; i < eachAcceleration.length; i++) {
+        var idAndItem = eachAcceleration[i].split(':');
+        idToAcceleration[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+        app.mainView.getEuglenaAccelerationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+      }
+      if (id in idToAcceleration) {
+        return idToAcceleration[id];
+      } else if (id in app.mainView.getEuglenaAccelerationCache && app.mainView.getEuglenaAccelerationCache[id] !== -1) {
+        return app.mainView.getEuglenaAccelerationCache[id];
+      } else {
+        return -1;
+      }
     },
     getEuglenaPosition: function(id) {
       app.mainView.getEuglenaPosID = id;
@@ -1506,27 +1521,52 @@
         var splitArr = ((idAndItem[1].split(')').join(' ')).split('(').join(' ')).split(',');
         if (splitArr.length > 1) {
           idToPosition[parseInt(idAndItem[0])] = {x: parseInt(splitArr[0]), y: parseInt(splitArr[1])};
+          app.mainView.getEuglenaPositionCache[parseInt(idAndItem[0])] = {x: parseInt(splitArr[0]), y: parseInt(splitArr[1])};
         } 
       }
 
       if (id in idToPosition) {
         return idToPosition[id];
+      } else if (id in app.mainView.getEuglenaPositionCache && app.mainView.getEuglenaPositionCache[id] !== -1) {
+        return app.mainView.getEuglenaPositionCache[id];
       } else {
         return -1;
       }
       
     },
     getEuglenaRotation: function(id) {
-      //console.log('getEuglenaRotationByID function called.');
       app.mainView.getEuglenaRotationID = id;
-      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
-      return app.mainView.getEuglenaRotationReturn;
+      var idToRotation = {};
+      var eachRotation = app.mainView.getEuglenaRotationReturn.split(';');
+      for (var i = 0; i < eachRotation.length; i++) {
+        var idAndItem = eachRotation[i].split(':');
+        idToRotation[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+        app.mainView.getEuglenaRotationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+      }
+      if (id in idToRotation) {
+        return idToRotation[id];
+      } else if (id in app.mainView.getEuglenaRotationCache && app.mainView.getEuglenaRotationCache[id] !== -1) {
+        return app.mainView.getEuglenaRotationCache[id];
+      } else {
+        return -1;
+      }
     },
     getEuglenaVelocity: function(id) {
-      //console.log('getEuglenaVelocityByID function called.');
       app.mainView.getEuglenaVelocityID = id;
-      // TODO: There may be a lag before the actual value is processed in C++. Find a way to delay while processing?
-      return app.mainView.getEuglenaVelocityReturn;
+      var idToVelocity = {};
+      var eachVelocity = app.mainView.getEuglenaVelocityReturn.split(';');
+      for (var i = 0; i < eachVelocity.length; i++) {
+        var idAndItem = eachVelocity[i].split(':');
+        idToVelocity[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+        app.mainView.getEuglenaVelocityCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+      }
+      if (id in idToVelocity) {
+        return idToVelocity[id];
+      } else if (id in app.mainView.getEuglenaVelocityCache && app.mainView.getEuglenaVelocityCache[id] !== -1) {
+        return app.mainView.getEuglenaVelocityCache[id];
+      } else {
+        return -1;
+      }
     },
     getMaxScreenHeight: function() {
       //console.log('getMaxScreenHeight function called.');

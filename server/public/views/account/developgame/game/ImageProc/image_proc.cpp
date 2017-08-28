@@ -132,10 +132,10 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
     msg.Set( "EuglenaInRect", ((EuglenaProcessor*)processor.get())->getEuglenaInRectReturnVal );
     msg.Set( "EuglenaPositionsStr", ((EuglenaProcessor*)processor.get())->getAllEuglenaPositionsStr );
     msg.Set( "EuglenaIDsStr", ((EuglenaProcessor*)processor.get())->getAllEuglenaIDsStr );
-    msg.Set( "EuglenaAccelerationReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaAcceleration );
+    msg.Set( "EuglenaAccelerationReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaAccelerationStr );
     msg.Set( "EuglenaPositionReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaPositionStr );
-    msg.Set( "EuglenaVelocityReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaVelocity );
-    msg.Set( "EuglenaRotationReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaRotation );
+    msg.Set( "EuglenaVelocityReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaVelocityStr );
+    msg.Set( "EuglenaRotationReturn", ((EuglenaProcessor*)processor.get())->targetEuglenaRotationStr );
     PostMessage( msg );
 
     // Convert data to CMat
