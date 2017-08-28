@@ -287,7 +287,11 @@
                                                              functionArgs: $('#helperFunctionArgsInput').val().split(","),
                                                              fileName: app.mainView.gameName } )
               .done(function(data) {});
-        app.mainView.helperFunctionShown = false;
+      $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " saving help function " + $('#helperFunctionNameInput').val() + " ----- \n" } )
+        .done(function(data) {});
+      app.mainView.helperFunctionShown = false;
     });
 
     $('#btnSwitchSandbox').click(function() {
@@ -295,10 +299,18 @@
         $('#btnSwitchSandbox').html('Switch To Video Mode');
         app.mainView.sandboxVideo = false;
         $('#btnRecordVideoStream').hide();
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " switched to simulation sandbox mode ----- \n" } )
+        .done(function(data) {});
       } else {
         $('#btnSwitchSandbox').html('Switch To Simulation Mode');
         app.mainView.sandboxVideo = true;
         $('#btnRecordVideoStream').show();
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " switched to video sandbox mode ----- \n" } )
+        .done(function(data) {});
       }
     });
 
@@ -307,10 +319,18 @@
         $('#btnRecordVideoStream').html('Start Recording');
         app.mainView.sandboxVideoIsRecording = false;
         app.mainView.sandboxVideoPlaybackFrame = 1;
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " started recording sandbox video stream ----- \n" } )
+        .done(function(data) {});
       } else {
         $('#btnRecordVideoStream').html('Stop Recording');
         app.mainView.sandboxFrame = 1;
         app.mainView.sandboxVideoIsRecording = true;
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " stopped recording sandbox video stream ----- \n" } )
+        .done(function(data) {});
       }
     });
 
@@ -327,10 +347,18 @@
           app.mainView.helperCodeExpanded = false;
           $("#toggleHelperCodeSection").attr("src", "/media/arrow_right.jpg");
           $('#helperCodeRow').hide();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " closed helper function code box ----- \n" } )
+            .done(function(data) {});
         } else {
           app.mainView.helperCodeExpanded = true;
           $("#toggleHelperCodeSection").attr("src", "/media/arrow_down.jpg");
           $('#helperCodeRow').show();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " opened helper function code box ----- \n" } )
+            .done(function(data) {});
         }
       }
     });
@@ -342,11 +370,19 @@
           $("#toggleStartCodeSection").attr("src", "/media/arrow_right.jpg");
           $('#startCodeRow').hide();
           $('#startComment').hide();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " opened start code box ----- \n" } )
+            .done(function(data) {});
         } else {
           app.mainView.startCodeExpanded = true;
           $("#toggleStartCodeSection").attr("src", "/media/arrow_down.jpg");
           $('#startCodeRow').show();
           $('#startComment').show();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " closed start code box ----- \n" } )
+            .done(function(data) {});
         }
       }
     });
@@ -358,11 +394,19 @@
           $("#toggleRunCodeSection").attr("src", "/media/arrow_right.jpg");
           $('#runCodeRow').hide();
           $('#runComment').hide();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " opened run code box ----- \n" } )
+            .done(function(data) {});
         } else {
           app.mainView.runCodeExpanded = true;
           $("#toggleRunCodeSection").attr("src", "/media/arrow_down.jpg");
           $('#runCodeRow').show();
           $('#runComment').show();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " closed run code box ----- \n" } )
+            .done(function(data) {});
         }
       }
     });
@@ -374,11 +418,19 @@
           $("#toggleEndCodeSection").attr("src", "/media/arrow_right.jpg");
           $('#endCodeRow').hide();
           $('#endComment').hide();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " opened end code box ----- \n" } )
+            .done(function(data) {});
         } else {
           app.mainView.endCodeExpanded = true;
           $("#toggleEndCodeSection").attr("src", "/media/arrow_down.jpg");
           $('#endCodeRow').show();
           $('#endComment').show();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " closed end code box ----- \n" } )
+            .done(function(data) {});
         }
       }
     });
@@ -390,11 +442,20 @@
           $("#toggleJoystickCodeSection").attr("src", "/media/arrow_right.jpg");
           $('#joystickCodeRow').hide();
           $('#joystickComment').hide();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " opened joystick code box ----- \n" } )
+            .done(function(data) {});
         } else {
           app.mainView.joystickCodeExpanded = true;
           $("#toggleJoystickCodeSection").attr("src", "/media/arrow_down.jpg");
           $('#joystickCodeRow').show();
           $('#joystickComment').show();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " closed joystick code box ----- \n" } )
+            .done(function(data) {});
+
         }
       }
     });
@@ -406,11 +467,20 @@
           $("#toggleKeypressCodeSection").attr("src", "/media/arrow_right.jpg");
           $('#keypressCodeRow').hide();
           $('#keypressComment').hide();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " opened keypress code box ----- \n" } )
+            .done(function(data) {});
         } else {
           app.mainView.keypressCodeExpanded = true;
           $("#toggleKeypressCodeSection").attr("src", "/media/arrow_down.jpg");
           $('#keypressCodeRow').show();
           $('#keypressComment').show();
+          $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " closed keypress code box ----- \n" } )
+            .done(function(data) {});
+
         }
       }
     });
@@ -550,6 +620,10 @@
         $('#pageFooter').hide();
         $('#btnShowAPI').hide();
         app.mainView.isCodeShowing = false;
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " is hiding all code ----- \n" } )
+            .done(function(data) {});
       } else {
         $('#programDiv').removeClass('col-xs-12');
         $('#programDiv').addClass('col-xs-5');
@@ -561,6 +635,10 @@
         $('#pageFooter').show();
         $('#btnShowAPI').show();
         app.mainView.isCodeShowing = true;
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                    logTimestamp: Date.now().toString(),
+                                                    logText: "User " + app.mainView.userName + " is showing all code ----- \n" } )
+            .done(function(data) {});
       }
     });
     
