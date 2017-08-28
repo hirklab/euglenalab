@@ -170,7 +170,7 @@ init(function (err) {
 			app.scheduler.addExperiment(experiment, function () {
 
 			})
-		}, 1 * 60000); // send experiment every 10 minute
+		}, 1.5 * 60000); // send experiment every 10 minute
 
 
 		loop();

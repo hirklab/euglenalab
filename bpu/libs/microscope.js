@@ -87,7 +87,7 @@ Microscope.prototype.onConnected = function (socket, callback) {
 
 	socket.on(EVENTS.DISCONNECT, that.onDisconnected.bind(that));
 
-	that.state.connected = true;
+	that.state.isConnected = true;
 
 	if (that.state.status === STATES.CONNECTING) {
 		that.state.status = STATES.IDLE;
@@ -127,12 +127,18 @@ Microscope.prototype.onExperimentSet = function (payload, callback) {
 
 		that.state.experiment              = experiment;
 		that.state.experiment.actualEvents = [];
+
+		if(that.state.experiment.type == EXPERIMENT_TYPE.LIVE){
+			// no need to set separate event
+			// we should let events be sent whatever be the mode of experiment
+			// flexibility to be controlled by admin
+		}
 	} else {
 		// already has experiment -> faillll
 		err = 'microscope not idle';
 	}
 
-	that.onStatus();
+	that.onStatus(null);
 
 	if (callback) callback(err);
 };
@@ -163,11 +169,11 @@ Microscope.prototype.onExperimentRun = function (payload, callback) {
 		that.state.status = STATES.RUNNING;
 
 		async.series([
-			function (callback) {
+			function (cb) {
 				// that.board.startRecording();
 				// that.board.startProjector();
 
-				var events = that.state.experiment.proposedEvents;
+				var events = lodash.clone(that.state.experiment.proposedEvents);
 
 				var event = null;
 
@@ -179,21 +185,11 @@ Microscope.prototype.onExperimentRun = function (payload, callback) {
 						var now      = new Date().getTime();
 						var timeDiff = now - that.state.experiment.startedAt;
 
-						// if(timeDiff%100 == 50) logger.info(timeDiff);
-
-						if (event == null) {
-							// logger.info(timeDiff);
-
+						if (event == null && events.length > 0) {
 							event = events.shift();
-							// logger.info('waiting for');
-							// logger.info(event);
 						}
 
 						if (event && parseInt(event.time) <= parseInt(timeDiff)) {
-							logger.info(timeDiff);
-							// logger.info('running');
-							// logger.info(event);
-
 							//run the event now
 							var devices = Object
 								.keys(event)
@@ -207,126 +203,59 @@ Microscope.prototype.onExperimentRun = function (payload, callback) {
 									}
 								});
 
+							logger.info(event);
+							logger.info(timeDiff);
+							logger.info(devices);
 
-							// logger.info(devices);
 							that.onExecuteEvent(devices);
 
 							event = null;
 						}
 
-
 						if (event == null && events.length === 0 && (timeDiff / 1000) >= that.state.experiment.duration) {
 							clearInterval(loop);
-
-							return callback(null);
+							return cb(null);
 						}
 					} else {
 						clearInterval(loop);
-						return callback(null);
+						return cb(null);
 					}
-
 				}, 20); // run every 20 milliseconds
 
 			}
 		], function (err) {
-			// reconfigure device
-
-			// that.board.stopRecording();
-			// that.board.stopProjector();
-
 			if (err) {
-				// cancel experiment
+				logger.error('completing experiment');
 				logger.error(err);
-				that.onExperimentClear({
-					error: err
-				});
+
+				// cancel experiment
+				that.onExperimentFailed(err, callback);
 			} else {
-				that.onExperimentClear({});
-
-
+				that.onExperimentExecuted(null, callback);
 			}
 		})
 	}
-
-
-	// start time - update
-
-	// todo keep updating queueTime
-
-	// 	if (!app.didConfirmTimeoutRun && app.exp !== null) {
-	// 		app.didConfirmRun = true;
-	//
-	// 		//If Live Add setleds
-	// 		if (app.exp.group_experimentType === 'live') {
-	// 			//Set LEDs
-	// 			var ledsSet = function (lightData, cb_fn) {
-	// 				//Init
-	// 				var emitStr = app.socketStrs.bpu_runExpLedsSet;
-	// 				var retStr  = emitStr + 'Res';
-	// 				var resObj  = {err: null, bpuStatus: app.bpuStatus};
-	//
-	// 				//Log
-	// 				//app.logger.info(moduleName+' '+emitStr);
-	//
-	// 				//Run
-	// 				var timeNow       = new Date().getTime();
-	// 				lightData.setTime = timeNow;
-	// 				var doReset       = false;
-	// 				resObj            = app.bpu.ledsSet(lightData, doReset);
-	// 				resObj.err        = null;
-	// 				app.exp.exp_eventsRan.push(resObj);
-	// 				//Return
-	// 				if (typeof cb_fn === 'function') cb_fn(resObj.err, resObj);
-	// 			};
-	//
-	// 			//Listener
-	// 			socket.on(app.socketStrs.bpu_runExpLedsSet, ledsSet);
-	// 		}
-	//
-	// 		//Run
-	// 		var options = {};
-	// 		app.logger.debug(moduleName + ' script_runExperiment start');
-	// 		app.script_runExperiment(app, deps, options, app.exp, function (err) {
-	// 			app.logger.debug(moduleName + ' script_runExperiment end');
-	//
-	// 			//If Live Add setleds
-	// 			if (app.exp.group_experimentType === 'live') {
-	// 				socket.removeListener(app.socketStrs.bpu_runExpLedsSet, ledsSet);
-	// 			}
-	//
-	// 			if (err) {
-	// 				app.logger.error(moduleName + ' script_runExperiment ' + err);
-	// 			} else {
-	// 				// if no error set flag for pick, used in get status ping
-	// 				if (app.bpuStatus === app.bpuStatusTypes.finalizingDone) {
-	// 					app.isExperimentOverAndWaitingForPickup = true;
-	// 				}
-	// 			}
-	// 		});
-	//
-	// 		//Return
-	// 		if (typeof callback === 'function') callback({err: null});
-	// 	} else {
-	// 		//Return
-	// 		if (typeof callback === 'function') callback('already canceled', null);
-	// 	}
-
-
-	// //Build Series
-	// var funcs = [];
-	// funcs.push(checkExp);
-	// funcs.push(experimentLoop);
 };
 
 Microscope.prototype.onStimulus = function (payload, callback) {
 	var that = this;
 
+	var currentTime = new Date();
+
 	if (that.isRunning()) {
 
 		if ('event' in payload) {
-			that.onExecuteEvent(payload.event);
+			// push to queue of events which will be executed in loop
+			that.state.experiment.proposedEvents.push({
+				time:  currentTime,
+				event: payload.event
+			});
+
+			// that.onExecuteEvent(payload.event);
 		}
 	}
+
+	if (callback) callback(null);
 };
 
 Microscope.prototype.onExecuteEvent = function (payload, callback) {
@@ -342,50 +271,51 @@ Microscope.prototype.onExecuteEvent = function (payload, callback) {
 		time:  currentTime,
 		event: payload
 	});
+
+	if (callback) callback(null);
 };
 
-Microscope.prototype.onExperimentExecuted = function (payload, callback) {
+Microscope.prototype.onExperimentExecuted = function (error, callback) {
 	var that = this;
 
 	that.state.experiment.status     = EXPERIMENT_STATUS.EXECUTED;
 	that.state.experiment.executedAt = new Date();
 
+	that.onExperimentClear(error, callback);
 
 };
 
-Microscope.prototype.onExperimentFail = function (payload, callback) {
+Microscope.prototype.onExperimentFailed = function (error, callback) {
 	var that = this;
 
 	that.state.experiment.status   = EXPERIMENT_STATUS.FAILED;
 	that.state.experiment.failedAt = new Date();
 
-	if (payload.hasOwnProperty('error') && payload.error) {
-		that.state.experiment.reason = payload.error;
+	if (error) {
+		that.state.experiment.reason = error;
 	}
 
-
+	that.onExperimentClear(error, callback);
 };
 
 // call this event when experiment needs to be removed from queue or cancelled or failed
 // it saves the experiment and clears the queue for new experiment
-Microscope.prototype.onExperimentClear = function (payload, callback) {
+Microscope.prototype.onExperimentClear = function (error, callback) {
 	var that = this;
 
 	if (that.isRunning()) {
-		async.series([
-			function (callback) {
+		async.waterfall([
+			function (cb) {
 				// todo save that experiment
 
-				/ funcs.push(finalizeData);
+				// funcs.push(finalizeData);
 				// funcs.push(movePackageToMountedDrive);
 
-				if(callback) callback(null);
-			},
-			function (err, callback) {
-				if (err) {
-					logger.error(err);
-				}
+				logger.info('saving experiment');
 
+				if(cb) cb(null);
+			},
+			function (err, cb) {
 				// todo : other cleanup activities if any
 
 				//reset board
@@ -395,14 +325,14 @@ Microscope.prototype.onExperimentClear = function (payload, callback) {
 				that.state.status     = STATES.IDLE;
 				that.state.queueTime  = 0;
 
-				if(callback) callback(null);
+				if(cb) cb(err);
 			}
-		], function (err) {
+		], function (err, result) {
 			if (err) {
 				logger.error(err);
 			}
 
-			that.onStatus();
+			that.onStatus(callback);
 		});
 	}
 };
@@ -432,6 +362,8 @@ Microscope.prototype.onMaintenance = function (payload, callback) {
 			that.state.status = STATES.IDLE;
 		}, duration);
 	}
+
+	if (callback) callback(null);
 };
 
 Microscope.prototype.onDisconnected = function (reason) {
@@ -440,7 +372,7 @@ Microscope.prototype.onDisconnected = function (reason) {
 	logger.error('disconnected due to ' + reason);
 
 	that.state.status    = STATES.CONNECTING;
-	that.state.connected = false;
+	that.state.isConnected = false;
 
 	that.sendMessage(MESSAGES.STATUS, that.status());
 };
@@ -476,18 +408,16 @@ Microscope.prototype.onMessage = function (message, callback) {
 			that.onStimulus(payload);
 			break;
 
-		case MESSAGES.EXPERIMENT_CLEAR:
-			that.onExperimentClear(payload);
-			break;
-
 		case MESSAGES.MAINTENANCE:
 			that.onMaintenance(payload);
 			break;
 
 		default:
-			logger.error('invalid message: message type not handled');
+			logger.error('invalid message: type not handled');
 			break;
 	}
+
+	if (callback) callback(null);
 };
 
 Microscope.prototype.onError = function (payload) {
@@ -499,12 +429,12 @@ Microscope.prototype.sendMessage = function (type, payload) {
 	newMessage.type    = type;
 	newMessage.payload = payload;
 
-	logger.debug('=============[M » C]=============');
-	logger.debug('type: ', type);
-
-	if (newMessage.payload) {
-		logger.debug('payload: ', newMessage.payload);
-	}
+	// logger.debug('=============[M » C]=============');
+	// logger.debug('type: ', type);
+	//
+	// if (newMessage.payload) {
+	// 	logger.debug('payload: ', newMessage.payload);
+	// }
 
 	this.server.emit(EVENTS.MESSAGE, newMessage);
 };
@@ -516,7 +446,7 @@ Microscope.prototype.status = function () {
 
 		var now = new Date().getTime();
 
-		logger.info((now - that.state.experiment.startedAt));
+		// logger.info((now - that.state.experiment.startedAt));
 
 
 		var elapsed = ((now - that.state.experiment.startedAt) / 1000);

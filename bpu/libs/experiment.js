@@ -33,7 +33,6 @@ Experiment.prototype.save = function(){
 // 			}
 // 		});
 // 	});
-//
 // };
 // var movePackageToMountedDrive = function(callback) {
 // 	num++;

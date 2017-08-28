@@ -63,6 +63,8 @@ Device.prototype.isValid = function (value) {
 			break;
 	}
 
+	// logger.debug('is valid: ', isValid);
+
 	return isValid;
 };
 
