@@ -987,14 +987,14 @@
         app.mainView.parseRunCode(app.mainView.gameRunCode);
       }
 
-      if (app.mainView.sandboxVideoIsRecording) {
+      if (app.mainView.sandboxVideoIsRecording && app.mainView.sandboxFrame % 100000 === 0) {
         $.post('/account/developgame/saveframe/', { userName: app.mainView.userName,
                                                     bpuAddress:  app.mainView.bpuAddress,
-                                                    imageNr: app.mainView.sandboxFrame,
+                                                    imageNr: app.mainView.sandboxFrame / 100000,
                                                     fileName: app.mainView.sandboxVideoName } )
               .done(function(data) {});
-        app.mainView.sandboxFrame++;
       }
+      app.mainView.sandboxFrame++;
     },
 
     /*
