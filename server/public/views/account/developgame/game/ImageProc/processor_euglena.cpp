@@ -148,7 +148,7 @@ class EuglenaProcessor : public Processor {
 
         //getEuglenaPositionByID
         int positionID;
-        char targetEuglenaPositionStr[100];
+        char targetEuglenaPositionStr[10000];
 
         //getEuglenaVelocityByID
         int velocityID;
@@ -557,7 +557,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         memset(getAllEuglenaIDsStr, 0, 10000*sizeof(char));
         std::strcpy(getAllEuglenaIDsStr, ";");
 
-        memset(targetEuglenaPositionStr, 0, 100*sizeof(char));
+        memset(targetEuglenaPositionStr, 0, 10000*sizeof(char));
         std::strcpy(targetEuglenaPositionStr, " ");
 
         int position = -1;
@@ -580,13 +580,14 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 // std::strcat(targetEuglenaPositionStr, ",");
                 // std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
                 // std::strcat(targetEuglenaPositionStr, "!!");
-                if (positionID == e.ID) {
-                    //std::strcat(targetEuglenaPositionStr, "(");
-                    std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
-                    std::strcat(targetEuglenaPositionStr, ",");
-                    std::strcat(targetEuglenaPositionStr, std::to_string(yPosition).c_str());
-                    //std::strcat(targetEuglenaPositionStr, ");");
-                }
+
+                std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
+                std::strcat(targetEuglenaPositionStr, ": (");
+                std::strcat(targetEuglenaPositionStr, std::to_string(xPosition).c_str());
+                std::strcat(targetEuglenaPositionStr, ",");
+                std::strcat(targetEuglenaPositionStr, std::to_string(yPosition).c_str());
+                std::strcat(targetEuglenaPositionStr, ");");
+
                 cv::Point2f currPosition(xPosition, yPosition);
                 if (viewEuglenaPaths) {
                     e.tracker.drawPath(im);
@@ -736,7 +737,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
         //getEuglenaPositionByID
         positionID = 0;
-        memset(targetEuglenaPositionStr, 0, 100*sizeof(char));
+        memset(targetEuglenaPositionStr, 0, 10000*sizeof(char));
 
         //getEuglenaVelocityByID
         velocityID = 0;

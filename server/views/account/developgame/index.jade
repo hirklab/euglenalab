@@ -729,36 +729,37 @@ block body
                   br
                   |for (var i = 0; i < euglenaIDs.length; i++) {
                   br
-                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i] + ', Acceleration: ' + getEuglenaAcceleration(euglenasInRect[i]));
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenaIDs[i] + ', Acceleration: ' + getEuglenaAcceleration(euglenaIDs[i]));
                   br
                   |}
 
-                //- br
-                //- br
+                br
+                br
 
-                //- b getEuglenaPosition
-                //- |(
-                //- i id
-                //- |)
-                //- br
-                //- |Input(s):
-                //- br
-                //- i id
-                //- |, a number
-                //- br
-                //- |Get the position (in window coordinates) of the Euglena based on Euglena ID.
-                //- br
-                //- |Returns: a number
-                //- br
-                //- i Example:
-                //- br
-                //- |var euglenaIDs = getAllEuglenaIDs(); 
-                //- br
-                //- |for (var i = 0; i < euglenaIDs.length; i++) {
-                //- br
-                //- |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i] + ', X Position: ' + getEuglenaPosition(euglenasInRect[i]).x);
-                //- br
-                //- |}
+                b getEuglenaPosition
+                |(
+                i id
+                |)
+                br
+                |Input(s):
+                br
+                i id
+                |, a number
+                br
+                |Get an object containing the X and Y position of the Euglena based on Euglena ID.
+                br
+                |Returns: a number
+                br
+                i 
+                  |Example:
+                  br
+                  |var euglenaIDs = getAllEuglenaIDs(); 
+                  br
+                  |for (var i = 0; i < euglenaIDs.length; i++) {
+                  br
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenaIDs[i] + ', X-position: ' + getEuglenaPosition(euglenaIDs[i]).x);
+                  br
+                  |}
 
                 br
                 br
@@ -784,7 +785,7 @@ block body
                   br
                   |for (var i = 0; i < euglenaIDs.length; i++) {
                   br
-                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i] + ', Rotation: ' + getEuglenaRotation(euglenasInRect[i]));
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenaIDs[i] + ', Rotation: ' + getEuglenaRotation(euglenaIDs[i]));
                   br
                   |}
 
@@ -812,7 +813,7 @@ block body
                   br
                   |for (var i = 0; i < euglenaIDs.length; i++) {
                   br
-                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenasInRect[i] + ', Velocity: ' + getEuglenaVelocity(euglenasInRect[i]));
+                  |&nbsp;&nbsp;&nbsp;&nbsp;console.log('ID: ' + euglenaIDs[i] + ', Velocity: ' + getEuglenaVelocity(euglenaIDs[i]));
                   br
                   |}
 
