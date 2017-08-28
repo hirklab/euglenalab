@@ -446,7 +446,7 @@
                     } else {
                         liveMsg += 'Wait time : ' + bpuLiveSecondsWaitTime + ' seconds.';
                     }
-                    //isLiveDisabled = true;
+                    isLiveDisabled = true;
 
                     //Queue Live
                 } else if (updateObj.liveQueueExp !== null && updateObj.liveQueueExp !== undefined) {
@@ -457,7 +457,7 @@
                     } else {
                         liveMsg += 'Wait time : ' + liveSecondsWaitTime + ' seconds.';
                     }
-                    //isLiveDisabled = true;
+                    isLiveDisabled = true;
                 }
                 //Set Live Message
                 app.liveJoinView.setJoinLiveNextLabel(liveMsg);
@@ -504,14 +504,14 @@
                     isLiveDisabled = false;
                     isTextDisabled = false;
                 }
-                //app.liveJoinView.disableJoinLiveNextButton(isLiveDisabled, 'app.mainView.server update');
+                app.liveJoinView.disableJoinLiveNextButton(isLiveDisabled, 'app.mainView.server update');
 
                 //Set text join button
                 app.textSubmitView.disableSubmitTextNextButton(isTextDisabled, 'app.mainView.server update');
 
                 //Set text/live join button for bpu view
                 app.mainView.bpus.forEach(function(bpu) {
-                    app.bpuImageView.disableLiveButton(bpu.index, isLiveDisabled, 'app.mainView.server update');
+                    app.bpuImageView.disableLiveButton(bpu.index, false, 'app.mainView.server update');
                     app.bpuImageView.disableTextButton(bpu.index, isTextDisabled, 'app.mainView.server update');
                 });
             }
