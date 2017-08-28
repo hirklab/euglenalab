@@ -310,7 +310,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
         } else {
 
-            // SIULATION MODE
+            // SIMULATION MODE
 
             cv::rectangle(im, cv::Point(0.0, 0.0), cv::Point(640.0, 480.0), cv::Scalar(0, 0, 0, 255), -1);
 
@@ -363,7 +363,11 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             //cv::putText(im, std::to_string(joystickDirection), cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
             for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
                 // Add LED stimulus effects.
-                euglenaAnglesSandbox[i] = ((1000.0 - joystickIntensity)*euglenaAnglesSandbox[i] + joystickIntensity*(joystickDirection*cos(joystickDirection))) / 1000.0;
+                if (joystickDirection >= 0 && joystickDirection < 180) {
+                    euglenaAnglesSandbox[i] = ((1000.0 - joystickIntensity)*euglenaAnglesSandbox[i] + joystickIntensity*(180-joystickDirection)) / 1000.0;
+                } else if (joystickDirection >= 180 && joystickDirection <= 360) {
+                    euglenaAnglesSandbox[i] = ((1000.0 - joystickIntensity)*euglenaAnglesSandbox[i] + joystickIntensity*(540-joystickDirection)) / 1000.0;
+                }
                 // Increase position by r*cos(theta) in x direction and r*sin(theta) in y direction.
                 euglenaPositionsSandbox[i].x += euglenaVelocitiesSandbox[i]*cos(euglenaAnglesSandbox[i] * PI / 180.0);
                 euglenaPositionsSandbox[i].y += euglenaVelocitiesSandbox[i]*sin(euglenaAnglesSandbox[i] * PI / 180.0);
@@ -379,6 +383,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 }
             }
 
+            // Draw Euglena.
             for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
                 cv::ellipse(im, euglenaPositionsSandbox[i], cv::Size(20, 4), euglenaAnglesSandbox[i], 0.0, 360.0, cv::Scalar(0, 255, 0, 255), -1);
             }
