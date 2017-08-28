@@ -308,7 +308,6 @@
         app.mainView.sandboxVideoIsRecording = false;
         app.mainView.sandboxVideoPlaybackFrame = 1;
       } else {
-        app.mainView.sandboxVideoHasRecorded = true;
         $('#btnRecordVideoStream').html('Stop Recording');
         app.mainView.sandboxFrame = 1;
         app.mainView.sandboxVideoIsRecording = true;
@@ -987,14 +986,20 @@
         app.mainView.parseRunCode(app.mainView.gameRunCode);
       }
 
-      if (app.mainView.sandboxVideoIsRecording && app.mainView.sandboxFrame % 100000000 === 0) {
-        $.post('/account/developgame/saveframe/', { userName: app.mainView.userName,
+      if (app.mainView.sandboxVideoIsRecording) {
+        //console.log("saving frame...");
+        app.mainView.sandboxFrame++;
+        if (app.mainView.sandboxFrame % 50 === 0) {
+          $.post('/account/developgame/saveframe/', { userName: app.mainView.userName,
                                                     bpuAddress:  app.mainView.bpuAddress,
-                                                    imageNr: app.mainView.sandboxFrame / 100000000,
+                                                    imageNr: app.mainView.sandboxFrame / 50,
                                                     fileName: app.mainView.sandboxVideoName } )
-              .done(function(data) {});
+              .done(function(data) {
+                app.mainView.sandboxVideoHasRecorded = true;
+              });
+
+        }
       }
-      app.mainView.sandboxFrame++;
     },
 
     /*
