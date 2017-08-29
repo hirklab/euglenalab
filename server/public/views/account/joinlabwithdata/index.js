@@ -504,6 +504,11 @@
                     isLiveDisabled = false;
                     isTextDisabled = false;
                 }
+
+                if (!isLiveDisabled) {
+                    $('#btnReturnToSession').prop('disabled', true);
+                }
+
                 app.liveJoinView.disableJoinLiveNextButton(isLiveDisabled, 'app.mainView.server update');
 
                 //Set text join button
@@ -511,7 +516,7 @@
 
                 //Set text/live join button for bpu view
                 app.mainView.bpus.forEach(function(bpu) {
-                    app.bpuImageView.disableLiveButton(bpu.index, false, 'app.mainView.server update');
+                    app.bpuImageView.disableLiveButton(bpu.index, isLiveDisabled, 'app.mainView.server update');
                     app.bpuImageView.disableTextButton(bpu.index, isTextDisabled, 'app.mainView.server update');
                 });
             }
