@@ -79,6 +79,8 @@ class EuglenaProcessor : public Processor {
         double joystickDirection = 0;
 
         int videoFileCount = 0;
+
+        int frameIterations = 0;
         
         // Euglena tracking variables
         std::vector<EuglenaObject> trackedEuglenas;
@@ -296,7 +298,6 @@ void KFTracker::drawPath(cv::Mat img) {
 }
 
 cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
-    printf("Processing images...");
 
     // Draw simulation on top of image if in sandbox mode.
     if (sandboxMode) {
@@ -478,6 +479,12 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         // int sizeOfTrackedVector = trackedEuglenas.size();
         // float costMatrix[sizeOfContourVector][sizeOfTrackedVector];
 
+
+        frameIterations++;
+        if (frameIterations % 10000 == 0) {
+            frameIterations = 0;
+            return im;
+        }
         
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
         for (auto &c : contours) {              // Detect all contours on the screen
