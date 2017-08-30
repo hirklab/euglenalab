@@ -81,7 +81,7 @@ exports.find = function(req, res, next) {
         $in: outcome.user.groups
       },
     });
-    query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores');
+    query.select('isOn bpuStatus index name magnification allowedGroups localAddr publicAddr bpu_processingTime session liveBpuExperiment performanceScores').sort('index');
     query.exec(function(err, docs) {
       if (err) {
         return callback('getBpus:' + err);
