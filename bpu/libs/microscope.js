@@ -12,6 +12,7 @@ var lodash     = require('lodash');
 
 var logger = require('./logging');
 var Board  = require('./board');
+var Experiment  = require('./experiment');
 
 var constants         = require('./constants');
 var EVENTS            = constants.EVENTS;
@@ -120,15 +121,13 @@ Microscope.prototype.onExperimentSet = function (payload, callback) {
 		that.state.status = STATES.QUEUED;
 
 		var experiment = payload.experiment;
-		// todo: create a folder to save
-		// todo: get events to run
 		experiment.status      = EXPERIMENT_STATUS.QUEUED;
 		experiment.submittedAt = new Date();
 
 		that.state.experiment              = experiment;
 		that.state.experiment.actualEvents = [];
 
-		if(that.state.experiment.type == EXPERIMENT_TYPE.LIVE){
+		if (that.state.experiment.type == EXPERIMENT_TYPE.LIVE) {
 			// no need to set separate event
 			// we should let events be sent whatever be the mode of experiment
 			// flexibility to be controlled by admin
@@ -170,12 +169,12 @@ Microscope.prototype.onExperimentRun = function (payload, callback) {
 
 		async.series([
 			function (cb) {
-				// that.board.startRecording();
-				// that.board.startProjector();
-
 				var events = lodash.clone(that.state.experiment.proposedEvents);
 
 				var event = null;
+
+				// that.board.startRecording();
+				// that.board.startProjector();
 
 				var loop = setInterval(function () {
 					that.onStatus();
@@ -214,13 +213,13 @@ Microscope.prototype.onExperimentRun = function (payload, callback) {
 
 						if (event == null && events.length === 0 && (timeDiff / 1000) >= that.state.experiment.duration) {
 							clearInterval(loop);
-							return cb(null);
+							cb(null);
 						}
 					} else {
 						clearInterval(loop);
-						return cb(null);
+						cb(null);
 					}
-				}, 20); // run every 20 milliseconds
+				}, 10); // run every 20 milliseconds
 
 			}
 		], function (err) {
@@ -251,6 +250,7 @@ Microscope.prototype.onStimulus = function (payload, callback) {
 				event: payload.event
 			});
 
+			// do not execute here, just push it to events to be executed
 			// that.onExecuteEvent(payload.event);
 		}
 	}
@@ -306,14 +306,8 @@ Microscope.prototype.onExperimentClear = function (error, callback) {
 	if (that.isRunning()) {
 		async.waterfall([
 			function (cb) {
-				// todo save that experiment
-
-				// funcs.push(finalizeData);
-				// funcs.push(movePackageToMountedDrive);
-
 				logger.info('saving experiment');
-
-				if(cb) cb(null);
+				Experiment.save(that.state.experiment, cb);
 			},
 			function (err, cb) {
 				// todo : other cleanup activities if any
@@ -325,7 +319,7 @@ Microscope.prototype.onExperimentClear = function (error, callback) {
 				that.state.status     = STATES.IDLE;
 				that.state.queueTime  = 0;
 
-				if(cb) cb(err);
+				cb(err);
 			}
 		], function (err, result) {
 			if (err) {
@@ -371,7 +365,7 @@ Microscope.prototype.onDisconnected = function (reason) {
 
 	logger.error('disconnected due to ' + reason);
 
-	that.state.status    = STATES.CONNECTING;
+	that.state.status      = STATES.CONNECTING;
 	that.state.isConnected = false;
 
 	that.sendMessage(MESSAGES.STATUS, that.status());
@@ -445,9 +439,6 @@ Microscope.prototype.status = function () {
 	if (that.isRunning()) {
 
 		var now = new Date().getTime();
-
-		// logger.info((now - that.state.experiment.startedAt));
-
 
 		var elapsed = ((now - that.state.experiment.startedAt) / 1000);
 

@@ -1,68 +1,118 @@
-function Experiment(){
+var async = require('async');
+var fs    = require('fs');
 
-}
+var constants = require('./constants');
+var utils     = require("./utils");
+var logger = require('./logging');
+var DATA      = constants.DATA;
+var EXPERIMENT_STATUS      = constants.EXPERIMENT_STATUS;
 
-Experiment.prototype.save = function(){
+module.exports = {
+	save: function (exp, callback) {
+		"use strict";
 
+		var experiment      = exp || {};
+		experiment.metadata = experiment.metadata || {};
+
+		var experimentFolder = DATA.EXPERIMENT_FOLDER;
+
+		if (experiment !== null) {
+			var experimentName = experiment._id || "noExpId";
+			var filePath       = experimentFolder + "/" + experimentName + ".json";
+
+			experiment.metadata.savedAt           = new Date();
+			experiment.metadata.lightDataPath     = experimentFolder + "/" + DATA.LIGHT_DATA_FILENAME;
+			experiment.metadata.lightMetadataPath = experimentFolder + "/" + DATA.LIGHT_METADATA_FILENAME;
+			experiment.metadata.path              = filePath;
+			experiment.metadata.name              = experimentName;
+
+			var lightData = {
+				actualEvents: experiment.actualEvents
+			};
+
+			var lightMetadata = {
+				metadata:     experiment.metadata,
+				actualEvents: experiment.actualEvents
+			};
+
+			async.waterfall([
+					function (cb) {
+						logger.debug(cb);
+
+						var cmdStr = 'mkdir -p ' + experimentFolder;
+
+						utils.command(cmdStr, cb);
+					},
+					function (err, cb) {
+						logger.debug(err);
+						logger.debug(cb);
+
+						fs.readdir(experimentFolder, cb);
+					},
+					function (err, files, cb) {
+						logger.debug(err);
+						logger.debug(cb);
+
+						if (err) {
+							experiment.metadata.numFrames = -1;
+						} else {
+							var images                    = files.filter(function (filename) {
+								return filename.search('.jpg') > -1;
+							});
+							experiment.metadata.numFrames = images.length;
+						}
+
+						fs.writeFile(filePath, JSON.stringify(experiment, null, 4), cb);
+					},
+					function (err, cb) {
+						logger.debug(err);
+						logger.debug(cb);
+
+						fs.writeFile(experiment.metadata.lightDataPath, JSON.stringify(lightData, null, 4), cb);
+					},
+					function (err, cb) {
+						logger.debug(err);
+						logger.debug(cb);
+
+						fs.writeFile(experiment.metadata.lightMetadataPath, JSON.stringify(lightMetadata, null, 4), cb);
+					},
+					function (err, cb) {
+						logger.debug(err);
+						logger.debug(cb);
+
+						var mountedFolder = DATA.MOUNTED_FOLDER + '/' + experiment._id;
+
+						var mkdirCmd    = 'mkdir -p ' + mountedFolder;
+						var moveCmd     = 'cp ' + experimentFolder + '/' + '*' + ' ' + mountedFolder;
+						var rmTempFiles = 'rm -f ' + experimentFolder + '/*.jpg' + ' && ' + 'rm -f ' + experimentFolder + '/*.json';
+
+						var cmdStr = mkdirCmd + ' && ' + moveCmd + ' && ' + rmTempFiles;
+
+						utils.command(cmdStr, function (err) {
+							if (err) {
+								logger.error(err);
+
+								experiment.status      = EXPERIMENT_STATUS.FAILED;
+								experiment.reason = err;
+							}
+
+							cb(err);
+						});
+					}
+				],
+
+				function (err) {
+					callback(err, experiment);
+				}
+			)
+			;
+		}
+	}
 };
 
 // mark experiment done and continue with post processing
 // see if it can be kept in processing queue or pass this part to controller
 
-// var finalizeData = function(callback) {
-//
-// 	app.bpuStatus = app.bpuStatusTypes.finalizing;
-// 	num++;
-// 	var fName = num + ' finalizeData';
-//
-// 	app.exp.exp_metaData.numFrames = -1;
-// 	deps.fs.readdir(app.expDataDir, function(err, files) {
-// 		if (err) {
-// 			app.exp.exp_metaData.numFrames = -1;
-// 		} else {
-// 			var jpgs = files.filter(function(filename) {
-// 				return filename.search('.jpg') > -1;
-// 			});
-// 			app.exp.exp_metaData.numFrames = jpgs.length;
-// 		}
-// 		app.db.BpuExperiment.save(app.exp, function(err) {
-// 			if (err) {
-// 				return callback('script_fakeMongo ' + err);
-// 			} else {
-// 				return callback(null);
-// 			}
-// 		});
-// 	});
-// };
-// var movePackageToMountedDrive = function(callback) {
-// 	num++;
-// 	var fName = num + ' movePackageToMountedDrive';
-// 	app.logger.debug(moduleName + ' ' + fName + ' ' + 'start');
-//
-// 	//Directories
-// 	var saveImageFolder = app.expDataDir || '/home/pi/bpuData/tempExpData';
-// 	var finalPath = app.mountedDataDir + '/' + app.exp._id;
-// 	//Commands
-// 	//var rmPreCmd='rm -r '+finalPath;
-// 	var mkdirCmd = 'mkdir ' + finalPath;
-// 	//var changeOwnershipCmd='chown pi:bpudata '+finalPath;   //change ownership was removed since we're not running under sudo
-// 	var moveCmd = 'cp ' + saveImageFolder + '/' + '*' + ' ' + finalPath;
-// 	var rmTempFiles = 'rm ' + saveImageFolder + '/*.jpg' + ' && ' + 'rm ' + saveImageFolder + '/*.json';
-// 	//Final and Run
-// 	//var cmdStr=mkdirCmd+' && '+changeOwnershipCmd+' && '+moveCmd+ ' && '+rmTempFiles;
-// 	var cmdStr = mkdirCmd + ' && ' + moveCmd + ' && ' + rmTempFiles;
-// 	runBashCommand(cmdStr, function(err) {
-// 		if (err) {
-// 			app.bpuStatus = app.bpuStatusTypes.finalizingFailed;
-// 			app.bpuStatusError = fName + ' ' + err;
-// 			err = fName + ' ' + err;
-// 			return callback(err);
-// 		} else {
-// 			app.bpuStatus = app.bpuStatusTypes.finalizingDone;
-// 			return callback(null);
-// 		}
-// 	});
-// };
 
 // var finishInit = function () {
 // 	//Series Vars
@@ -203,56 +253,6 @@ Experiment.prototype.save = function(){
 // };
 
 
-// todo look into this function
-Microscope.prototype.onSaveExperiment = function (exp) {
-	"use strict";
-
-	var o_savePath = options.savePath || '/home/pi/bpuData/tempExpData';
-
-	if (exp !== null) {
-		exp.exp_metaData.saveTime          = new Date();
-		exp.exp_metaData.lightDataSoapPath = o_savePath + "/" + "lightdata.json";
-		exp.exp_metaData.lightDataPath     = o_savePath + "/" + "lightdata_meta.json";
-		var saveName                       = exp._id || "noExpId";
-		var saveFullPath                   = o_savePath + "/" + saveName + ".json";
-		exp.exp_metaData.ExpFullPath       = saveFullPath;
-		exp.exp_metaData.ExpName           = saveName;
-		//Save Full Exp Schema
-		fs.writeFile(exp.exp_metaData.ExpFullPath, JSON.stringify(exp, null, 4), function (err) {
-			if (err) {
-				callback('writeFile ExpFullPath ' + err, null);
-			} else {
-				//Save Exp Light Data with Meta
-				var lightDataWithMeta = {
-					metaData:    exp.exp_metaData,
-					eventsToRun: exp.exp_eventsRan,
-				};
-
-				fs.writeFile(exp.exp_metaData.lightDataPath, JSON.stringify(lightDataWithMeta, null, 4), function (err) {
-					if (err) {
-						callback('writeFile lightDataPath ' + err, null);
-					} else {
-						//Save Exp Light Data
-						var lightData = {
-							eventsToRun: exp.exp_eventsRan,
-						};
-						fs.writeFile(exp.exp_metaData.lightDataSoapPath, JSON.stringify(lightData, null, 4), function (err) {
-							if (err) {
-								callback('writeFile lightDataSoapPath ' + err, null);
-							} else {
-								callback(null, exp);
-							}
-						});
-					}
-				});
-			}
-		});
-	}
-};
-
-
-
-
 // //Main Functions
 // _checkFolders = function (fldsToCheck, callback) {
 // 	var checkFolders = function () {
@@ -351,6 +351,7 @@ Microscope.prototype.onSaveExperiment = function (exp) {
 // 	});
 // 	return returnEvent;
 // };
+
 // var _checkEventsArray = function(eventsToRun) {
 // 	var MaxExperimentTime = 5 * 60 * 1000; //5 minutes
 // 	var MinTimeBetweenEvents = 10; //ms
@@ -417,6 +418,7 @@ Microscope.prototype.onSaveExperiment = function (exp) {
 // 		eventsToRun: final_eventsToRun
 // 	};
 // };
+
 // var setNewExperiment = function(newExp, callback) {
 // 	var savePath = mongoose.getSavePath();
 // 	var saveName = newExp._id + "_" + newExp.user.name + ".json";
@@ -436,6 +438,7 @@ Microscope.prototype.onSaveExperiment = function (exp) {
 // 		doFakeBpu: app.config.doFakeBpu,
 // 		doCamera: app.config.doCamera,
 // 	};
+//
 // 	var setGroupFlags = function(cb_fn) {
 // 		var compiledSettings = {};
 // 		Object.keys(newExp.groupSettings).forEach(function(key) {
@@ -443,6 +446,7 @@ Microscope.prototype.onSaveExperiment = function (exp) {
 // 				compiledSettings[key] = false;
 // 			}
 // 		});
+//
 // 		//Filter Groups by bpu
 // 		var tempGroups = JSON.parse(JSON.stringify(newExp.usergroups));
 // 		var groups = [];
@@ -453,6 +457,7 @@ Microscope.prototype.onSaveExperiment = function (exp) {
 // 				}
 // 			});
 // 		});
+//
 // 		//Set Group permissions
 // 		var didFindOneGroup = false;
 // 		var findNext = function() {
@@ -487,6 +492,7 @@ Microscope.prototype.onSaveExperiment = function (exp) {
 // 			cb_fn('no groups');
 // 		}
 // 	};
+//
 // 	setGroupFlags(function(err) {
 // 		if (err) {
 // 			callback(err, null);

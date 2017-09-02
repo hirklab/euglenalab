@@ -2,26 +2,26 @@ var os  = require('os');
 var env = require('dotenv');
 env.config();
 
-var MACHINE            = process.env.MACHINE || 'ubuntu';
-var IS_FAKE            = (MACHINE !== 'raspberrypi');
-module.exports.IS_FAKE = IS_FAKE;
+var MACHINE  = process.env.MACHINE || 'ubuntu';
+var IS_FAKE  = (MACHINE !== 'raspberrypi');
+var NAME     = process.env.NAME || 'DEVICE_MISSING_NAME';
+var HOME_DIR = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
 
-var NAME                   = process.env.NAME || 'DEVICE_MISSING_NAME';
+var DATA = {
+	ROOT_FOLDER:                    HOME_DIR + '/bpuData',
+	EXPERIMENT_FOLDER:              HOME_DIR + '/bpuData/tempExpData',
+	MOUNTED_FOLDER:                 (IS_FAKE ? HOME_DIR + '/bpuEuglenaData/' + NAME.toLowerCase() : '/mnt/bpuEuglenaData/' + NAME.toLowerCase()),
+	LIGHT_DATA_FILENAME:     'lightdata.json',
+	LIGHT_METADATA_FILENAME: 'lightdata_meta.json'
+};
+
+module.exports.IS_FAKE     = IS_FAKE;
 module.exports.NAME        = NAME;
 module.exports.UNIQUE_ID   = process.env.UNIQUE_ID || 'DEVICE_MISSING_UNIQUE_ID';
 module.exports.IP          = process.env.IP || '127.0.0.1';
 module.exports.PORT        = process.env.PORT || '8090';
 module.exports.CAMERA_PORT = process.env.CAMERA_PORT || '8080';
-
-var HOME_DIR = process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE;
-
-var DATA = {
-	ROOT:    HOME_DIR + '/bpuData',
-	EXPERIMENT:     HOME_DIR + '/bpuData/tempExpData',
-	MOUNTED: (IS_FAKE ? HOME_DIR + '/bpuEuglenaData/' + NAME.toLowerCase() : '/mnt/bpuEuglenaData/' + NAME.toLowerCase())
-};
-
-module.exports.DATA = DATA;
+module.exports.DATA        = DATA;
 
 module.exports.STATES = {
 	CONNECTING:  'connecting',

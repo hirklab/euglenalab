@@ -146,7 +146,7 @@ init(function (err) {
 			var experiment = {
 				type:           'batch',
 				description:    new Date(),
-				duration:       85,
+				duration:       15, //85,
 				machine:        {
 					ip:       "171.65.103.56",
 					hostname: "sr17-4dd5a61365.stanford.edu",
@@ -159,10 +159,10 @@ init(function (err) {
 				proposedEvents: [
 					{time: 0, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0},
 					{time: 15000, topLED: 100, rightLED: 0, bottomLED: 0, leftLED: 0},
-					{time: 30000, topLED: 0, rightLED: 100, bottomLED: 0, leftLED: 0},
-					{time: 45000, topLED: 0, rightLED: 0, bottomLED: 100, leftLED: 0},
-					{time: 60000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 100},
-					{time: 75000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0}
+					// {time: 30000, topLED: 0, rightLED: 100, bottomLED: 0, leftLED: 0},
+					// {time: 45000, topLED: 0, rightLED: 0, bottomLED: 100, leftLED: 0},
+					// {time: 60000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 100},
+					// {time: 75000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0}
 				],
 				submittedAt:    "2017-08-16T19:44:35.333Z"
 			};
