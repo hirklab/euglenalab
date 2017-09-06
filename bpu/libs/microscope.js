@@ -202,16 +202,17 @@ Microscope.prototype.onExperimentRun = function (payload, callback) {
 									}
 								});
 
-							logger.info(event);
 							logger.info(timeDiff);
-							logger.info(devices);
+							logger.info(event);
 
-							that.onExecuteEvent(devices);
+							// logger.info(devices);
 
-							event = null;
+							that.onExecuteEvent(devices, timeDiff, function(){
+								event = null;
+							});
 						}
 
-						if (event == null && events.length === 0 && (timeDiff / 1000) >= that.state.experiment.duration) {
+						if (event == null && events.length === 0 && ((timeDiff + constants.LOOP_INTERVAL) / 1000) >= that.state.experiment.duration) {
 							clearInterval(loop);
 							cb(null);
 						}
@@ -219,7 +220,7 @@ Microscope.prototype.onExperimentRun = function (payload, callback) {
 						clearInterval(loop);
 						cb(null);
 					}
-				}, 10); // run every 20 milliseconds
+				}, constants.LOOP_INTERVAL); // run every 20 milliseconds
 
 			}
 		], function (err) {
@@ -258,7 +259,7 @@ Microscope.prototype.onStimulus = function (payload, callback) {
 	if (callback) callback(null);
 };
 
-Microscope.prototype.onExecuteEvent = function (payload, callback) {
+Microscope.prototype.onExecuteEvent = function (payload, timeDiff, callback) {
 	var that = this;
 
 	var currentTime = new Date();
@@ -269,6 +270,7 @@ Microscope.prototype.onExecuteEvent = function (payload, callback) {
 
 	that.state.experiment.actualEvents.push({
 		time:  currentTime,
+		relativeTime:  timeDiff,
 		event: payload
 	});
 

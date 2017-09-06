@@ -43,43 +43,31 @@ module.exports = {
 
 						utils.command(cmdStr, cb);
 					},
-					function (err, cb) {
-						logger.debug(err);
-						logger.debug(cb);
+					function (stdout, cb) {
+						fs.readdir(experimentFolder, function(err, files){
+							if (err) {
+								experiment.metadata.numFrames = -1;
+							} else {
+								var images                    = files.filter(function (filename) {
+									return filename.search('.jpg') > -1;
+								});
+								experiment.metadata.numFrames = images.length;
+							}
 
-						fs.readdir(experimentFolder, cb);
+							return cb(err);
+
+						});
 					},
-					function (err, files, cb) {
-						logger.debug(err);
-						logger.debug(cb);
-
-						if (err) {
-							experiment.metadata.numFrames = -1;
-						} else {
-							var images                    = files.filter(function (filename) {
-								return filename.search('.jpg') > -1;
-							});
-							experiment.metadata.numFrames = images.length;
-						}
-
+					function (cb) {
 						fs.writeFile(filePath, JSON.stringify(experiment, null, 4), cb);
 					},
-					function (err, cb) {
-						logger.debug(err);
-						logger.debug(cb);
-
+					function (cb) {
 						fs.writeFile(experiment.metadata.lightDataPath, JSON.stringify(lightData, null, 4), cb);
 					},
-					function (err, cb) {
-						logger.debug(err);
-						logger.debug(cb);
-
+					function (cb) {
 						fs.writeFile(experiment.metadata.lightMetadataPath, JSON.stringify(lightMetadata, null, 4), cb);
 					},
-					function (err, cb) {
-						logger.debug(err);
-						logger.debug(cb);
-
+					function (cb) {
 						var mountedFolder = DATA.MOUNTED_FOLDER + '/' + experiment._id;
 
 						var mkdirCmd    = 'mkdir -p ' + mountedFolder;
@@ -88,7 +76,7 @@ module.exports = {
 
 						var cmdStr = mkdirCmd + ' && ' + moveCmd + ' && ' + rmTempFiles;
 
-						utils.command(cmdStr, function (err) {
+						utils.command(cmdStr, function (err, stdout) {
 							if (err) {
 								logger.error(err);
 
@@ -102,6 +90,10 @@ module.exports = {
 				],
 
 				function (err) {
+					if (err) {
+						logger.error(err);
+					}
+
 					callback(err, experiment);
 				}
 			)

@@ -22,6 +22,7 @@ module.exports.IP          = process.env.IP || '127.0.0.1';
 module.exports.PORT        = process.env.PORT || '8090';
 module.exports.CAMERA_PORT = process.env.CAMERA_PORT || '8080';
 module.exports.DATA        = DATA;
+module.exports.LOOP_INTERVAL        = 10; // in milliseconds
 
 module.exports.STATES = {
 	CONNECTING:  'connecting',
