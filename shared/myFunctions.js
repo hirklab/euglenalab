@@ -32,10 +32,11 @@ exports.logToFile  = function (options, callback) {
 				var err = 'writeLine err:' + err;
 				console.log(err)
 			}
+
 			if (callback) {
 				callback(err)
 			}
-			;
+
 		});
 	} else {
 		createNew(function (err, readStream) {
@@ -68,18 +69,22 @@ var cpFile                   = function (src, dest, callback) {
 		}
 	});
 };
+
 exports.addFrontZeroToNumber = function (num, len) {
 	var strNum = '' + num;
 	while (strNum.length < len) strNum = '0' + strNum;
 	return strNum;
 };
+
 exports.addFrontSpaceToStr   = function (str, len) {
 	while (str.length < len) str = ' ' + str;
 	return str;
 };
+
 exports.getTimeFromMongoId   = function (id, callback) {
 	return new Date(parseInt(objectId.substring(0, 8), 16) * 1000);
 };
+
 exports.getMongoIdFromTime   = function (id, callback) {
 	return Math.floor(date.getTime() / 1000).toString(16) + "0000000000000000";
 };
@@ -102,6 +107,7 @@ var deleteFile    = function (src, callback) {
 		}
 	});
 };
+
 var moveFile      = function (src, dest, callback) {
 	fs.readFile(src, function (err, data) {
 		if (err) {
@@ -123,6 +129,7 @@ var moveFile      = function (src, dest, callback) {
 		}
 	});
 };
+
 exports.moveFiles = function (src, files, dest, mainCallback) {
 	if (files.length > 0) {
 		var errs    = [];
@@ -136,7 +143,7 @@ exports.moveFiles = function (src, files, dest, mainCallback) {
 			} else {
 				mainCallback(null);
 			}
-		}
+		};
 		files.forEach(function (file) {
 			var path = src + '/' + file;
 			queue.push({src: src + '/' + file, dest: dest + '/' + file}, function (err) {
@@ -170,9 +177,11 @@ exports.asyncFunctionTemplate = function (options, action, callback) {
 		}
 	});
 };
+
 exports.clearConsole          = function () {
 	console.log('\033c');
 };
+
 exports.getSocket             = function (appIo, socketID) {
 	var returnSocket = null;
 
@@ -197,6 +206,7 @@ exports.getSocket             = function (appIo, socketID) {
 	}
 	return returnSocket;
 };
+
 //Local Exports
 var _runBashCommand           = function (cmdStr, callback) {
 	var child = exec(cmdStr, function (error, stdout, stderr) {
@@ -211,11 +221,13 @@ var _runBashCommand           = function (cmdStr, callback) {
 		}
 	});
 };
+
 var _cloneObjectArray         = function (array, callback) {
 	return JSON.parse(JSON.stringify(array));
-}
+};
 
 exports.cloneObjectArray = _cloneObjectArray;
+
 exports.runBashCommand   = _runBashCommand;
 
 //Local Only

@@ -279,37 +279,6 @@ module.exports = {
 // 	});
 // };
 //
-// //Other Functions
-// var runBashCommand = function (cmdStr, callback) {
-// 	var child = _exec(cmdStr, function (error, stdout, stderr) {
-// 		if (error !== null) {
-// 			callback('error: ' + stderr, stdout);
-// 		} else if (stderr) {
-// 			callback('stderr: ' + stderr, stdout);
-// 		} else if (stdout) {
-// 			callback(null, stdout);
-// 		} else {
-// 			callback(null, null);
-// 		}
-// 	});
-// };
-
-
-//General Functions
-// var runBashCommand = function(cmdStr, callback) {
-// 	var child = _exec(cmdStr, function(error, stdout, stderr) {
-// 		if (error !== null) {
-// 			callback('error: ' + stderr, stdout);
-// 		} else if (stderr) {
-// 			callback('stderr: ' + stderr, stdout);
-// 		} else if (stdout) {
-// 			callback(null, stdout);
-// 		} else {
-// 			callback(null, null);
-// 		}
-// 	});
-// };
-//
 // //Side Func - Part of Socket*****Add Exp
 // var EventKeys = ['topValue', 'rightValue', 'bottomValue', 'leftValue', 'diffuserValue', 'backlightValue', 'culturelightValue', 'ambientlightValue', 'projectorX', 'projectorY', 'projectorColor', 'projectorClear'];
 // var checkEventValues = function(evt) {
@@ -360,6 +329,7 @@ module.exports = {
 // 	//Check individual events and strip bad
 // 	if (ErrStr === null) {
 // 		var keeperEvents = [];
+//
 // 		try {
 // 			//Check Each Event
 // 			org_eventsToRun.forEach(function(evt) {
@@ -370,6 +340,7 @@ module.exports = {
 // 					}
 // 				}
 // 			});
+//
 // 			//Recheck Events for at least 2 or more
 // 			if (keeperEvents.length >= 2) {
 // 				//Make Times Relative

@@ -1,14 +1,16 @@
 var socketClient = require('socket.io-client');
 var _            = require('lodash');
 
-var myFunctions     = require('../../shared/myFunctions.js');
-var constants       = require('../constants');
+var myFunctions = require('../../shared/myFunctions.js');
+
+var logger = require('./logging');
+
+var constants       = require('./constants');
 var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
 
 // Constructor
-function Controller(config, logger, userManager) {
+function Controller(config, userManager) {
 	this.config      = config;
-	this.logger      = logger;
 	this.userManager = userManager;
 }
 
@@ -43,16 +45,16 @@ Controller.prototype.connect = function (cb) {
 	var that = this;
 
 	var address = that.config.controllerAddress;
-	that.logger.debug('connecting controller...');
+	logger.debug('connecting controller...');
 
 	that.socket = socketClient(address, {multiplex: false, reconnection: true});
 
 	that.socket.on('disconnect', function () {
-		that.logger.warn('controller disconnected');
+		logger.warn('controller disconnected');
 	});
 
 	that.socket.on('connection', function () {
-		that.logger.info('controller => ' + address);
+		logger.info('controller => ' + address);
 
 		cb(null, that);
 	});
@@ -62,8 +64,8 @@ Controller.prototype.connect = function (cb) {
 		var type    = message.type;
 		var payload = message.payload;
 
-		// that.logger.debug('=============[C » W]=============');
-		// that.logger.debug('type: ', type);
+		// logger.debug('=============[C » W]=============');
+		// logger.debug('type: ', type);
 
 		if (type == 'update' && payload) {
 			that.compileClientUpdateFromController(payload.microscopes, payload.experiments);
@@ -75,16 +77,16 @@ Controller.prototype.connect = function (cb) {
 		var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
 
 		if (userSocket) {
-			that.logger.debug('activateLiveUser: sessionID: ' + session.sessionID + " socketID: " + session.socketID);
+			logger.debug('activateLiveUser: sessionID: ' + session.sessionID + " socketID: " + session.socketID);
 
 			userSocket.emit(that.config.mainConfig.userSocketStrs.user_activateLiveUser, session, liveUserConfirmTimeout, function (resObj) {
-				//this.logger.info('activateLiveUser', session.sessionID, session.socketID, resObj.didConfirm, resObj.err);
-				that.logger.debug('activeLiveUser Reply: ' + session.sessionID + " socketID: " + session.socketID + ', with: ' + resObj.didConfirm + ' err:' + resObj.err);
+				//logger.info('activateLiveUser', session.sessionID, session.socketID, resObj.didConfirm, resObj.err);
+				logger.debug('activeLiveUser Reply: ' + session.sessionID + " socketID: " + session.socketID + ', with: ' + resObj.didConfirm + ' err:' + resObj.err);
 
 				callbackToBpuController(resObj);
 			});
 		} else {
-			that.logger.error("activateLiveUser: Couldn't find socketId");
+			logger.error("activateLiveUser: Couldn't find socketId");
 			callbackToBpuController({err: 'could not find socketID', didConfirm: false});
 		}
 	});
@@ -93,10 +95,10 @@ Controller.prototype.connect = function (cb) {
 		var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
 
 		if (userSocket) {
-			that.logger.debug('sendUserToLiveLab sessionID: ' + session.sessionID + " socketID: " + session.socketID);
+			logger.debug('sendUserToLiveLab sessionID: ' + session.sessionID + " socketID: " + session.socketID);
 
 			userSocket.emit(that.config.mainConfig.userSocketStrs.user_sendUserToLiveLab, function (resObj) {
-				that.logger.debug('sendUserToLiveLab Reply: ' + session.sessionID + " socketID: " + session.socketID + ', err:' + resObj.err);
+				logger.debug('sendUserToLiveLab Reply: ' + session.sessionID + " socketID: " + session.socketID + ', err:' + resObj.err);
 
 				callbackToBpuController(resObj);
 			});
@@ -112,12 +114,12 @@ Controller.prototype.submitExperiment = function (experiment, cb) {
 	var that = this;
 
 	var message = {
-		type: 'experimentSet',
+		type:    'experimentSet',
 		payload: experiment
 	};
 
 	this.socket.emit('message', message, function (err, submittedExperiment) {
-		that.logger.debug("experiment submitted to controller");
+		logger.debug("experiment submitted to controller");
 		cb(err, submittedExperiment);
 	});
 };

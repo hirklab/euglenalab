@@ -11,7 +11,7 @@ var Webserver = require('./libs/webserver');
 var Scheduler = require('./libs/scheduler');
 
 var filename = path.basename(__filename);
-logger.debug(filename);
+// logger.debug(filename);
 
 
 //Main Object
@@ -95,7 +95,7 @@ var init = function (callback) {
 };
 
 var loop = function () {
-	// app.utils.clearConsole();
+	app.utils.clearConsole();
 	app.startDate = new Date();
 
 	var microscopeUtils = require('./libs/microscopeManager')(app);
@@ -103,7 +103,7 @@ var loop = function () {
 
 	async.series([
 		microscopeUtils.getMicroscopes,
-		// microscopeUtils.showStatus,
+		microscopeUtils.showStatus,
 
 		// experimentUtils.checkExperiments,
 		// experimentUtils.scheduleExperiments,
@@ -168,8 +168,7 @@ init(function (err) {
 			};
 
 			app.scheduler.addExperiment(experiment, function () {
-
-			})
+			});
 		}, 1.5 * 60000); // send experiment every 10 minute
 
 

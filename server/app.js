@@ -20,35 +20,20 @@ var express          = require('express'),
     socketIO         = require('socket.io'),
     async            = require('async'),
 
-    config           = require('./config'),
+    config           = require('./libs/config'),
+    logger           = require('./libs/logging'),
     Controller       = require('./libs/controller'),
     UserManager      = require('./libs/userManager'),
-    myFunctions      = require('../shared/myFunctions');
 
-var LOGGER_LEVELS = ['log', 'trace', 'debug', 'info', 'warn', 'error'];
+    // todo get rid of these functions
+    myFunctions      = require('../shared/myFunctions');
 
 var app = express();
 
-app.tracer = tracer;
-
-app.logger = app.tracer.colorConsole({
-	format:     "{{timestamp}} <{{file}}:{{line}}> {{message}}",
-	dateformat: "HH:MM:ss.L",
-	level:      LOGGER_LEVELS[0],
-	filters:    {
-		log:   colors.white,
-		trace: colors.magenta,
-		debug: colors.blue,
-		info:  colors.green,
-		warn:  colors.yellow,
-		error: [colors.red, colors.bold]
-	}
-});
-
-app.tracer.setLevel(LOGGER_LEVELS[2]);
-
+// todo get rid of these functions
 app.myFunctions = myFunctions;
 
+// todo get rid of these functions
 app.utility          = {};
 app.utility.sendmail = require('../shared/utils/sendmail');
 app.utility.slugify  = require('../shared/utils/slugify');
@@ -69,12 +54,12 @@ parts.forEach(function (part) {
 	app.serverBase += '/' + part;
 });
 
+// todo get rid of this config
 app.mainConfig = app.config.mainConfig;
 
 mongoose.Promise = global.Promise;
 app.db           = mongoose.createConnection(config.mongodb.uri);
-app.db.on('error', app.logger.error.bind(app.logger, 'db connection error: '));
-
+app.db.on('error', logger.error.bind(logger, 'db connection error: '));
 
 app.sessionMiddleware = session({
 	resave:            true,
@@ -83,6 +68,7 @@ app.sessionMiddleware = session({
 	store:             new mongoStore({url: config.mongodb.uri})
 });
 
+// requires app.db
 require('../shared/models/index')(app, mongoose);
 
 app.disable('x-powered-by');
@@ -126,8 +112,9 @@ app.use(function (req, res, next) {
 	res.cookie('_csrfToken', req.csrfToken());
 
 	res.locals.user                  = {};
-	res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();
-	res.locals.user.username         = req.user && req.user.username;
+	if(req.user) {
+		res.locals.user.username = req.user.username;
+	}
 
 	next();
 });
@@ -141,26 +128,26 @@ require('./libs/passport')(app, passport);
 
 // app.use(require('./views/http/index').http500);
 
-app.logger.debug('starting server...');
+logger.debug('starting server...');
 
 app.server.listen(app.config.port, function () {
 
-	app.logger.info('server => ' + 'http://localhost:' + app.config.port);
+	logger.info('server => ' + 'http://localhost:' + app.config.port);
 
-	app.logger.debug('connecting database...');
+	logger.debug('connecting database...');
 
 	app.io = socketIO.listen(app.server, {'pingInterval': 5000, 'pingTimeout': 10000});
 
 	app.db.once('open', function () {
-		app.logger.info('database => ' + config.mongodb.uri);
+		logger.info('database => ' + config.mongodb.uri);
 
 		async.waterfall([
 			function (callback) {
-				app.userManager = new UserManager(app.config, app.logger, app.io, app.sessionMiddleware, app.db);
+				app.userManager = new UserManager(app.config, app.io, app.sessionMiddleware, app.db);
 				callback(null);
 			},
 			function (callback) {
-				app.controller = new Controller(app.config, app.logger, app.userManager);
+				app.controller = new Controller(app.config, app.userManager);
 				callback(null);
 			},
 			function (callback) {
@@ -171,9 +158,9 @@ app.server.listen(app.config.port, function () {
 			}
 		], function (err) {
 			if (err) {
-				app.logger.error(err);
+				logger.error(err);
 			} else {
-				app.logger.info('app initialized');
+				logger.info('app initialized');
 				app.isInitialized = true;
 			}
 		});

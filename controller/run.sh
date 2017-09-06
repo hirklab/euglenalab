@@ -7,4 +7,4 @@
 #npm install -g pm2
 #pm2 start app.js --watch && pm2 monit
 
-node app.js
+node --inspect app.js

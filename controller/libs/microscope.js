@@ -199,53 +199,7 @@ Microscope.prototype.onDisconnected = function (payload, timeout) {
 	that.status = STATES.OFFLINE;
 };
 
-// Microscope.prototype.onSaveExperiment = function (exp) {
-// 	"use strict";
-//
-// 	var o_savePath = options.savePath || '/home/pi/bpuData/tempExpData';
-//
-// 	if (exp !== null) {
-// 		exp.exp_metaData.saveTime          = new Date();
-// 		exp.exp_metaData.lightDataSoapPath = o_savePath + "/" + "lightdata.json";
-// 		exp.exp_metaData.lightDataPath     = o_savePath + "/" + "lightdata_meta.json";
-// 		var saveName                       = exp._id || "noExpId";
-// 		var saveFullPath                   = o_savePath + "/" + saveName + ".json";
-// 		exp.exp_metaData.ExpFullPath       = saveFullPath;
-// 		exp.exp_metaData.ExpName           = saveName;
-// 		//Save Full Exp Schema
-// 		fs.writeFile(exp.exp_metaData.ExpFullPath, JSON.stringify(exp, null, 4), function (err) {
-// 			if (err) {
-// 				callback('writeFile ExpFullPath ' + err, null);
-// 			} else {
-// 				//Save Exp Light Data with Meta
-// 				var lightDataWithMeta = {
-// 					metaData:    exp.exp_metaData,
-// 					eventsToRun: exp.exp_eventsRan,
-// 				};
-//
-// 				fs.writeFile(exp.exp_metaData.lightDataPath, JSON.stringify(lightDataWithMeta, null, 4), function (err) {
-// 					if (err) {
-// 						callback('writeFile lightDataPath ' + err, null);
-// 					} else {
-// 						//Save Exp Light Data
-// 						var lightData = {
-// 							eventsToRun: exp.exp_eventsRan,
-// 						};
-// 						fs.writeFile(exp.exp_metaData.lightDataSoapPath, JSON.stringify(lightData, null, 4), function (err) {
-// 							if (err) {
-// 								callback('writeFile lightDataSoapPath ' + err, null);
-// 							} else {
-// 								callback(null, exp);
-// 							}
-// 						});
-// 					}
-// 				});
-// 			}
-// 		});
-// 	}
-// };
-//
-//
+
 // Microscope.prototype.handleMessage = function(message){
 // 	var that = this;
 //

@@ -20,12 +20,15 @@ module.exports = function (app) {
 				} else {
 					microscopes.forEach(function (microscope) {
 						if (microscope.name in app.microscopesIndex) {
+
 							// database sync
 							app.microscopesIndex[microscope.name].doc = microscope;
 
 							// todo perform live sync here
 
 							// todo remove microscopes which are not in passed list
+
+
 						} else {
 
 							// new microscope introduced in database
@@ -37,8 +40,6 @@ module.exports = function (app) {
 							});
 
 							app.scheduler.addQueue(microscope.name);
-
-							// todo a new queue needs to be created for this microscope
 						}
 					});
 
@@ -50,8 +51,7 @@ module.exports = function (app) {
 		showStatus: function (callback) {
 			// logger.debug('checking BPUs...');
 
-			var parallel = [];
-			var keys     = Object.keys(app.microscopesIndex);
+			var keys = Object.keys(app.microscopesIndex);
 
 			keys.sort(function (objA, objB) {
 				return app.microscopesIndex[objA].doc.index - app.microscopesIndex[objB].doc.index;
@@ -59,17 +59,16 @@ module.exports = function (app) {
 
 			keys.forEach(function (key) {
 				var microscope = app.microscopesIndex[key];
-				logger.info(microscope.doc.name + '(' + microscope.address + ')');
 
 				if (microscope.isConnected) {
-					logger.info('\tconnected:\t' + microscope.isConnected);
+					logger.info(microscope.doc.name + '(' + microscope.address + ')');
 					logger.info('\tqueueTime:\t' + microscope.queueTime);
-					logger.info('\texperiment:\t' + microscope.experiment);
+					logger.info('\texperiment:\t' + (microscope.experiment ? microscope.experiment.submittedAt : 'None'));
 					// logger.info('\tTimeout:\t' + microscope.inactiveCount);
 				}
 				else {
-					logger.error('\tconnected:\t' + microscope.isConnected);
-					logger.info('\texperiment:\t' + microscope.experiment);
+					logger.error(microscope.doc.name + '(' + microscope.address + ')');
+					logger.error('\texperiment:\t' + (microscope.experiment ? microscope.experiment.submittedAt : 'None'));
 					// logger.error('\tTimeout:\t' + microscope.inactiveCount);
 				}
 

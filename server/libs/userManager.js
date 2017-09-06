@@ -1,13 +1,15 @@
 "use strict";
 
-var _               = require('underscore');
-var constants       = require('../constants');
-var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
+var _         = require('underscore');
+var logger    = require('./logging');
+var User      = require('./user');
+var constants = require('./constants');
+var EVENTS    = constants.EVENTS;
+var MESSAGES  = constants.CLIENT_MESSAGES;
 
 // constructor
-function UserManager(config, logger, io, sessionMiddleware, db) {
+function UserManager(config, io, sessionMiddleware, db) {
 	this.config            = config;
-	this.logger            = logger;
 	this.io                = io;
 	this.sessionMiddleware = sessionMiddleware;
 	this.db                = db;
@@ -20,14 +22,14 @@ UserManager.prototype.connect = function (controller, cb) {
 
 	that.controller = controller;
 
-	that.logger.debug('starting socket server...');
+	logger.debug('starting socket server...');
 
 	that.io.sockets
 		.use(function (socket, next) {
 			that.sessionMiddleware(socket.request, {}, next);
 		});
 
-	that.io.sockets.on('connection', function (socket) {
+	that.io.sockets.on(EVENTS.CONNECT, function (socket) {
 		var found       = false;
 		var currentUser = socket.request.session.passport.user;
 
@@ -40,28 +42,32 @@ UserManager.prototype.connect = function (controller, cb) {
 				found = _.find(that.users[currentUser._id].sockets, function (available) {
 					return available.id === socket.id;
 				});
+
 			} else {
-				that.users[currentUser._id] = {
-					userID:    currentUser._id,
-					username:  currentUser.username,
-					sockets:   [],
-					sessionID: socket.request.sessionID
-				}
+				that.users[currentUser._id] = User(
+					currentUser._id,
+					currentUser.username,
+					[],
+					socket.request.sessionID  // not used anywhere
+				)
 			}
 
 			if (!found) {
-				that.logger.debug('client ' + socket.id + ' connected');
+				logger.debug('client ' + socket.id + ' connected');
+
 				that.users[currentUser._id].sockets.push(socket);
 				that.listConnectedUsers();
 			}
 		}
 
-		socket.on('disconnect', function (reason) {
-			that.logger.debug('client ' + socket.id + ' disconnected');
+		socket.on(EVENTS.DISCONNECT, function (reason) {
+			logger.debug('client ' + socket.id + ' disconnected');
 
 			//remove socket
 			if (currentUser !== undefined && currentUser !== null) {
 				if (currentUser._id in that.users) {
+
+					// remove socket which got disconnected
 					that.users[currentUser._id].sockets = _.reject(that.users[currentUser._id].sockets, function (d) {
 						return d.id === socket.id;
 					});
@@ -76,34 +82,61 @@ UserManager.prototype.connect = function (controller, cb) {
 			}
 		});
 
-		socket.on('error', function (error) {
-			that.logger.error(error);
+		socket.on(EVENTS.ERROR, function (error) {
+			logger.error(error);
 		});
 
-		// submit experiment to controller
-		socket.on(that.config.mainConfig.userSocketStrs.user_submitExperimentRequest, function (joinQueueDataArray, callbackToClient) {
-			that.logger.debug("submitting experiment to controller...");
-			that.controller.submitExperiment(joinQueueDataArray, callbackToClient);
-		});
+		socket.on(EVENTS.MESSAGE, function (message, cb) {
+			if (message) {
+				var type    = message.type;
+				var payload = message.payload;
 
-		// submit stimulus data to controller
-		socket.on(that.config.mainConfig.userSocketStrs.user_ledsSet, function (data) {
-			that.logger.debug("sending data to controller...");
-			that.controller.setStimulus(data);
-		});
+				logger.debug('====================================');
+				logger.debug('[RX] ' + currentUser.username + ': ' + type);
+				if (payload) logger.debug(Object.values(payload).join(' / '));
 
+				switch (type) {
+					case MESSAGES.EXPERIMENT_SET:
+						that.onExperimentSet(currentUser, payload);
+						break;
+
+					case MESSAGES.EXPERIMENT_RUN:
+						that.onExperimentRun(currentUser, payload);
+						break;
+
+					case MESSAGES.STIMULUS:
+						that.onStimulus(payload);
+						break;
+				}
+			}
+		});
 	});
 
 	cb(null);
 };
 
+UserManager.prototype.onExperimentSet = function (user, payload, callback) {
+	// logger.debug("submitting experiment to controller...");
+	var that = this;
+	that.controller.submitExperiment(experiment, cb);
+};
+
+UserManager.prototype.onExperimentRun = function (user, payload, callback) {
+	var that = this;
+};
+
+UserManager.prototype.onStimulus = function (user, payload, callback) {
+	var that = this;
+	that.controller.setStimulus(data);
+};
+
+
 UserManager.prototype.listConnectedUsers = function () {
 	var that = this;
 
-	that.logger.info('========================================');
-
+	logger.info('========================================');
 	_.map(that.users, function (user) {
-		that.logger.info(user.username + '\t' + user.sockets.length + ' client(s)');// + '\t' + _.pluck(user.sockets, 'id'));
+		logger.info(user.username + '\t' + user.sockets.length + ' client(s)');// + '\t' + _.pluck(user.sockets, 'id'));
 	});
 };
 
