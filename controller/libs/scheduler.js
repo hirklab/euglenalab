@@ -4,9 +4,10 @@
 var Queue = require('bee-queue');
 var lodash = require('lodash');
 
-var logger    = require('./logging');
-var config    = require('../config');
+var logger = require('./logging');
+var config = require('../config');
 var constants = require('../constants');
+var EXPERIMENT_TYPE = constants.EXPERIMENT_TYPE;
 
 // features to consider
 // auto expiring keys
@@ -14,7 +15,7 @@ var constants = require('../constants');
 // - clear completed experiments
 
 function Scheduler(app) {
-	var that    = this;
+	var that = this;
 	that.app = app;
 	that.queues = {};
 
@@ -23,41 +24,41 @@ function Scheduler(app) {
 		removeOnFailure: true
 	});
 
-	that.queue.on('ready', function () {
+	that.queue.on('ready', function() {
 		logger.debug('main scheduler ready');
 
 	});
 
-	that.queue.on('error', function (err) {
+	that.queue.on('error', function(err) {
 		logger.error(err);
 	});
 
-	that.queue.on('succeeded', function (job, result) {
+	that.queue.on('succeeded', function(job, result) {
 		// logger.info('job ' + job.id + ' succeeded :' +  job.data.description);
 
-		// save it in database now
+		// todo save it in database now
 	});
 
-	that.queue.on('failed', function (job, err) {
+	that.queue.on('failed', function(job, err) {
 		logger.warn('job ' + job.id + ' failed :' + err);
 
-		// save it in database now
+		// todo save it in database now
 	});
 
-	that.queue.on('progress', function (jobId, progress) {
+	that.queue.on('progress', function(jobId, progress) {
 		// logger.debug('job ' + jobId + ' reported progress: ' + progress + '%');
 	});
 }
 
-Scheduler.prototype.initialize = function (callback) {
+Scheduler.prototype.initialize = function(callback) {
 	var that = this;
 
-	that.queue.process(1, function (job, done) { // process 1 job at a time
+	that.queue.process(1, function(job, done) { // process 1 job at a time
 		// logger.debug('processing job ' + job.id);
 
 		var experiment = job.data;
 
-		// grab the experiment from general queue and put it into specific microscope queue
+		// todo grab the experiment from general queue and put it into specific microscope queue
 		// based on
 		// - user choice
 		// - availability
@@ -82,7 +83,7 @@ Scheduler.prototype.initialize = function (callback) {
 	callback();
 };
 
-Scheduler.prototype.addQueue = function (name, callback) {
+Scheduler.prototype.addQueue = function(name, callback) {
 	var that = this;
 
 	if (name && name != '') {
@@ -95,56 +96,69 @@ Scheduler.prototype.addQueue = function (name, callback) {
 				removeOnFailure: true
 			});
 
-			that.queues[name].on('ready', function () {
+			that.queues[name].on('ready', function() {
 				logger.debug(name + ' scheduler ready');
 
 			});
 
-			that.queues[name].on('error', function (err) {
+			that.queues[name].on('error', function(err) {
 				logger.error(err);
 			});
 
-			that.queues[name].on('succeeded', function (job, result) {
+			that.queues[name].on('succeeded', function(job, result) {
 				logger.info('job ' + job.id + ' on microscope ' + name + ' succeeded :' + job.data.description);
 
 				// save it in database now
 			});
 
-			that.queues[name].on('failed', function (job, err) {
+			that.queues[name].on('failed', function(job, err) {
 				logger.warn('job ' + job.id + ' on microscope ' + name + ' failed :' + err);
 
-				// save it in database now
+				// todo save it in database now
 			});
 
-			that.queues[name].on('progress', function (jobId, progress) {
+			that.queues[name].on('progress', function(jobId, progress) {
 				// logger.debug('job ' + jobId + ' on microscope ' + name + ' reported progress: ' + progress + '%');
 			});
 
-			that.queues[name].process(1, function (job, done) { // process 1 job at a time
+			that.queues[name].process(1, function(job, done) { // process 1 job at a time
 				// logger.debug('processing job ' + job.id);
 
 				var experiment = job.data;
 
-				that.app.microscopesIndex[experiment.bpu.name].sendMessage(constants.BPU_MESSAGES.EXPERIMENT_SET, {
-					experiment:experiment
-				});
-
-				that.app.microscopesIndex[experiment.bpu.name].sendMessage(constants.BPU_MESSAGES.EXPERIMENT_RUN);
-
-				setTimeout(function(){
-					return done(null, 'completed');
-				},experiment.duration*1000);
-
 				// run the experiment here
 				// set experiment
-				// get confirmation if live
-				// connect user to microscope
+				that.app.microscopesIndex[experiment.bpu.name].sendMessage(constants.BPU_MESSAGES.EXPERIMENT_SET, {
+					experiment: experiment
+				});
+
+				if (experiment.type == EXPERIMENT_TYPE.LIVE) {
+					// get confirmation if live
+					// connect user to microscope
+					that.app.webserver.sendMessage(constants.CLIENT_MESSAGES.CONFIRMATION, function(err, result) {
+						if (err) {
+
+						} else {
+							if (result) {
+
+							}
+						}
+
+					})
+
+				} else {
+					// no confirmation for batch required
+				}
+
 				// run experiment now
 				// push events or push experiment
 				// wait for duration or user cancellation
+				that.app.microscopesIndex[experiment.bpu.name].sendMessage(constants.BPU_MESSAGES.EXPERIMENT_RUN);
+
 				// finish experiment
-
-
+				setTimeout(function() {
+					return done(null, 'completed');
+				}, experiment.duration * 1000);
 			});
 		}
 
@@ -152,15 +166,13 @@ Scheduler.prototype.addQueue = function (name, callback) {
 	}
 };
 
-Scheduler.prototype.addExperimentToMicroscope = function (experiment, microscopeName, callback) {
+Scheduler.prototype.addExperimentToMicroscope = function(experiment, microscopeName, callback) {
 	var that = this;
-
-
 	// logger.info(experiment);
 
 	var job = that.queues[microscopeName].createJob(experiment);
 
-	job.save(function (err, job) {
+	job.save(function(err, job) {
 		logger.debug('pushing a new experiment ' + job.id + ' on ' + microscopeName);
 	});
 
@@ -171,14 +183,14 @@ Scheduler.prototype.addExperimentToMicroscope = function (experiment, microscope
 	if (callback) callback();
 };
 
-Scheduler.prototype.addExperiment = function (experiment, callback) {
+Scheduler.prototype.addExperiment = function(experiment, callback) {
 	var that = this;
 
 	// logger.info(experiment);
 
 	var job = that.queue.createJob(experiment);
 
-	job.save(function (err, job) {
+	job.save(function(err, job) {
 		// logger.debug('pushing a new experiment ' + job.id + ' on main queue');
 	});
 

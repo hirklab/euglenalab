@@ -1,38 +1,38 @@
 "use strict";
 
 var async = require('async');
-var _     = require('underscore');
-var lodash     = require('lodash');
+var _ = require('underscore');
+var lodash = require('lodash');
 
-var config    = require('../config');
+var config = require('../config');
 var constants = require('../constants');
-var logger    = require('./logging');
-var MESSAGES  = constants.MESSAGES;
+var logger = require('./logging');
+var MESSAGES = constants.MESSAGES;
 
-module.exports = function (app) {
-	var addExpToBpu = function (app, exp, bpuDoc, bpuSocket, callback) {
+module.exports = function(app) {
+	var addExpToBpu = function(app, exp, bpuDoc, bpuSocket, callback) {
 
-		var outcome  = {};
-		outcome.sess = null;
+		var outcome = {};
+		// outcome.sess = null;
 
-		var getSession = function (cb) {
+		// var getSession = function (cb) {
 
-			app.db.models.Session.findById(exp.session.id, function (err, sessDoc) {
-				if (err) {
-					cb(err);
-				} else if (sessDoc === null) {
-					cb('session missing');
-				} else {
-					outcome.sess = sessDoc;
-					cb(null);
-				}
-			});
-		};
+		// 	app.db.models.Session.findById(exp.session.id, function (err, sessDoc) {
+		// 		if (err) {
+		// 			cb(err);
+		// 		} else if (sessDoc === null) {
+		// 			cb('session missing');
+		// 		} else {
+		// 			outcome.sess = sessDoc;
+		// 			cb(null);
+		// 		}
+		// 	});
+		// };
 
-		var sendExperimentToBpu = function (cb) {
+		var sendExperimentToBpu = function(cb) {
 			var didCallback = false;
 
-			setTimeout(function () {
+			setTimeout(function() {
 				if (!didCallback) {
 					didCallback = true;
 					cb('operation timed out');
@@ -47,7 +47,7 @@ module.exports = function (app) {
 			} else {
 				experiment.magnification = bpuDoc.magnification;
 
-				bpuSocket.emit(app.mainConfig.socketStrs.bpu_setExp, exp, config.USER_CONFIRMATION_TIMEOUT + 1000, function (err) {
+				bpuSocket.emit(app.mainConfig.socketStrs.bpu_setExp, exp, config.USER_CONFIRMATION_TIMEOUT + 1000, function(err) {
 					if (!didCallback) {
 						didCallback = true;
 
@@ -55,22 +55,22 @@ module.exports = function (app) {
 							cb(err);
 						} else {
 							var expUpdateObj = {
-								liveBpu:               {
-									id:       bpuDoc._id,
-									name:     bpuDoc.name,
-									index:    bpuDoc.index,
+								liveBpu: {
+									id: bpuDoc._id,
+									name: bpuDoc.name,
+									index: bpuDoc.index,
 									socketId: bpuDoc.soc
 								},
 								// exp_lastResort:        exp.exp_lastResort,
 								// bc_startSendTime:      exp.bc_startSendTime,
 								// bc_isLiveSendingToLab: true,
-								status:            'queued',
+								status: 'queued',
 								// exp_metaData:          exp.exp_metaData
 							};
 
 							app.db.models.BpuExperiment.findByIdAndUpdate(exp.id, expUpdateObj, {
 								new: true
-							}, function (err, savedExperiment) {
+							}, function(err, savedExperiment) {
 								if (err) {
 									logger.error(err);
 
@@ -93,7 +93,7 @@ module.exports = function (app) {
 
 									app.db.models.Session.findByIdAndUpdate(exp.session.id, sessUpdateObj, {
 										new: true
-									}, function (err, session) {
+									}, function(err, session) {
 										if (err) {
 											logger.error(err);
 
@@ -116,33 +116,33 @@ module.exports = function (app) {
 			} //end of socket null check
 		};
 
-		var liveExperiment = function (cb_fn) {
+		var liveExperiment = function(cb_fn) {
 
-			async.some(app.clients, function (client, callback) {
+			async.some(app.clients, function(client, callback) {
 
 				if (client.connected) {
 					logger.debug('confirming live experiment from server: ' + client.id);
 
-					client.emit('activateLiveUser', outcome.sess, config.USER_CONFIRMATION_TIMEOUT, function (userActivateResData) {
+					client.emit('activateLiveUser', outcome.sess, config.USER_CONFIRMATION_TIMEOUT, function(userActivateResData) {
 						if (userActivateResData.err || !userActivateResData.didConfirm) {
 							return callback(false);
 						} else {
 
 							app.bpuLedsSetMatch[outcome.sess.sessionID] = app.microscopesIndex[bpuDoc.name].setStimulus;
 
-							bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuRunResObj) {
+							bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function(bpuRunResObj) {
 								if (bpuRunResObj.err) {
 									app.errors.live.push({
 										time: new Date(),
-										err:  bpuRunResObj.err
+										err: bpuRunResObj.err
 									});
 									return callback(false);
 								} else {
-									client.emit('sendUserToLiveLab', outcome.sess, function (userSendResObj) {
+									client.emit('sendUserToLiveLab', outcome.sess, function(userSendResObj) {
 										if (userSendResObj.err) {
 											app.errors.live.push({
 												time: new Date(),
-												err:  userSendResObj.err
+												err: userSendResObj.err
 											});
 											return callback(false);
 										} else {
@@ -158,17 +158,17 @@ module.exports = function (app) {
 					return callback(false);
 				}
 
-			}, function (someoneConfirmed) {
+			}, function(someoneConfirmed) {
 
 				if (!someoneConfirmed) {
 					logger.warn('********* nobody confirmed **********');
 
 					var isCancelled = true;
-					bpuSocket.emit(app.mainConfig.socketStrs.bpu_resetBpu, isCancelled, outcome.sess.sessionID, function (err) {
+					bpuSocket.emit(app.mainConfig.socketStrs.bpu_resetBpu, isCancelled, outcome.sess.sessionID, function(err) {
 						if (err) {
 							app.errors.live.push({
 								time: new Date(),
-								err:  err
+								err: err
 							});
 						}
 					});
@@ -180,8 +180,8 @@ module.exports = function (app) {
 
 		};
 
-		var batchExperiment = function (cb_fn) {
-			bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function (bpuResObj) {
+		var batchExperiment = function(cb_fn) {
+			bpuSocket.emit(app.mainConfig.socketStrs.bpu_runExp, function(bpuResObj) {
 				if (bpuResObj.err) {
 					logger.error(bpuResObj.err);
 				}
@@ -190,11 +190,11 @@ module.exports = function (app) {
 		};
 
 		var seriesFuncs = [];
-		seriesFuncs.push(getSession);
+		// seriesFuncs.push(getSession);
 		seriesFuncs.push(sendExperimentToBpu);
 		seriesFuncs.push(exp.type === 'live' ? liveExperiment : batchExperiment);
 
-		async.series(seriesFuncs, function (err) {
+		async.series(seriesFuncs, function(err) {
 			if (err) {
 				callback(err, null);
 			} else {
@@ -205,18 +205,18 @@ module.exports = function (app) {
 
 	return {
 		//pulls ListExperiment doc each time
-		checkExperiments: function (callback) {
+		checkExperiments: function(callback) {
 			var ExpRejectMax = 10;
-			var cnt          = 0; //cnts expTags for cnsole logging
+			var cnt = 0; //cnts expTags for cnsole logging
 
 			app.experimentsCache = []; //BpuExperiments are pulled from db for each expTag, they are kept though the rest of the loop
 
-			var checkExpAndResort = function (checkExpCallback) {
+			var checkExpAndResort = function(checkExpCallback) {
 				cnt++;
 
 				var expTag = this;
 
-				app.db.models.BpuExperiment.findById(expTag.id, function (err, expDoc) {
+				app.db.models.BpuExperiment.findById(expTag.id, function(err, expDoc) {
 
 					//Failed
 					if (err) {
@@ -244,7 +244,7 @@ module.exports = function (app) {
 						logger.error(err);
 
 						expTag.exp_lastResort.rejectionCounter = ExpRejectMax;
-						expTag.exp_lastResort.rejectionReason  = err;
+						expTag.exp_lastResort.rejectionReason = err;
 
 						checkExpCallback(null);
 
@@ -254,7 +254,7 @@ module.exports = function (app) {
 						logger.error(err);
 
 						expTag.exp_lastResort.rejectionCounter = ExpRejectMax;
-						expTag.exp_lastResort.rejectionReason  = err;
+						expTag.exp_lastResort.rejectionReason = err;
 
 						checkExpCallback(null);
 
@@ -268,12 +268,12 @@ module.exports = function (app) {
 
 						//reset expDoc last resort
 						expDoc.exp_lastResort.canidateBpus = [];
-						expDoc.exp_lastResort.bpuName      = null;
-						expDoc.exp_lastResort.waitTime     = 0;
-						expDoc.exp_resortTime              = app.startDate.getTime();
+						expDoc.exp_lastResort.bpuName = null;
+						expDoc.exp_lastResort.waitTime = 0;
+						expDoc.exp_resortTime = app.startDate.getTime();
 
 						//Get Bpus In Groups
-						Object.keys(app.microscopesIndex).forEach(function (key) {
+						Object.keys(app.microscopesIndex).forEach(function(key) {
 							var bpuObj = app.microscopesIndex[key];
 
 							if (bpuObj.isConnected) {
@@ -285,8 +285,8 @@ module.exports = function (app) {
 										if (bpuObj.doc.allowedGroups[bgnd] === expDoc.user.groups[ugnd]) {
 
 											//Score Bpu
-											var scoreObj           = bpuObj.doc.scoreBpu(app.microscopesIndex[bpuObj.doc.name].queueTime);
-											scoreObj.bpuName       = bpuObj.doc.name;
+											var scoreObj = bpuObj.doc.scoreBpu(app.microscopesIndex[bpuObj.doc.name].queueTime);
+											scoreObj.bpuName = bpuObj.doc.name;
 											scoreObj.totalWaitTime = app.microscopesIndex[bpuObj.doc.name].queueTime;
 
 											//Check Specific Bpu and add to exps canidate bpus list
@@ -307,7 +307,7 @@ module.exports = function (app) {
 						if (expDoc.exp_lastResort.canidateBpus.length === 1) {
 
 							//choose bpu from score and wait time
-							expDoc.exp_lastResort.bpuName       = expDoc.exp_lastResort.canidateBpus[0].bpuName;
+							expDoc.exp_lastResort.bpuName = expDoc.exp_lastResort.canidateBpus[0].bpuName;
 							expDoc.exp_lastResort.totalWaitTime = expDoc.exp_lastResort.canidateBpus[0].totalWaitTime;
 
 							//Update running bpu queue time
@@ -317,30 +317,30 @@ module.exports = function (app) {
 
 						} else if (expDoc.exp_lastResort.canidateBpus.length > 1) {
 							//Sort By final Score
-							expDoc.exp_lastResort.canidateBpus.sort(function (objA, objB) {
+							expDoc.exp_lastResort.canidateBpus.sort(function(objA, objB) {
 								return objB.finalScore - objA.finalScore;
 							});
 
 							//choose bpu from score and wait time
-							var zeroScore     = expDoc.exp_lastResort.canidateBpus[0].finalScore;
-							var scoreInt      = 0.2;
-							var sameScoreObjs = expDoc.exp_lastResort.canidateBpus.filter(function (scoreObj) {
+							var zeroScore = expDoc.exp_lastResort.canidateBpus[0].finalScore;
+							var scoreInt = 0.2;
+							var sameScoreObjs = expDoc.exp_lastResort.canidateBpus.filter(function(scoreObj) {
 								if (scoreObj.finalScore <= zeroScore + scoreInt && scoreObj.finalScore >= zeroScore - scoreInt) return true;
 								else return false;
 							});
 
 							if (sameScoreObjs.length > 0) {
 								//Sort similar final scores by wait time.
-								sameScoreObjs.sort(function (objA, objB) {
+								sameScoreObjs.sort(function(objA, objB) {
 									return objA.totalWaitTime - objB.totalWaitTime;
 								});
-								expDoc.exp_lastResort.bpuName       = sameScoreObjs[0].bpuName;
+								expDoc.exp_lastResort.bpuName = sameScoreObjs[0].bpuName;
 								expDoc.exp_lastResort.totalWaitTime = sameScoreObjs[0].totalWaitTime;
 
 								app.microscopesIndex[sameScoreObjs[0].bpuName].queueTime += expDoc.exp_eventsRunTime;
 							} else {
 								//Sort similar final scores by wait time.
-								expDoc.exp_lastResort.bpuName       = expDoc.exp_lastResort.canidateBpus[0].bpuName;
+								expDoc.exp_lastResort.bpuName = expDoc.exp_lastResort.canidateBpus[0].bpuName;
 								expDoc.exp_lastResort.totalWaitTime = expDoc.exp_lastResort.canidateBpus[0].totalWaitTime;
 
 								app.microscopesIndex[expDoc.exp_lastResort.canidateBpus[0].bpuName].queueTime += expDoc.exp_eventsRunTime;
@@ -348,7 +348,7 @@ module.exports = function (app) {
 						}
 
 						if (true) {
-							expDoc.exp_lastResort.canidateBpus.forEach(function (canBpu) {
+							expDoc.exp_lastResort.canidateBpus.forEach(function(canBpu) {
 								logger.debug(canBpu.bpuName + ' ' + canBpu.finalScore + ' ' + canBpu.totalWaitTime);
 							});
 						}
@@ -365,7 +365,7 @@ module.exports = function (app) {
 				}); //end for BpuExperiment.findById
 			};
 
-			var updateProfilerExperiments = function (expTag, profilingExperimentsIndex, experimentSchedule) {
+			var updateProfilerExperiments = function(expTag, profilingExperimentsIndex, experimentSchedule) {
 				if (constants.PROFILERS.indexOf(expTag.user.name) > -1) {
 					if (expTag.exp_wantsBpuName !== null && expTag.exp_wantsBpuName !== undefined) {
 
@@ -378,8 +378,8 @@ module.exports = function (app) {
 				} else {
 					app.newExperimentsIndex[expTag.id] = expTag;
 					experimentSchedule.push({
-						id:       expTag.id,
-						subTime:  expTag.exp_submissionTime,
+						id: expTag.id,
+						subTime: expTag.exp_submissionTime,
 						username: expTag.user.name
 					});
 				}
@@ -388,7 +388,7 @@ module.exports = function (app) {
 			//Get new Exps from database and build series function array
 			app.db.models.ListExperiment.findById(app.experiments._id, {
 				newExps: 1
-			}, function (err, newListExperimentDoc) {
+			}, function(err, newListExperimentDoc) {
 				if (err) {
 					logger.error(err);
 					return callback(err);
@@ -398,9 +398,9 @@ module.exports = function (app) {
 				} else {
 
 					//Create Master expTag obj
-					app.newExperimentsIndex       = {};
+					app.newExperimentsIndex = {};
 					var profilingExperimentsIndex = {};
-					var experimentSchedule        = [];
+					var experimentSchedule = [];
 
 					//Pull New Experiments from db
 					while (newListExperimentDoc.newExps.length > 0) {
@@ -409,7 +409,7 @@ module.exports = function (app) {
 					}
 
 					//Save db doc with removed new experiments
-					newListExperimentDoc.save(function (err, saveDoc) {
+					newListExperimentDoc.save(function(err, saveDoc) {
 
 						//Pull New Experiments from current document
 						while (app.experiments.newExps.length > 0) {
@@ -418,7 +418,7 @@ module.exports = function (app) {
 						}
 
 						//add bpu exps from this doc to expTag Obj
-						Object.keys(app.experiments._doc).forEach(function (key) {
+						Object.keys(app.experiments._doc).forEach(function(key) {
 							if (key[0] !== '_' && (key.search('eug') > -1)) {
 								while (app.experiments[key].length > 0) {
 									var expTag = app.experiments[key].shift();
@@ -435,7 +435,7 @@ module.exports = function (app) {
 							}
 						}
 
-						experimentSchedule.sort(function (objA, objB) {
+						experimentSchedule.sort(function(objA, objB) {
 							return objA.subTime - objB.subTime;
 						});
 
@@ -445,7 +445,7 @@ module.exports = function (app) {
 							initialTime = experimentSchedule[0].subTime;
 						}
 
-						Object.keys(profilingExperimentsIndex).forEach(function (key) {
+						Object.keys(profilingExperimentsIndex).forEach(function(key) {
 							var expTag = profilingExperimentsIndex[key];
 
 							if (initialTime !== null) {
@@ -455,19 +455,19 @@ module.exports = function (app) {
 							app.newExperimentsIndex[expTag.id] = expTag;
 
 							experimentSchedule.push({
-								id:       expTag.id,
-								subTime:  expTag.exp_submissionTime,
+								id: expTag.id,
+								subTime: expTag.exp_submissionTime,
 								username: expTag.user.name
 							});
 						});
 
-						experimentSchedule.sort(function (objA, objB) {
+						experimentSchedule.sort(function(objA, objB) {
 							return objA.subTime - objB.subTime;
 						});
 
 						var runSeriesFuncs = [];
-						var Limit          = 10;
-						var limiter        = 0;
+						var Limit = 10;
+						var limiter = 0;
 						for (var jnd = 0; jnd < experimentSchedule.length; jnd++) {
 							if (limiter < Limit) {
 								runSeriesFuncs.push(checkExpAndResort.bind(app.newExperimentsIndex[experimentSchedule[jnd].id]));
@@ -477,7 +477,7 @@ module.exports = function (app) {
 							limiter++;
 						}
 
-						async.series(runSeriesFuncs, function (err) {
+						async.series(runSeriesFuncs, function(err) {
 							if (err) {
 								logger.error(err);
 							}
@@ -489,35 +489,35 @@ module.exports = function (app) {
 			});
 		},
 
-		scheduleExperiments: function (callback) {
-			var cnt          = 0;
-			var sendExpToBpu = function (sendExpToBpuCallback) {
+		scheduleExperiments: function(callback) {
+			var cnt = 0;
+			var sendExpToBpu = function(sendExpToBpuCallback) {
 				cnt++;
 
-				var exp    = this.exp;
+				var exp = this.exp;
 				var bpuObj = this.bpuObj;
 
 				logger.debug(cnt + ':sendExpToBpu ' + bpuObj.doc.name + ':' + exp.group_experimentType + ':' + exp.id + ' on Socket?null:' + (bpuObj.socket === null));
 
-				addExpToBpu(app, exp, bpuObj.doc, bpuObj.socket, function (err, session) {
+				addExpToBpu(app, exp, bpuObj.doc, bpuObj.socket, function(err, session) {
 					if (err) {
 						err = cnt + err;
 						app.errors.experiment.push({
 							time: new Date(),
-							err:  err
+							err: err
 						});
 						logger.error(err);
 					} else {
-						bpuObj.doc.session.id        = session.id;
+						bpuObj.doc.session.id = session.id;
 						bpuObj.doc.session.sessionID = session.sessionID;
-						bpuObj.doc.session.socketID  = session.socketID;
+						bpuObj.doc.session.socketID = session.socketID;
 					}
 				});
 				sendExpToBpuCallback(null);
 			};
 
 			//Find next Experiment per bpu
-			app.experimentsCache.sort(function (objA, objB) {
+			app.experimentsCache.sort(function(objA, objB) {
 				return objA.exp_submissionTime - objB.exp_submissionTime;
 			});
 
@@ -534,7 +534,7 @@ module.exports = function (app) {
 			//Build Parallel - Match Available Bpus with Queue Experiments
 			var runParallelFuncs = [];
 
-			Object.keys(app.microscopesIndex).forEach(function (key) {
+			Object.keys(app.microscopesIndex).forEach(function(key) {
 
 				//bpu has exp in queue?
 				if (expPerBpu[key]) {
@@ -543,7 +543,7 @@ module.exports = function (app) {
 					if (app.microscopesIndex[key].doc.bpuStatus === app.mainConfig.bpuStatusTypes.resetingDone && app.microscopesIndex[key].isConnected) {
 						runParallelFuncs.push(sendExpToBpu.bind({
 							bpuObj: app.microscopesIndex[key],
-							exp:    expPerBpu[key]
+							exp: expPerBpu[key]
 						}));
 
 					} else {
@@ -555,7 +555,7 @@ module.exports = function (app) {
 
 			expPerBpu = null;
 
-			async.parallel(runParallelFuncs, function (err) {
+			async.parallel(runParallelFuncs, function(err) {
 				if (err) {
 					logger.error('runParallel end sendExpsToBpus on ' + runParallelFuncs.length + ' in ' + (new Date() - app.startDate) + ' err:' + err + '\n');
 				}
@@ -564,7 +564,7 @@ module.exports = function (app) {
 			});
 		},
 
-		updateExperimentsQueue: function (callback) {
+		updateExperimentsQueue: function(callback) {
 
 			//Add left over newExpTags into this listExpDoc
 			while (Object.keys(app.newExperimentsIndex).length > 0) {
@@ -585,21 +585,21 @@ module.exports = function (app) {
 			}
 
 			//persist to database
-			app.experiments.save(function (err, savedDoc) {
+			app.experiments.save(function(err, savedDoc) {
 				return callback(null);
 			});
 		},
 
-		notifyClients: function (callback) {
+		notifyClients: function(callback) {
 			if (app.webserver && app.webserver.state.connected) {
 
 				var microscopes = _.values(app.microscopesIndex);
 
 				var bpuDocs = _.chain(microscopes)
-					.filter(function (microscope) {
+					.filter(function(microscope) {
 						return microscope.isConnected;
 					})
-					.map(function (microscope) {
+					.map(function(microscope) {
 						var data = lodash.clone(microscope);
 
 						// if (isLiveActive(bpuDoc.bpuStatus)) {
@@ -632,12 +632,11 @@ module.exports = function (app) {
 				// todo better to filter data only for microscopes which user is allowed to see
 				app.webserver.sendMessage(MESSAGES.UPDATE, {
 					microscopes: bpuDocs,
-					experiments: app.experiments//.toJSON()
+					experiments: app.experiments //.toJSON()
 				});
 			}
 
 			return callback(null);
 		}
 	}
-}
-;
+};
