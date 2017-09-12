@@ -1,27 +1,27 @@
-var http     = require('http');
+var http = require('http');
 var socketIO = require('socket.io');
-var lodash   = require('lodash');
+var lodash = require('lodash');
 
-var config    = require('../config');
-var logger    = require('./logging');
+var config = require('../config');
+var logger = require('./logging');
 var constants = require('../constants');
-var EVENTS    = constants.EVENTS;
-var MESSAGES  = constants.MESSAGES;
-var STATES    = constants.STATES;
+var EVENTS = constants.EVENTS;
+var MESSAGES = constants.MESSAGES;
+var STATES = constants.STATES;
 
 function Webserver(callback) {
-	var that    = this;
-	that.url    = null;
-	that.ip     = config.SERVER_IP;
-	that.port   = config.SERVER_PORT;
+	var that = this;
+	that.url = null;
+	that.ip = config.SERVER_IP;
+	that.port = config.SERVER_PORT;
 	that.server = null;
 	that.client = null; // single connection to webserver
 
-	that.state           = {};
-	this.state.status    = STATES.CONNECTING;
+	that.state = {};
+	this.state.status = STATES.CONNECTING;
 	this.state.connected = false;
 
-	var httpServer = http.createServer(function (req, res) {
+	var httpServer = http.createServer(function(req, res) {
 		res.writeHead(200, {
 			'Content-Type': 'application/json'
 		});
@@ -30,7 +30,7 @@ function Webserver(callback) {
 
 	httpServer.listen(that.port, that.ip);
 
-	process.on('SIGTERM', function () {
+	process.on('SIGTERM', function() {
 		logger.warn("shutting down server...");
 
 		httpServer.close();
@@ -44,7 +44,7 @@ function Webserver(callback) {
 	that.initialize(callback);
 }
 
-Webserver.prototype.initialize = function (callback) {
+Webserver.prototype.initialize = function(callback) {
 	var that = this;
 
 	that.url = 'http://' + that.ip + ":" + that.port;
@@ -55,7 +55,7 @@ Webserver.prototype.initialize = function (callback) {
 	callback(null);
 };
 
-Webserver.prototype.onConnected = function (socket) {
+Webserver.prototype.onConnected = function(socket) {
 	var that = this;
 
 	socket.on(EVENTS.MESSAGE, that.onMessage.bind(that));
@@ -75,10 +75,10 @@ Webserver.prototype.onConnected = function (socket) {
 	that.client = socket;
 };
 
-Webserver.prototype.onMessage = function (message) {
+Webserver.prototype.onMessage = function(message) {
 	var that = this;
 
-	var type    = message.type;
+	var type = message.type;
 	var payload = message.payload;
 
 	logger.info('=============[W » C]=============');
@@ -112,56 +112,61 @@ Webserver.prototype.onMessage = function (message) {
 	}
 };
 
-Webserver.prototype.onExperimentSet = function (payload) {
+Webserver.prototype.onExperimentSet = function(payload) {
 	var that = this;
+	logger.debug(payload);
+	// pass experiment to scheduler
 
-	if (that.isAvailable()) {
+	// if (that.isAvailable()) {
 
-		that.state.status = STATES.QUEUED;
+	// that.state.status = STATES.QUEUED;
 
-		var experiment = payload.experiment;
+	var experiment = payload;
+	experiment.submittedAt = new Date();
 
-		// 		app.exp.exp_eventsToRun.sort(function (objA, objB) {
-		// 			return objB.time - objA.time
-		// 		});
-		// 		app.exp_eventsRunTime = app.exp.exp_eventsToRun[0].time;
-		//
-		// 		app.didConfirmRun        = false;
-		// 		app.didConfirmTimeoutRun = false;
-		// 		setTimeout(function () {
-		// 			if (!app.didConfirmRun) {
-		// 				app.didConfirmTimeoutRun = true;
-		// 				app.script_resetBpu(app, deps, opts, function (err) {
-		// 					if (app.bpu === null || app.bpu === undefined) {
-		// 						app.logger.error('socketBpu bpu_setExp resetting issue no app.bpu');
-		// 					} else if (err) {
-		// 						app.logger.error('socketBpu bpu_setExp resetting ' + err);
-		// 					} else {
-		// 						app.logger.debug('socketBpu bpu_setExp READY FOR EXPERIMENT');
-		// 					}
-		// 				});
-		// 			}
-		// 		}, resetTimeout);
+	// 		app.exp.exp_eventsToRun.sort(function (objA, objB) {
+	// 			return objB.time - objA.time
+	// 		});
+	// 		app.exp_eventsRunTime = app.exp.exp_eventsToRun[0].time;
+	//
+	// 		app.didConfirmRun        = false;
+	// 		app.didConfirmTimeoutRun = false;
+	// 		setTimeout(function () {
+	// 			if (!app.didConfirmRun) {
+	// 				app.didConfirmTimeoutRun = true;
+	// 				app.script_resetBpu(app, deps, opts, function (err) {
+	// 					if (app.bpu === null || app.bpu === undefined) {
+	// 						app.logger.error('socketBpu bpu_setExp resetting issue no app.bpu');
+	// 					} else if (err) {
+	// 						app.logger.error('socketBpu bpu_setExp resetting ' + err);
+	// 					} else {
+	// 						app.logger.debug('socketBpu bpu_setExp READY FOR EXPERIMENT');
+	// 					}
+	// 				});
+	// 			}
+	// 		}, resetTimeout);
 
-		// todo: create a folder to save
+	// todo: create a folder to save
 
-		// todo: get events to run
+	// todo: get events to run
 
-		that.state.experiment             = experiment;
-		// that.state.experiment.status      = EXPERIMENT.QUEUED;
-		that.state.experiment.submittedAt = new Date();
-	} else {
-		// already has experiment -> faillll
+	// that.state.experiment = experiment;
+	// that.state.experiment.status      = EXPERIMENT.QUEUED;
+	// that.state.experiment.submittedAt = new Date();
+
+	logger.debug(experiment);
+	// } else {
+	// already has experiment -> faillll
 
 
-	}
+	// }
 
 	// socket.on(app.mainConfig.socketStrs.bpuCont_submitExperimentRequest, function (serverInfo, joinQueueDataArray, cb) {
 	// 	app.submitExperimentRequestHandler(app, serverInfo, joinQueueDataArray, cb);
 	// });
 };
 
-Webserver.prototype.onExperimentCancel = function (payload) {
+Webserver.prototype.onExperimentCancel = function(payload) {
 	if (this.isQueued() || this.isRunning()) {
 		// this.state.experiment.status      = EXPERIMENT_STATUS.CANCELLED;
 		this.state.experiment.cancelledAt = new Date();
@@ -176,7 +181,7 @@ Webserver.prototype.onExperimentCancel = function (payload) {
 	}
 };
 
-Webserver.prototype.onStimulus = function (payload) {
+Webserver.prototype.onStimulus = function(payload) {
 	var that = this;
 
 	if (that.isRunning()) {
@@ -194,7 +199,7 @@ Webserver.prototype.onStimulus = function (payload) {
 	// });
 };
 
-Webserver.prototype.onExecuteEvent = function (payload) {
+Webserver.prototype.onExecuteEvent = function(payload) {
 	var that = this;
 
 	var currentTime = new Date();
@@ -205,7 +210,7 @@ Webserver.prototype.onExecuteEvent = function (payload) {
 	// });
 };
 
-Webserver.prototype.onMaintenance = function (payload) {
+Webserver.prototype.onMaintenance = function(payload) {
 	var that = this;
 	if (that.isAvailable()) {
 		var duration = 1; // default duration of 1 ms  // todo push it to config
@@ -226,33 +231,33 @@ Webserver.prototype.onMaintenance = function (payload) {
 		// 	duration = flush.duration;
 		// }
 
-		setTimeout(function () {
+		setTimeout(function() {
 			that.state.status = STATES.IDLE;
 		}, duration);
 	}
 };
 
-Webserver.prototype.onError = function (payload) {
+Webserver.prototype.onError = function(payload) {
 	logger.error(payload)
 };
 
-Webserver.prototype.onDisconnected = function (reason) {
+Webserver.prototype.onDisconnected = function(reason) {
 	var that = this;
 
 	logger.error('disconnected due to ' + reason);
 
-	that.state.status    = STATES.CONNECTING;
+	that.state.status = STATES.CONNECTING;
 	that.state.connected = false;
 
 	that.sendMessage(MESSAGES.STATUS, that.status());
 
 };
 
-Webserver.prototype.sendMessage = function (type, payload) {
+Webserver.prototype.sendMessage = function(type, payload) {
 	var that = this;
 
-	var newMessage     = {};
-	newMessage.type    = type;
+	var newMessage = {};
+	newMessage.type = type;
 	newMessage.payload = payload;
 
 	// logger.debug('=============[C » W]=============');
@@ -265,12 +270,12 @@ Webserver.prototype.sendMessage = function (type, payload) {
 	that.server.emit(EVENTS.MESSAGE, newMessage);
 };
 
-Webserver.prototype.status = function () {
+Webserver.prototype.status = function() {
 	return this.state;
 };
 
 // todo replace this with better authentication function
-Webserver.prototype.verify = function (auth, callback) {
+Webserver.prototype.verify = function(auth, callback) {
 	var err = 'invalid auth';
 
 	if (auth && typeof auth === 'object') {
@@ -287,4 +292,3 @@ Webserver.prototype.verify = function (auth, callback) {
 };
 
 module.exports = Webserver;
-

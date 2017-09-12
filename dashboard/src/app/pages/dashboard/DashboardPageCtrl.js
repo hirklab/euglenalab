@@ -1,4 +1,4 @@
-(function () {
+(function() {
 	'use strict';
 
 	angular.module('BioLab.pages.dashboard')
@@ -6,70 +6,70 @@
 
 	/** @ngInject */
 	function DashboardPageCtrl($scope, $rootScope, $http, $q, $state, $log, $timeout,
-	                           lodash, uiTourService, toastr,ip,
-	                           Microscope, Experiment, socket) {
+		lodash, uiTourService, toastr, ip,
+		Microscope, Experiment, socket) {
 
-		var vm          = this;
-		vm.connected    = false;
-		vm.max          = 5;
-		vm.isDisabled   = false;
+		var vm = this;
+		vm.connected = false;
+		vm.max = 5;
+		vm.isDisabled = false;
 		vm.isSubmitting = false;
-		vm.file         = null;
-		vm.noFile       = true;
+		vm.file = null;
+		vm.noFile = true;
 
 		vm.experiment = {
-			type:           'live',
-			tag:            '',
-			description:    '',
-			duration:       60, // seconds - default duration
+			type: 'live',
+			tag: '',
+			description: '',
+			duration: 60, // seconds - default duration
 			proposedEvents: []
 		};
 
-		var unhook     = null;
+		var unhook = null;
 		var thresholds = Microscope.thresholds;
 
 		// todo push it to constants
 		var MESSAGES = {
-			CONNECTED:         'connected',
-			STATUS:            'status',
-			UPDATE:            'update',
-			CONFIRMATION:      'confirmation',
-			LIVE:              'live',
-			EXPERIMENT_SET:    'experimentSet',
+			CONNECTED: 'connected',
+			STATUS: 'status',
+			UPDATE: 'update',
+			CONFIRMATION: 'confirmation',
+			LIVE: 'live',
+			EXPERIMENT_SET: 'experimentSet',
 			EXPERIMENT_CANCEL: 'experimentCancel',
-			STIMULUS:          'stimulus',
-			MAINTENANCE:       'maintenance',
-			DISCONNECTED:      'disconnected'
+			STIMULUS: 'stimulus',
+			MAINTENANCE: 'maintenance',
+			DISCONNECTED: 'disconnected'
 		};
 
-		var findClass = function (statType, value) {
+		var findClass = function(statType, value) {
 			if (statType !== null || statType !== '') {
 				var threshold = thresholds[statType];
 
-				return threshold.find(function (thresh) {
+				return threshold.find(function(thresh) {
 					return thresh.min <= value;
 				})['value'];
 			}
 			return '';
 		};
 
-		vm.initialize = function () {
+		vm.initialize = function() {
 			// attach a demo tour
 			uiTourService.createDetachedTour('demo');
 
 			// get machine ip and location - demographics
-			ip.success(function (data) {
+			ip.success(function(data) {
 				vm.experiment.machine = data;
 			});
 
 			// get list of microscopes
-			Microscope.list().then(function (res) {
+			Microscope.list().then(function(res) {
 				vm.activeMicroscopes = lodash.chain(res.data.results)
-					.filter(function (microscope) {
+					.filter(function(microscope) {
 						return microscope.name !== 'fake' && microscope.isActive;
 					})
 					.sortBy('index')
-					.map(function (microscope) {
+					.map(function(microscope) {
 						microscope.panelClass = 'microscope bootstrap-panel';
 
 						microscope.panelClass += microscope.isActive ? ' enabled' : ' disabled';
@@ -80,33 +80,33 @@
 							microscope.address = '/assets/img/bpu-disabled.jpg'
 						}
 
-						if(microscope.stats) {
-							microscope.statistics = microscope.stats.map(function (stat) {
+						if (microscope.stats) {
+							microscope.statistics = microscope.stats.map(function(stat) {
 								var newValue = {
-									'name':  stat.statType,
+									'name': stat.statType,
 									'value': stat.data.inverseTimeWeightedAvg,
-									'max':   stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
+									'max': stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
 								};
 
 								newValue['percent'] = newValue['value'] * 100 / newValue['max'];
-								newValue['class']   = findClass(stat.statType, newValue['percent']);
+								newValue['class'] = findClass(stat.statType, newValue['percent']);
 
 								return newValue;
 							});
 
 							if (microscope.statistics.length === 0) {
 								microscope.statistics = [{}, {}, {}];
-								microscope.quality    = 0;
+								microscope.quality = 0;
 							} else {
-								var response = lodash.find(microscope.statistics, function (stat) {
+								var response = lodash.find(microscope.statistics, function(stat) {
 									return stat.name === 'response';
 								});
 
-								var activity = lodash.find(microscope.statistics, function (stat) {
+								var activity = lodash.find(microscope.statistics, function(stat) {
 									return stat.name === 'activity';
 								});
 
-								var population = lodash.find(microscope.statistics, function (stat) {
+								var population = lodash.find(microscope.statistics, function(stat) {
 									return stat.name === 'population';
 								});
 
@@ -129,7 +129,7 @@
 				unhook = $rootScope.$on("message", onMessage.bind(vm));
 
 				// remove listener when view goes out of context
-				$scope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
+				$scope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams) {
 					if (fromState.name === 'dashboard') {
 						$scope.$on('$destroy', unhook);
 
@@ -142,15 +142,15 @@
 
 		vm.initialize();
 
-		vm.showDemo = function () {
+		vm.showDemo = function() {
 			uiTourService.getTourByName('demo').start();
 		};
 
-		var onMessage = function (e, message) {
+		var onMessage = function(e, message) {
 			var that = this;
 
 			if (message) {
-				var type    = message.type;
+				var type = message.type;
 				var payload = message.payload;
 				//
 				// $log.log('[RX] ' + type);
@@ -176,12 +176,12 @@
 			}
 		};
 
-		var onGetConfirmation = function (payload) {
+		var onGetConfirmation = function(payload) {
 			var confirmationTimeout = 10; // seconds
 
 			timedCall(
 				confirmationTimeout,
-				function (resolve, reject) {
+				function(resolve, reject) {
 					if (confirm('Go to live lab. Please confirm in ' + confirmationTimeout + 'seconds.')) {
 						// todo update socket that user confirmed
 
@@ -194,21 +194,21 @@
 			);
 		};
 
-		var onLiveExperiment = function (payload) {
+		var onLiveExperiment = function(payload) {
 			$state.go('livelab'); // shift to livelab page
 		};
 
 		// syncing live
-		var onStatus = function (payload) {
+		var onStatus = function(payload) {
 			var bpuUpdates = angular.copy(payload.microscopes);
-			var users      = angular.copy(payload.users);
+			var users = angular.copy(payload.users);
 
-			$scope.$apply(function () {
+			$scope.$apply(function() {
 				vm.users = users;
 
-				lodash.map(vm.activeMicroscopes, function (microscope) {
+				lodash.map(vm.activeMicroscopes, function(microscope) {
 
-					var bpu = lodash.find(bpuUpdates, function (bpu) {
+					var bpu = lodash.find(bpuUpdates, function(bpu) {
 						return bpu.name === microscope.name;
 					});
 
@@ -233,14 +233,14 @@
 		// 	return Math.floor(ms / 60000);
 		// };
 
-		var ms2s = function (ms) {
+		var ms2s = function(ms) {
 			return Math.round(ms / 1000);
 		};
 
-		vm.startExperiment = function () {
+		vm.startExperiment = function() {
 			var errors = false;
 
-			return $q(function (resolve, reject) {
+			return $q(function(resolve, reject) {
 				if (!vm.isSubmitting) {
 					vm.isSubmitting = true;
 
@@ -252,9 +252,9 @@
 
 						// make a rest call to server
 						Experiment.create(vm.experiment)
-							.then(function (response, status) {
+							.then(function(response, status) {
 								resolve();
-							}, function (error, status) {
+							}, function(error, status) {
 								toastr.error(error.message, 'Experiment submission failed!');
 								reject(error.message);
 							});
@@ -273,32 +273,32 @@
 			});
 		};
 
-		vm.selectMode = function (mode) {
+		vm.selectMode = function(mode) {
 			vm.experiment.type = mode;
 		};
 
-		vm.toggleSelection = function (microscope) {
+		vm.toggleSelection = function(microscope) {
 			if (vm.selected && vm.selected.name == microscope.name) {
-				vm.selected             = null;
-				vm.experiment.chosenBPU = null;
+				vm.selected = null;
+				vm.experiment.bpu = null;
 				vm.experiment.selection = 'auto';
 			} else {
-				vm.selected             = microscope;
-				vm.experiment.chosenBPU = microscope;
+				vm.selected = microscope;
+				vm.experiment.bpu = microscope;
 				vm.experiment.selection = 'user';
 			}
 		};
 
-		vm.upload = function (file) {
+		vm.upload = function(file) {
 			if (window.FileReader) {
 
 				if (file && typeof(file)) {
 					// toastr.info('Uploading file...');
 
-					var fileReader      = new FileReader();
+					var fileReader = new FileReader();
 					fileReader.filename = file.name;
-					fileReader.type     = file.type;
-					fileReader.size     = (file.size / 1024).toFixed(2);  // in kb
+					fileReader.type = file.type;
+					fileReader.size = (file.size / 1024).toFixed(2); // in kb
 					fileReader.readAsText(file);
 					fileReader.onload = loadHandler;
 				}
@@ -317,15 +317,15 @@
 
 			var file = Papa.parse(csv, {
 				skipEmptyLines: true,
-				header:         true,
-				dynamicTyping:  true,
-				comments:       true,
-				complete:       function (results) {
+				header: true,
+				dynamicTyping: true,
+				comments: true,
+				complete: function(results) {
 					vm.file = {
-						data:     results.data,
+						data: results.data,
 						filename: event.target.filename,
-						type:     event.target.type,
-						size:     event.target.size
+						type: event.target.type,
+						size: event.target.size
 					};
 
 					toastr.success('File loaded successfully');
@@ -343,28 +343,28 @@
 							toastr.error('Experiment is too long to be executed', 'Invalid experiment');
 						} else {
 							// parse file and massage data type
-							var proposedEvents = lodash.map(events, function (event) {
-								return lodash.mapValues(event, function (o) {
+							var proposedEvents = lodash.map(events, function(event) {
+								return lodash.mapValues(event, function(o) {
 									return parseFloat(o);
 								});
 							});
 
-							vm.experiment.duration       = duration;
+							vm.experiment.duration = duration;
 							vm.experiment.proposedEvents = proposedEvents;
-							vm.experiment.tag            = vm.file.filename;
+							vm.experiment.tag = vm.file.filename;
 						}
 					} else {
 						// invalid time values
 						toastr.error('Experiment has no events to execute', 'Invalid experiment');
 					}
 				},
-				error:          function (err, file) {
+				error: function(err, file) {
 					toastr.error('Please check the file format.' + err, 'File parsing failed!');
 				}
 			});
 		}
 
-		vm.validate = function () {
+		vm.validate = function() {
 			var result = false;
 
 			if (vm.experiment.type.indexOf('live') > -1) {
@@ -380,11 +380,11 @@
 			return result;
 		};
 
-		var timedCall = function (timeout, callback) {
-			return $q(function (resolve, reject) {
+		var timedCall = function(timeout, callback) {
+			return $q(function(resolve, reject) {
 				callback(resolve, reject);
 
-				$timeout(function () {
+				$timeout(function() {
 					reject('timeout');
 				}, timeout);
 			});

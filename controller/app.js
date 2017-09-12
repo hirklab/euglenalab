@@ -22,7 +22,6 @@ var app = {
 
 	utils:      require('../shared/myFunctions.js'),
 	mainConfig: require('../shared/mainConfig.js'),
-	// submitExperimentRequestHandler: require('./libs/submitExperimentRequestHandler.js'),
 
 	// object list of connected microscopes
 	microscopesIndex: {},
@@ -30,12 +29,14 @@ var app = {
 	// object list of experiments from database
 	experiments: null,
 
-	//list of experiments in memory (mostly pending, running)
+	// list of experiments in memory (mostly pending, running)
+	// push this to redis later
 	experimentsCache: [],
 
 	// any new experiment is collected here before being added to cache
 	newExperimentsIndex: {},
 
+	// won't be needed if we keep posting errors
 	errors: {
 		experiment: [],
 		live:       [],
@@ -142,34 +143,34 @@ init(function (err) {
 	if (err) {
 		logger.error(err);
 	} else {
-		setInterval(function () {
-			var experiment = {
-				type:           'batch',
-				description:    new Date(),
-				duration:       60, //85,
-				machine:        {
-					ip:       "171.65.103.56",
-					hostname: "sr17-4dd5a61365.stanford.edu",
-					city:     "Stanford",
-					region:   "California"
-				},
-				bpu:            {
-					name: 'eug100'
-				},
-				proposedEvents: [
-					{time: 0, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0},
-					{time: 15000, topLED: 100, rightLED: 0, bottomLED: 0, leftLED: 0},
-					{time: 30000, topLED: 0, rightLED: 100, bottomLED: 0, leftLED: 0},
-					{time: 45000, topLED: 0, rightLED: 0, bottomLED: 100, leftLED: 0}
-					// {time: 60000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 100},
-					// {time: 75000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0}
-				],
-				submittedAt:    "2017-08-16T19:44:35.333Z"
-			};
-
-			app.scheduler.addExperiment(experiment, function () {
-			});
-		}, 1.5 * 60000); // send experiment every 10 minute
+		// setInterval(function () {
+		// 	var experiment = {
+		// 		type:           'batch',
+		// 		description:    new Date(),
+		// 		duration:       60, //85,
+		// 		machine:        {
+		// 			ip:       "171.65.103.56",
+		// 			hostname: "sr17-4dd5a61365.stanford.edu",
+		// 			city:     "Stanford",
+		// 			region:   "California"
+		// 		},
+		// 		bpu:            {
+		// 			name: 'eug100'
+		// 		},
+		// 		proposedEvents: [
+		// 			{time: 0, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0},
+		// 			{time: 15000, topLED: 100, rightLED: 0, bottomLED: 0, leftLED: 0},
+		// 			{time: 30000, topLED: 0, rightLED: 100, bottomLED: 0, leftLED: 0},
+		// 			{time: 45000, topLED: 0, rightLED: 0, bottomLED: 100, leftLED: 0}
+		// 			// {time: 60000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 100},
+		// 			// {time: 75000, topLED: 0, rightLED: 0, bottomLED: 0, leftLED: 0}
+		// 		],
+		// 		submittedAt:    "2017-08-16T19:44:35.333Z"
+		// 	};
+		//
+		// 	app.scheduler.addExperiment(experiment, function () {
+		// 	});
+		// }, 1.5 * 60000); // send experiment every 10 minute
 
 
 		loop();
