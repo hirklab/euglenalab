@@ -72,7 +72,7 @@ function enableDownload()
       }
       var img = new Image();
       img.onload = imageOnLoad;
-      img.src = "http://171.65.102.104:20015/?action=snapshot" + (++imageNr);
+      img.src = "http://171.65.103.23:20035/?action=snapshot" + (++imageNr);
       console.log("Game's BPU ADDRESS: " + img.src);
       img.crossOrigin = "Anonymous";
     }
@@ -178,7 +178,7 @@ function processNextImage()
 
   var img = new Image();
   img.onload = imageOnLoad;
-  img.src = "http://171.65.102.104:20015/?action=snapshot" + (++imageNr);
+  img.src = "http://171.65.103.23:20035/?action=snapshot" + (++imageNr);
   img.crossOrigin = "Anonymous";
 }
 
