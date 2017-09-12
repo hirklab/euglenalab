@@ -315,7 +315,7 @@ class EuglenaProcessor : public Processor {
         std::chrono::high_resolution_clock::time_point startTime;
         std::chrono::high_resolution_clock::time_point endTime;
         int frameCount = 0;
-        float magnification = 10.0;
+        float magnification;
         std::map<int, cv::Point2f> euglenaPositions;
         std::map<int, double> euglenaVelocities;
         std::map<int, double> euglenaAccelerations;
