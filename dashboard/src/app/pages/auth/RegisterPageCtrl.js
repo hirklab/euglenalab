@@ -25,7 +25,6 @@
 
 			if (isValid) {
 				Auth.register(vm.account).then(function () {
-					// $mdToast.showSimple('Email with an activation link has been sent.');
 					$state.go('auth.login');
 				}, function (response, status) {
 					angular.forEach(response.data.errors, function (errors, field_name) {

@@ -15,8 +15,8 @@
         var User = {
             list: list,
             detail: detail,
-            add: add,
-            remove: remove
+	        addNote: addNote,
+	        removeNote: removeNote
         };
 
         return User;
@@ -30,7 +30,7 @@
             return $http.get('/api/users/' + id);
         }
 
-        function add(id, message) {
+        function addNote(id, message) {
             return $http({
                 url: '/api/users/' + id + '/notes/',
                 method: 'POST',
@@ -40,7 +40,7 @@
             });
         }
 
-        function remove(id, message) {
+        function removeNote(id, message) {
             return $http({
                 url: '/api/users/' + id + '/notes/' + message._id,
                 method: 'DELETE'

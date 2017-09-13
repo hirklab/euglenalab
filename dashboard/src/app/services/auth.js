@@ -35,13 +35,7 @@
         function login(account) {
             return $http.post('/api/auth/login/', account)
                 .success(function(response, status, headers, config){
-
-                    $cookies.put("token", response.token);
-                    $cookies.put("user", response);
-
-                    if(response.user.isAdmin) {
-                        $cookies.put("isAdmin", true);
-                    }
+	                authenticate(response);
                 });
         }
 
@@ -57,6 +51,15 @@
                 console.error('Epic failure!');
             }
         }
+
+	    function authenticate(response) {
+		    $cookies.put("token", response.token);
+		    $cookies.put("user", response.user);
+
+		    if(response.user.isAdmin) {
+			    $cookies.put("isAdmin", true);
+		    }
+	    }
 
         function unauthenticate() {
             $cookies.remove('token');

@@ -6,12 +6,13 @@ var myFunctions = require('../../shared/myFunctions.js');
 var logger = require('./logging');
 
 var constants = require('./constants');
-var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
+var MESSAGES = constants.CLIENT_MESSAGES;
 
 // Constructor
 function Controller(config, userManager) {
 	this.config = config;
 	this.userManager = userManager;
+	this.socket = null;
 }
 
 // class methods
@@ -37,7 +38,7 @@ Controller.prototype.compileClientUpdateFromController = function(microscopes, l
 			// todo filter microscopes which are not in user group
 
 			var newMessage = {};
-			newMessage.type = CLIENT_MESSAGES.STATUS;
+			newMessage.type = MESSAGES.TX.STATUS;
 			newMessage.payload = payload;
 			socket.emit('message', newMessage);
 		});
@@ -130,10 +131,7 @@ Controller.prototype.submitExperiment = function(experiment, cb) {
 		payload: experiment
 	};
 
-	that.socket.emit('message', message, function(err, submittedExperiment) {
-		logger.debug("experiment submitted to controller");
-		cb(err, submittedExperiment);
-	});
+	that.socket.emit('message', message, cb);
 };
 
 Controller.prototype.setStimulus = function(data) {

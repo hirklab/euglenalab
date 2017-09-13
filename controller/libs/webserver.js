@@ -75,7 +75,7 @@ Webserver.prototype.onConnected = function(socket) {
 	that.client = socket;
 };
 
-Webserver.prototype.onMessage = function(message) {
+Webserver.prototype.onMessage = function(message, callback) {
 	var that = this;
 
 	var type = message.type;
@@ -91,7 +91,7 @@ Webserver.prototype.onMessage = function(message) {
 			break;
 
 		case MESSAGES.EXPERIMENT_SET:
-			that.onExperimentSet(payload);
+			that.onExperimentSet(payload, callback);
 			break;
 
 		case MESSAGES.EXPERIMENT_CANCEL:
@@ -112,7 +112,7 @@ Webserver.prototype.onMessage = function(message) {
 	}
 };
 
-Webserver.prototype.onExperimentSet = function(payload) {
+Webserver.prototype.onExperimentSet = function(payload, callback) {
 	var that = this;
 	logger.debug(payload);
 	// pass experiment to scheduler
@@ -164,6 +164,8 @@ Webserver.prototype.onExperimentSet = function(payload) {
 	// socket.on(app.mainConfig.socketStrs.bpuCont_submitExperimentRequest, function (serverInfo, joinQueueDataArray, cb) {
 	// 	app.submitExperimentRequestHandler(app, serverInfo, joinQueueDataArray, cb);
 	// });
+
+	callback(null);
 };
 
 Webserver.prototype.onExperimentCancel = function(payload) {

@@ -23,25 +23,26 @@ var create = function(req, res) {
 	// user and group permission for microscope chosen
 	// microscope available or not
 
-	var workflow = req.app.utility.workflow(req, res);
 
-	workflow.on('validate', function() {
+	var flow = req.app.utility.workflow(req, res);
+
+	flow.on('validate', function() {
 		if (!req.body.type) {
-			workflow.outcome.errfor.type = 'required';
+			flow.outcome.errfor.type = 'required';
 		}
 
 		if (!req.body.proposedEvents) {
-			workflow.outcome.errfor.proposedEvents = 'required';
+			flow.outcome.errfor.proposedEvents = 'required';
 		}
 
-		if (workflow.hasErrors()) {
-			return workflow.emit('exception');
+		if (flow.hasErrors()) {
+			return flow.emit('exception');
+		}else{
+			flow.emit('create');
 		}
-
-		workflow.emit('create');
 	});
 
-	workflow.on('create', function() {
+	flow.on('create', function() {
 
 		// var fieldsToSet = {
 		// 	experiment: req.body.experiment,
@@ -53,24 +54,23 @@ var create = function(req, res) {
 
 		req.app.db.models.Experiment.create(req.body, function(err, experiment) {
 			if (err) {
-				return workflow.emit('exception', err);
+				return flow.emit('exception', err);
+			}else {
+
+				req.app.controller.submitExperiment(experiment, function (err) {
+					if (err) {
+						return flow.emit('exception', err);
+					}else {
+						flow.outcome.result = experiment;
+						flow.emit('response');
+					}
+				});
 			}
-
-			req.app.controller.submitExperiment(experiment, function(err, savedExperiment) {
-				that.logger.debug("experiment submitted to controller");
-
-				if (err) {
-					return workflow.emit('exception', err);
-				}
-
-				workflow.outcome.result = savedExperiment;
-				workflow.emit('response');
-			});
 
 		});
 	});
 
-	workflow.emit('validate');
+	flow.emit('validate');
 };
 
 // GET /experiment/{id}/status/ (Get status of experiment)

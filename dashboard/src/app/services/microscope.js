@@ -29,7 +29,7 @@
                 'offline': 'offline',
                 'unknown': 'offline'
             },
-            thresholds: {
+            THRESHOLDS: {
                 'activity': [
                     {
                         min: 75,
@@ -81,7 +81,25 @@
                         value: 'progress-bar-danger'
                     }
                 ]
-            }
+            },
+	        MESSAGES : {
+                TX:{
+	                EXPERIMENT_SET: 'experimentSet',
+	                EXPERIMENT_CANCEL: 'experimentCancel', // can be shifted to experiments page
+	                EXPERIMENT_CONFIRMATION: 'experimentConfirmation',
+	                EXPERIMENT_EXTEND_DURATION: 'experimentExtendDuration',
+	                EXPERIMENT_TRANSFER_CONTROL: 'experimentTransferControl',
+	                STIMULUS: 'stimulus',
+	                MAINTENANCE: 'maintenance'
+                },
+                RX:{
+	                CONNECTED: 'connected',
+	                STATUS: 'status',
+	                EXPERIMENT_CONFIRM: 'experimentConfirm',
+	                EXPERIMENT_LIVE: 'experimentLive',
+	                DISCONNECTED: 'disconnected'
+                }
+	        }
         };
 
         return Microscope;

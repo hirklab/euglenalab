@@ -26,25 +26,13 @@
 		};
 
 		var unhook = null;
-		var thresholds = Microscope.thresholds;
 
-		// todo push it to constants
-		var MESSAGES = {
-			CONNECTED: 'connected',
-			STATUS: 'status',
-			UPDATE: 'update',
-			CONFIRMATION: 'confirmation',
-			LIVE: 'live',
-			EXPERIMENT_SET: 'experimentSet',
-			EXPERIMENT_CANCEL: 'experimentCancel',
-			STIMULUS: 'stimulus',
-			MAINTENANCE: 'maintenance',
-			DISCONNECTED: 'disconnected'
-		};
+		var THRESHOLDS = Microscope.THRESHOLDS;
+		var MESSAGES = Microscope.MESSAGES;
 
 		var findClass = function(statType, value) {
 			if (statType !== null || statType !== '') {
-				var threshold = thresholds[statType];
+				var threshold = THRESHOLDS[statType];
 
 				return threshold.find(function(thresh) {
 					return thresh.min <= value;
@@ -63,114 +51,46 @@
 			});
 
 			// get list of microscopes
-			Microscope.list().then(function(res) {
-				vm.activeMicroscopes = lodash.chain(res.data.results)
-					.filter(function(microscope) {
-						return microscope.name !== 'fake' && microscope.isActive;
-					})
-					.sortBy('index')
-					.map(function(microscope) {
-						microscope.panelClass = 'microscope bootstrap-panel';
-
-						microscope.panelClass += microscope.isActive ? ' enabled' : ' disabled';
-
-						if (microscope.isActive) {
-							microscope.address = 'http://' + microscope.publicAddr.ip + ':' + microscope.publicAddr.webcamPort + '?action=snapshot';
-						} else {
-							microscope.address = '/assets/img/bpu-disabled.jpg'
-						}
-
-						if (microscope.stats) {
-							microscope.statistics = microscope.stats.map(function(stat) {
-								var newValue = {
-									'name': stat.statType,
-									'value': stat.data.inverseTimeWeightedAvg,
-									'max': stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
-								};
-
-								newValue['percent'] = newValue['value'] * 100 / newValue['max'];
-								newValue['class'] = findClass(stat.statType, newValue['percent']);
-
-								return newValue;
-							});
-
-							if (microscope.statistics.length === 0) {
-								microscope.statistics = [{}, {}, {}];
-								microscope.quality = 0;
-							} else {
-								var response = lodash.find(microscope.statistics, function(stat) {
-									return stat.name === 'response';
-								});
-
-								var activity = lodash.find(microscope.statistics, function(stat) {
-									return stat.name === 'activity';
-								});
-
-								var population = lodash.find(microscope.statistics, function(stat) {
-									return stat.name === 'population';
-								});
-
-								microscope.quality = (5 * response['percent'] / 100 + 2 * activity['percent'] / 100 + 3 * population['percent'] / 100) / 10;
-							}
-						}
-
-						microscope.status = "offline"; // Microscope.BPU_STATUS_DISPLAY[microscope.bpuStatus];
-						microscope.queueTime = 0;
-						microscope.isConnected = false;
-
-						return microscope;
-					})
-					.value();
-
-				// todo
-				// handle actions when no bpu available
-
-				// connect to webserver and keep updating microscopes' status
-				unhook = $rootScope.$on("message", onMessage.bind(vm));
-
-				// remove listener when view goes out of context
-				$scope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams) {
-					if (fromState.name === 'dashboard') {
-						$scope.$on('$destroy', unhook);
-
-					}
-				});
-			});
-
-
+			vm.getMicroscopes();
 		};
-
-		vm.initialize();
 
 		vm.showDemo = function() {
 			uiTourService.getTourByName('demo').start();
 		};
 
+		// RX Messages
 		var onMessage = function(e, message) {
 			var that = this;
 
 			if (message) {
 				var type = message.type;
 				var payload = message.payload;
-				//
+
 				// $log.log('[RX] ' + type);
 				// if (payload) $log.log(payload);
 
 				switch (type) {
-					case MESSAGES.STATUS:
+					case MESSAGES.RX.CONNECTED:
+						break;
+
+					case MESSAGES.RX.STATUS:
 						onStatus(payload);
 						break;
 
-					case MESSAGES.CONFIRMATION:
+					case MESSAGES.RX.EXPERIMENT_CONFIRM:
 						onGetConfirmation(payload);
 						break;
 
-					case MESSAGES.LIVE:
+					case MESSAGES.RX.EXPERIMENT_LIVE:
 						onLiveExperiment(payload);
+						break;
+
+					case MESSAGES.RX.DISCONNECTED:
 						break;
 
 					default:
 						$log.error('invalid message: message type not handled');
+						$log.error(message);
 						break;
 				}
 			}
@@ -235,42 +155,6 @@
 
 		var ms2s = function(ms) {
 			return Math.round(ms / 1000);
-		};
-
-		vm.startExperiment = function() {
-			var errors = false;
-
-			return $q(function(resolve, reject) {
-				if (!vm.isSubmitting) {
-					vm.isSubmitting = true;
-
-					if (vm.validate()) {
-						vm.experiment.submittedAt = new Date();
-
-						//todo remove any non-essential info from microscope object in experiment
-
-
-						// make a rest call to server
-						Experiment.create(vm.experiment)
-							.then(function(response, status) {
-								resolve();
-							}, function(error, status) {
-								toastr.error(error.message, 'Experiment submission failed!');
-								reject(error.message);
-							});
-
-						vm.isSubmitting = false;
-
-					} else {
-						toastr.error("Please check if experiment has correct data to execute.", 'Invalid experiment!');
-						vm.isSubmitting = false;
-						reject();
-					}
-				} else {
-					vm.isSubmitting = false;
-					reject();
-				}
-			});
 		};
 
 		vm.selectMode = function(mode) {
@@ -380,6 +264,122 @@
 			return result;
 		};
 
+		var createExperiment = function(experiment, resolve, reject){
+			experiment.submittedAt = new Date();
+
+			//todo remove any non-essential info from microscope object in experiment
+
+			// make a rest call to server
+			Experiment.create(experiment)
+				.then(function(response, status) {
+					toastr.success('Experiment submission successful!');
+					resolve();
+				}, function(error, status) {
+					toastr.error(error.message, 'Experiment submission failed!');
+					reject(error.message);
+				});
+		};
+
+		vm.startExperiment = function() {
+			return $q(function(resolve, reject) {
+				if (!vm.isSubmitting) {
+					vm.isSubmitting = true;
+
+					if (vm.validate()) {
+						var experiment = angular.copy(vm.experiment);
+
+						createExperiment(experiment, resolve, reject);
+
+						vm.isSubmitting = false;
+
+					} else {
+						toastr.error("Please check if experiment has correct data to execute.", 'Invalid experiment!');
+						vm.isSubmitting = false;
+						reject();
+					}
+				} else {
+					vm.isSubmitting = false;
+					reject();
+				}
+			});
+		};
+
+		vm.getMicroscopes = function(){
+			Microscope.list().then(function(res) {
+				vm.activeMicroscopes = lodash.chain(res.data.results)
+					.filter(function(microscope) {
+						return microscope.name !== 'fake' && microscope.isActive;
+					})
+					.sortBy('index')
+					.map(function(microscope) {
+						microscope.panelClass = 'microscope bootstrap-panel';
+
+						microscope.panelClass += microscope.isActive ? ' enabled' : ' disabled';
+
+						if (microscope.isActive) {
+							microscope.address = 'http://' + microscope.publicAddr.ip + ':' + microscope.publicAddr.webcamPort + '?action=snapshot';
+						} else {
+							microscope.address = '/assets/img/bpu-disabled.jpg'
+						}
+
+						if (microscope.stats) {
+							microscope.statistics = microscope.stats.map(function(stat) {
+								var newValue = {
+									'name': stat.statType,
+									'value': stat.data.inverseTimeWeightedAvg,
+									'max': stat.statType === 'response' ? 4 * (4 / microscope.magnification) : stat.statType === 'population' ? 300 / (microscope.magnification) : 500
+								};
+
+								newValue['percent'] = newValue['value'] * 100 / newValue['max'];
+								newValue['class'] = findClass(stat.statType, newValue['percent']);
+
+								return newValue;
+							});
+
+							if (microscope.statistics.length === 0) {
+								microscope.statistics = [{}, {}, {}];
+								microscope.quality = 0;
+							} else {
+								var response = lodash.find(microscope.statistics, function(stat) {
+									return stat.name === 'response';
+								});
+
+								var activity = lodash.find(microscope.statistics, function(stat) {
+									return stat.name === 'activity';
+								});
+
+								var population = lodash.find(microscope.statistics, function(stat) {
+									return stat.name === 'population';
+								});
+
+								microscope.quality = (5 * response['percent'] / 100 + 2 * activity['percent'] / 100 + 3 * population['percent'] / 100) / 10;
+							}
+						}
+
+						microscope.status = "offline"; // Microscope.BPU_STATUS_DISPLAY[microscope.bpuStatus];
+						microscope.queueTime = 0;
+						microscope.isConnected = false;
+
+						return microscope;
+					})
+					.value();
+
+				// todo
+				// handle actions when no bpu available
+
+				// connect to webserver and keep updating microscopes' status
+				unhook = $rootScope.$on("message", onMessage.bind(vm));
+
+				// remove listener when view goes out of context
+				$scope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams) {
+					if (fromState.name === 'dashboard') {
+						$scope.$on('$destroy', unhook);
+
+					}
+				});
+			});
+		};
+
 		var timedCall = function(timeout, callback) {
 			return $q(function(resolve, reject) {
 				callback(resolve, reject);
@@ -389,6 +389,8 @@
 				}, timeout);
 			});
 		};
+
+		vm.initialize();
 	}
 
 })();

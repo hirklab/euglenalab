@@ -20,6 +20,7 @@
 			queue:          queue,
 			addNote:        addNote,
 			removeNote:     removeNote,
+
 			STATUS_DISPLAY: {
 				'created':       'created',
 				'submited':      'created',
@@ -31,6 +32,7 @@
 				'failed':        'failed',
 				'finished':      'finished'
 			},
+
 			thresholds:     {
 				'activity':   [
 					{

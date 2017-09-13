@@ -23,15 +23,23 @@ var express          = require('express'),
     config           = require('./libs/config'),
     logger           = require('./libs/logging'),
     Controller       = require('./libs/controller'),
-    UserManager      = require('./libs/userManager'),
+    UserManager      = require('./libs/userManager');
 
-    // todo get rid of these functions
-    myFunctions      = require('../shared/myFunctions');
+// todo get rid of these functions
+// myFunctions      = require('../shared/myFunctions');
 
 var app = express();
 
+//setup server base path
+var parts = __dirname.split('/');
+parts.pop();
+app.serverBase = '';
+parts.forEach(function (part) {
+	app.serverBase += '/' + part;
+});
+
 // todo get rid of these functions
-app.myFunctions = myFunctions;
+// app.myFunctions = myFunctions;
 
 // todo get rid of these functions
 app.utility          = {};
@@ -45,14 +53,6 @@ app.server = http.createServer(app);
 
 app.controller  = null;
 app.userManager = null;
-
-//setup server base path
-var parts = __dirname.split('/');
-parts.pop();
-app.serverBase = '';
-parts.forEach(function (part) {
-	app.serverBase += '/' + part;
-});
 
 // todo get rid of this config
 app.mainConfig = app.config.mainConfig;
@@ -111,8 +111,8 @@ app.use(function (req, res, next) {
 
 	res.cookie('_csrfToken', req.csrfToken());
 
-	res.locals.user                  = {};
-	if(req.user) {
+	res.locals.user = {};
+	if (req.user) {
 		res.locals.user.username = req.user.username;
 	}
 
