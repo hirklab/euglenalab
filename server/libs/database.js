@@ -1,25 +1,27 @@
 var mongoose = require('mongoose');
 
-var config = require('../config');
+var config = require('./config');
 var logger = require('./logging');
+
+var schemaPath = '../../shared/models';
 
 module.exports = function (app, callback) {
 	"use strict";
 
-	if(app.hasOwnProperty('db') && app.db) {
+	if(!(app.hasOwnProperty('db') && app.db)) {
 
 		mongoose.Promise = global.Promise;
 		app.db           = mongoose.createConnection(config.DB_URL);
 
 		app.db.on('error', function (err) {
 			logger.error(err);
-			callback(err);
+			callback(err, app.db);
 		});
 
 		app.db.once('open', function () {
 			logger.info('database => ' + config.DB_URL);
 
-			require('./models')(app, mongoose);
+			require(schemaPath + '/index')(app, mongoose);
 			callback(null, app.db);
 		});
 

@@ -1,6 +1,6 @@
 {
-  "name": "euglenalab",
-  "version": "0.16.4",
+  "name": "biolab",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "start": "node app.js",
@@ -13,11 +13,14 @@
     "bootstrap": "^3.x.x",
     "bootstrap-colorpicker": "^2.5.1",
     "bootstrap-rating": "0.0.1",
+    "bee-queue": "^1.1.0",
+    "bull-arena": "^2.1.1",
     "compression": "^1.7.0",
     "connect-mongo": "^0.8.2",
     "cookie-parser": "^1.4.3",
     "csurf": "^1.x.x",
     "defaults": "^1.0.3",
+    "dotenv": "^4.0.0",
     "emailjs": "^0.3.x",
     "express": "^4.15.3",
     "express-http-proxy": "^0.6.0",
@@ -37,7 +40,7 @@
     "passport": "^0.2.2",
     "passport-jwt": "^2.2.1",
     "passport-local": "^1.x.x",
-    "redis": "^0.12.1",
+    "redis": "^2.8.0",
     "respond.js": "^1.x.x",
     "rimraf": "^2.5.2",
     "serve-static": "^1.12.3",
@@ -49,22 +52,8 @@
     "underscore": "^1.x.x",
     "yarn": "^0.24.5"
   },
-  "devDependencies": {
-    "david": "^6.x.x",
-    "grunt": "^0.4.x",
-    "grunt-cli": "^0.1.13",
-    "grunt-concurrent": "^2.x.x",
-    "grunt-contrib-clean": "^0.6.x",
-    "grunt-contrib-copy": "^0.8.x",
-    "grunt-contrib-jshint": "^0.11.x",
-    "grunt-contrib-less": "^1.x.x",
-    "grunt-contrib-uglify": "^0.9.x",
-    "grunt-contrib-watch": "^0.6.x",
-    "grunt-newer": "^1.x.x",
-    "grunt-nodemon": "^0.4.x"
-  },
-  "description": "A website and user system starter. Implemented with Express and Backbone.",
-  "main": "Gruntfile.js",
-  "author": "clitton",
-  "license": "ISC"
+  "description": "",
+  "main": "app.js",
+  "author": "shirishgoyal",
+  "license": "MIT"
 }

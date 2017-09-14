@@ -4,16 +4,17 @@ var router = require('express').Router();
 var mongoose = require('mongoose');
 var _ = require('lodash');
 
-var utils = require('../utils');
-var ensureAuthenticated = utils.ensureAuthenticated;
-var ensureAdmin = utils.ensureAdmin;
-var ensureAccount = utils.ensureAccount;
+var auth = require('../utils/auth');
+var flow = require('../utils/workflow');
+var ensureAuthenticated = auth.ensureAuthenticated;
+var ensureAdmin = auth.ensureAdmin;
+var ensureAccount = auth.ensureAccount;
 
 
 // c) MP -> API : GET / (List of bio processing units)
 // 	Response: list of units
 var get_bio_units = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req, res);
 
     workflow.on('find', function () {
         req.query.search = req.query.search ? req.query.search : '';
@@ -122,7 +123,7 @@ var get_bio_units = function (req, res) {
 // c) MP -> API : GET /:id/ (detail of bio processing units)
 // 	Response: unit
 var bio_unit_detail = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req, res);
 
     workflow.on('find', function () {
         // req.query.search = req.query.search ? req.query.search : '';
@@ -221,7 +222,7 @@ var bio_unit_detail = function (req, res) {
 };
 
 var bio_unit_health = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req, res);
 
     function getPerformance(username, param, bpu_id, startDate, endDate, scale, cb) {
         var endDate = parseInt(endDate);
@@ -404,7 +405,7 @@ var bio_unit_health = function (req, res) {
 };
 
 var bio_unit_queue = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req, res);
 
     workflow.on('queue', function () {
 
@@ -543,7 +544,7 @@ var bio_unit_queue = function (req, res) {
 };
 
 var add_note = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req, res);
 
     // console.log(req.user);
 
@@ -587,7 +588,7 @@ var add_note = function (req, res) {
 };
 
 var remove_note = function (req, res) {
-    var workflow = req.app.utility.workflow(req, res);
+    var workflow = flow(req, res);
 
     workflow.on('removeNote', function () {
 

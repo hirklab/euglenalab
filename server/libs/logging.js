@@ -2,9 +2,9 @@
 var tracer = require('tracer');
 var colors = require('colors');
 
-var LOG_LEVELS = require('./constants').LOG_LEVELS;
-
 // env.config();
+
+var LOG_LEVELS = require('./constants').LOG_LEVELS;
 
 var logger = tracer.colorConsole(
 	{

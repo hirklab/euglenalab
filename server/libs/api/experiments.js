@@ -9,10 +9,11 @@ var fs = require('fs');
 var temp = require('temp');
 var rmdir = require('rimraf');
 
-var utils = require('../utils');
-var ensureAuthenticated = utils.ensureAuthenticated;
-var ensureAdmin = utils.ensureAdmin;
-var ensureAccount = utils.ensureAccount;
+var auth = require('../utils/auth');
+var workflow = require('../utils/workflow');
+var ensureAuthenticated = auth.ensureAuthenticated;
+var ensureAdmin = auth.ensureAdmin;
+var ensureAccount = auth.ensureAccount;
 
 
 // POST /experiment/ (Choose BPU to experiment with)
@@ -24,7 +25,7 @@ var create = function(req, res) {
 	// microscope available or not
 
 
-	var flow = req.app.utility.workflow(req, res);
+	var flow = workflow(req, res);
 
 	flow.on('validate', function() {
 		if (!req.body.type) {
@@ -96,7 +97,7 @@ var detail = function(req, res) {
 
 
 var list = function(req, res) {
-	var workflow = req.app.utility.workflow(req, res);
+	var workflow = workflow(req, res);
 
 	workflow.on('find', function() {
 		req.query.search = req.query.search ? req.query.search : null;
@@ -157,7 +158,7 @@ var list = function(req, res) {
 };
 
 var download = function(req, res) {
-	var workflow = req.app.utility.workflow(req, res);
+	var workflow = workflow(req, res);
 
 	var sendFile = function(dir, filename) {
 		if (dir && filename) {
@@ -295,7 +296,7 @@ var download = function(req, res) {
 };
 
 var survey = function(req, res) {
-	var workflow = req.app.utility.workflow(req, res);
+	var workflow = workflow(req, res);
 
 	workflow.on('validate', function() {
 		if (!req.body.experiment) {
