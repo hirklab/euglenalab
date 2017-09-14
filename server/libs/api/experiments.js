@@ -10,7 +10,7 @@ var temp = require('temp');
 var rmdir = require('rimraf');
 
 var auth = require('../utils/auth');
-var workflow = require('../utils/workflow');
+var flow = require('../utils/workflow');
 var ensureAuthenticated = auth.ensureAuthenticated;
 var ensureAdmin = auth.ensureAdmin;
 var ensureAccount = auth.ensureAccount;
@@ -25,25 +25,25 @@ var create = function(req, res) {
 	// microscope available or not
 
 
-	var flow = workflow(req, res);
+	var workflow = flow(req, res);
 
-	flow.on('validate', function() {
+	workflow.on('validate', function() {
 		if (!req.body.type) {
-			flow.outcome.errfor.type = 'required';
+			workflow.outcome.errfor.type = 'required';
 		}
 
 		if (!req.body.proposedEvents) {
-			flow.outcome.errfor.proposedEvents = 'required';
+			workflow.outcome.errfor.proposedEvents = 'required';
 		}
 
-		if (flow.hasErrors()) {
-			return flow.emit('exception');
+		if (workflow.hasErrors()) {
+			return workflow.emit('exception');
 		}else{
-			flow.emit('create');
+			workflow.emit('create');
 		}
 	});
 
-	flow.on('create', function() {
+	workflow.on('create', function() {
 
 		// var fieldsToSet = {
 		// 	experiment: req.body.experiment,
@@ -55,15 +55,15 @@ var create = function(req, res) {
 
 		req.app.db.models.Experiment.create(req.body, function(err, experiment) {
 			if (err) {
-				return flow.emit('exception', err);
+				return workflow.emit('exception', err);
 			}else {
 
 				req.app.controller.submitExperiment(experiment, function (err) {
 					if (err) {
-						return flow.emit('exception', err);
+						return workflow.emit('exception', err);
 					}else {
-						flow.outcome.result = experiment;
-						flow.emit('response');
+						workflow.outcome.result = experiment;
+						workflow.emit('response');
 					}
 				});
 			}
@@ -71,7 +71,7 @@ var create = function(req, res) {
 		});
 	});
 
-	flow.emit('validate');
+	workflow.emit('validate');
 };
 
 // GET /experiment/{id}/status/ (Get status of experiment)
@@ -97,7 +97,7 @@ var detail = function(req, res) {
 
 
 var list = function(req, res) {
-	var workflow = workflow(req, res);
+	var workflow = flow(req, res);
 
 	workflow.on('find', function() {
 		req.query.search = req.query.search ? req.query.search : null;
@@ -158,7 +158,7 @@ var list = function(req, res) {
 };
 
 var download = function(req, res) {
-	var workflow = workflow(req, res);
+	var workflow = flow(req, res);
 
 	var sendFile = function(dir, filename) {
 		if (dir && filename) {
@@ -296,7 +296,7 @@ var download = function(req, res) {
 };
 
 var survey = function(req, res) {
-	var workflow = workflow(req, res);
+	var workflow = flow(req, res);
 
 	workflow.on('validate', function() {
 		if (!req.body.experiment) {

@@ -165,5 +165,22 @@ UserManager.prototype.listConnectedUsers = function () {
 	});
 };
 
+UserManager.prototype.sendMessage = function(type, payload) {
+	var that = this;
+
+	var newMessage = {};
+	newMessage.type = type;
+	newMessage.payload = payload;
+
+	// logger.debug('=============[C » W]=============');
+	// logger.debug('type: ', type);
+
+	// if (newMessage.payload) {
+	// 	logger.debug('payload: ', newMessage.payload);
+	// }
+
+	that.io.sockets.emit(EVENTS.MESSAGE, newMessage);
+};
+
 // export the class
 module.exports = UserManager;

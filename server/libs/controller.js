@@ -1,25 +1,26 @@
 var socketClient = require('socket.io-client');
-var _ = require('lodash');
-var async = require('async');
+var _            = require('lodash');
+var async        = require('async');
 
 var myFunctions = require('../../shared/myFunctions.js');
 
 var logger = require('./logging');
 
-var config = require('./config');
+var config    = require('./config');
 var constants = require('./constants');
-var MESSAGES = constants.CLIENT_MESSAGES;
+var MESSAGES  = constants.CLIENT_MESSAGES;
 
-var Scheduler        = require('./scheduler');
-var UserManager      = require('./userManager');
-var Microscope      = require('./microscope');
+var Scheduler   = require('./scheduler');
+var UserManager = require('./userManager');
+var Microscope  = require('./microscope');
 
 
 // Constructor
 function Controller(config, app) {
-	var that = this;
-	this.db = app.db;
-	this.config = config;
+	var that    = this;
+	that.app    = app;
+	that.db     = app.db;
+	that.config = config;
 
 	// object list of connected microscopes
 	that.microscopesIndex = {};
@@ -45,36 +46,36 @@ function Controller(config, app) {
 }
 
 // class methods
-Controller.prototype.compileClientUpdateFromController = function(microscopes, listExperiment) {
+Controller.prototype.compileClientUpdateFromController = function (microscopes, listExperiment) {
 	var that = this;
 
-	var users = _.map(Object.values(that.userManager.users), function(user) {
+	var users = _.map(Object.values(that.userManager.users), function (user) {
 		"use strict";
 		return {
-			id: user.userID,
+			id:       user.userID,
 			username: user.username
 		};
 	});
 
-	Object.values(that.userManager.users).forEach(function(user) {
-		_.map(user.sockets, function(socket) {
+	Object.values(that.userManager.users).forEach(function (user) {
+		_.map(user.sockets, function (socket) {
 
 			var payload = {
 				microscopes: microscopes,
-				users: users
+				users:       users
 			};
 
 			// todo filter microscopes which are not in user group
 
-			var newMessage = {};
-			newMessage.type = MESSAGES.TX.STATUS;
+			var newMessage     = {};
+			newMessage.type    = MESSAGES.TX.STATUS;
 			newMessage.payload = payload;
 			socket.emit('message', newMessage);
 		});
 	});
 };
 
-Controller.prototype.connect = function(cb) {
+Controller.prototype.connect = function (cb) {
 	var that = this;
 
 	// var address = that.config.controllerAddress;
@@ -153,25 +154,25 @@ Controller.prototype.connect = function(cb) {
 	// cb(null, that);
 };
 
-Controller.prototype.submitExperiment = function(experiment, cb) {
+Controller.prototype.submitExperiment = function (experiment, cb) {
 	var that = this;
 
 	var message = {
-		type: 'experimentSet',
+		type:    'experimentSet',
 		payload: experiment
 	};
-
 
 
 	// that.socket.emit('message', message, cb);
 };
 
-Controller.prototype.setStimulus = function(data) {
+Controller.prototype.setStimulus = function (data) {
 	// this.socket.emit(this.config.mainConfig.socketStrs.bpu_runExpLedsSet, data);
 };
 
 Controller.prototype.loop = function () {
 	var that = this;
+
 	//utils.clearConsole();
 	var startDate = new Date();
 
@@ -186,7 +187,7 @@ Controller.prototype.loop = function () {
 		// experimentUtils.scheduleExperiments,
 		// experimentUtils.updateExperimentsQueue,
 
-		// experimentUtils.notifyClients
+		that.notifyClients.bind(that)
 	], function (err) {
 		if (err) {
 			logger.error(err);
@@ -198,7 +199,7 @@ Controller.prototype.loop = function () {
 	});
 };
 
-Controller.prototype.getMicroscopes= function (callback) {
+Controller.prototype.getMicroscopes = function (callback) {
 	var that = this;
 	// logger.debug('fetching BPUs...');
 
@@ -237,7 +238,7 @@ Controller.prototype.getMicroscopes= function (callback) {
 	});
 };
 
-Controller.prototype.showStatus= function (callback) {
+Controller.prototype.showStatus = function (callback) {
 	var that = this;
 	// logger.debug('checking BPUs...');
 
@@ -263,6 +264,64 @@ Controller.prototype.showStatus= function (callback) {
 		}
 
 	});
+
+	return callback(null);
+};
+
+Controller.prototype.notifyClients = function (callback) {
+	var that = this;
+
+	var microscopes = _.values(that.microscopesIndex);
+
+	var bpuDocs = _.chain(microscopes)
+		.filter(function (microscope) {
+			return microscope.isConnected;
+		})
+		.map(function (microscope) {
+			var data = _.clone(microscope);
+
+			// if (isLiveActive(bpuDoc.bpuStatus)) {
+			// 	liveBpuExperimentPart = {
+			// 		username:             bpuDoc.liveBpuExperiment.username,
+			// 		bc_timeLeft:          bpuDoc.liveBpuExperiment.bc_timeLeft,
+			// 		group_experimentType: bpuDoc.liveBpuExperiment.group_experimentType
+			// 	};
+			// }
+			// 	// bpu_processingTime: bpuDoc.bpu_processingTime,
+
+			// is live
+			//(status === that.config.mainConfig.bpuStatusTypes.running ||
+			// status === that.config.mainConfig.bpuStatusTypes.pendingRun ||
+			// status === that.config.mainConfig.bpuStatusTypes.finalizing ||
+			// status === that.config.mainConfig.bpuStatusTypes.reseting);
+
+			// var bpuGroupsCrossCheckWithUser = function (user, bpuDoc) {
+			//     for (var ind = 0; ind < bpuDoc.allowedGroups.length; ind++) {
+			//         for (var jnd = 0; jnd < user.groups.length; jnd++) {
+			//             if (bpuDoc.allowedGroups[ind] === user.groups[jnd]) return true;
+			//         }
+			//     }
+			//     return false;
+			// };
+
+			return data.state;
+		});
+
+	var users = _.chain(that.userManager.users)
+		.map(function(user){
+			return {
+				_id:user._id,
+				username:user.username
+			}
+		});
+
+	// todo better to filter data only for microscopes which user is allowed to see
+	that.userManager.sendMessage(MESSAGES.TX.STATUS, {
+		microscopes: bpuDocs,
+		experiments: that.experiments, //.toJSON(),
+		users:       users
+	});
+
 
 	return callback(null);
 };

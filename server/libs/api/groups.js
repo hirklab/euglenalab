@@ -4,14 +4,14 @@ var router = require('express').Router();
 var mongoose = require('mongoose');
 
 var auth = require('../utils/auth');
-var workflow = require('../utils/workflow');
+var flow = require('../utils/workflow');
 var ensureAuthenticated = auth.ensureAuthenticated;
 var ensureAdmin = auth.ensureAdmin;
 var ensureAccount = auth.ensureAccount;
 
 
 var list = function(req, res) {
-    var workflow = workflow(req, res);
+    var workflow = flow(req, res);
 
     workflow.on('find', function() {
         req.query.search = req.query.search ? req.query.search : '';
@@ -62,7 +62,7 @@ var list = function(req, res) {
 };
 
 var detail = function(req, res) {
-    var workflow = workflow(req, res);
+    var workflow = flow(req, res);
 
     workflow.on('find', function() {
         // req.query.search = req.query.search ? req.query.search : '';

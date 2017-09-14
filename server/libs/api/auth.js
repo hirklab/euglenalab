@@ -6,7 +6,7 @@ var jwt      = require('jsonwebtoken');
 var _        = require('lodash');
 var mongoose = require('mongoose');
 
-var workflow = require('../utils/workflow');
+var flow = require('../utils/workflow');
 
 
 // a) MP -> API : POST /api/auth/register/ (Register user)
@@ -17,7 +17,7 @@ var workflow = require('../utils/workflow');
 // }
 // Response -> user: {id, username, email, createdAt}
 var register = function (req, res) {
-	var workflow = workflow(req, res);
+	var workflow = flow(req, res);
 
 	workflow.on('validate', function () {
 		if (!req.body.username) {
@@ -150,7 +150,7 @@ var register = function (req, res) {
 //   token: "JWT 35252632632236"
 // }
 var login = function (req, res) {
-	var workflow = workflow(req, res);
+	var workflow = flow(req, res);
 
 	workflow.on('validate', function () {
 		if (!req.body.username) {
@@ -212,7 +212,7 @@ var login = function (req, res) {
 };
 
 var forgot = function (req, res, next) {
-	var workflow = workflow(req, res);
+	var workflow = flow(req, res);
 
 	workflow.on('validate', function () {
 		if (!req.body.email) {
@@ -290,7 +290,7 @@ var forgot = function (req, res, next) {
 };
 
 var reset = function (req, res) {
-	var workflow = workflow(req, res);
+	var workflow = flow(req, res);
 
 	workflow.on('validate', function () {
 		if (!req.body.password) {
