@@ -59,42 +59,22 @@ module.exports = {
         }
     },
 
-    BPU_STATES: {
-        CONNECTING: 'connecting',
-        IDLE: 'idle',
-        QUEUED: 'queued',
-        RUNNING: 'running',
-        MAINTENANCE: 'maintenance',
-        OFFLINE: 'offline'
-    },
-    BPU_EVENTS: {
-        CONNECT: 'connect',
-        DISCONNECT: 'disconnect',
-        RECONNECT: 'reconnect',
-        CLOSE: 'close',
-        OFFLINE: 'offline',
-        ERROR: 'error',
-        MESSAGE: 'message',
-        PACKET_SEND: 'packetsend',
-        PACKET_RECEIVE: 'packetreceive'
-    },
-
-    BPU_MESSAGES: {
-        TX: {
-            CONNECTED: 'connected',
-            STATUS: 'status',
-            DISCONNECTED: 'disconnected'
-        },
-        RX: {
-            CONNECTED: 'connected',
-            STATUS: 'status',
-            EXPERIMENT_SET: 'experimentSet',
-            EXPERIMENT_CANCEL: 'experimentCancel',
-            EXPERIMENT_RUN: 'experimentRun',
-            STIMULUS: 'stimulus',
-            EXPERIMENT_CLEAR: 'experimentClear',
-            MAINTENANCE: 'maintenance',
-            DISCONNECTED: 'disconnected'
-        }
-    }
+	BPU_MESSAGES: {
+		RX: {
+			CONNECTED:    'connected',
+			STATUS:       'status',
+			DISCONNECTED: 'disconnected'
+		},
+		TX: {
+			CONNECTED:         'connected',
+			STATUS:            'status',
+			EXPERIMENT_SET:    'experimentSet',
+			EXPERIMENT_CANCEL: 'experimentCancel',
+			EXPERIMENT_RUN:    'experimentRun',
+			STIMULUS:          'stimulus',
+			EXPERIMENT_CLEAR:  'experimentClear',
+			MAINTENANCE:       'maintenance',
+			DISCONNECTED:      'disconnected'
+		}
+	}
 };

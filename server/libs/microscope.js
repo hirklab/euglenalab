@@ -1,71 +1,167 @@
 "use strict";
 
 var async = require('async');
-var os    = require('os');
-var fs    = require('fs');
-var http  = require('http');
+var os = require('os');
+var fs = require('fs');
+var http = require('http');
 // var publicIp   = require('public-ip');
 // var internalIp = require('internal-ip');
-var exec           = require('child_process').exec;
+var exec = require('child_process').exec;
 var socketIOClient = require('socket.io-client');
-var lodash         = require('lodash');
-// var Queue          = require('bee-queue');
+var lodash = require('lodash');
+var Queue = require('bee-queue');
 
 
-var logger    = require('./logging');
-var config    = require('./config');
+var logger = require('./logging');
+var config = require('./config');
 var constants = require('./constants');
 
-var EVENTS   = constants.BPU_EVENTS;
-var STATES   = constants.BPU_STATES;
+var EVENTS = constants.BPU_EVENTS;
+var STATES = constants.BPU_STATES;
 var MESSAGES = constants.BPU_MESSAGES;
+var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
+var EXPERIMENT_TYPE = constants.EXPERIMENT_TYPE;
 
 function Microscope(config) {
-	var that           = this;
-	that.id            = config.name; // use id everywhere to find this microscope
-	that.name          = config.name;
-	that.doc           = config.doc;
-	that.address       = config.address;
-	that.socket        = null;
+	var that = this;
+	that.id = config.name; // use id everywhere to find this microscope
+	that.name = config.name;
+	that.doc = config.doc;
+	that.address = config.address;
+	that.socket = null;
 	that.inactiveCount = 0;
-	that.queueTime     = 0;
-	that.messages      = [];
-	that.isConnected   = false;
-	that.status        = STATES.OFFLINE;
-	// that.queue         = new Queue(that.name);
+	that.queueTime = 0;
+	that.messages = [];
+	that.isConnected = false;
+	that.status = STATES.OFFLINE;
+	that.queue = new Queue(that.name, {
+		removeOnSuccess: true,
+		removeOnFailure: true
+	});
+
+	that.queue.on('ready', function() {
+		logger.debug(that.name + ' scheduler ready');
+
+	});
+
+	that.queue.on('error', function(err) {
+		logger.error(err);
+	});
+
+	that.queue.on('succeeded', function(job, result) {
+		logger.info('job ' + job.id + ' on microscope ' + that.name + ' succeeded :' + job.data.description);
+
+		// save it in database now
+	});
+
+	that.queue.on('failed', function(job, err) {
+		logger.warn('job ' + job.id + ' on microscope ' + that.name + ' failed :' + err);
+
+		// todo save it in database now
+	});
+
+	that.queue.on('progress', function(jobId, progress) {
+		// logger.debug('job ' + jobId + ' on microscope ' + that.name + ' reported progress: ' + progress + '%');
+	});
+
+	that.queue.process(1, function(job, done) { // process 1 job at a time
+		// logger.debug('processing job ' + job.id);
+
+		var experiment = job.data;
+
+		// run the experiment here
+		// set experiment
+		that.sendMessage(constants.BPU_MESSAGES.TX.EXPERIMENT_SET, {
+			experiment: experiment
+		});
+
+		if (experiment.type == EXPERIMENT_TYPE.LIVE) {
+			// get confirmation if live
+			// 
+			// 
+			// connect user to microscope
+			// 
+			// 
+			that.app.webserver.sendMessage(constants.CLIENT_MESSAGES.CONFIRMATION, function(err, result) {
+				if (err) {
+
+				} else {
+					if (result) {
+
+					}
+				}
+
+			});
+
+		} else {
+			// no confirmation for batch required
+			// 
+			that.sendMessage(constants.BPU_MESSAGES.TX.EXPERIMENT_RUN);
+		}
+
+		// run experiment now
+		// push events or push experiment
+		// wait for duration or user cancellation
+
+
+		// finish experiment
+		setTimeout(function() {
+			return done(null, 'completed');
+		}, experiment.duration * 1000);
+	});
+
+
 
 	// only expose this state - keep rest of variables as internal state
 	that.state = {};
 
-	that.connect(function (err) {
+	that.connect(function(err) {
 		if (err) {
 			logger.error(err);
 		}
 	});
 }
 
-Microscope.prototype.connect = function (callback) {
+Microscope.prototype.addExperiment = function(experiment, callback) {
+	var that = this;
+
+	// logger.info(experiment);
+
+	var job = that.queue.createJob(experiment);
+
+	job.save(function(err, job) {
+		// logger.debug('pushing a new experiment ' + job.id + ' on main queue');
+	});
+
+	job.on('progress', function(progress) {
+		logger.info('job ' + job.id + ' reported progress: ' + progress + '%');
+	});
+
+	callback();
+};
+
+Microscope.prototype.connect = function(callback) {
 	var that = this;
 
 	// new connection to BPU
 	if (that.socket == null) {
 		that.socket = socketIOClient('http://' + that.doc.localAddr.ip + ':' + that.doc.localAddr.serverPort, {
-			multiplex:    false,
+			multiplex: false,
 			reconnection: true
 		});
 
-		that.socket.on(EVENTS.CONNECT, function () {
+		that.socket.on(EVENTS.CONNECT, function() {
 			logger.info('connected to microscope at ' + that.address);
 			that.sendMessage(MESSAGES.TX.STATUS, null);
 		});
 
-		that.socket.on(EVENTS.DISCONNECT, function (msg) {
+		that.socket.on(EVENTS.DISCONNECT, function(msg) {
 			that.onDisconnected(null, false);
 		});
 
-		that.socket.on(EVENTS.MESSAGE, function (message) {
+		that.socket.on(EVENTS.MESSAGE, function(message) {
 			if (message) {
-				var type    = message.type;
+				var type = message.type;
 				var payload = message.payload;
 
 				logger.debug('====================================');
@@ -135,23 +231,23 @@ Microscope.prototype.connect = function (callback) {
 	}
 };
 
-Microscope.prototype.onConnected = function (payload) {
-	var that         = this;
+Microscope.prototype.onConnected = function(payload) {
+	var that = this;
 	that.isConnected = true;
-	that.status      = STATES.IDLE;
+	that.status = STATES.IDLE;
 };
 
-Microscope.prototype.onStatus = function (payload) {
-	var that         = this;
+Microscope.prototype.onStatus = function(payload) {
+	var that = this;
 	that.isConnected = true;
-	that.status      = payload.status;
-	that.state       = {
-		id:that.id,
-		name:that.name,
-		status:that.status,
-		experiment:payload.experiment,
-		queueTime:payload.queueTime,
-		isConnected:that.isConnected
+	that.status = payload.status;
+	that.state = {
+		id: that.id,
+		name: that.name,
+		status: that.status,
+		experiment: payload.experiment,
+		queueTime: payload.queueTime,
+		isConnected: that.isConnected
 	};
 
 };
@@ -184,7 +280,7 @@ Microscope.prototype.onStatus = function (payload) {
 //
 // }
 
-Microscope.prototype.onDisconnected = function (payload, timeout) {
+Microscope.prototype.onDisconnected = function(payload, timeout) {
 	var that = this;
 
 	// this.socket.disconnect();
@@ -260,15 +356,15 @@ Microscope.prototype.onDisconnected = function (payload, timeout) {
 //
 
 
-Microscope.prototype.sendMessage = function (type, payload) {
-	var newMessage     = {};
-	newMessage.type    = type;
+Microscope.prototype.sendMessage = function(type, payload) {
+	var newMessage = {};
+	newMessage.type = type;
 	newMessage.payload = payload;
 
 	logger.debug('[TX -> M]: ' + this.name + ': ' + type);
 	if (payload) logger.debug(payload);
 
-	this.socket.emit(EVENTS.MESSAGE, newMessage, function (err) {
+	this.socket.emit(EVENTS.MESSAGE, newMessage, function(err) {
 		if (err) {
 			logger.error(err);
 		}
