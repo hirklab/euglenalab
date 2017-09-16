@@ -1,0 +1,6 @@
+dist
+node_modules
+.env
+frontend/dist/
+frontend/dll/
+frontend/node_modules/
