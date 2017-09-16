@@ -9,6 +9,7 @@ var fs = require('fs');
 var temp = require('temp');
 var rmdir = require('rimraf');
 
+var logger = require('../logging');
 var auth = require('../utils/auth');
 var flow = require('../utils/workflow');
 var ensureAuthenticated = auth.ensureAuthenticated;
@@ -38,7 +39,7 @@ var create = function(req, res) {
 
 		if (workflow.hasErrors()) {
 			return workflow.emit('exception');
-		}else{
+		} else {
 			workflow.emit('create');
 		}
 	});
@@ -56,12 +57,12 @@ var create = function(req, res) {
 		req.app.db.models.Experiment.create(req.body, function(err, experiment) {
 			if (err) {
 				return workflow.emit('exception', err);
-			}else {
+			} else {
 
-				req.app.controller.submitExperiment(experiment, function (err) {
+				req.app.controller.addExperiment(experiment, function(err) {
 					if (err) {
 						return workflow.emit('exception', err);
-					}else {
+					} else {
 						workflow.outcome.result = experiment;
 						workflow.emit('response');
 					}

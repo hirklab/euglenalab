@@ -78,12 +78,12 @@ module.exports = {
 	},
 
 	BPU_MESSAGES: {
-		TX: {
+		RX: {
 			CONNECTED:    'connected',
 			STATUS:       'status',
 			DISCONNECTED: 'disconnected'
 		},
-		RX: {
+		TX: {
 			CONNECTED:         'connected',
 			STATUS:            'status',
 			EXPERIMENT_SET:    'experimentSet',

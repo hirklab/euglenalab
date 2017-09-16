@@ -1,25 +1,28 @@
 var socketClient = require('socket.io-client');
-var _            = require('lodash');
-var async        = require('async');
+var _ = require('lodash');
+var async = require('async');
+var Queue = require('bee-queue');
 
-var myFunctions = require('../../shared/myFunctions.js');
+// var myFunctions = require('../../shared/myFunctions.js');
 
 var logger = require('./logging');
 
-var config    = require('./config');
+var config = require('./config');
 var constants = require('./constants');
-var MESSAGES  = constants.CLIENT_MESSAGES;
+var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
+var EXPERIMENT_TYPE = constants.EXPERIMENT_TYPE;
 
-var Scheduler   = require('./scheduler');
+// var Scheduler = require('./scheduler');
 var UserManager = require('./userManager');
-var Microscope  = require('./microscope');
+var Microscope = require('./microscope');
 
 
 // Constructor
 function Controller(config, app) {
-	var that    = this;
-	that.app    = app;
-	that.db     = app.db;
+	var that = this;
+
+	that.app = app;
+	that.db = app.db;
 	that.config = config;
 
 	// object list of connected microscopes
@@ -35,80 +38,84 @@ function Controller(config, app) {
 	// any new experiment is collected here before being added to cache
 	that.newExperimentsIndex = {};
 
-	this.userManager = new UserManager(config, app.io, app.sessionMiddleware, app.db);
+	that.userManager = new UserManager(config, app.io, app.sessionMiddleware, app.db);
 
-	this.scheduler = new Scheduler();
-	this.scheduler.initialize(function () {
+	that.queue = new Queue('scheduler', {
+		removeOnSuccess: true,
+		removeOnFailure: true
+	});
+
+	that.queue.on('ready', function() {
+
+
+	});
+
+	that.queue.on('error', function(err) {
+		logger.error(err);
+	});
+
+	that.queue.on('succeeded', function(job, result) {
+		// logger.info('job ' + job.id + ' succeeded :' +  job.data.description);
+
+		// todo save it in database now
+	});
+
+	that.queue.on('failed', function(job, err) {
+		logger.warn('job ' + job.id + ' failed :' + err);
+
+		// todo save it in database now
+	});
+
+	that.queue.on('progress', function(jobId, progress) {
+		// logger.debug('job ' + jobId + ' reported progress: ' + progress + '%');
+	});
+
+	that.initialize(function() {
 		logger.debug('main scheduler ready');
 	});
-
-	this.socket = null;
 }
 
-// class methods
-Controller.prototype.compileClientUpdateFromController = function (microscopes, listExperiment) {
+
+Controller.prototype.initialize = function(callback) {
 	var that = this;
 
-	var users = _.map(Object.values(that.userManager.users), function (user) {
-		"use strict";
-		return {
-			id:       user.userID,
-			username: user.username
-		};
+	that.queue.process(1, function(job, done) { // process 1 job at a time
+		// logger.debug('processing job ' + job.id);
+
+		var experiment = job.data;
+
+		// todo grab the experiment from general queue and put it into specific microscope queue
+		// based on
+		// - user choice
+		// - availability
+		// - quality
+
+
+
+		// todo round robin scheduling based on id partitioning
+		// todo employ more powerful partitioning method
+
+		var activeMicroscopes = _.filter(Object.values(that.microscopesIndex), function(microscope) {
+			return microscope.isConnected;
+		})
+
+		if (activeMicroscopes.length > 0) {
+			that.addExperimentToMicroscope(experiment, activeMicroscopes[0]);
+			return done(null, 'dispatched');
+		} else {
+			return done('microscope not available', 'failed');
+		}
+
 	});
 
-	Object.values(that.userManager.users).forEach(function (user) {
-		_.map(user.sockets, function (socket) {
-
-			var payload = {
-				microscopes: microscopes,
-				users:       users
-			};
-
-			// todo filter microscopes which are not in user group
-
-			var newMessage     = {};
-			newMessage.type    = MESSAGES.TX.STATUS;
-			newMessage.payload = payload;
-			socket.emit('message', newMessage);
-		});
-	});
+	callback();
 };
 
-Controller.prototype.connect = function (cb) {
+// class methods
+Controller.prototype.connect = function(cb) {
 	var that = this;
+	logger.debug('connecting controller...');
 
-	// var address = that.config.controllerAddress;
-	// logger.debug('connecting controller...');
-	//
-	// that.socket = socketClient(address, {
-	// 	multiplex: false,
-	// 	reconnection: true
-	// });
-	//
-	// that.socket.on('disconnect', function() {
-	// 	logger.warn('controller disconnected');
-	// });
-	//
-	// that.socket.on('connection', function() {
-	// 	logger.info('controller => ' + address);
-	//
-	// 	cb(null, that);
-	// });
-	//
-	// //update is joined in user socket connection
-	// that.socket.on('message', function(message) {
-	// 	var type = message.type;
-	// 	var payload = message.payload;
-	//
-	// 	// logger.debug('=============[C » W]=============');
-	// 	// logger.debug('type: ', type);
-	//
-	// 	if (type == 'update' && payload) {
-	// 		that.compileClientUpdateFromController(payload.microscopes, payload.experiments);
-	// 	}
-	// });
-	//
 	// //Routes calls to user sockets if found
 	// that.socket.on('activateLiveUser', function(session, liveUserConfirmTimeout, callbackToBpuController) {
 	// 	var userSocket = myFunctions.getSocket(that.userManager.io, session.socketID);
@@ -151,26 +158,57 @@ Controller.prototype.connect = function (cb) {
 	// });
 
 	this.userManager.connect(this, cb);
-	// cb(null, that);
 };
 
-Controller.prototype.submitExperiment = function (experiment, cb) {
+Controller.prototype.addExperiment = function(experiment, callback) {
 	var that = this;
 
+	// logger.info(experiment);
+
+	var job = that.queue.createJob(experiment);
+
+	job.save(function(err, job) {
+		// logger.debug('pushing a new experiment ' + job.id + ' on main queue');
+	});
+
+	job.on('progress', function(progress) {
+		logger.info('job ' + job.id + ' reported progress: ' + progress + '%');
+	});
+
+	callback(null);
+};
+
+
+Controller.prototype.setStimulus = function(data) {
 	var message = {
-		type:    'experimentSet',
+		type: 'experimentSet',
 		payload: experiment
 	};
 
-
-	// that.socket.emit('message', message, cb);
-};
-
-Controller.prototype.setStimulus = function (data) {
 	// this.socket.emit(this.config.mainConfig.socketStrs.bpu_runExpLedsSet, data);
 };
 
-Controller.prototype.loop = function () {
+Controller.prototype.addExperimentToMicroscope = function(experiment, microscope, callback) {
+	var that = this;
+
+	logger.info(microscope);
+
+	microscope.addExperiment(experiment, callback);
+
+	// job.save(function(err, job) {
+	// 	logger.debug('pushing a new experiment ' + job.id + ' on ' + microscopeName);
+	// });
+
+	// job.on('progress', function (progress) {
+	// 	logger.info('job ' + job.id + 'on microscope ' + microscopeName + ' reported progress: ' + progress + '%');
+	// });
+
+	// if (callback) callback();
+};
+
+
+
+Controller.prototype.loop = function() {
 	var that = this;
 
 	//utils.clearConsole();
@@ -188,27 +226,27 @@ Controller.prototype.loop = function () {
 		// experimentUtils.updateExperimentsQueue,
 
 		that.notifyClients.bind(that)
-	], function (err) {
+	], function(err) {
 		if (err) {
 			logger.error(err);
 		} else {
-			setTimeout(function () {
+			setTimeout(function() {
 				that.loop();
 			}, config.LOOP_INTERVAL);
 		}
 	});
 };
 
-Controller.prototype.getMicroscopes = function (callback) {
+Controller.prototype.getMicroscopes = function(callback) {
 	var that = this;
 	// logger.debug('fetching BPUs...');
 
-	that.db.getBPUs(function (err, microscopes) {
+	that.db.getBPUs(function(err, microscopes) {
 		if (err) {
 			logger.error(err);
 			return callback(err);
 		} else {
-			microscopes.forEach(function (microscope) {
+			microscopes.forEach(function(microscope) {
 				if (microscope.name in that.microscopesIndex) {
 
 					// database sync
@@ -223,13 +261,11 @@ Controller.prototype.getMicroscopes = function (callback) {
 
 					// new microscope introduced in database
 					that.microscopesIndex[microscope.name] = new Microscope({
-						id:      microscope._id,
-						name:    microscope.name,
-						doc:     microscope,
+						id: microscope._id,
+						name: microscope.name,
+						doc: microscope,
 						address: 'http://' + microscope.localAddr.ip + ':' + microscope.localAddr.serverPort
 					});
-
-					that.scheduler.addQueue(microscope.name);
 				}
 			});
 
@@ -238,17 +274,17 @@ Controller.prototype.getMicroscopes = function (callback) {
 	});
 };
 
-Controller.prototype.showStatus = function (callback) {
+Controller.prototype.showStatus = function(callback) {
 	var that = this;
 	// logger.debug('checking BPUs...');
 
 	var keys = Object.keys(that.microscopesIndex);
 
-	keys.sort(function (objA, objB) {
+	keys.sort(function(objA, objB) {
 		return that.microscopesIndex[objA].doc.index - that.microscopesIndex[objB].doc.index;
 	});
 
-	keys.forEach(function (key) {
+	keys.forEach(function(key) {
 		var microscope = that.microscopesIndex[key];
 
 		if (microscope.isConnected) {
@@ -256,8 +292,7 @@ Controller.prototype.showStatus = function (callback) {
 			logger.info('\tqueueTime:\t' + microscope.queueTime);
 			logger.info('\texperiment:\t' + (microscope.experiment ? microscope.experiment.submittedAt : 'None'));
 			// logger.info('\tTimeout:\t' + microscope.inactiveCount);
-		}
-		else {
+		} else {
 			logger.error(microscope.doc.name + '(' + microscope.address + ')');
 			logger.error('\texperiment:\t' + (microscope.experiment ? microscope.experiment.submittedAt : 'None'));
 			// logger.error('\tTimeout:\t' + microscope.inactiveCount);
@@ -268,16 +303,16 @@ Controller.prototype.showStatus = function (callback) {
 	return callback(null);
 };
 
-Controller.prototype.notifyClients = function (callback) {
+Controller.prototype.notifyClients = function(callback) {
 	var that = this;
 
 	var microscopes = _.values(that.microscopesIndex);
 
 	var bpuDocs = _.chain(microscopes)
-		.filter(function (microscope) {
+		.filter(function(microscope) {
 			return microscope.isConnected;
 		})
-		.map(function (microscope) {
+		.map(function(microscope) {
 			var data = _.clone(microscope);
 
 			// if (isLiveActive(bpuDoc.bpuStatus)) {
@@ -308,18 +343,18 @@ Controller.prototype.notifyClients = function (callback) {
 		});
 
 	var users = _.chain(that.userManager.users)
-		.map(function(user){
+		.map(function(user) {
 			return {
-				_id:user._id,
-				username:user.username
+				_id: user._id,
+				username: user.username
 			}
 		});
 
 	// todo better to filter data only for microscopes which user is allowed to see
-	that.userManager.sendMessage(MESSAGES.TX.STATUS, {
+	that.userManager.sendMessage(CLIENT_MESSAGES.TX.STATUS, {
 		microscopes: bpuDocs,
 		experiments: that.experiments, //.toJSON(),
-		users:       users
+		users: users
 	});
 
 

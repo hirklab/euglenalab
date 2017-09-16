@@ -2,7 +2,6 @@
 var env = require('dotenv');
 env.config();
 
-// var mainConfig = require('../../shared/mainConfig.js');
 var constants = require('./constants');
 
 module.exports = {
@@ -20,26 +19,26 @@ module.exports = {
 	CALLBACK_TIMEOUT:            1500,
 	MICROSCOPE_INACTIVE_COUNT:   5,
 
-	companyName: 'Riedel-Kruse Lab',
-	projectName: 'Interactive Microbiology Lab',
-	systemEmail: 'euglena.hirk@gmail.com',
+	ORG_NAME: 'Riedel-Kruse Lab',
+	PROJECT_NAME: 'Interactive Microbiology Lab',
+	SYSTEM_EMAIL: 'euglena.hirk@gmail.com',
 
-	requireAccountVerification: false,
-	loginAttempts:              {
+	IS_ACCOUNT_VERIFICATION_REQUIRED: false,
+	LOGIN_ATTEMPTS:              {
 		forIp:         50,
 		forIpAndUser:  7,
 		logExpiration: '20m'
 	},
-	smtp:                       {
-		from:        {
-			name:    process.env.SMTP_FROM_NAME || module.exports.projectName,
-			address: process.env.SMTP_FROM_ADDRESS || module.exports.systemEmail
+	SMTP:                       {
+		FROM:        {
+			NAME:    process.env.SMTP_FROM_NAME || module.exports.PROJECT_NAME,
+			EMAIL: process.env.SMTP_FROM_ADDRESS || module.exports.SYSTEM_EMAIL
 		},
-		credentials: {
-			user:     process.env.SMTP_USERNAME || module.exports.systemEmail,
-			password: process.env.SMTP_PASSWORD || 'IngmarE350A',
-			host:     process.env.SMTP_HOST || 'smtp.gmail.com',
-			ssl:      true
+		CREDENTIALS: {
+			EMAIL:     process.env.SMTP_USERNAME || module.exports.SYSTEM_EMAIL,
+			PASSWORD: process.env.SMTP_PASSWORD || 'IngmarE350A',
+			HOST:     process.env.SMTP_HOST || 'smtp.gmail.com',
+			SSL:      true
 		}
 	}
 };
