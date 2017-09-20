@@ -102,7 +102,7 @@ startCamera(){
   CAMERA_HTTP_LIB=$CAMERA_LIB_PATH"/output_http.so"
   CAMERA_FILE_LIB=$CAMERA_LIB_PATH"/output_file.so"
 
-  if [ $IS_RASPI_CAMERA -eq 0 ]; then
+  if [[ $IS_RASPI_CAMERA -eq 0 ]]; then
     ##original##./mjpg_streamer -i './input_raspicam.so -fps 15  -x 640 -y 480' -o './output_http.so -p 8080 -w ./www' -o './output_file.so -f /myData/bpu/images -d 100'
     CAMERA_LIB=$CAMERA_RASPI_LIB
   else
@@ -114,8 +114,9 @@ startCamera(){
     CAMERA_LIB=$CAMERA_UVC_LIB
   fi   
 
-  ./ImageStreamer/mjpg_streamer -i $CAMERA_LIB $INPUT -o $CAMERA_HTTP_LIB $OUT_WEB -o $CAMERA_FILE_LIB $OUT_FILE
-  return $TRUE;
+  cmd=$(./ImageStreamer/mjpg_streamer -i "$CAMERA_LIB $INPUT" -o "$CAMERA_HTTP_LIB $OUT_WEB" -o "$CAMERA_FILE_LIB $OUT_FILE")
+  exitStatus=$?
+  return $exitStatus;
 }
 
 run(){
