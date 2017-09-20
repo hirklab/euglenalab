@@ -82,7 +82,7 @@ isRaspi() {
   output=$(uname -m);
   exitStatus=$?
 
-  if [[ $exitStatus == *"arm"* ]]; 
+  if [[ $output == *"arm"* ]]; 
   then 
     return $TRUE;
   else
@@ -93,7 +93,7 @@ isRaspi() {
 # permissions
 setUserOwnership() {
   cmd="$1: $2"
-  output=$(chown -R $cmd 2>&1);
+  output=$(sudo chown -R $cmd 2>&1);
   exitStatus=$?
 
   if [[ $exitStatus -ne 0 ]]; then 
@@ -106,7 +106,7 @@ setUserOwnership() {
 
 setGroupOwnership() {
   cmd=":$1 $2"
-  output=$(chown -R $cmd 2>&1);
+  output=$(sudo chown -R $cmd 2>&1);
   exitStatus=$?
 
   if [[ $exitStatus -ne 0 ]]; then 
@@ -119,7 +119,7 @@ setGroupOwnership() {
 
 setAllOwnership() {
   cmd="777 $1"
-  output=$(chmod $cmd 2>&1);
+  output=$(sudo chmod $cmd 2>&1);
   exitStatus=$?
 
   if [[ $exitStatus -ne 0 ]]; then 
