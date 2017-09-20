@@ -35,15 +35,8 @@ create_serial(){
 WHAT_AM_I=$(uname -m)
 #echo "$WHAT_AM_I"
 
-if [[ $WHAT_AM_I != 'armv6l' ]];
+if [[ $WHAT_AM_I == *"arm"* ]];
 then
-    echo -e '\e[31memulating RaspberryPi\e[0m'
-    export MACHINE="ubuntu"
-
-    create_serial
-
-    SERIAL_NUM=$(cat $FILE)
-else
     echo -e '\e[32musing RaspberryPi\e[0m'
     export MACHINE="raspberrypi"
 
@@ -57,6 +50,13 @@ else
 
     SERIAL_NUM=$(cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2)
     echo "setting up microscope $SERIAL_NUM..."
+else
+    echo -e '\e[31memulating RaspberryPi\e[0m'
+    export MACHINE="ubuntu"
+
+    create_serial
+
+    SERIAL_NUM=$(cat $FILE)
 fi
 
 ENV_DEFAULT_FILE=".env.sample"
