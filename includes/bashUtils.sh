@@ -54,12 +54,12 @@ e_note() { printf "${underline}${bold}${white}Note:${reset}  ${white}%s${reset}\
 
 # messages
 fail() {
-  return $FALSE
+  return $FALSE;
 }
 
 
 success() {
-  return $TRUE
+  return $TRUE;
 }
 
 seek_confirmation() {
@@ -71,9 +71,9 @@ seek_confirmation() {
 # Test whether the result of an 'ask' is a confirmation
 is_confirmed() {
 if [[ "$REPLY" =~ ^[Yy]$ ]]; then
-  return $TRUE
+  return $TRUE;
 fi
-return $FALSE
+return $FALSE;
 }
 
 
@@ -84,9 +84,9 @@ isRaspi() {
 
   if [[ $exitStatus == *"arm"* ]]; 
   then 
-    return $TRUE
+    return $TRUE;
   else
-    return $FALSE
+    return $FALSE;
   fi
 }
 
@@ -100,7 +100,7 @@ setUserOwnership() {
   then 
     e_error $output
   else
-    return $TRUE
+    return $TRUE;
   fi
 }
 
@@ -113,7 +113,7 @@ setGroupOwnership() {
   then 
     e_error $output
   else
-    return $TRUE
+    return $TRUE;
   fi
 }
 
@@ -160,7 +160,7 @@ copyDirTo() {
   then 
     e_error $output
   else
-    return $TRUE
+    return $TRUE;
   fi
 }
 
@@ -171,7 +171,7 @@ createDir() {
   then 
     e_error $output
   else
-    return $TRUE
+    return $TRUE;
   fi
 }
 
@@ -188,7 +188,7 @@ removeDir() {
     then 
       e_error $output
     else
-      return $TRUE
+      return $TRUE;
     fi
   fi
 }
@@ -214,7 +214,7 @@ recreateDir() {
       then
         e_error $exitStatus
       else
-        return $TRUE
+        return $TRUE;
       fi
 
     fi
@@ -225,7 +225,7 @@ recreateDir() {
 isMountedDir() {
   if mount | grep $1 > /dev/null; 
   then 
-    return $TRUE
+    return $TRUE;
   else 
     return $FALSE; 
   fi
@@ -238,7 +238,7 @@ mountRemoteToLocal() {
   then 
     e_error $exitStatus
   else
-    return $TRUE
+    return $TRUE;
   fi
 }
 
@@ -256,7 +256,7 @@ createLocalMountDirAndMount() {
     then
       e_error "failed to mount remote $2 to local $1"
     else
-      return $TRUE
+      return $TRUE;
     fi
   fi
 }

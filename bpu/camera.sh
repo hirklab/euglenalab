@@ -30,7 +30,7 @@ createMountedFolder(){
   if isMountedDir $LOCAL_MOUNT_ADDR; then
     if createDir $DATA_ADDR; then
       if setGroupOwnership $GROUP_FOR_PERMISSIONS $DATA_ADDR; then
-        e_error "failed to set group ownership on $DATA_ADDR"
+        e_error "failed to set group ownership of $GROUP_FOR_PERMISSIONS on $DATA_ADDR"
         return 1
       else
         return 0
