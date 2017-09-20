@@ -15,7 +15,7 @@ setUserOwn() {
 setGroupOwnOnFolder() {
   cmd=":$1 $2"
   #output=$(sudo chown $cmd 2>&1);
-  output=$(chown $cmd 2>&1);
+  output=$(chown -R $cmd 2>&1);
   exitStatus=$?
   if [[ $exitStatus -ne 0 ]]; 
   then 
