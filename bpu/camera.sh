@@ -97,19 +97,24 @@ startCamera(){
   local OUT_WEB="-p $CAMERA_LOCAL_PORT -w $CAMERA_WEB_PATH"
   local OUT_FILE="-f $CAMERA_DATA_LOCATION -d $CAMERA_FILE_MS"
 
+  CAMERA_RASPI_LIB=$CAMERA_LIB_PATH"/input_raspicam.so"
+  CAMERA_UVC_LIB=$CAMERA_LIB_PATH"/input_uvc.so"
+  CAMERA_HTTP_LIB=$CAMERA_LIB_PATH"/output_http.so"
+  CAMERA_FILE_LIB=$CAMERA_LIB_PATH"/output_file.so"
+
   if [ $IS_RASPI_CAMERA -eq 0 ]; then
     ##original##./mjpg_streamer -i './input_raspicam.so -fps 15  -x 640 -y 480' -o './output_http.so -p 8080 -w ./www' -o './output_file.so -f /myData/bpu/images -d 100'
-    CAMERA_LIB=CAMERA_RASPI_LIB
+    CAMERA_LIB=$CAMERA_RASPI_LIB
   else
     ##original##./mjpg_streamer -i './input_uvc.so -d /dev/video0 -f 15 -r 640x480' -o './output_http.so -p 8080 -w ./www' -o './output_file.so -f /myData/bpu/images -d 100'
     
     local separator="x"
     INPUT="-d $CAMERA_DEVICE -f $FPS -r $WIDTH$separator$HEIGHT"
 
-    CAMERA_LIB=CAMERA_UVC_LIB
+    CAMERA_LIB=$CAMERA_UVC_LIB
   fi   
 
-  ./ImageStreamer/mjpg_streamer -i "$CAMERA_LIB $INPUT" -o "$CAMERA_HTTP_LIB $OUT_WEB" -o "$CAMERA_FILE_LIB $OUT_FILE"
+  ./ImageStreamer/mjpg_streamer -i $CAMERA_LIB $INPUT -o $CAMERA_HTTP_LIB $OUT_WEB -o $CAMERA_FILE_LIB $OUT_FILE
   return $TRUE;
 }
 
