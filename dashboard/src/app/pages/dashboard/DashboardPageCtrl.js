@@ -66,8 +66,11 @@
 				var type = message.type;
 				var payload = message.payload;
 
-				// $log.log('[RX] ' + type);
-				// if (payload) $log.log(payload);
+				if (type !== 'status') {
+					$log.log('[RX] ' + type);
+
+					if (payload) $log.log(payload);
+				}
 
 				switch (type) {
 					case MESSAGES.RX.CONNECTED:
@@ -105,6 +108,7 @@
 					if (confirm('Go to live lab. Please confirm in ' + confirmationTimeout + 'seconds.')) {
 						// todo update socket that user confirmed
 
+						onLiveExperiment(payload);
 
 						resolve();
 					} else {
@@ -264,7 +268,7 @@
 			return result;
 		};
 
-		var createExperiment = function(experiment, resolve, reject){
+		var createExperiment = function(experiment, resolve, reject) {
 			experiment.submittedAt = new Date();
 
 			//todo remove any non-essential info from microscope object in experiment
@@ -304,7 +308,7 @@
 			});
 		};
 
-		vm.getMicroscopes = function(){
+		vm.getMicroscopes = function() {
 			Microscope.list().then(function(res) {
 				vm.activeMicroscopes = lodash.chain(res.data.results)
 					.filter(function(microscope) {

@@ -11,6 +11,7 @@ var config = require('./config');
 var constants = require('./constants');
 var CLIENT_MESSAGES = constants.CLIENT_MESSAGES;
 var EXPERIMENT_TYPE = constants.EXPERIMENT_TYPE;
+var EVENTS = constants.EVENTS;
 
 // var Scheduler = require('./scheduler');
 var UserManager = require('./userManager');
@@ -168,7 +169,7 @@ Controller.prototype.addExperiment = function(experiment, callback) {
 	var job = that.queue.createJob(experiment);
 
 	job.save(function(err, job) {
-		// logger.debug('pushing a new experiment ' + job.id + ' on main queue');
+		logger.debug('pushing a new experiment ' + job.id + ' on main queue');
 	});
 
 	job.on('progress', function(progress) {
@@ -191,19 +192,9 @@ Controller.prototype.setStimulus = function(data) {
 Controller.prototype.addExperimentToMicroscope = function(experiment, microscope, callback) {
 	var that = this;
 
-	logger.info(microscope);
+	// logger.info(microscope);
 
 	microscope.addExperiment(experiment, callback);
-
-	// job.save(function(err, job) {
-	// 	logger.debug('pushing a new experiment ' + job.id + ' on ' + microscopeName);
-	// });
-
-	// job.on('progress', function (progress) {
-	// 	logger.info('job ' + job.id + 'on microscope ' + microscopeName + ' reported progress: ' + progress + '%');
-	// });
-
-	// if (callback) callback();
 };
 
 
@@ -264,7 +255,8 @@ Controller.prototype.getMicroscopes = function(callback) {
 						id: microscope._id,
 						name: microscope.name,
 						doc: microscope,
-						address: 'http://' + microscope.localAddr.ip + ':' + microscope.localAddr.serverPort
+						address: 'http://' + microscope.localAddr.ip + ':' + microscope.localAddr.serverPort,
+						controller: that
 					});
 				}
 			});
@@ -360,6 +352,77 @@ Controller.prototype.notifyClients = function(callback) {
 
 	return callback(null);
 };
+
+Controller.prototype.sendMessageToClient = function(type, message, callback) {
+	var that = this;
+
+	logger.debug(type);
+	logger.debug(message);
+
+	// var microscopes = _.values(that.microscopesIndex);
+
+	// var bpuDocs = _.chain(microscopes)
+	// 	.filter(function(microscope) {
+	// 		return microscope.isConnected;
+	// 	})
+	// 	.map(function(microscope) {
+	// 		var data = _.clone(microscope);
+
+	// 		// if (isLiveActive(bpuDoc.bpuStatus)) {
+	// 		// 	liveBpuExperimentPart = {
+	// 		// 		username:             bpuDoc.liveBpuExperiment.username,
+	// 		// 		bc_timeLeft:          bpuDoc.liveBpuExperiment.bc_timeLeft,
+	// 		// 		group_experimentType: bpuDoc.liveBpuExperiment.group_experimentType
+	// 		// 	};
+	// 		// }
+	// 		// 	// bpu_processingTime: bpuDoc.bpu_processingTime,
+
+	// 		// is live
+	// 		//(status === that.config.mainConfig.bpuStatusTypes.running ||
+	// 		// status === that.config.mainConfig.bpuStatusTypes.pendingRun ||
+	// 		// status === that.config.mainConfig.bpuStatusTypes.finalizing ||
+	// 		// status === that.config.mainConfig.bpuStatusTypes.reseting);
+
+	// 		// var bpuGroupsCrossCheckWithUser = function (user, bpuDoc) {
+	// 		//     for (var ind = 0; ind < bpuDoc.allowedGroups.length; ind++) {
+	// 		//         for (var jnd = 0; jnd < user.groups.length; jnd++) {
+	// 		//             if (bpuDoc.allowedGroups[ind] === user.groups[jnd]) return true;
+	// 		//         }
+	// 		//     }
+	// 		//     return false;
+	// 		// };
+
+	// 		return data.state;
+	// 	});
+
+	logger.debug(that.userManager.users);
+
+	var users = _.filter(Object.values(that.userManager.users), function(user) {
+		return user.username == message.user.username;
+	});
+
+	logger.debug(users.length);
+
+	// todo better to filter data only for microscopes which user is allowed to see
+	if (users.length > 0) {
+		_.each(users[0].sockets, function(socket) {
+
+			var newMessage = {};
+			newMessage.type = type;
+			newMessage.payload = message;
+
+			logger.debug('=============[C » W]=============');
+			logger.debug('type: ', type);
+
+			if (newMessage.payload) {
+				logger.debug('payload: ', newMessage.payload);
+			}
+
+			socket.emit(EVENTS.MESSAGE, newMessage, callback);
+		});
+
+	};
+}
 
 
 // export the class

@@ -46,24 +46,21 @@ var create = function(req, res) {
 
 	workflow.on('create', function() {
 
-		// var fieldsToSet = {
-		// 	experiment: req.body.experiment,
-		// 	rating:     req.body.rating,
-		// 	notes:      req.body.notes
-		// };
+		var experiment = req.body;
+		experiment.user = req.user;
 
 		// todo filter fields we will keep - run sanity check on each one
 
-		req.app.db.models.Experiment.create(req.body, function(err, experiment) {
+		req.app.db.models.Experiment.create(experiment, function(err, savedExperiment) {
 			if (err) {
 				return workflow.emit('exception', err);
 			} else {
 
-				req.app.controller.addExperiment(experiment, function(err) {
+				req.app.controller.addExperiment(savedExperiment, function(err) {
 					if (err) {
 						return workflow.emit('exception', err);
 					} else {
-						workflow.outcome.result = experiment;
+						workflow.outcome.result = savedExperiment;
 						workflow.emit('response');
 					}
 				});

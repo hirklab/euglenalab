@@ -24,6 +24,9 @@ var EXPERIMENT_TYPE = constants.EXPERIMENT_TYPE;
 
 function Microscope(config) {
 	var that = this;
+
+	that.controller = config.controller;
+
 	that.id = config.name; // use id everywhere to find this microscope
 	that.name = config.name;
 	that.doc = config.doc;
@@ -34,6 +37,11 @@ function Microscope(config) {
 	that.messages = [];
 	that.isConnected = false;
 	that.status = STATES.OFFLINE;
+
+
+	// only expose this state - keep rest of variables as internal state
+	that.state = {};
+
 	that.queue = new Queue(that.name, {
 		removeOnSuccess: true,
 		removeOnFailure: true
@@ -69,51 +77,64 @@ function Microscope(config) {
 
 		var experiment = job.data;
 
+		logger.debug(experiment);
+
 		// run the experiment here
 		// set experiment
 		that.sendMessage(constants.BPU_MESSAGES.TX.EXPERIMENT_SET, {
 			experiment: experiment
-		});
+		}, function(err) {
+			if (err) {
+				logger.error(err);
+			} {
+				if (experiment.type == EXPERIMENT_TYPE.LIVE) {
+					// get confirmation if live
+					// 
+					// 
+					// connect user to microscope
+					// 
+					//
+					that.controller.sendMessageToClient(constants.CLIENT_MESSAGES.TX.EXPERIMENT_CONFIRM, experiment, function(err, result) {
+						if (err) {
+							logger.error(err);
+						} else {
+							if (result) {
+								logger.debug('confirmation result');
+								logger.debug(result);
 
-		if (experiment.type == EXPERIMENT_TYPE.LIVE) {
-			// get confirmation if live
-			// 
-			// 
-			// connect user to microscope
-			// 
-			// 
-			that.app.webserver.sendMessage(constants.CLIENT_MESSAGES.CONFIRMATION, function(err, result) {
-				if (err) {
+								that.sendMessage(constants.BPU_MESSAGES.TX.EXPERIMENT_RUN);
+
+							} else {
+								that.sendMessage(constants.BPU_MESSAGES.TX.EXPERIMENT_CANCEL, {});
+							}
+						}
+
+					});
 
 				} else {
-					if (result) {
-
-					}
+					// no confirmation for batch required
+					// 
+					that.sendMessage(constants.BPU_MESSAGES.TX.EXPERIMENT_RUN);
 				}
 
-			});
-
-		} else {
-			// no confirmation for batch required
-			// 
-			that.sendMessage(constants.BPU_MESSAGES.TX.EXPERIMENT_RUN);
-		}
-
-		// run experiment now
-		// push events or push experiment
-		// wait for duration or user cancellation
+				// run experiment now
+				// push events or push experiment
+				// wait for duration or user cancellation
 
 
-		// finish experiment
-		setTimeout(function() {
-			return done(null, 'completed');
-		}, experiment.duration * 1000);
+				// finish experiment
+				setTimeout(function() {
+					return done(null, 'completed');
+				}, 8000); //experiment.duration *  // todo
+			}
+
+		});
+
+
+
 	});
 
 
-
-	// only expose this state - keep rest of variables as internal state
-	that.state = {};
 
 	that.connect(function(err) {
 		if (err) {
@@ -356,7 +377,7 @@ Microscope.prototype.onDisconnected = function(payload, timeout) {
 //
 
 
-Microscope.prototype.sendMessage = function(type, payload) {
+Microscope.prototype.sendMessage = function(type, payload, callback) {
 	var newMessage = {};
 	newMessage.type = type;
 	newMessage.payload = payload;
@@ -364,11 +385,7 @@ Microscope.prototype.sendMessage = function(type, payload) {
 	logger.debug('[TX -> M]: ' + this.name + ': ' + type);
 	if (payload) logger.debug(payload);
 
-	this.socket.emit(EVENTS.MESSAGE, newMessage, function(err) {
-		if (err) {
-			logger.error(err);
-		}
-	});
+	this.socket.emit(EVENTS.MESSAGE, newMessage, callback);
 };
 
 //
