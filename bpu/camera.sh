@@ -20,6 +20,9 @@ set -o allexport
 source .env
 set +o allexport
 
+FALSE=1
+TRUE=0
+
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source "$DIR/../includes/bashUtils.sh"
 
@@ -30,27 +33,27 @@ createMountedFolder(){
   if isMountedDir $LOCAL_MOUNT_ADDR; then
     if createDir $DATA_ADDR; then
       if setGroupOwnership $GROUP_FOR_PERMISSIONS $DATA_ADDR; then
-        e_error "failed to set group ownership of $GROUP_FOR_PERMISSIONS on $DATA_ADDR"
-        return 1
+        return $TRUE;
       else
-        return 0
+        e_error "failed to set group ownership of $GROUP_FOR_PERMISSIONS on $DATA_ADDR"
+        return $FALSE;
       fi
     else
       e_error "failed to create data folder at $DATA_ADDR"
-      return 1
+      return $FALSE;
     fi
   else
     e_error "mount failed for $LOCAL_MOUNT_ADDR"
-    return 1
+    return $FALSE;
   fi
 }
 
 createTempDataFolder(){
   if createDir $TEMP_DATA_ADDR; then
-    return 0
+    return $TRUE;
   else
     e_error "failed to create temporary data folder at $TEMP_DATA_ADDR"
-    return 1
+    return $FALSE;
   fi
 }
 
@@ -81,10 +84,10 @@ createCameraConfig(){
 
   if [ $? -eq 0 ];
   then
-    return 0
+    return $TRUE;
   else
     e_error "failed to write camera config"
-    return 1
+    return $FALSE;
   fi
 }
 
@@ -107,7 +110,7 @@ startCamera(){
   fi   
 
   ./ImageStreamer/mjpg_streamer -i "$CAMERA_LIB $INPUT" -o "$CAMERA_HTTP_LIB $OUT_WEB" -o "$CAMERA_FILE_LIB $OUT_FILE"
-  return 0
+  return $TRUE;
 }
 
 run(){
