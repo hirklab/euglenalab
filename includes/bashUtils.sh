@@ -93,12 +93,12 @@ isRaspi() {
 # permissions
 setUserOwnership() {
   cmd="$1: $2"
-  output=$(sudo chown -R $cmd 2>&1);
+  output=$(chown -R $cmd 2>&1);
   exitStatus=$?
 
-  if [[ $exitStatus -ne 0 ]]; 
-  then 
+  if [[ $exitStatus -ne 0 ]]; then 
     e_error $output
+    return $FALSE;
   else
     return $TRUE;
   fi
@@ -106,12 +106,12 @@ setUserOwnership() {
 
 setGroupOwnership() {
   cmd=":$1 $2"
-  output=$(sudo chown -R $cmd 2>&1);
+  output=$(chown -R $cmd 2>&1);
   exitStatus=$?
 
-  if [[ $exitStatus -ne 0 ]]; 
-  then 
+  if [[ $exitStatus -ne 0 ]]; then 
     e_error $output
+    return $FALSE;
   else
     return $TRUE;
   fi
@@ -119,12 +119,12 @@ setGroupOwnership() {
 
 setAllOwnership() {
   cmd="777 $1"
-  output=$(sudo chmod $cmd 2>&1);
+  output=$(chmod $cmd 2>&1);
   exitStatus=$?
 
-  if [[ $exitStatus -ne 0 ]]; 
-  then 
+  if [[ $exitStatus -ne 0 ]]; then 
     e_error $output
+    return $FALSE;
   else
     return $TRUE
   fi
@@ -132,12 +132,15 @@ setAllOwnership() {
 
 #File System
 cmdExists() {
-  if [ -c $1 ];then return $TRUE; else return $FALSE; fi
+  if [ -c $1 ]; then 
+    return $TRUE; 
+  else 
+    return $FALSE; 
+  fi
 }
 
 fileExists() {
-  if [ -f $1 ];
-  then 
+  if [ -f $1 ]; then 
     return $TRUE; 
   else 
     return $FALSE; 
@@ -159,6 +162,7 @@ copyDirTo() {
   if [[ $exitStatus -ne 0 ]]; 
   then 
     e_error $output
+    return $FALSE;
   else
     return $TRUE;
   fi
@@ -170,6 +174,7 @@ createDir() {
   if [[ $exitStatus -ne 0 ]]; 
   then 
     e_error $output
+    return $FALSE;
   else
     return $TRUE;
   fi
@@ -187,6 +192,7 @@ removeDir() {
     if [[ $exitStatus -ne 0 ]]; 
     then 
       e_error $output
+      return $FALSE;
     else
       return $TRUE;
     fi
@@ -199,6 +205,7 @@ recreateDir() {
   if [[ $exitStatus -ne 0 ]];
   then
     e_error $exitStatus
+    return $FALSE;
   else
 
     # create Folder  
@@ -206,6 +213,7 @@ recreateDir() {
     if [[ $exitStatus -ne 0 ]];
     then
       e_error $exitStatus
+      return $FALSE;
     else
 
       # set Permissions
@@ -213,6 +221,7 @@ recreateDir() {
       if [[ $exitStatus -ne 0 ]];
       then
         e_error $exitStatus
+        return $FALSE;
       else
         return $TRUE;
       fi
@@ -237,6 +246,7 @@ mountRemoteToLocal() {
   if [[ $exitStatus -ne 0 ]]; 
   then 
     e_error $exitStatus
+    return $FALSE;
   else
     return $TRUE;
   fi
