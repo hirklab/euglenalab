@@ -11,6 +11,7 @@ setUserOwn() {
     echo '0'
   fi
 }
+
 setGroupOwnOnFolder() {
   cmd=":$1 $2"
   #output=$(sudo chown $cmd 2>&1);
@@ -23,6 +24,7 @@ setGroupOwnOnFolder() {
     echo '0'
   fi
 }
+
 setFullPermission() {
   cmd="777 $1"
   #output=$(sudo chmod $cmd 2>&1);
@@ -40,12 +42,15 @@ setFullPermission() {
 cmdExists() {
   if [ -c $1 ];then echo '0'; else echo '1'; fi
 }
+
 fileExists() {
   if [ -f $1 ];then echo '0'; else echo '1'; fi
 }
+
 dirExists() {
   if [ -d "$1" ];then echo '0'; else echo '1'; fi
 }
+
 copyDirTo() {
   #output=$(sudo cp -r $1 $2 2>&1);
   output=$(cp -r $1 $2 2>&1);
@@ -57,6 +62,7 @@ copyDirTo() {
     echo '0'
   fi
 }
+
 createDir() {
   #output=$(sudo mkdir -p $1 2>&1);
   output=$(mkdir -p $1 2>&1);
@@ -68,6 +74,7 @@ createDir() {
     echo '0'
   fi
 }
+
 removeDir() {
   #Check Folder 
   exitStatus=$(dirExists $1)
@@ -85,6 +92,7 @@ removeDir() {
     fi
   fi
 }
+
 makeNewFolder() {
   #Remove Folder 
   exitStatus=$(removeDir $tempFolder)
@@ -122,6 +130,7 @@ isMountedDir() {
     echo '1'; 
   fi
 }
+
 mountRemoteToLocal() {
   output=$(eval sudo mount $2 $1 2>&1)
   #output=$(eval mount $2 $1 2>&1)
