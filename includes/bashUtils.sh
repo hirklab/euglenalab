@@ -235,14 +235,14 @@ createLocalMountDirAndMount() {
   exitStatus=$(createDir $1)
   if [[ $exitStatus -ne 0 ]];
   then
-    fail("failed to create local mount point at $1")
+    e_error "failed to create local mount point at $1"
   else
 
     #Do Mount
     exitStatus=$(mountRemoteToLocal $1 $2)
     if [[ $exitStatus -ne 0 ]];
     then
-      e_error "failed to mount remote $remoteAddress to local $localMountPoint"
+      e_error "failed to mount remote $2 to local $1"
     else
       return $TRUE
     fi
