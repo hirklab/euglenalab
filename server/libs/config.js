@@ -5,19 +5,19 @@ env.config();
 var constants = require('./constants');
 
 module.exports = {
-	IP:         process.env.IP || 'localhost',
-	PORT:       parseInt(process.env.PORT || 5000),
-	LOG_LEVEL:  constants.LOG_LEVELS[2],
-	DB_URL:     (process.env.DB_URL || 'mongodb://localhost:27017/') + (process.env.DB || 'dev'),
-	CRYPTO_KEY: process.env.CRYPTO_KEY,
+    IP: process.env.IP || 'localhost',
+    PORT: parseInt(process.env.PORT || 5000),
+    LOG_LEVEL: constants.LOG_LEVELS[2],
+    DB_URL: (process.env.DB_URL || 'mongodb://localhost:27017/') + (process.env.DB || 'dev'),
+    CRYPTO_KEY: process.env.CRYPTO_KEY,
 
-	PROFILING:                   true,
-	PROFILING_INTERVAL:          30 * 60 * 1000,
-	LOOP_INTERVAL:               1000,
-	USER_CONFIRMATION_TIMEOUT:   15 * 1000,
-	INACTIVE_EXPERIMENT_TIMEOUT: 1 * 24 * 60 * 60 * 1000,
-	CALLBACK_TIMEOUT:            1500,
-	MICROSCOPE_INACTIVE_COUNT:   5,
+    PROFILING: true,
+    PROFILING_INTERVAL: 30 * 60 * 1000,
+    LOOP_INTERVAL: 1000,
+    USER_CONFIRMATION_TIMEOUT: 15 * 1000,
+    INACTIVE_EXPERIMENT_TIMEOUT: 1 * 24 * 60 * 60 * 1000,
+    CALLBACK_TIMEOUT: 1500,
+    MICROSCOPE_INACTIVE_COUNT: 5,
 
 	ORG_NAME: 'Riedel-Kruse Lab',
 	PROJECT_NAME: 'Interactive Microbiology Lab',

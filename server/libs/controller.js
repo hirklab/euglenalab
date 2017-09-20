@@ -26,18 +26,18 @@ function Controller(config, app) {
 	that.db = app.db;
 	that.config = config;
 
-	// object list of connected microscopes
-	that.microscopesIndex = {};
+    // object list of connected microscopes
+    that.microscopesIndex = {};
 
-	// object list of experiments from database
-	that.experiments = null;
+    // object list of experiments from database
+    that.experiments = null;
 
-	// list of experiments in memory (mostly pending, running)
-	// push this to redis later
-	that.experimentsCache = [];
+    // list of experiments in memory (mostly pending, running)
+    // push this to redis later
+    that.experimentsCache = [];
 
-	// any new experiment is collected here before being added to cache
-	that.newExperimentsIndex = {};
+    // any new experiment is collected here before being added to cache
+    that.newExperimentsIndex = {};
 
 	that.userManager = new UserManager(config, app.io, app.sessionMiddleware, app.db);
 
@@ -202,19 +202,19 @@ Controller.prototype.addExperimentToMicroscope = function(experiment, microscope
 Controller.prototype.loop = function() {
 	var that = this;
 
-	//utils.clearConsole();
-	var startDate = new Date();
+    //utils.clearConsole();
+    var startDate = new Date();
 
-	// var microscopeUtils = require('./libs/microscopeManager')(app);
-	// var experimentUtils = require('./libs/experimentManager')(app);
+    // var microscopeUtils = require('./libs/microscopeManager')(app);
+    // var experimentUtils = require('./libs/experimentManager')(app);
 
-	async.series([
-		that.getMicroscopes.bind(that),
-		// that.showStatus.bind(that),
+    async.series([
+        that.getMicroscopes.bind(that),
+        // that.showStatus.bind(that),
 
-		// experimentUtils.checkExperiments,
-		// experimentUtils.scheduleExperiments,
-		// experimentUtils.updateExperimentsQueue,
+        // experimentUtils.checkExperiments,
+        // experimentUtils.scheduleExperiments,
+        // experimentUtils.updateExperimentsQueue,
 
 		that.notifyClients.bind(that)
 	], function(err) {
@@ -240,15 +240,15 @@ Controller.prototype.getMicroscopes = function(callback) {
 			microscopes.forEach(function(microscope) {
 				if (microscope.name in that.microscopesIndex) {
 
-					// database sync
-					that.microscopesIndex[microscope.name].doc = microscope;
+                    // database sync
+                    that.microscopesIndex[microscope.name].doc = microscope;
 
-					// todo perform live sync here
+                    // todo perform live sync here
 
-					// todo remove microscopes which are not in passed list
+                    // todo remove microscopes which are not in passed list
 
 
-				} else {
+                } else {
 
 					// new microscope introduced in database
 					that.microscopesIndex[microscope.name] = new Microscope({
@@ -261,16 +261,16 @@ Controller.prototype.getMicroscopes = function(callback) {
 				}
 			});
 
-			return callback(null);
-		}
-	});
+            return callback(null);
+        }
+    });
 };
 
 Controller.prototype.showStatus = function(callback) {
 	var that = this;
 	// logger.debug('checking BPUs...');
 
-	var keys = Object.keys(that.microscopesIndex);
+    var keys = Object.keys(that.microscopesIndex);
 
 	keys.sort(function(objA, objB) {
 		return that.microscopesIndex[objA].doc.index - that.microscopesIndex[objB].doc.index;
@@ -290,15 +290,15 @@ Controller.prototype.showStatus = function(callback) {
 			// logger.error('\tTimeout:\t' + microscope.inactiveCount);
 		}
 
-	});
+    });
 
-	return callback(null);
+    return callback(null);
 };
 
 Controller.prototype.notifyClients = function(callback) {
 	var that = this;
 
-	var microscopes = _.values(that.microscopesIndex);
+    var microscopes = _.values(that.microscopesIndex);
 
 	var bpuDocs = _.chain(microscopes)
 		.filter(function(microscope) {
@@ -307,32 +307,32 @@ Controller.prototype.notifyClients = function(callback) {
 		.map(function(microscope) {
 			var data = _.clone(microscope);
 
-			// if (isLiveActive(bpuDoc.bpuStatus)) {
-			// 	liveBpuExperimentPart = {
-			// 		username:             bpuDoc.liveBpuExperiment.username,
-			// 		bc_timeLeft:          bpuDoc.liveBpuExperiment.bc_timeLeft,
-			// 		group_experimentType: bpuDoc.liveBpuExperiment.group_experimentType
-			// 	};
-			// }
-			// 	// bpu_processingTime: bpuDoc.bpu_processingTime,
+            // if (isLiveActive(bpuDoc.bpuStatus)) {
+            // 	liveBpuExperimentPart = {
+            // 		username:             bpuDoc.liveBpuExperiment.username,
+            // 		bc_timeLeft:          bpuDoc.liveBpuExperiment.bc_timeLeft,
+            // 		group_experimentType: bpuDoc.liveBpuExperiment.group_experimentType
+            // 	};
+            // }
+            // 	// bpu_processingTime: bpuDoc.bpu_processingTime,
 
-			// is live
-			//(status === that.config.mainConfig.bpuStatusTypes.running ||
-			// status === that.config.mainConfig.bpuStatusTypes.pendingRun ||
-			// status === that.config.mainConfig.bpuStatusTypes.finalizing ||
-			// status === that.config.mainConfig.bpuStatusTypes.reseting);
+            // is live
+            //(status === that.config.mainConfig.bpuStatusTypes.running ||
+            // status === that.config.mainConfig.bpuStatusTypes.pendingRun ||
+            // status === that.config.mainConfig.bpuStatusTypes.finalizing ||
+            // status === that.config.mainConfig.bpuStatusTypes.reseting);
 
-			// var bpuGroupsCrossCheckWithUser = function (user, bpuDoc) {
-			//     for (var ind = 0; ind < bpuDoc.allowedGroups.length; ind++) {
-			//         for (var jnd = 0; jnd < user.groups.length; jnd++) {
-			//             if (bpuDoc.allowedGroups[ind] === user.groups[jnd]) return true;
-			//         }
-			//     }
-			//     return false;
-			// };
+            // var bpuGroupsCrossCheckWithUser = function (user, bpuDoc) {
+            //     for (var ind = 0; ind < bpuDoc.allowedGroups.length; ind++) {
+            //         for (var jnd = 0; jnd < user.groups.length; jnd++) {
+            //             if (bpuDoc.allowedGroups[ind] === user.groups[jnd]) return true;
+            //         }
+            //     }
+            //     return false;
+            // };
 
-			return data.state;
-		});
+            return data.state;
+        });
 
 	var users = _.chain(that.userManager.users)
 		.map(function(user) {
@@ -350,7 +350,7 @@ Controller.prototype.notifyClients = function(callback) {
 	});
 
 
-	return callback(null);
+    return callback(null);
 };
 
 Controller.prototype.sendMessageToClient = function(type, message, callback) {

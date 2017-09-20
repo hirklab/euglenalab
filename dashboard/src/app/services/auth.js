@@ -1,7 +1,7 @@
 /**
  * Created by shirish.goyal on 8/28/16.
  */
-(function () {
+(function() {
     'use strict';
 
     angular
@@ -34,8 +34,10 @@
 
         function login(account) {
             return $http.post('/api/auth/login/', account)
-                .success(function(response, status, headers, config){
-	                authenticate(response);
+                .success(function(response, status, headers, config) {
+                    if (response.success) {
+                        authenticate(response);
+                    }
                 });
         }
 
@@ -52,21 +54,21 @@
             }
         }
 
-	    function authenticate(response) {
-		    $cookies.put("token", response.token);
-		    $cookies.put("user", response.user);
+        function authenticate(response) {
+            $cookies.put("token", response.token);
+            $cookies.put("user", response.user);
 
-		    if(response.user.isAdmin) {
-			    $cookies.put("isAdmin", true);
-		    }
-	    }
+            if (response.user.isAdmin) {
+                $cookies.put("isAdmin", true);
+            }
+        }
 
         function unauthenticate() {
             $cookies.remove('token');
             $cookies.remove('user');
             $cookies.remove('isAdmin');
 
-	        $window.location = '#/auth/login';
+            $window.location = '#/auth/login';
         }
 
         function getToken() {
@@ -115,7 +117,7 @@
                 data: {
                     password: oldPassword,
                     password1: newPassword,
-                    password2: newPassword2   //no need to transfer this but for now required
+                    password2: newPassword2 //no need to transfer this but for now required
                 }
             });
         }
