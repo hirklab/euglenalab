@@ -89,24 +89,10 @@ createCameraConfig(){
 }
 
 startCamera(){
-  FPS=15
-  WIDTH=640
-  HEIGHT=480
-  CAMERA_LOCAL_PORT=8080
-  CAMERA_WEB_PATH="../bpu/ImageStreamer/www"
-  CAMERA_DATA_LOCATION=$DATA_ADDR
-  CAMERA_DEVICE="/dev/video0"
-  CAMERA_CONFIG_FILE="cameraConfig.cnf"
-  CAMERA_FILE_MS=100
-  CAMERA_RASPI_LIB="./ImageStreamer/input_raspicam.so"
-  CAMERA_UVC_LIB="./ImageStreamer/input_uvc.so"
-  CAMERA_HTTP_LIB="./ImageStreamer/output_http.so"
-  CAMERA_FILE_LIB="./ImageStreamer/output_file.so"
+  local INPUT="-fps $FPS -x $WIDTH -y $HEIGHT"
 
-  INPUT="-fps $FPS -x $WIDTH -y $HEIGHT"
-
-  OUT_WEB="-p $CAMERA_LOCAL_PORT -w $CAMERA_WEB_PATH"
-  OUT_FILE="-f $CAMERA_DATA_LOCATION -d $CAMERA_FILE_MS"
+  local OUT_WEB="-p $CAMERA_LOCAL_PORT -w $CAMERA_WEB_PATH"
+  local OUT_FILE="-f $CAMERA_DATA_LOCATION -d $CAMERA_FILE_MS"
 
   if [ $IS_RASPI_CAMERA -eq 0 ]; then
     ##original##./mjpg_streamer -i './input_raspicam.so -fps 15  -x 640 -y 480' -o './output_http.so -p 8080 -w ./www' -o './output_file.so -f /myData/bpu/images -d 100'
@@ -129,6 +115,7 @@ run(){
     if createTempDataFolder; then
       if createCameraConfig; then
         if startCamera; then
+          e_success "starting camera..."
         else
           e_error "failed to start camera"
         fi
