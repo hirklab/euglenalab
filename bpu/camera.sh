@@ -128,27 +128,27 @@ startCamera(){
 }
 
 run(){
-  if createMountedFolder; then
-    if createTempDataFolder; then
-      if createCameraConfig; then
-        if isCameraConnected ; then
-          if startCamera; then
-            e_success "starting camera..."
-          else
-            e_error "failed to start camera"
-          fi
-        else
-          e_error "failed to detect camera"
-        fi
-      else
-        e_error "failed to write camera config"
-      fi
-    else
-      e_error "failed to create temporary data folder"
-    fi
-  else
+  if ! createMountedFolder; then
     e_error "failed to create and mount folder"
   fi
+
+  if ! createTempDataFolder; then
+    e_error "failed to create temporary data folder"
+  fi
+
+  if ! createCameraConfig; then
+    e_error "failed to write camera config"
+  fi
+
+  if ! isCameraConnected ; then
+    e_error "failed to detect camera"
+  fi
+
+  if startCamera; then
+    e_success "starting camera..."
+  else
+    e_error "failed to start camera"
+  fi    
 }
 
 
