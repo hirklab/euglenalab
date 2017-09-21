@@ -26,6 +26,7 @@ create_serial(){
     FILE=".serial"
 
     if fileExists $FILE; then
+        e_note "serial already exists"
     else
         SERIAL=$(cat /var/lib/dbus/machine-id)
         echo "$SERIAL" > $FILE
