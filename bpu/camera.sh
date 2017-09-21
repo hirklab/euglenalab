@@ -57,8 +57,16 @@ createTempDataFolder(){
   fi
 }
 
+isCameraConnected(){
+  if cameraExists $CAMERA_DEVICE; then
+    return $TRUE;
+  else
+    return $FALSE;
+  fi
+}
+
 createCameraConfig(){
-  if isRaspi; then
+  if isRaspiCamera; then
     IS_RASPI_CAMERA=0
   fi
 
@@ -102,7 +110,7 @@ startCamera(){
   CAMERA_HTTP_LIB=$CAMERA_LIB_PATH"/output_http.so"
   CAMERA_FILE_LIB=$CAMERA_LIB_PATH"/output_file.so"
 
-  if [[ $IS_RASPI_CAMERA -eq 0 ]]; then
+  if isRaspiCamera; then
     ##original##./mjpg_streamer -i './input_raspicam.so -fps 15  -x 640 -y 480' -o './output_http.so -p 8080 -w ./www' -o './output_file.so -f /myData/bpu/images -d 100'
     CAMERA_LIB=$CAMERA_RASPI_LIB
   else
@@ -114,7 +122,7 @@ startCamera(){
     CAMERA_LIB=$CAMERA_UVC_LIB
   fi   
 
-  cmd=$(./ImageStreamer/mjpg_streamer -i "$CAMERA_LIB $INPUT" -o "$CAMERA_HTTP_LIB $OUT_WEB" -o "$CAMERA_FILE_LIB $OUT_FILE")
+  cmd=$(./ImageStreamer/mjpg_streamer -i "$CAMERA_LIB $INPUT" -o "$CAMERA_HTTP_LIB $OUT_WEB" -o "$CAMERA_FILE_LIB $OUT_FILE" )
   exitStatus=$?
   return $exitStatus;
 }
@@ -123,10 +131,14 @@ run(){
   if createMountedFolder; then
     if createTempDataFolder; then
       if createCameraConfig; then
-        if startCamera; then
-          e_success "starting camera..."
+        if isCameraConnected ; then
+          if startCamera; then
+            e_success "starting camera..."
+          else
+            e_error "failed to start camera"
+          fi
         else
-          e_error "failed to start camera"
+          e_error "failed to detect camera"
         fi
       else
         e_error "failed to write camera config"

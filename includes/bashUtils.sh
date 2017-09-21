@@ -90,6 +90,31 @@ isRaspi() {
   fi
 }
 
+isRaspiCamera(){
+  output=$(vcgencmd get_camera);
+  exitStatus=$?
+
+  if [[ $output == *"detected=1"* ]]; 
+  then 
+    return $TRUE;
+  else
+    return $FALSE;
+  fi
+}
+
+cameraExists(){
+  cmd="$1"
+  output=$(cmdExists $cmd);
+  exitStatus=$?
+
+  if [[ $exitStatus -ne 0 ]]; then 
+    e_error $output
+    return $FALSE;
+  else
+    return $TRUE;
+  fi
+}
+
 # permissions
 setUserOwnership() {
   cmd="$1: $2"
