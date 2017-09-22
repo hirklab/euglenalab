@@ -166,13 +166,15 @@ Microscope.prototype.connect = function(callback) {
 
 	// new connection to BPU
 	if (that.socket == null) {
+		logger.info('connecting to microscope at ' + that.address);
+
 		that.socket = socketIOClient('http://' + that.doc.localAddr.ip + ':' + that.doc.localAddr.serverPort, {
 			multiplex: false,
 			reconnection: true
 		});
 
 		that.socket.on(EVENTS.CONNECT, function() {
-			logger.info('connected to microscope at ' + that.address);
+			logger.info('microscope connected at ' + that.address);
 			that.sendMessage(MESSAGES.TX.STATUS, null);
 		});
 

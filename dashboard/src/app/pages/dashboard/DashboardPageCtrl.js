@@ -119,7 +119,10 @@
 		};
 
 		var onLiveExperiment = function(payload) {
-			$state.go('livelab'); // shift to livelab page
+			console.log(payload);
+			$state.go('livelab', {
+				id: payload._id
+			}); // shift to livelab page
 		};
 
 		// syncing live

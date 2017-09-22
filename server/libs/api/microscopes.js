@@ -13,12 +13,12 @@ var ensureAccount = auth.ensureAccount;
 
 // c) MP -> API : GET / (List of bio processing units)
 // 	Response: list of units
-var get_bio_units = function (req, res) {
+var get_bio_units = function(req, res) {
     var workflow = flow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         req.query.search = req.query.search ? req.query.search : '';
-        req.query.isActive = req.query.isActive ? req.query.isActive=='true' : true;
+        req.query.isActive = req.query.isActive ? req.query.isActive == 'true' : true;
         req.query.status = req.query.status ? req.query.status : '';
         req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
         req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
@@ -33,9 +33,9 @@ var get_bio_units = function (req, res) {
             filters['isActive'] = req.query.isActive;
         }
 
-	    if (req.query.status) {
-		    filters['status'] = req.query.status;
-	    }
+        if (req.query.status) {
+            filters['status'] = req.query.status;
+        }
 
         req.app.db.models.Bpu.pagedFind({
             filters: filters,
@@ -43,12 +43,12 @@ var get_bio_units = function (req, res) {
             limit: req.query.limit,
             page: req.query.page,
             sort: req.query.sort
-        }, function (err, results) {
+        }, function(err, results) {
             if (err) {
                 return workflow.emit('exception', err);
             }
 
-            var data = _.map(results.data, function (result) {
+            var data = _.map(results.data, function(result) {
                 return result;
 
                 // var newResult = {};
@@ -122,10 +122,10 @@ var get_bio_units = function (req, res) {
 
 // c) MP -> API : GET /:id/ (detail of bio processing units)
 // 	Response: unit
-var bio_unit_detail = function (req, res) {
+var bio_unit_detail = function(req, res) {
     var workflow = flow(req, res);
 
-    workflow.on('find', function () {
+    workflow.on('find', function() {
         // req.query.search = req.query.search ? req.query.search : '';
         // req.query.status = req.query.status ? req.query.status : '';
         // req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
@@ -142,8 +142,8 @@ var bio_unit_detail = function (req, res) {
         // }
 
         req.app.db.models.Bpu.findById(req.params.id,
-            'name index isOn currentStatus magnification allowedGroups localAddr publicAddr avgStatsData notes').exec(
-            function (err, result) {
+            'name index isActive status magnification groups localAddr publicAddr queueTime isConnected').exec(
+            function(err, result) {
                 if (err) {
                     return workflow.emit('exception', err);
                 }
@@ -152,65 +152,65 @@ var bio_unit_detail = function (req, res) {
                 // var result = response;
 
 
-                var newResult = {};
+                // var newResult = {};
 
-                if (result.currentStatus === null || result.currentStatus === undefined) {
+                // if (result.currentStatus === null || result.currentStatus === undefined) {
 
-                    newResult.id = result._id;
-                    newResult.name = result.name;
-                    newResult.index = result.index;
-                    newResult.magnification = result.magnification;
-                    newResult.isOn = result.isOn;
-                    newResult.processingTimePerExperiment = 'unknown';
-                    newResult.bpuStatus = 'unknown';
-                    newResult.expId = 'unknown';
-                    newResult.username = 'unknown';
-                    newResult.allowedGroups = 'unknown';
-                    newResult.isReady = false;
-                    newResult.isOver = false;
-                    newResult.isCanceled = false;
-                    newResult.err = null;
-                    newResult.setTime = 'unknown';
-                    newResult.runTime = 'unknown';
-                    newResult.timeLeft = 0;
-                    newResult.stats = result.avgStatsData;
-                    newResult.localAddr = result.localAddr;
-                    newResult.publicAddr = result.publicAddr;
-                    newResult.notes = result.notes;
+                //     newResult.id = result._id;
+                //     newResult.name = result.name;
+                //     newResult.index = result.index;
+                //     newResult.magnification = result.magnification;
+                //     newResult.isOn = result.isOn;
+                //     newResult.processingTimePerExperiment = 'unknown';
+                //     newResult.bpuStatus = 'unknown';
+                //     newResult.expId = 'unknown';
+                //     newResult.username = 'unknown';
+                //     newResult.allowedGroups = 'unknown';
+                //     newResult.isReady = false;
+                //     newResult.isOver = false;
+                //     newResult.isCanceled = false;
+                //     newResult.err = null;
+                //     newResult.setTime = 'unknown';
+                //     newResult.runTime = 'unknown';
+                //     newResult.timeLeft = 0;
+                //     newResult.stats = result.avgStatsData;
+                //     newResult.localAddr = result.localAddr;
+                //     newResult.publicAddr = result.publicAddr;
+                //     newResult.notes = result.notes;
 
-                } else {
-                    newResult.id = result._id;
-                    newResult.name = result.name;
-                    newResult.index = result.index;
-                    newResult.magnification = result.magnification;
-                    newResult.isOn = result.isOn;
-                    // newResult.processingTimePerExperiment = result.currentStatus.processingTimePerExperiment;
-                    newResult.bpuStatus = result.currentStatus.bpuStatus;
-                    newResult.expId = result.currentStatus.expId;
-                    newResult.username = result.currentStatus.username;
-                    newResult.allowedGroups = result.currentStatus.allowedGroups;
-                    newResult.isReady = result.currentStatus.isReady;
-                    newResult.isOver = result.currentStatus.isOver;
-                    newResult.isCanceled = result.currentStatus.isCanceled;
-                    newResult.stats = result.avgStatsData;
-                    newResult.localAddr = result.localAddr;
-                    newResult.publicAddr = result.publicAddr;
-                    newResult.err = result.currentStatus.err;
-                    newResult.notes = result.notes;
+                // } else {
+                //     newResult.id = result._id;
+                //     newResult.name = result.name;
+                //     newResult.index = result.index;
+                //     newResult.magnification = result.magnification;
+                //     newResult.isOn = result.isOn;
+                //     // newResult.processingTimePerExperiment = result.currentStatus.processingTimePerExperiment;
+                //     newResult.bpuStatus = result.currentStatus.bpuStatus;
+                //     newResult.expId = result.currentStatus.expId;
+                //     newResult.username = result.currentStatus.username;
+                //     newResult.allowedGroups = result.currentStatus.allowedGroups;
+                //     newResult.isReady = result.currentStatus.isReady;
+                //     newResult.isOver = result.currentStatus.isOver;
+                //     newResult.isCanceled = result.currentStatus.isCanceled;
+                //     newResult.stats = result.avgStatsData;
+                //     newResult.localAddr = result.localAddr;
+                //     newResult.publicAddr = result.publicAddr;
+                //     newResult.err = result.currentStatus.err;
+                //     newResult.notes = result.notes;
 
-                    if (typeof result.currentStatus.setTime.getTime === 'function') {
-                        newResult.setTime = Math.round((new Date() - result.currentStatus.setTime) / 60000);
-                    }
-                    if (typeof result.currentStatus.setTime.timeLeft === 'number') {
-                        newResult.timeLeft = Math.round(result.currentStatus.timeLeft / 1000);
-                    }
-                    if (typeof result.currentStatus.setTime.runTime === 'number') {
-                        newResult.runTime = Math.round(result.currentStatus.runTime / 1000);
-                    }
-                }
+                //     if (typeof result.currentStatus.setTime.getTime === 'function') {
+                //         newResult.setTime = Math.round((new Date() - result.currentStatus.setTime) / 60000);
+                //     }
+                //     if (typeof result.currentStatus.setTime.timeLeft === 'number') {
+                //         newResult.timeLeft = Math.round(result.currentStatus.timeLeft / 1000);
+                //     }
+                //     if (typeof result.currentStatus.setTime.runTime === 'number') {
+                //         newResult.runTime = Math.round(result.currentStatus.runTime / 1000);
+                //     }
+                // }
 
 
-                workflow.outcome.results = newResult;
+                workflow.outcome.results = result;
                 // workflow.outcome.pages = results.pages;
                 // workflow.outcome.items = results.items;
                 workflow.emit('response');
@@ -221,7 +221,7 @@ var bio_unit_detail = function (req, res) {
     workflow.emit('find');
 };
 
-var bio_unit_health = function (req, res) {
+var bio_unit_health = function(req, res) {
     var workflow = flow(req, res);
 
     function getPerformance(username, param, bpu_id, startDate, endDate, scale, cb) {
@@ -257,14 +257,14 @@ var bio_unit_health = function (req, res) {
             }
         }, {
             $project: projections
-        }]).exec(function (err, results) {
+        }]).exec(function(err, results) {
             if (err) {
 
                 cb(err, null);
             } else {
                 var newResult = [];
 
-                results.forEach(function (result) {
+                results.forEach(function(result) {
                     var endResult = {};
                     endResult['datetime'] = new Date(result.exp_processingEndTime);
                     if (result[param] > 0) {
@@ -321,14 +321,14 @@ var bio_unit_health = function (req, res) {
             }
         }, {
             $project: projections
-        }]).exec(function (err, results) {
+        }]).exec(function(err, results) {
             if (err) {
 
                 cb(err, null);
             } else {
                 var newResult = [];
 
-                results.forEach(function (result) {
+                results.forEach(function(result) {
                     // var endResult = {};
                     // endResult['datetime'] = new Date(result.exp_processingEndTime);
                     // if (result[param] > 0) {
@@ -352,8 +352,8 @@ var bio_unit_health = function (req, res) {
         })
     }
 
-    workflow.on('scripterActivity', function () {
-        getPerformance('scripterActivity', 'activity', req.params.id, req.query.start, req.query.end, 1 * 5 / 300, function (err, results) {
+    workflow.on('scripterActivity', function() {
+        getPerformance('scripterActivity', 'activity', req.params.id, req.query.start, req.query.end, 1 * 5 / 300, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
@@ -365,8 +365,8 @@ var bio_unit_health = function (req, res) {
         })
     });
 
-    workflow.on('scripterPopulation', function () {
-        getPerformance('scripterPopulation', 'population', req.params.id, req.query.start, req.query.end, 1 * 5 / 100, function (err, results) {
+    workflow.on('scripterPopulation', function() {
+        getPerformance('scripterPopulation', 'population', req.params.id, req.query.start, req.query.end, 1 * 5 / 100, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
@@ -377,8 +377,8 @@ var bio_unit_health = function (req, res) {
         })
     });
 
-    workflow.on('scripterResponse', function () {
-        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1 * 4, function (err, results) {
+    workflow.on('scripterResponse', function() {
+        getPerformance('scripterResponse', 'response', req.params.id, req.query.start, req.query.end, 1 * 4, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
@@ -389,8 +389,8 @@ var bio_unit_health = function (req, res) {
         })
     });
 
-    workflow.on('scripterRatings', function () {
-        getRatings('', 'rating', req.params.id, req.query.start, req.query.end, 1, function (err, results) {
+    workflow.on('scripterRatings', function() {
+        getRatings('', 'rating', req.params.id, req.query.start, req.query.end, 1, function(err, results) {
             if (err) {
                 workflow.emit('exception', err);
             } else {
@@ -404,12 +404,12 @@ var bio_unit_health = function (req, res) {
     workflow.emit('scripterActivity');
 };
 
-var bio_unit_queue = function (req, res) {
+var bio_unit_queue = function(req, res) {
     var workflow = flow(req, res);
 
-    workflow.on('queue', function () {
+    workflow.on('queue', function() {
 
-        req.app.db.models.ListExperiment.getInstanceDocument(function (err, experiments) {
+        req.app.db.models.ListExperiment.getInstanceDocument(function(err, experiments) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -506,10 +506,10 @@ var bio_unit_queue = function (req, res) {
             // console.log(experiments[req.params.name] || []);
 
             workflow.outcome.running = experiments['newExps']
-                .filter(function (experiment) {
+                .filter(function(experiment) {
                     return experiment.exp_wantsBpuName === req.params.name;
                 })
-                .map(function (experiment) {
+                .map(function(experiment) {
                     return {
                         'id': experiment._id,
                         'user': experiment.user.name,
@@ -521,10 +521,10 @@ var bio_unit_queue = function (req, res) {
                 });
 
             workflow.outcome.pending = (experiments[req.params.name] || [])
-                .filter(function (experiment) {
+                .filter(function(experiment) {
                     return experiment.exp_wantsBpuName === req.params.name;
                 })
-                .map(function (experiment) {
+                .map(function(experiment) {
                     return {
                         'id': experiment._id,
                         'bpu': req.params.name,
@@ -543,12 +543,12 @@ var bio_unit_queue = function (req, res) {
     workflow.emit('queue');
 };
 
-var add_note = function (req, res) {
+var add_note = function(req, res) {
     var workflow = flow(req, res);
 
     // console.log(req.user);
 
-    workflow.on('validate', function () {
+    workflow.on('validate', function() {
         if (!req.body.message) {
             workflow.outcome.errors.push('Message is required.');
             return workflow.emit('response');
@@ -557,7 +557,7 @@ var add_note = function (req, res) {
         workflow.emit('addNote');
     });
 
-    workflow.on('addNote', function () {
+    workflow.on('addNote', function() {
 
         var noteToAdd = {
             data: req.body.message,
@@ -574,7 +574,7 @@ var add_note = function (req, res) {
             }
         }, {
             new: true
-        }, function (err, bpu) {
+        }, function(err, bpu) {
             if (err) {
                 return workflow.emit('exception', err);
             }
@@ -587,10 +587,10 @@ var add_note = function (req, res) {
     workflow.emit('validate');
 };
 
-var remove_note = function (req, res) {
+var remove_note = function(req, res) {
     var workflow = flow(req, res);
 
-    workflow.on('removeNote', function () {
+    workflow.on('removeNote', function() {
 
         req.app.db.models.Bpu.findByIdAndUpdate(req.params.id, {
             $pull: {
@@ -601,7 +601,7 @@ var remove_note = function (req, res) {
         }, {
             safe: true,
             new: true
-        }, function (err, bpu) {
+        }, function(err, bpu) {
             if (err) {
                 return workflow.emit('exception', err);
             }
