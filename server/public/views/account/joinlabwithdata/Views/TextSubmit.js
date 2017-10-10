@@ -223,6 +223,23 @@ var _tryJson   = function (data, tries, cb_fn) {
 				} else {
 					var errDataCheck = null;
 
+					var lightObjStart = {
+						topValue:           0,
+						rightValue:         0,
+						bottomValue:        0,
+						leftValue:          0,
+						diffuserValue:      0,
+						backlightValue:     0,
+						culturelightValue:  0,
+						ambientlightValue:  0,
+						time:               0
+					};
+
+					// Push zero object at beginning of event queue.
+					fileData.eventsToRun.push(lightObjStart);
+
+					var highestTime = 2;
+
 					for (var i = 0; i < eventsToRun.length; i++) {
 						var dat = eventsToRun[i];
 						if (true) { //typeof dat.topValue === 'number' && typeof dat.rightValue === 'number' && typeof dat.bottomValue === 'number' && typeof dat.leftValue === 'number' && typeof dat.diffuserValue === 'number' && typeof dat.backlightValue === 'number' && typeof dat.culturelightValue === 'number' && typeof dat.ambientlightValue === 'number' && typeof dat.time === 'number') {
@@ -237,12 +254,34 @@ var _tryJson   = function (data, tries, cb_fn) {
 								ambientlightValue: dat['ambientlightValue'] || 0,
 								time:              dat['time'] || 0
 							};
+							// Set first event time to 1 sec instead of 0 to make room for start event.
+							if (i === 0) {
+								lightDataObj['time'] = dat['time'] || 100;
+							}
+							if (dat['time'] > highestTime) {
+								highestTime = dat['time'];
+							}
 							fileData.eventsToRun.push(lightDataObj);
 						} else {
 							errDataCheck = "properties needed: topValue rightValue bottomValue leftValue diffuserValue backlightValue culturelightValue ambientlightValue time";
 							break;
 						}
 					}
+
+					var lightObjEnd = {
+						topValue:           0,
+						rightValue:         0,
+						bottomValue:        0,
+						leftValue:          0,
+						diffuserValue:      0,
+						backlightValue:     0,
+						culturelightValue:  0,
+						ambientlightValue:  0,
+						time:               highestTime+5
+					};
+
+					// Push zero object at end of event queue as well.
+					fileData.eventsToRun.push(lightObjEnd);
 
 					if (errDataCheck === null) {
 						fileData.eventsToRun.sort(function (a, b) {

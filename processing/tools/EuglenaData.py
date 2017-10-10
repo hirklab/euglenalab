@@ -175,6 +175,8 @@ class EuglenaData(object):
             rows = zip(f,t,x,y,w,h,a)
             wr.writerow(header)
             for i,r in enumerate(rows):
+                if t[i] == -1:
+                    continue
                 data = list(r)
                 data.extend(ledStates[i])
                 wr.writerow(data)
