@@ -15,6 +15,246 @@
 
 #define PI 3.14159265
 
+
+/*** Hungarian algorithm for optimal assignment between observations and predicted positions  O(n^3) ***/
+class HungarianAlgo {
+    public:
+        std::vector<std::vector<float>> originalValues; // Given values
+        std::vector<std::vector<float>> values; // Cloned given values to be processed
+        std::vector<std::vector<int>> lines; // Lines drawn
+        int numLines; // Number of lines drawn
+    
+        std::vector<int> rows; // Indices of the column selected by each row (final result)
+        std::vector<int> occupiedCols; // Verify that all column are occupied, used in optimization step
+    
+        HungarianAlgo(std::vector<std::vector<float>> matrix);
+        virtual ~HungarianAlgo();
+        std::vector<std::vector<float>> cloneMatrix(std::vector<std::vector<float>> matrix);
+        void subtractRowMinimal();
+        void subtractColMinimal();
+        void coverZeros();
+        void colorNeighbors(int row, int col, int maxVH);
+        int maxVH(int row, int col);
+        void createAdditonalZeros();
+        bool optimization();
+        bool optimization(int row);
+    
+        std::vector<int> getResult();
+        float getTotal();
+    
+    private:
+};
+
+HungarianAlgo::HungarianAlgo(std::vector<std::vector<float>> matrix) {
+    
+    // Initialization
+    originalValues = matrix;
+    values = cloneMatrix(matrix);
+    rows.resize(matrix.size());
+    occupiedCols.resize(matrix.size());
+    lines.resize(matrix.size());
+    for (int row = 0; row < matrix.size(); row++) {
+        lines[row].resize(matrix.size());
+    }
+    
+    // Algorithm
+    subtractRowMinimal();   // Step 1
+    subtractColMinimal();   // Step 2
+    coverZeros();           // Step 3
+    while(numLines < values.size()) {   // Step 4
+        createAdditonalZeros();
+        coverZeros();
+    }
+
+    /******** uncommenting this line breaks code ***********/
+    optimization();
+}
+
+HungarianAlgo::~HungarianAlgo() {}
+
+std::vector<std::vector<float>> HungarianAlgo::cloneMatrix(std::vector<std::vector<float>> matrix) {
+    std::vector<std::vector<float>> tmp;
+    for(int row = 0; row < matrix.size(); row++) {
+        std::vector<float> newRow(matrix[row]);
+        tmp.push_back(newRow);
+    }
+    return tmp;
+}
+
+/*
+ * Subtract from every element the min value from its row
+ */
+void HungarianAlgo::subtractRowMinimal() {
+    if (!values.empty()) {
+
+        std::vector<float> rowMinValue(values.size());
+    
+        // get the min for each row and store in rowMinValue[]
+        for(int row = 0; row < values.size(); row++) {
+            float minValue = values[row][0];
+            for(int col = 1; col < values.size(); col++) {
+                if(values[row][col] < minValue) {
+                    minValue = values[row][col];
+                }
+            }
+            rowMinValue[row] = minValue;
+        }
+    
+        // subtract minimum from each row
+        for(int row = 0; row < values.size(); row++) {
+            for(int col = 0; col < values.size(); col++) {
+                values[row][col] -= rowMinValue[row];
+            }
+        }
+    }
+}
+
+/*
+ * Subtract from every element the min value from its column
+ */
+void HungarianAlgo::subtractColMinimal() {
+    if (!values.empty()) {
+        std::vector<float> colMinValue(values.size());
+    
+        // get the min for each column and store them in colMinValue[]
+        for(int col = 0; col < values.size(); col++) {
+            float minValue = values[0][col];
+            for(int row = 1; row < values.size(); row++) {
+                if(values[row][col] < minValue) {
+                    minValue = values[row][col];
+                }
+            }
+            colMinValue[col] = minValue;
+        }
+    
+        // subtract minimum from each column
+        for(int col = 0; col < values.size(); col++) {
+            for(int row = 0; row < values.size(); row++) {
+                values[row][col] -= colMinValue[col];
+            }
+        }
+    }
+}
+
+/*
+ * Loop through all elements, and run colorNeighbors when the element visited is equal to zero
+ */
+void HungarianAlgo::coverZeros() {
+    numLines = 0;
+    for (int i = 0; i < values.size(); i++) {
+        std::fill(lines[i].begin(), lines[i].end(), 0);
+    }
+    
+    for(int row = 0; row < values.size(); row++) {
+        for(int col = 0; col < values.size(); col++) {
+            if(values[row][col] == 0) {
+                colorNeighbors(row, col, maxVH(row, col));
+            }
+        }
+    }
+}
+
+/*
+ * Checks which direction (vertical or horizonatl) contains more zeros, every time a zero is found vertically, 
+ * we increment the result and ever time a zero is found horizontally, we decrement the result
+ * Positive return value means line passing trhough [row][col] should be vertical, otherwise horizontal
+ */
+int HungarianAlgo::maxVH(int row, int col) {
+    int result = 0;
+    for(int i = 0; i < values.size(); i++) {
+        if(values[i][col] == 0)
+            result++;
+        if(values[row][i] == 0)
+            result--;
+    }
+    return result;
+}
+
+/*
+ * Color the neighbors of the cell at [row][col]. We pass maxVH to indicate direction to draw lines
+ */
+void HungarianAlgo::colorNeighbors(int row, int col, int maxVH) {
+    if(lines[row][col] == 2) // if cell is colored twice before (intersection cell), don't color it again
+        return;
+    
+    if(maxVH > 0 && lines[row][col] == 1) // if cell colored vertically and ndeeds to be recolored vertically, don't color again
+        return;
+    
+    if(maxVH <= 0 && lines[row][col] == -1) // if cell colored horizontally and needs to be recolored horizontally, don't color again
+        return;
+    
+    for(int i = 0; i < values.size(); i++) {
+        if(maxVH > 0)
+            lines[i][col] = (lines[i][col] == -1 || lines[i][col] == 2) ? 2 : 1;
+        else
+            lines[row][i] = (lines[row][i] == 1 || lines[row][i] == 2) ? 2 : -1;
+    }
+    
+    // increment line number
+    numLines++;
+}
+
+/*
+ * Create additional zeros by coloring the min value of uncovered cells (cells not colored by any line)
+ */
+void HungarianAlgo::createAdditonalZeros() {
+    float minUncoveredValue = 0;
+    // float minUncoveredValue = FLT_MAX;
+    
+    // Find min uncovered number
+    for(int row = 0; row < values.size(); row++) {
+        for(int col = 0; col < values.size(); col++) {
+            if(lines[row][col] == 0 && (values[row][col] < minUncoveredValue || minUncoveredValue == 0))
+                minUncoveredValue = values[row][col];
+        }
+    }
+    
+    // Subtract min from all uncovered elements, and add it to all elements covered twice
+    for(int row = 0; row < values.size(); row++) {
+        for(int col = 0; col < values.size(); col++) {
+            if(lines[row][col] == 0) // If uncovered, subtract
+                values[row][col] -= minUncoveredValue;
+            else if(lines[row][col] == 2) // If covered twice, add
+                values[row][col] += minUncoveredValue;
+        }
+    }
+}
+
+bool HungarianAlgo::optimization(int row) {
+    if(row == rows.size()) // If all rows were assigned a cell
+        return true;
+    
+    for(int col = 0; col < values.size(); col++) { // Try all columns
+        if(values[row][col] == 0 && occupiedCols[col] == 0){ // If the current cell at col has value zero, and the column isn't reserved by a previous row
+            rows[row] = col; // Assign the current row to the current column cell
+            occupiedCols[col] = 1; // Mark the column as reserved
+            if(optimization(row+1)) // If the next rows were assigned successfully a cell from a unique column, return true
+                return true;
+            occupiedCols[col] = 0; // If the next rows were not able to get a cell, go back and try for the previous rows another cell from another column
+        }
+    }
+    
+    return false; // If no cell was assigned for the current row, return false to go back one row to try to assign to it another cell from another column
+}
+
+bool HungarianAlgo::optimization() {
+    return optimization(0);
+}
+
+std::vector<int> HungarianAlgo::getResult() {
+    return rows;
+}
+
+float HungarianAlgo::getTotal() {
+    float total = 0;
+    for(int row = 0; row < values.size(); row++)
+        total += originalValues[row][rows[row]];
+    return total;
+}
+
+
+
+
 // Create a Kalman Filter class used to predict the position of euglena for more accurate live tracking
 class KFTracker {
     public:
@@ -22,14 +262,14 @@ class KFTracker {
         cv::Mat state;
         cv::Mat processNoise;
         cv::Mat measurement;
-        std::vector<cv::Point>pointsVector, kalmanVector;
+        std::vector<cv::Point>pointsVector, kalmanVector;   // measured points and curren predicted state
         bool init;
 
         KFTracker();
         virtual ~KFTracker();
         void track(float x, float y);          // Input measured position from live feed
         void initializeKF(float x, float y);
-        void draw(cv::Mat img);                // Draw tight bound contour around euglena
+       // void draw(cv::Mat img);               
         void drawPath(cv::Mat img);            // Draws path euglena has taken since start of tracking
     private:
 };
@@ -41,18 +281,6 @@ struct EuglenaObject {
     bool tracked;               // Determiens whether this object has been matched to any euglena on screen
     KFTracker tracker;          // Kalman Filter object assigned to each euglena object
 };
-
-// class HungarianAssignment {
-//     public:
-//         float costMatrix[][];
-//         int maxZeroes[][];
-//         int minimumLines[][];
-
-//         void initializeHA;
-//         void calculateMaxZeroes;
-//         void setLines;
-//     private:
-// };
 
 class EuglenaProcessor : public Processor {
     public:
@@ -92,6 +320,8 @@ class EuglenaProcessor : public Processor {
         std::map<int, double> euglenaVelocities;
         std::map<int, double> euglenaAccelerations;
         std::map<int, float> euglenaAngles;
+        int assignmentFrequency = 1;                // How often you want assignment to occur
+        bool hungarianAlgorithm = false;            // Use hungarian algorithm instead od simple euclidean distance  SIGNIFICANT slowdown
 
         // drawCircle
         char drawCircleCenterX[300];
@@ -173,6 +403,7 @@ class EuglenaProcessor : public Processor {
         cv::Mat _elementErode;
         cv::Mat _elementDilate;
         std::vector<cv::RotatedRect> _previousEuglenaPositions;
+        const float threshold = 80.0;
 };
 
 
@@ -262,6 +493,7 @@ void KFTracker::initializeKF(float x, float y) {
     init = false;
 }
 
+/** Update predicted state based on observation **/
 void KFTracker::track(float x, float y) {
     if ( init )
         initializeKF(x, y);
@@ -280,15 +512,17 @@ void KFTracker::track(float x, float y) {
     kalmanVector.push_back(statePt);
  }
 
-void KFTracker::draw(cv::Mat img) {
-    if (kalmanVector.size() >= 2) {
-        for (int i=kalmanVector.size()-4; i<kalmanVector.size()-1; i++) {
-            line(img, kalmanVector[i], kalmanVector[i+1], cv::Scalar(0,255,0), 1);
-        }
-        line(img, kalmanVector[kalmanVector.size()-1], kalmanVector[kalmanVector.size()-4], cv::Scalar(0,255,0),1);
-    }
-}
+// void KFTracker::draw(cv::Mat img) {
+//     if (kalmanVector.size() >= 2) {
+//         for (int i=kalmanVector.size()-4; i<kalmanVector.size()-1; i++) {
+//             line(img, kalmanVector[i], kalmanVector[i+1], cv::Scalar(0,255,0), 1);
+//         }
+//         line(img, kalmanVector[kalmanVector.size()-1], kalmanVector[kalmanVector.size()-4], cv::Scalar(0,255,0),1);
+//     }
+// }
 
+
+/*** Recorded Path of object based on predictions and observations **/
 void KFTracker::drawPath(cv::Mat img) {
     if (kalmanVector.size() >= 2) {
         for (int i=0; i<kalmanVector.size()-1; i++) {
@@ -487,56 +721,81 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         }
         
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
-        for (auto &c : contours) {              // Detect all contours on the screen
-            if ( cv::contourArea(c) > magnification*magnification*0.8) {  // Filter contours for only euglena objects
+        std::vector<std::vector<float>> distances;
+        std::vector<cv::RotatedRect> chosenContours;
+
+
+        for (auto c : contours) {              // Detect all contours on the screen
+            if (cv::contourArea(c) > magnification*magnification*0.8) {  // Filter contours for only euglena objects
                 totalDetectedEuglena += 1;
                 cv::RotatedRect e = cv::minAreaRect(c);
+                chosenContours.push_back(e);
                 cv::Point2f pts[4];
                 e.points(pts);
                 bool haveWeAddedEuglenaPositionYet = false;
-                bool matched = false;
+                bool matched = false;     // Determine if contour has been matched to computer object
                 int count = -1;
                 int index = 0;
+                float minDistance = e.size.width*2;  // Threshold for minimum distance to be considered a match
 
                  // Compare all detected contours to euglena objects to match computer objects to vision objects
-                for (auto &g : trackedEuglenas) {          
-                    count += 1;
-                    std::vector<cv::Point2f> intersectingVertices;
-                    std::vector<cv::Point2f> rectVector;
-                    cv::Point2f objPts[4];
-                    g.rect.points(objPts);
-                    int KVIndex = g.tracker.kalmanVector.size() - 1;
-                    std::vector<cv::Point2f> objVector;
-                    for (int j = 0; j<4;j++) {
-                        rectVector.push_back(pts[j]);
-                        //objVector.push_back(g.tracker.kalmanVector[KVIndex]);
-                        objVector.push_back(objPts[j]);
-                        KVIndex -= 1;
-                    }
-                    float intersection = cv::intersectConvexConvex( rectVector, objVector, intersectingVertices );  
-                    float objArea = g.rect.size.width * g.rect.size.height;
-                    
-                    // If there is 40% overlap between predicted position and detected contour assume they are the same object
-                    if (intersection > 0.4*objArea) {
-                        matched = true;
-                        index = count;
-                    } 
-                }
+                std::vector<float> euclidian;
+                for (auto g : trackedEuglenas) { 
+                    // Make predictions for each frame assignment is not happening
+                    cv::Point2f lastCoord(g.tracker.kalmanVector[g.tracker.kalmanVector.size() -1].x, g.tracker.kalmanVector[g.tracker.kalmanVector.size() -1].y);
+                    if (frameCount % assignmentFrequency != 0) {
+                        g.tracker.track(lastCoord.x, lastCoord.y);
+                    } else {       
+                        count += 1;
+                        float dist = cv::norm(e.center - lastCoord);  // calculate euclidean distance
+                        euclidian.push_back(dist);
+                       
+                        /**** Overlap method check for 40% overlap in between frames opencv function causes slowdown ***/
+                        // std::vector<cv::Point2f> intersectingVertices;
+                        // std::vector<cv::Point2f> rectVector;
+                        // cv::Point2f objPts[4];
+                        // g.rect.points(objPts);
+                        // int KVIndex = g.tracker.kalmanVector.size() - 1;
+                        // std::vector<cv::Point2f> objVector;
+                        // for (int j = 0; j<4;j++) {
+                        //     rectVector.push_back(pts[j]);
+                        //     //objVector.push_back(g.tracker.kalmanVector[KVIndex]);
+                        //     objVector.push_back(objPts[j]);
+                        //     KVIndex -= 1;
+                        // }
+                        // float intersection = cv::intersectConvexConvex( rectVector, objVector, intersectingVertices );  
+                        // float objArea = g.rect.size.width * g.rect.size.height;
+                        
+                        // If there is 40% overlap between predicted position and detected contour assume they are the same object
 
-                // Create new object trackers for unassigned EUglena
-                if (!matched) {
-                    matched = true;
-                    EuglenaObject euglena;
-                    if (trackedEuglenas.size() == 0) {
-                        euglena.ID = 1;
-                    } else {
-                        euglena.ID = trackedEuglenas[trackedEuglenas.size() - 1].ID + 1;
+
+                        if (dist <= minDistance) {
+                            minDistance = dist;
+                            matched = true;
+                            index = count;
+                        } 
+
                     }
-                    trackedEuglenas.push_back (euglena);
-                    index = trackedEuglenas.size() - 1;
                 }
-                trackedEuglenas[index].rect = e;
-                trackedEuglenas[index].tracked = true;
+                    distances.push_back(euclidian);
+
+                    // Create new object trackers for unassigned EUglena
+                if (!hungarianAlgorithm) {
+                    if (!matched) {
+                        matched = true;
+                        EuglenaObject euglena;
+                        if (trackedEuglenas.size() == 0) {
+                            euglena.ID = 1;
+                        } else {
+                            euglena.ID = trackedEuglenas[trackedEuglenas.size() - 1].ID + 1;   // Create unique IDs
+                        }
+                        trackedEuglenas.push_back (euglena);
+                        index = trackedEuglenas.size() - 1;
+                    }
+                    trackedEuglenas[index].rect = e;       // assigne contour
+                    trackedEuglenas[index].tracked = true;
+                    trackedEuglenas[index].tracker.track(e.center.x, e.center.y);  // update predicted state
+                }
 
 
                 for (int i=0;i<4;i++) {
@@ -548,11 +807,94 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                         std::strcat(getAllEuglenaPositionsStr, std::to_string(pts[i].y).c_str());
                         std::strcat(getAllEuglenaPositionsStr, ");");
                     }
-
-                    trackedEuglenas[index].tracker.track(pts[i].x, pts[i].y);
-                    
                 }
             }
+        }
+
+
+        if (hungarianAlgorithm) {
+
+            if (!distances.empty()) {
+
+                // Delete columns with values that all exceed threshold
+                // 0 = delete; 1 = keep
+                std::vector<int> colsToDelete(distances[0].size(), 0);
+                for(int col = 0; col < distances[0].size(); col++) {
+                    for(int row = 0; row < distances.size(); row++) {
+                        if(distances[row][col] < threshold) {
+                            colsToDelete[col] = 1;
+                            row = distances.size();
+                        }
+                    }
+                }
+                for (int i = colsToDelete.size() - 1; i >= 0; i--) {
+                    if(colsToDelete[i] == 0) {
+                        for(int row = 0; row < distances.size(); row++) {
+                            distances[row].erase(distances[row].begin() + i);
+                        }
+                        trackedEuglenas.erase(trackedEuglenas.begin() + i);
+                    }
+                }
+                    
+                // Change remaining values that exceed threshold to max(row,col)*threshold
+                float max = std::max((float)distances.size(), (float)distances[0].size());
+                float maxThreshold = max*threshold;
+                for (int row = 0; row < distances.size(); row++) {
+                    for(int col = 0; col < distances[0].size(); col++) {
+                        if(distances[row][col] >= threshold) {
+                            distances[row][col] = maxThreshold;
+                        }
+                    }
+                }
+            }
+                
+            // Add rows or cols to make it an nxn matrix
+            int rows = chosenContours.size();
+            int cols = trackedEuglenas.size();
+            if (rows > cols) {
+                for (int i = 0; i < rows; i++) {
+                    for (int j = 0; j < rows - cols; j++) {
+                        distances[i].push_back(0);
+                    }
+                }
+
+                for (int i = 0; i < rows - cols; i++) {
+                    EuglenaObject euglena;
+                    euglena.ID = (trackedEuglenas.size() == 0) ? 1 : trackedEuglenas[trackedEuglenas.size() - 1].ID + 1;
+                    euglena.tracked = true;
+                    trackedEuglenas.push_back(euglena);
+                }
+            } else if (cols > rows) {
+                for(int i = 0; i < cols - rows; i++) {
+                    std::vector<float> newRow(cols, 0);
+                    distances.push_back(newRow);
+                }
+            }
+        
+            // Hungarian algorithm      
+            HungarianAlgo  hungalgo(distances);
+            std::vector<int> assignments = hungalgo.getResult();
+
+            //colToAssign 
+            for(int i = assignments.size() - 1; i >= 0; i--) {
+                int colToAssign = assignments[i];
+                if (colToAssign < trackedEuglenas.size()) {
+                    if (i >= rows) {
+                        trackedEuglenas[colToAssign].tracked = false;
+                    } else {
+                        trackedEuglenas[colToAssign].rect = chosenContours[i];
+
+                        cv::Point2f contourPts[4];
+                        chosenContours[i].points(contourPts);
+                        for (int k = 0; k < 4; k++) {
+                            trackedEuglenas[colToAssign].tracker.track(contourPts[k].x, contourPts[k].y);
+                        }
+                    }
+
+                }
+            }
+
+
         }
 
         totalEuglena = totalDetectedEuglena;
@@ -578,23 +920,25 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         int position = -1;
         float xPosition;
         float yPosition;
+
         for (auto &e : trackedEuglenas) {
             position += 1;
             if (e.tracked) {
+                // Update user with position
                 std::strcat(getAllEuglenaIDsStr, std::to_string(e.ID).c_str());
                 std::strcat(getAllEuglenaIDsStr, ";");
-                e.tracked = false;
-                xPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].x + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].x)/2;
-                yPosition = (e.tracker.kalmanVector[e.tracker.kalmanVector.size()-4].y + e.tracker.kalmanVector[e.tracker.kalmanVector.size()-2].y)/2;
+                if(!hungarianAlgorithm) e.tracked = false;
+                xPosition = e.tracker.pointsVector[e.tracker.pointsVector.size()-1].x;
+                yPosition = e.tracker.pointsVector[e.tracker.pointsVector.size()-1].y;
                 cv::Rect rRectBox(cv::Point(getEuglenaInRectUpperLeftX, getEuglenaInRectUpperLeftY), cv::Point(getEuglenaInRectLowerRightX, getEuglenaInRectLowerRightY));
                 if (rRectBox.contains(cv::Point(xPosition,yPosition))) {
                     std::strcat(getEuglenaInRectReturnVal, std::to_string(e.ID).c_str());
                     std::strcat(getEuglenaInRectReturnVal, ";");
                 }
-                // std::strcat(targetEuglenaPositionStr, std::to_string(positionID).c_str());
-                // std::strcat(targetEuglenaPositionStr, ",");
-                // std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
-                // std::strcat(targetEuglenaPositionStr, "!!");
+                std::strcat(targetEuglenaPositionStr, std::to_string(positionID).c_str());
+                std::strcat(targetEuglenaPositionStr, ",");
+                std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
+                std::strcat(targetEuglenaPositionStr, "!!");
 
                 std::strcat(targetEuglenaPositionStr, std::to_string(e.ID).c_str());
                 std::strcat(targetEuglenaPositionStr, ": (");
@@ -604,14 +948,22 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                 std::strcat(targetEuglenaPositionStr, ");");
 
                 cv::Point2f currPosition(xPosition, yPosition);
+
+                // Draw tracked euglena
                 if (viewEuglenaPaths) {
                     e.tracker.drawPath(im);
                     cv::putText(im, std::to_string(e.ID), e.rect.center, cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
                 } else if (drawOnTrackedEuglena) {
-                    e.tracker.draw(im);
                     cv::putText(im, std::to_string(e.ID), e.rect.center, cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
+                    cv::Point2f rectPts[4];
+                    e.rect.points(rectPts);
+                    for (int k = 0; k < 4; k++) {
+                        cv::line( im, rectPts[k], rectPts[(k+1)%4], cv::Scalar(255,255,255,255), 1, 8 );
+                    }
                 }
                 float angle;
+
+                // Update user with angle of rotation of euglena (out of q180 degrees)
                 if (e.rect.size.width < e.rect.size.height) {
                     if (xPosition < e.rect.center.x) {
                         angle = e.rect.angle + 360;
@@ -674,6 +1026,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     euglenaPositions[e.ID] = currPosition;
                 }   
             } else {
+
+                // Eerase unused computer objects
                 trackedEuglenas.erase(trackedEuglenas.begin() + position);
                 position -= 1;
             }
