@@ -552,50 +552,12 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             cv::rectangle(im, cv::Point(0.0, 0.0), cv::Point(640.0, 480.0), cv::Scalar(0, 0, 0, 255), -1);
 
             if (sandboxModeFirstIteration) {
-                euglenaPositionsSandbox[0] = cv::Point2f(50.0, 50.0);
-                euglenaPositionsSandbox[1] = cv::Point2f(120.0, 120.0);
-                euglenaPositionsSandbox[2] = cv::Point2f(190.0, 190.0);
-                euglenaPositionsSandbox[3] = cv::Point2f(160.0, 260.0);
-                euglenaPositionsSandbox[4] = cv::Point2f(230.0, 330.0);
-                euglenaPositionsSandbox[5] = cv::Point2f(30.0, 33.0);
-                euglenaPositionsSandbox[6] = cv::Point2f(30.0, 30.0);
-                euglenaPositionsSandbox[7] = cv::Point2f(40.0, 30.0);
-                euglenaPositionsSandbox[8] = cv::Point2f(70.0, 230.0);
-                euglenaPositionsSandbox[9] = cv::Point2f(260.0, 130.0);
-                euglenaPositionsSandbox[10] = cv::Point2f(350.0, 170.0);
-                euglenaAnglesSandbox[0] = rand() % 360;
-                euglenaAnglesSandbox[1] = rand() % 360;
-                euglenaAnglesSandbox[2] = rand() % 360;
-                euglenaAnglesSandbox[3] = rand() % 360;
-                euglenaAnglesSandbox[4] = rand() % 360;
-                euglenaAnglesSandbox[5] = rand() % 360;
-                euglenaAnglesSandbox[6] = rand() % 360;
-                euglenaAnglesSandbox[7] = rand() % 360;
-                euglenaAnglesSandbox[8] = rand() % 360;
-                euglenaAnglesSandbox[9] = rand() % 360;
-                euglenaAnglesSandbox[10] = rand() % 360;
-                euglenaVelocitiesSandbox[0] = 1.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[1] = 0.1 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[2] = 1.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[3] = 0.1 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[4] = 0.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[5] = 0.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[6] = 0.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[7] = 0.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[8] = 0.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[9] = 0.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[10] = 0.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaAccelerationsSandbox[0] = 0.0;
-                euglenaAccelerationsSandbox[1] = 0.0;
-                euglenaAccelerationsSandbox[2] = 0.0;
-                euglenaAccelerationsSandbox[3] = 0.0;
-                euglenaAccelerationsSandbox[4] = 0.0;
-                euglenaAccelerationsSandbox[5] = 0.0;
-                euglenaAccelerationsSandbox[6] = 0.0;
-                euglenaAccelerationsSandbox[7] = 0.0;
-                euglenaAccelerationsSandbox[8] = 0.0;
-                euglenaAccelerationsSandbox[9] = 0.0;
-                euglenaAccelerationsSandbox[10] = 0.0;
+                for (int eugID = 0; eugID < 20; eugID++) {
+                    euglenaPositionsSandbox[0] = cv::Point2f(eugID*10.0, eugID*10.0);
+                    euglenaAnglesSandbox[0] = rand() % 360;
+                    euglenaVelocitiesSandbox[0] = 1.5 + ((double)rand() / RAND_MAX)*2;
+                    euglenaAccelerationsSandbox[0] = 0.0;
+                }
                 sandboxModeFirstIteration = false;
             }
 
