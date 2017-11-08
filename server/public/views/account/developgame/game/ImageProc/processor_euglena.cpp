@@ -553,10 +553,10 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
             if (sandboxModeFirstIteration) {
                 for (int eugID = 0; eugID < 20; eugID++) {
-                    euglenaPositionsSandbox[0] = cv::Point2f(eugID*10.0, eugID*10.0);
-                    euglenaAnglesSandbox[0] = rand() % 360;
-                    euglenaVelocitiesSandbox[0] = 1.5 + ((double)rand() / RAND_MAX)*2;
-                    euglenaAccelerationsSandbox[0] = 0.0;
+                    euglenaPositionsSandbox[eugID] = cv::Point2f(eugID*10.0, eugID*10.0);
+                    euglenaAnglesSandbox[eugID] = rand() % 360;
+                    euglenaVelocitiesSandbox[eugID] = 1.5 + ((double)rand() / RAND_MAX)*10;
+                    euglenaAccelerationsSandbox[eugID] = 0.0;
                 }
                 sandboxModeFirstIteration = false;
             }
