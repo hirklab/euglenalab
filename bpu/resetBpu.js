@@ -197,7 +197,7 @@ exports = module.exports = function(app, deps, options, mainCallback) {
               rightValue: 0,
               bottomValue: 0,
               leftValue: 0,
-              diffuserValue: 0,
+              diffuserValue: 100,
               backlightValue: 0,
               culturelightValue: 0,
               ambientlightValue: 0,
