@@ -211,6 +211,8 @@
             ledsSetObj.rightValue = 0;
             ledsSetObj.bottomValue = 0;
             ledsSetObj.leftValue = 0;
+            
+            ledsSetObj.diffuserValue = 100;
 
             app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, previousTouchState + '->setLedsFromLightValues');
         },
@@ -248,6 +250,7 @@
             ledsSetObj.rightValue = 0;
             ledsSetObj.bottomValue = 0;
             ledsSetObj.leftValue = 0;
+            ledsSetObj.diffuserValue = 100;
             ledsSetObj = app.mainView.myJoyStick.setLightValuesFromXY(ledsSetObj, from + '->setLedsFromObjectAndSendToServer');
             app.mainView.myLightsObj.update(ledsSetObj);
 
@@ -405,7 +408,8 @@
             topValue: 0,
             rightValue: 0,
             bottomValue: 0,
-            leftValue: 0
+            leftValue: 0,
+            diffuserValue : 100
         },
         lastMouseMoveTime: new Date().getTime(),
 
@@ -507,6 +511,7 @@
                                     lightValues.bottomValue = me.keys.bottom.value;
                                     lightValues.rightValue = me.keys.right.value;
                                     lightValues.leftValue = me.keys.left.value;
+                                    lightValues.diffuserValue = 100;
                                     if (lightValues.topValue + lightValues.bottomValue + lightValues.rightValue + lightValues.leftValue > 0) {
                                         app.mainView.setLedsEventController(lightValues, 'myJoyKeys_loop', app.mainView.myJoyStickObj.touchState);
                                         loop();
