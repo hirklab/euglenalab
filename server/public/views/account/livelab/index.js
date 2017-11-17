@@ -250,8 +250,9 @@
             ledsSetObj.rightValue = 0;
             ledsSetObj.bottomValue = 0;
             ledsSetObj.leftValue = 0;
-            ledsSetObj.diffuserValue = 100;
+            
             ledsSetObj = app.mainView.myJoyStick.setLightValuesFromXY(ledsSetObj, from + '->setLedsFromObjectAndSendToServer');
+            ledsSetObj.diffuserValue = 100;
             app.mainView.myLightsObj.update(ledsSetObj);
 
             //only update bpu on interval
