@@ -248,7 +248,9 @@ func compileMovie(wid int, exp *Experiment) error {
 	// fmt.Printf("Worker %d, Experiment ID: %s - Compiling Movie\n", wid, exp.Id.Hex())
 	g_workStatuses[wid].currentStatus.message = "Compiling Movie"
 	g_statusCond.Signal()
-	_, err := exec.Command(MOVIEEXEC, "-i", exp.ProcStartPath).Output()
+	fStartTime := strconv.FormatFloat(exp.ExpRunStartTime, 'E', -1, 64)
+	fEndTime := strconv.FormatFloat(exp.ExpRunEndTime, 'E', -1, 64)
+	_, err := exec.Command(MOVIEEXEC, "-i", exp.ProcStartPath, "--start", fStartTime, "--end", fEndTime).Output()
 	if err != nil {
 		return errors.New("compileMovie:" + err.Error())
 	}

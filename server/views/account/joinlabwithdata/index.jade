@@ -73,11 +73,11 @@ block body
       - for(var j=0;j<data.eugs.length;j++)
         div.col-md-3.col-sm-6.col-cs-12(style='min-height:340px;border-radius:5px')
           div.row(style='margin-bottom:5px;')
-            div.col-xs-6
+            div.col-xs-4
               button.btn.btn-primary.btn-joinLiveBpu.bpuButton.pull-left(type='button', name=data.eugs[j].joinLiveJadeName, value=data.eugs[j].index, disabled) Live
-            //- div.col-xs-4
-            //-   button.btn.btn-primary.btn-joinGameBpu.bpuButton(type='button', name=data.eugs[j].joinGameJadeName, value=data.eugs[j].index, disabled) Code
-            div.col-xs-6
+            div.col-xs-4
+              button.btn.btn-primary.btn-joinGameBpu.bpuButton(type='button', name=data.eugs[j].joinGameJadeName, value=data.eugs[j].index, disabled) Code
+            div.col-xs-4
               button.btn.btn-primary.btn-submitTextBpu.bpuButton.pull-right(type='button', name=data.eugs[j].submitTextJadeName, value=data.eugs[j].index, disabled) Batch
           div.row
             div.col-xs-12
