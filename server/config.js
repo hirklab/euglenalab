@@ -7,6 +7,7 @@ var zeroLeds={
   rightValue:0,
   bottomValue:0,
   leftValue:0,
+  diffuserValue:100
 }; 
 
 

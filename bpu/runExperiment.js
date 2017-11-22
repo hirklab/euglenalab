@@ -232,7 +232,7 @@ var checkEventValues = function(evt) {
     rightValue: 0,
     bottomValue: 0,
     leftValue: 0,
-    diffuserValue: 0,
+    diffuserValue: 100,
     backlightValue: 0,
     culturelightValue: 0,
     ambientlightValue: 0,

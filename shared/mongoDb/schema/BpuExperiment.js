@@ -412,7 +412,7 @@ exports = module.exports = function(app, mongoose) {
             rightValue: 0,
             bottomValue: 0,
             leftValue: 0,
-            diffuserValue: 0,
+            diffuserValue: 100,
             backlightValue: 0,
             culturelightValue: 0,
             ambientlightValue: 0
@@ -523,7 +523,7 @@ var _getDataObjToJoinQueue = function(app) {
       rightValue: 0,
       bottomValue: 0,
       leftValue: 0,
-      diffuserValue: 0,
+      diffuserValue: 100,
       culturelightValue: 0,
       backlightValue: 0,
       ambientlightValue: 0
@@ -538,7 +538,7 @@ var _getDataObjToSetLeds = function() {
     rightValue: null,
     bottomValue: null,
     leftValue: null,
-    diffuserValue: null,
+    diffuserValue: 100,
     culturelightValue: null,
     backlightValue: null,
     ambientlightValue: null,
