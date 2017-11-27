@@ -250,12 +250,18 @@ block feet
   script(src="/views/account/developgame/Canvas_Joystick.js")
   script(src='/views/account/developgame/socket-client.js')
   script(src='/views/account/developgame/game/game.js')
+  #script(async, src='/views/account/developgame/game/ImageProc/image_proc.js')
   
 
 block body
   body(onload='pageDidLoad()')
+    div(class="spinner",id='spinner')
+    div(id="status")
+      Downloading
+    div.emscripten
+      progress(value="0",max="100",id="progress",hidden=1)
     div#listener
-      embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
+      # embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
 
     div.row
       div.col-xs-12

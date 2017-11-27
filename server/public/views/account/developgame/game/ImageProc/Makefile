@@ -27,6 +27,9 @@ OBJ := $(addprefix $(build)/, $(subst src/,, $(patsubst %.cpp, %.o, $(wildcard s
 IMPROC_HEADERS := image_proc.cpp image_proc.hpp instance_factory.hpp improc_instance.hpp singleton_factory.hpp
 
 EMSCRIPTEN := ~/euglenalab/emsdk/emscripten/incoming
+OPENCV_DIR := /usr/local/include
+funcs = "['_postMessage']"
+
 
 # Declare the ALL target first, to make the 'all' target the default build
 all: image_proc_wasm
@@ -61,7 +64,8 @@ image_proc.pexe: image_proc.bc
 	$(PNACL_COMPRESS) -o image_proc.compressed.pexe image_proc.pexe
 
 image_proc_wasm:
-	$(EMSCRIPTEN)/emcc image_proc.cpp -s WASM=1 -o image_proc.html
+	#$(EMSCRIPTEN)/emcc image_proc.cpp -s WASM=1 -o image_proc.html
+	$(EMSCRIPTEN)/emcc image_proc.cpp -s WASM=1 -o image_proc.js -I $(OPENCV_DIR) -s EXPORTED_FUNCTIONS=$(funcs) #-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$(funcs)
 
 serve:
 	python -m SimpleHTTPServer 8000

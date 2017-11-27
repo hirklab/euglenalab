@@ -1,10 +1,18 @@
-#include "improc_instance.hpp"
-#include "singleton_factory.hpp"
-#include "url_loader_handler.hpp"
-#include "processor_euglena.cpp"
+//#include "improc_instance.hpp"
+//#include "singleton_factory.hpp"
+//#include "url_loader_handler.hpp"
+//#include "processor_euglena.cpp"
 #include <vector>
 #include <thread>
 #include <functional>
+
+extern "C" {
+  int postMessage(int a) {
+    return a*a;
+  }
+}
+
+/*
 
 pp::Module* pp::CreateModule() 
 {
@@ -182,3 +190,5 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
     run_simulation_ = false;
   }
 }
+
+*/

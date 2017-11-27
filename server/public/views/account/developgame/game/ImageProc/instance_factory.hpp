@@ -1,9 +1,9 @@
 #ifndef INSTANCE_FACTORY_HPP
 #define INSTANCE_FACTORY_HPP
 
-#include "ppapi/cpp/instance.h"
-#include "ppapi/cpp/module.h"
-#include "ppapi/cpp/var.h"
+//#include "ppapi/cpp/instance.h"
+//#include "ppapi/cpp/module.h"
+//#include "ppapi/cpp/var.h"
 
 // Factory method called by the browser when first loaded
 namespace pp {

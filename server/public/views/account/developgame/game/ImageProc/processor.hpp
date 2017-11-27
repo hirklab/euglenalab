@@ -2,7 +2,7 @@
 #define PROCESSOR_HPP
 
 #include <opencv2/core/core.hpp>
-#include "ppapi/cpp/var_dictionary.h"
+//#include "ppapi/cpp/var_dictionary.h"
 
 class Processor {
   public:

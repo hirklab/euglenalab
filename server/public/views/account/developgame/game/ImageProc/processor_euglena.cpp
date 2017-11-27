@@ -19,17 +19,17 @@
 /*** Hungarian algorithm for optimal assignment between observations and predicted positions  O(n^3) ***/
 class HungarianAlgo {
     public:
-        std::vector<std::vector<float>> originalValues; // Given values
-        std::vector<std::vector<float>> values; // Cloned given values to be processed
-        std::vector<std::vector<int>> lines; // Lines drawn
+        std::vector<std::vector<float> > originalValues; // Given values
+        std::vector<std::vector<float> > values; // Cloned given values to be processed
+        std::vector<std::vector<int> > lines; // Lines drawn
         int numLines; // Number of lines drawn
     
         std::vector<int> rows; // Indices of the column selected by each row (final result)
         std::vector<int> occupiedCols; // Verify that all column are occupied, used in optimization step
     
-        HungarianAlgo(std::vector<std::vector<float>> matrix);
+        HungarianAlgo(std::vector<std::vector<float> > matrix);
         virtual ~HungarianAlgo();
-        std::vector<std::vector<float>> cloneMatrix(std::vector<std::vector<float>> matrix);
+        std::vector<std::vector<float> > cloneMatrix(std::vector<std::vector<float> > matrix);
         void subtractRowMinimal();
         void subtractColMinimal();
         void coverZeros();
@@ -45,7 +45,7 @@ class HungarianAlgo {
     private:
 };
 
-HungarianAlgo::HungarianAlgo(std::vector<std::vector<float>> matrix) {
+HungarianAlgo::HungarianAlgo(std::vector<std::vector<float> > matrix) {
     
     // Initialization
     originalValues = matrix;
@@ -72,8 +72,8 @@ HungarianAlgo::HungarianAlgo(std::vector<std::vector<float>> matrix) {
 
 HungarianAlgo::~HungarianAlgo() {}
 
-std::vector<std::vector<float>> HungarianAlgo::cloneMatrix(std::vector<std::vector<float>> matrix) {
-    std::vector<std::vector<float>> tmp;
+std::vector<std::vector<float> > HungarianAlgo::cloneMatrix(std::vector<std::vector<float> > matrix) {
+    std::vector<std::vector<float> > tmp;
     for(int row = 0; row < matrix.size(); row++) {
         std::vector<float> newRow(matrix[row]);
         tmp.push_back(newRow);
@@ -707,7 +707,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
         }
         
         // Draw around the Euglenas and check that every point of the bounding box falls within the current blue box.
-        std::vector<std::vector<float>> distances;
+        std::vector<std::vector<float> > distances;
         std::vector<cv::RotatedRect> chosenContours;
 
 
