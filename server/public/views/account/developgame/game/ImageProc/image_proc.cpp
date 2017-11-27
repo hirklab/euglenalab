@@ -5,11 +5,23 @@
 #include <vector>
 #include <thread>
 #include <functional>
+#include <emscripten.h>
+#include <string>
 
 extern "C" {
-  int postMessage(int a) {
-    return a*a;
+  void postMessageToClient(const std::string& msg);
+  void postMessageToClient(const std::string& msg) {
+    EM_ASM_({
+      console.log(UTF8ToString($0));
+    }, msg.c_str());
   }
+
+  void postMessage(int a) {
+    //return a*a;
+    std::string msg = "Hello world!";
+    postMessageToClient(msg);
+  }
+
 }
 
 /*

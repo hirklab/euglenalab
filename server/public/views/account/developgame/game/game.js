@@ -31,7 +31,7 @@
           }
         },
         canvas: (function() {
-          var canvas = document.getElementById('canvas');
+          var canvas = document.getElementById('processed');
 
           // As a default initial behavior, pop up an alert when webgl context is lost. To make your
           // application robust, you may want to override this behavior before shipping!
@@ -64,6 +64,12 @@
         monitorRunDependencies: function(left) {
           this.totalDependencies = Math.max(this.totalDependencies, left);
           Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        },
+        onRuntimeInitialized: function() {
+          ImageProcModule = {
+            postMessage: Module.cwrap('postMessage', null, ['number'])
+          };
+          //Module._foobar(); // foobar was exported
         }
       };
       Module.setStatus('Downloading...');
@@ -75,8 +81,11 @@
           if (text) Module.printErr('[post-exception status] ' + text);
         };
       };
+
+
       var URL_WASM =  "/views/account/developgame/game/ImageProc/image_proc.wasm";
       var URL_JS = "/views/account/developgame/game/ImageProc/image_proc.js";
+      updateStatus( 'LOADING...' );
        fetch(URL_WASM).then(response =>
           response.arrayBuffer()
           ).then(buffer => {
@@ -86,7 +95,13 @@
         var script = document.createElement('script');
         script.src = URL_JS;
         script.onload = function() {
-          console.log("Emscripten boilerplate loaded.")
+          console.log("Emscripten boilerplate loaded.");
+          /*ImageProcModule = {
+            postMessage: Module.cwrap('postMessage', null, ['int'])
+          };*/
+          //Module.cwrap('postMessage', null, ['number'])(2);
+          updateStatus();
+          processNextImage();
         }
         document.body.appendChild(script);
       });
@@ -203,7 +218,8 @@ function enableTransfer()
 function pageDidLoad() {
   //console.log("Page is loading...")
   //getVideoSources();
-  ImageProcModule = document.getElementById( "image_proc" );
+
+  /*ImageProcModule = document.getElementById( "image_proc" );
   var listener = document.getElementById("listener");
   updateStatus("Loading");
   listener.addEventListener("message", handleMessage, true );
@@ -211,8 +227,8 @@ function pageDidLoad() {
     updateStatus( 'LOADING...' );
   } else {
     updateStatus();
-  }
-  processNextImage();
+  }*/
+  //processNextImage();
 }
 
 function getDataFromImage( img ) {

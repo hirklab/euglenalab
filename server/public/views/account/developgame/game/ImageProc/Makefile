@@ -28,7 +28,8 @@ IMPROC_HEADERS := image_proc.cpp image_proc.hpp instance_factory.hpp improc_inst
 
 EMSCRIPTEN := ~/euglenalab/emsdk/emscripten/incoming
 OPENCV_DIR := /usr/local/include
-funcs = "['_postMessage']"
+IMAGE_PROC_EXPORTED_FUNCTIONS = "['_postMessage']"
+IMAGE_PROC_DEFAULT_LIBRARY_FUNCS_TO_INCLUDE = "['postMessage']"
 
 
 # Declare the ALL target first, to make the 'all' target the default build
@@ -65,7 +66,7 @@ image_proc.pexe: image_proc.bc
 
 image_proc_wasm:
 	#$(EMSCRIPTEN)/emcc image_proc.cpp -s WASM=1 -o image_proc.html
-	$(EMSCRIPTEN)/emcc image_proc.cpp -s WASM=1 -o image_proc.js -I $(OPENCV_DIR) -s EXPORTED_FUNCTIONS=$(funcs) #-s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$(funcs)
+	$(EMSCRIPTEN)/emcc image_proc.cpp -s WASM=1 -o image_proc.js -I $(OPENCV_DIR) -s EXPORTED_FUNCTIONS=$(IMAGE_PROC_EXPORTED_FUNCTIONS) -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$(IMAGE_PROC_DEFAULT_LIBRARY_FUNCS_TO_INCLUDE)
 
 serve:
 	python -m SimpleHTTPServer 8000
