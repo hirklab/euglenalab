@@ -7,7 +7,7 @@
 class Processor {
   public:
     virtual cv::Mat operator()(cv::Mat)=0;
-    virtual void getAuxillaryData( pp::VarDictionary& data ){};
+    //virtual void getAuxillaryData( pp::VarDictionary& data ){};
     virtual ~Processor() {}
     virtual void init( cv::Mat ) {};
 };

@@ -438,7 +438,8 @@ std::string getImgType(int imgTypeInt) {
 // Constructs a new EuglenaProcessor
 EuglenaProcessor::EuglenaProcessor() : _fgbg(0) {
     gameInSession = true;
-    _fgbg = new cv::BackgroundSubtractorMOG2(500,16,false);
+    //_fgbg = new cv::BackgroundSubtractorMOG2(500,16,false);
+    _fgbg = cv::createBackgroundSubtractorMOG2(500,16,false); // added by Ashwin.
     _elementErode  = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 3, 3 ));
     _elementDilate = getStructuringElement( cv::MORPH_ELLIPSE, cv::Size( 5, 5 ));
     std::strcpy(gameOverStr, "");
@@ -480,7 +481,7 @@ void KFTracker::initializeKF(float x, float y) {
     KF.statePre.at<float>(2) = 0;
     KF.statePre.at<float>(3) = 0;
 
-    KF.transitionMatrix = *(cv::Mat_<float>(4, 4) << 1,0,0,0,   0,1,0,0,   0,0,1,0,   0,0,0,1 );
+    KF.transitionMatrix = (cv::Mat_<float>(4, 4) << 1,0,0,0,   0,1,0,0,   0,0,1,0,   0,0,0,1 );
 
     cv::setIdentity(KF.measurementMatrix);
     cv::setIdentity(KF.processNoiseCov, cv::Scalar::all(1e-4));
@@ -615,10 +616,15 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
     } 
 
-    // Assign calculated velocity, accelleration, and angle of rotation for a target euglena to user facing variables 
+    // Assign calculated velocity, acceleration, and angle of rotation for a target euglena to user facing variables 
 
     cv::Mat fgmask;
+    /* Comment this for now. - Ashwin
+    ./processor_euglena.cpp:621:5: error: type 'cv::BackgroundSubtractor' does not provide a call operator
     (*_fgbg)(im,fgmask,-1);
+
+     */
+    // (*_fgbg)(im,fgmask,-1);
 
     cv::Mat dst;
 
