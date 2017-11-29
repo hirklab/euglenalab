@@ -2022,7 +2022,7 @@ function _emscripten_asm_const_ii(code, a0) {
 
 STATIC_BASE = Runtime.GLOBAL_BASE;
 
-STATICTOP = STATIC_BASE + 11184;
+STATICTOP = STATIC_BASE + 8768;
 /* global initializers */  __ATINIT__.push({ func: function() { __GLOBAL__sub_I_image_proc_cpp() } });
 
 
@@ -2031,7 +2031,7 @@ memoryInitializer = null;
 
 
 
-var STATIC_BUMP = 11184;
+var STATIC_BUMP = 8768;
 Module["STATIC_BASE"] = STATIC_BASE;
 Module["STATIC_BUMP"] = STATIC_BUMP;
 
@@ -2183,8 +2183,6 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv30createBackgroundSubtractorMOG2Eidb'); abort(-1);
   }
 
-   
-
   function __ZN2cv12KalmanFilter7correctERKNS_3MatE() {
   Module['printErr']('missing function: _ZN2cv12KalmanFilter7correctERKNS_3MatE'); abort(-1);
   }
@@ -2239,10 +2237,6 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv12KalmanFilterC1Ev'); abort(-1);
   }
 
-  function __ZN2cv16MatConstIterator4seekEPKib() {
-  Module['printErr']('missing function: _ZN2cv16MatConstIterator4seekEPKib'); abort(-1);
-  }
-
   function __ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii() {
   Module['printErr']('missing function: _ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii'); abort(-1);
   }
@@ -2286,8 +2280,6 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii'); abort(-1);
   }
 
-   
-
   function __ZN2cv11minAreaRectERKNS_11_InputArrayE() {
   Module['printErr']('missing function: _ZN2cv11minAreaRectERKNS_11_InputArrayE'); abort(-1);
   }
@@ -2300,8 +2292,6 @@ function copyTempDouble(ptr) {
           return ___cxa_find_matching_catch.apply(null, arguments);
         }
 
-   
-
   function __ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE() {
   Module['printErr']('missing function: _ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE'); abort(-1);
   }
@@ -2311,6 +2301,10 @@ function copyTempDouble(ptr) {
       HEAPU8.set(HEAPU8.subarray(src, src+num), dest);
       return dest;
     } 
+
+  function __ZN2pp13VarDictionaryD1Ev() {
+  Module['printErr']('missing function: _ZN2pp13VarDictionaryD1Ev'); abort(-1);
+  }
 
   function __ZN2cv8fastFreeEPv() {
   Module['printErr']('missing function: _ZN2cv8fastFreeEPv'); abort(-1);
@@ -2326,19 +2320,6 @@ function copyTempDouble(ptr) {
    
 
   function ___gxx_personality_v0() {
-    }
-
-  function _pthread_cond_wait() { return 0; }
-
-  function ___cxa_rethrow() {
-      var ptr = EXCEPTIONS.caught.pop();
-      if (!EXCEPTIONS.infos[ptr].rethrown) {
-        // Only pop if the corresponding push was through rethrow_primary_exception
-        EXCEPTIONS.caught.push(ptr)
-        EXCEPTIONS.infos[ptr].rethrown = true;
-      }
-      EXCEPTIONS.last = ptr;
-      throw ptr;
     }
 
   function __ZN2cv3Mat6createEiPKii() {
@@ -2408,6 +2389,10 @@ function copyTempDouble(ptr) {
       Module['dynCall_v'](func);
       _pthread_once.seen[ptr] = 1;
     }
+
+  function __ZN2pp13VarDictionaryC1ERKNS_3VarE() {
+  Module['printErr']('missing function: _ZN2pp13VarDictionaryC1ERKNS_3VarE'); abort(-1);
+  }
 
   function __ZN2cv3Mat8copySizeERKS0_() {
   Module['printErr']('missing function: _ZN2cv3Mat8copySizeERKS0_'); abort(-1);
@@ -2492,6 +2477,9 @@ function copyTempDouble(ptr) {
   }
   }
 
+  function __ZN2cv16MatConstIterator4seekEPKib() {
+  Module['printErr']('missing function: _ZN2cv16MatConstIterator4seekEPKib'); abort(-1);
+  }
 
   function __ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE() {
   Module['printErr']('missing function: _ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE'); abort(-1);
@@ -2629,8 +2617,6 @@ function nullFunc_viidi(x) { Module["printErr"]("Invalid function pointer called
 
 function nullFunc_viiiidiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiiidiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-function nullFunc_iiiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
-
 function nullFunc_viiidd(x) { Module["printErr"]("Invalid function pointer called with signature 'viiidd'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_iiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
@@ -2649,8 +2635,6 @@ function nullFunc_vidddd(x) { Module["printErr"]("Invalid function pointer calle
 
 function nullFunc_viiiiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiiiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-function nullFunc_jd(x) { Module["printErr"]("Invalid function pointer called with signature 'jd'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
-
 function nullFunc_iii(x) { Module["printErr"]("Invalid function pointer called with signature 'iii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_diiddi(x) { Module["printErr"]("Invalid function pointer called with signature 'diiddi'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
@@ -2660,8 +2644,6 @@ function nullFunc_diii(x) { Module["printErr"]("Invalid function pointer called 
 function nullFunc_dii(x) { Module["printErr"]("Invalid function pointer called with signature 'dii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_i(x) { Module["printErr"]("Invalid function pointer called with signature 'i'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
-
-function nullFunc_iiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_viii(x) { Module["printErr"]("Invalid function pointer called with signature 'viii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
@@ -2673,9 +2655,9 @@ function nullFunc_viif(x) { Module["printErr"]("Invalid function pointer called 
 
 function nullFunc_viiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-Module['wasmTableSize'] = 10688;
+Module['wasmTableSize'] = 6208;
 
-Module['wasmMaxTableSize'] = 10688;
+Module['wasmMaxTableSize'] = 6208;
 
 function invoke_viiiii(index,a1,a2,a3,a4,a5) {
   try {
@@ -2743,15 +2725,6 @@ function invoke_viidi(index,a1,a2,a3,a4) {
 function invoke_viiiidiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
   try {
     Module["dynCall_viiiidiiii"](index,a1,a2,a3,a4,a5,a6,a7,a8,a9);
-  } catch(e) {
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
-
-function invoke_iiiiii(index,a1,a2,a3,a4,a5) {
-  try {
-    return Module["dynCall_iiiiii"](index,a1,a2,a3,a4,a5);
   } catch(e) {
     if (typeof e !== 'number' && e !== 'longjmp') throw e;
     Module["setThrew"](1, 0);
@@ -2839,15 +2812,6 @@ function invoke_viiiiiii(index,a1,a2,a3,a4,a5,a6,a7) {
   }
 }
 
-function invoke_jd(index,a1) {
-  try {
-    return Module["dynCall_jd"](index,a1);
-  } catch(e) {
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
-
 function invoke_iii(index,a1,a2) {
   try {
     return Module["dynCall_iii"](index,a1,a2);
@@ -2887,15 +2851,6 @@ function invoke_dii(index,a1,a2) {
 function invoke_i(index) {
   try {
     return Module["dynCall_i"](index);
-  } catch(e) {
-    if (typeof e !== 'number' && e !== 'longjmp') throw e;
-    Module["setThrew"](1, 0);
-  }
-}
-
-function invoke_iiiii(index,a1,a2,a3,a4) {
-  try {
-    return Module["dynCall_iiiii"](index,a1,a2,a3,a4);
   } catch(e) {
     if (typeof e !== 'number' && e !== 'longjmp') throw e;
     Module["setThrew"](1, 0);
@@ -2949,7 +2904,7 @@ function invoke_viiii(index,a1,a2,a3,a4) {
 
 Module.asmGlobalArg = { "Math": Math, "Int8Array": Int8Array, "Int16Array": Int16Array, "Int32Array": Int32Array, "Uint8Array": Uint8Array, "Uint16Array": Uint16Array, "Uint32Array": Uint32Array, "Float32Array": Float32Array, "Float64Array": Float64Array, "NaN": NaN, "Infinity": Infinity };
 
-Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_vif": nullFunc_vif, "nullFunc_vid": nullFunc_vid, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_ii": nullFunc_ii, "nullFunc_viidi": nullFunc_viidi, "nullFunc_viiiidiiii": nullFunc_viiiidiiii, "nullFunc_iiiiii": nullFunc_iiiiii, "nullFunc_viiidd": nullFunc_viiidd, "nullFunc_iiii": nullFunc_iiii, "nullFunc_viff": nullFunc_viff, "nullFunc_viiidddiiii": nullFunc_viiidddiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_di": nullFunc_di, "nullFunc_viiiiiiii": nullFunc_viiiiiiii, "nullFunc_vidddd": nullFunc_vidddd, "nullFunc_viiiiiii": nullFunc_viiiiiii, "nullFunc_jd": nullFunc_jd, "nullFunc_iii": nullFunc_iii, "nullFunc_diiddi": nullFunc_diiddi, "nullFunc_diii": nullFunc_diii, "nullFunc_dii": nullFunc_dii, "nullFunc_i": nullFunc_i, "nullFunc_iiiii": nullFunc_iiiii, "nullFunc_viii": nullFunc_viii, "nullFunc_v": nullFunc_v, "nullFunc_viid": nullFunc_viid, "nullFunc_viif": nullFunc_viif, "nullFunc_viiii": nullFunc_viiii, "invoke_viiiii": invoke_viiiii, "invoke_vif": invoke_vif, "invoke_vid": invoke_vid, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_ii": invoke_ii, "invoke_viidi": invoke_viidi, "invoke_viiiidiiii": invoke_viiiidiiii, "invoke_iiiiii": invoke_iiiiii, "invoke_viiidd": invoke_viiidd, "invoke_iiii": invoke_iiii, "invoke_viff": invoke_viff, "invoke_viiidddiiii": invoke_viiidddiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_di": invoke_di, "invoke_viiiiiiii": invoke_viiiiiiii, "invoke_vidddd": invoke_vidddd, "invoke_viiiiiii": invoke_viiiiiii, "invoke_jd": invoke_jd, "invoke_iii": invoke_iii, "invoke_diiddi": invoke_diiddi, "invoke_diii": invoke_diii, "invoke_dii": invoke_dii, "invoke_i": invoke_i, "invoke_iiiii": invoke_iiiii, "invoke_viii": invoke_viii, "invoke_v": invoke_v, "invoke_viid": invoke_viid, "invoke_viif": invoke_viif, "invoke_viiii": invoke_viiii, "__ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "___cxa_rethrow": ___cxa_rethrow, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "_pthread_key_create": _pthread_key_create, "__ZN2cv3Mat5setToERKNS_11_InputArrayES3_": __ZN2cv3Mat5setToERKNS_11_InputArrayES3_, "__ZN2cv6String8allocateEj": __ZN2cv6String8allocateEj, "_abort": _abort, "__ZN2cv12KalmanFilterC1Ev": __ZN2cv12KalmanFilterC1Ev, "__ZN2cv11contourAreaERKNS_11_InputArrayEb": __ZN2cv11contourAreaERKNS_11_InputArrayEb, "__ZN2cv7noArrayEv": __ZN2cv7noArrayEv, "__ZN2cv16MatConstIterator4seekEPKib": __ZN2cv16MatConstIterator4seekEPKib, "__ZN2cv3Mat8copySizeERKS0_": __ZN2cv3Mat8copySizeERKS0_, "___gxx_personality_v0": ___gxx_personality_v0, "__ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE": __ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE, "___assert_fail": ___assert_fail, "___cxa_free_exception": ___cxa_free_exception, "___cxa_find_matching_catch_2": ___cxa_find_matching_catch_2, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "_emscripten_asm_const_ii": _emscripten_asm_const_ii, "__ZN2cv3Mat10deallocateEv": __ZN2cv3Mat10deallocateEv, "__ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd": __ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd, "__ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii": __ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii, "__ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "___setErrNo": ___setErrNo, "__ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE": __ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE, "___cxa_begin_catch": ___cxa_begin_catch, "_emscripten_memcpy_big": _emscripten_memcpy_big, "___cxa_end_catch": ___cxa_end_catch, "__ZNK2cv3Mat7reshapeEiiPKi": __ZNK2cv3Mat7reshapeEiiPKi, "___resumeException": ___resumeException, "__ZSt18uncaught_exceptionv": __ZSt18uncaught_exceptionv, "__ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib": __ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib, "_pthread_getspecific": _pthread_getspecific, "___cxa_find_matching_catch_3": ___cxa_find_matching_catch_3, "__ZN2cv3Mat6createEiPKii": __ZN2cv3Mat6createEiPKii, "__ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE": __ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE, "__ZN2cv30createBackgroundSubtractorMOG2Eidb": __ZN2cv30createBackgroundSubtractorMOG2Eidb, "__ZN2cv16MatConstIterator4seekEib": __ZN2cv16MatConstIterator4seekEib, "_atexit": _atexit, "_pthread_once": _pthread_once, "__ZN2cv12KalmanFilterC1Eiiii": __ZN2cv12KalmanFilterC1Eiiii, "_clock_gettime": _clock_gettime, "__ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE": __ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE, "___syscall54": ___syscall54, "___unlock": ___unlock, "__ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii": __ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii, "__ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi": __ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi, "_emscripten_get_now": _emscripten_get_now, "__ZN2cv12KalmanFilter7correctERKNS_3MatE": __ZN2cv12KalmanFilter7correctERKNS_3MatE, "__ZN2cv8fastFreeEPv": __ZN2cv8fastFreeEPv, "_pthread_setspecific": _pthread_setspecific, "___cxa_atexit": ___cxa_atexit, "___cxa_throw": ___cxa_throw, "__ZN2cv6String10deallocateEv": __ZN2cv6String10deallocateEv, "___lock": ___lock, "___syscall6": ___syscall6, "_pthread_cond_wait": _pthread_cond_wait, "__ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE": __ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE, "___cxa_allocate_exception": ___cxa_allocate_exception, "__ZN2cv12KalmanFilter7predictERKNS_3MatE": __ZN2cv12KalmanFilter7predictERKNS_3MatE, "__ZN2cv11minAreaRectERKNS_11_InputArrayE": __ZN2cv11minAreaRectERKNS_11_InputArrayE, "___syscall140": ___syscall140, "___cxa_pure_virtual": ___cxa_pure_virtual, "___syscall146": ___syscall146, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX, "___dso_handle": ___dso_handle };
+Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_vif": nullFunc_vif, "nullFunc_vid": nullFunc_vid, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_ii": nullFunc_ii, "nullFunc_viidi": nullFunc_viidi, "nullFunc_viiiidiiii": nullFunc_viiiidiiii, "nullFunc_viiidd": nullFunc_viiidd, "nullFunc_iiii": nullFunc_iiii, "nullFunc_viff": nullFunc_viff, "nullFunc_viiidddiiii": nullFunc_viiidddiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_di": nullFunc_di, "nullFunc_viiiiiiii": nullFunc_viiiiiiii, "nullFunc_vidddd": nullFunc_vidddd, "nullFunc_viiiiiii": nullFunc_viiiiiii, "nullFunc_iii": nullFunc_iii, "nullFunc_diiddi": nullFunc_diiddi, "nullFunc_diii": nullFunc_diii, "nullFunc_dii": nullFunc_dii, "nullFunc_i": nullFunc_i, "nullFunc_viii": nullFunc_viii, "nullFunc_v": nullFunc_v, "nullFunc_viid": nullFunc_viid, "nullFunc_viif": nullFunc_viif, "nullFunc_viiii": nullFunc_viiii, "invoke_viiiii": invoke_viiiii, "invoke_vif": invoke_vif, "invoke_vid": invoke_vid, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_ii": invoke_ii, "invoke_viidi": invoke_viidi, "invoke_viiiidiiii": invoke_viiiidiiii, "invoke_viiidd": invoke_viiidd, "invoke_iiii": invoke_iiii, "invoke_viff": invoke_viff, "invoke_viiidddiiii": invoke_viiidddiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_di": invoke_di, "invoke_viiiiiiii": invoke_viiiiiiii, "invoke_vidddd": invoke_vidddd, "invoke_viiiiiii": invoke_viiiiiii, "invoke_iii": invoke_iii, "invoke_diiddi": invoke_diiddi, "invoke_diii": invoke_diii, "invoke_dii": invoke_dii, "invoke_i": invoke_i, "invoke_viii": invoke_viii, "invoke_v": invoke_v, "invoke_viid": invoke_viid, "invoke_viif": invoke_viif, "invoke_viiii": invoke_viiii, "__ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "_pthread_key_create": _pthread_key_create, "__ZN2cv3Mat5setToERKNS_11_InputArrayES3_": __ZN2cv3Mat5setToERKNS_11_InputArrayES3_, "__ZN2cv3Mat8copySizeERKS0_": __ZN2cv3Mat8copySizeERKS0_, "_abort": _abort, "__ZN2cv12KalmanFilterC1Ev": __ZN2cv12KalmanFilterC1Ev, "__ZN2cv11contourAreaERKNS_11_InputArrayEb": __ZN2cv11contourAreaERKNS_11_InputArrayEb, "__ZN2cv7noArrayEv": __ZN2cv7noArrayEv, "__ZN2cv16MatConstIterator4seekEPKib": __ZN2cv16MatConstIterator4seekEPKib, "___gxx_personality_v0": ___gxx_personality_v0, "__ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE": __ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE, "___assert_fail": ___assert_fail, "___cxa_free_exception": ___cxa_free_exception, "___cxa_find_matching_catch_2": ___cxa_find_matching_catch_2, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "_emscripten_asm_const_ii": _emscripten_asm_const_ii, "__ZN2cv3Mat10deallocateEv": __ZN2cv3Mat10deallocateEv, "__ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd": __ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd, "__ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii": __ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii, "__ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "___setErrNo": ___setErrNo, "__ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE": __ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE, "__ZN2pp13VarDictionaryD1Ev": __ZN2pp13VarDictionaryD1Ev, "_emscripten_memcpy_big": _emscripten_memcpy_big, "___cxa_end_catch": ___cxa_end_catch, "__ZNK2cv3Mat7reshapeEiiPKi": __ZNK2cv3Mat7reshapeEiiPKi, "___resumeException": ___resumeException, "__ZSt18uncaught_exceptionv": __ZSt18uncaught_exceptionv, "__ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib": __ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib, "___cxa_begin_catch": ___cxa_begin_catch, "_pthread_getspecific": _pthread_getspecific, "___cxa_find_matching_catch_3": ___cxa_find_matching_catch_3, "__ZN2cv3Mat6createEiPKii": __ZN2cv3Mat6createEiPKii, "__ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE": __ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE, "__ZN2cv30createBackgroundSubtractorMOG2Eidb": __ZN2cv30createBackgroundSubtractorMOG2Eidb, "__ZN2cv16MatConstIterator4seekEib": __ZN2cv16MatConstIterator4seekEib, "_atexit": _atexit, "_pthread_once": _pthread_once, "__ZN2cv6String8allocateEj": __ZN2cv6String8allocateEj, "_clock_gettime": _clock_gettime, "__ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE": __ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE, "___syscall54": ___syscall54, "___unlock": ___unlock, "__ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii": __ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii, "__ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi": __ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi, "_emscripten_get_now": _emscripten_get_now, "__ZN2cv12KalmanFilterC1Eiiii": __ZN2cv12KalmanFilterC1Eiiii, "__ZN2cv12KalmanFilter7correctERKNS_3MatE": __ZN2cv12KalmanFilter7correctERKNS_3MatE, "__ZN2cv8fastFreeEPv": __ZN2cv8fastFreeEPv, "_pthread_setspecific": _pthread_setspecific, "__ZN2pp13VarDictionaryC1ERKNS_3VarE": __ZN2pp13VarDictionaryC1ERKNS_3VarE, "___cxa_atexit": ___cxa_atexit, "___cxa_throw": ___cxa_throw, "__ZN2cv6String10deallocateEv": __ZN2cv6String10deallocateEv, "___lock": ___lock, "___syscall6": ___syscall6, "__ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE": __ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE, "___cxa_allocate_exception": ___cxa_allocate_exception, "__ZN2cv12KalmanFilter7predictERKNS_3MatE": __ZN2cv12KalmanFilter7predictERKNS_3MatE, "__ZN2cv11minAreaRectERKNS_11_InputArrayE": __ZN2cv11minAreaRectERKNS_11_InputArrayE, "___syscall140": ___syscall140, "___cxa_pure_virtual": ___cxa_pure_virtual, "___syscall146": ___syscall146, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX, "___dso_handle": ___dso_handle };
 // EMSCRIPTEN_START_ASM
 var asm =Module["asm"]// EMSCRIPTEN_END_ASM
 (Module.asmGlobalArg, Module.asmLibraryArg, buffer);
@@ -3014,22 +2969,10 @@ var real___GLOBAL__sub_I_image_proc_cpp = asm["__GLOBAL__sub_I_image_proc_cpp"];
   return real___GLOBAL__sub_I_image_proc_cpp.apply(null, arguments);
 };
 
-var real__pthread_mutex_unlock = asm["_pthread_mutex_unlock"]; asm["_pthread_mutex_unlock"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__pthread_mutex_unlock.apply(null, arguments);
-};
-
 var real__emscripten_get_global_libc = asm["_emscripten_get_global_libc"]; asm["_emscripten_get_global_libc"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return real__emscripten_get_global_libc.apply(null, arguments);
-};
-
-var real__pthread_cond_broadcast = asm["_pthread_cond_broadcast"]; asm["_pthread_cond_broadcast"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__pthread_cond_broadcast.apply(null, arguments);
 };
 
 var real_stackSave = asm["stackSave"]; asm["stackSave"] = function() {
@@ -3078,12 +3021,6 @@ var real_establishStackSpace = asm["establishStackSpace"]; asm["establishStackSp
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return real_establishStackSpace.apply(null, arguments);
-};
-
-var real__pthread_mutex_lock = asm["_pthread_mutex_lock"]; asm["_pthread_mutex_lock"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return real__pthread_mutex_lock.apply(null, arguments);
 };
 Module["asm"] = asm;
 var _llvm_bswap_i32 = Module["_llvm_bswap_i32"] = function() {
@@ -3134,18 +3071,10 @@ var __GLOBAL__sub_I_image_proc_cpp = Module["__GLOBAL__sub_I_image_proc_cpp"] = 
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["__GLOBAL__sub_I_image_proc_cpp"].apply(null, arguments) };
-var _pthread_mutex_unlock = Module["_pthread_mutex_unlock"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["_pthread_mutex_unlock"].apply(null, arguments) };
 var _emscripten_get_global_libc = Module["_emscripten_get_global_libc"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["_emscripten_get_global_libc"].apply(null, arguments) };
-var _pthread_cond_broadcast = Module["_pthread_cond_broadcast"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["_pthread_cond_broadcast"].apply(null, arguments) };
 var stackSave = Module["stackSave"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -3182,10 +3111,6 @@ var establishStackSpace = Module["establishStackSpace"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["establishStackSpace"].apply(null, arguments) };
-var _pthread_mutex_lock = Module["_pthread_mutex_lock"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["_pthread_mutex_lock"].apply(null, arguments) };
 var dynCall_viiiii = Module["dynCall_viiiii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -3218,10 +3143,6 @@ var dynCall_viiiidiiii = Module["dynCall_viiiidiiii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["dynCall_viiiidiiii"].apply(null, arguments) };
-var dynCall_iiiiii = Module["dynCall_iiiiii"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["dynCall_iiiiii"].apply(null, arguments) };
 var dynCall_viiidd = Module["dynCall_viiidd"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -3258,10 +3179,6 @@ var dynCall_viiiiiii = Module["dynCall_viiiiiii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["dynCall_viiiiiii"].apply(null, arguments) };
-var dynCall_jd = Module["dynCall_jd"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["dynCall_jd"].apply(null, arguments) };
 var dynCall_iii = Module["dynCall_iii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -3282,10 +3199,6 @@ var dynCall_i = Module["dynCall_i"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["dynCall_i"].apply(null, arguments) };
-var dynCall_iiiii = Module["dynCall_iiiii"] = function() {
-  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
-  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
-  return Module["asm"]["dynCall_iiiii"].apply(null, arguments) };
 var dynCall_viii = Module["dynCall_viii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
