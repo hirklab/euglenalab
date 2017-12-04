@@ -2012,18 +2012,15 @@ integrateWasmJS();
 
 // === Body ===
 
-var ASM_CONSTS = [function($0) { console.log(UTF8ToString($0)); }];
+var ASM_CONSTS = [];
 
-function _emscripten_asm_const_ii(code, a0) {
-  return ASM_CONSTS[code](a0);
-}
 
 
 
 STATIC_BASE = Runtime.GLOBAL_BASE;
 
-STATICTOP = STATIC_BASE + 8768;
-/* global initializers */  __ATINIT__.push({ func: function() { __GLOBAL__sub_I_image_proc_cpp() } });
+STATICTOP = STATIC_BASE + 10624;
+/* global initializers */  __ATINIT__.push({ func: function() { __GLOBAL__sub_I_image_proc_cpp() } }, { func: function() { __GLOBAL__sub_I_bind_cpp() } });
 
 
 memoryInitializer = null;
@@ -2031,7 +2028,7 @@ memoryInitializer = null;
 
 
 
-var STATIC_BUMP = 8768;
+var STATIC_BUMP = 10624;
 Module["STATIC_BASE"] = STATIC_BASE;
 Module["STATIC_BUMP"] = STATIC_BUMP;
 
@@ -2205,6 +2202,237 @@ function copyTempDouble(ptr) {
       }
     }
 
+  
+  function _embind_repr(v) {
+      if (v === null) {
+          return 'null';
+      }
+      var t = typeof v;
+      if (t === 'object' || t === 'array' || t === 'function') {
+          return v.toString();
+      } else {
+          return '' + v;
+      }
+    }
+  
+  function getShiftFromSize(size) {
+      switch (size) {
+          case 1: return 0;
+          case 2: return 1;
+          case 4: return 2;
+          case 8: return 3;
+          default:
+              throw new TypeError('Unknown type size: ' + size);
+      }
+    }
+  
+  function integerReadValueFromPointer(name, shift, signed) {
+      // integers are quite common, so generate very specialized functions
+      switch (shift) {
+          case 0: return signed ?
+              function readS8FromPointer(pointer) { return HEAP8[pointer]; } :
+              function readU8FromPointer(pointer) { return HEAPU8[pointer]; };
+          case 1: return signed ?
+              function readS16FromPointer(pointer) { return HEAP16[pointer >> 1]; } :
+              function readU16FromPointer(pointer) { return HEAPU16[pointer >> 1]; };
+          case 2: return signed ?
+              function readS32FromPointer(pointer) { return HEAP32[pointer >> 2]; } :
+              function readU32FromPointer(pointer) { return HEAPU32[pointer >> 2]; };
+          default:
+              throw new TypeError("Unknown integer type: " + name);
+      }
+    }
+  
+  
+  
+  function embind_init_charCodes() {
+      var codes = new Array(256);
+      for (var i = 0; i < 256; ++i) {
+          codes[i] = String.fromCharCode(i);
+      }
+      embind_charCodes = codes;
+    }var embind_charCodes=undefined;function readLatin1String(ptr) {
+      var ret = "";
+      var c = ptr;
+      while (HEAPU8[c]) {
+          ret += embind_charCodes[HEAPU8[c++]];
+      }
+      return ret;
+    }
+  
+  
+  var awaitingDependencies={};
+  
+  var registeredTypes={};
+  
+  var typeDependencies={};
+  
+  
+  
+  
+  
+  
+  var char_0=48;
+  
+  var char_9=57;function makeLegalFunctionName(name) {
+      if (undefined === name) {
+          return '_unknown';
+      }
+      name = name.replace(/[^a-zA-Z0-9_]/g, '$');
+      var f = name.charCodeAt(0);
+      if (f >= char_0 && f <= char_9) {
+          return '_' + name;
+      } else {
+          return name;
+      }
+    }function createNamedFunction(name, body) {
+      name = makeLegalFunctionName(name);
+      /*jshint evil:true*/
+      return new Function(
+          "body",
+          "return function " + name + "() {\n" +
+          "    \"use strict\";" +
+          "    return body.apply(this, arguments);\n" +
+          "};\n"
+      )(body);
+    }function extendError(baseErrorType, errorName) {
+      var errorClass = createNamedFunction(errorName, function(message) {
+          this.name = errorName;
+          this.message = message;
+  
+          var stack = (new Error(message)).stack;
+          if (stack !== undefined) {
+              this.stack = this.toString() + '\n' +
+                  stack.replace(/^Error(:[^\n]*)?\n/, '');
+          }
+      });
+      errorClass.prototype = Object.create(baseErrorType.prototype);
+      errorClass.prototype.constructor = errorClass;
+      errorClass.prototype.toString = function() {
+          if (this.message === undefined) {
+              return this.name;
+          } else {
+              return this.name + ': ' + this.message;
+          }
+      };
+  
+      return errorClass;
+    }var BindingError=undefined;function throwBindingError(message) {
+      throw new BindingError(message);
+    }
+  
+  
+  
+  var InternalError=undefined;function throwInternalError(message) {
+      throw new InternalError(message);
+    }function whenDependentTypesAreResolved(myTypes, dependentTypes, getTypeConverters) {
+      myTypes.forEach(function(type) {
+          typeDependencies[type] = dependentTypes;
+      });
+  
+      function onComplete(typeConverters) {
+          var myTypeConverters = getTypeConverters(typeConverters);
+          if (myTypeConverters.length !== myTypes.length) {
+              throwInternalError('Mismatched type converter count');
+          }
+          for (var i = 0; i < myTypes.length; ++i) {
+              registerType(myTypes[i], myTypeConverters[i]);
+          }
+      }
+  
+      var typeConverters = new Array(dependentTypes.length);
+      var unregisteredTypes = [];
+      var registered = 0;
+      dependentTypes.forEach(function(dt, i) {
+          if (registeredTypes.hasOwnProperty(dt)) {
+              typeConverters[i] = registeredTypes[dt];
+          } else {
+              unregisteredTypes.push(dt);
+              if (!awaitingDependencies.hasOwnProperty(dt)) {
+                  awaitingDependencies[dt] = [];
+              }
+              awaitingDependencies[dt].push(function() {
+                  typeConverters[i] = registeredTypes[dt];
+                  ++registered;
+                  if (registered === unregisteredTypes.length) {
+                      onComplete(typeConverters);
+                  }
+              });
+          }
+      });
+      if (0 === unregisteredTypes.length) {
+          onComplete(typeConverters);
+      }
+    }function registerType(rawType, registeredInstance, options) {
+      options = options || {};
+  
+      if (!('argPackAdvance' in registeredInstance)) {
+          throw new TypeError('registerType registeredInstance requires argPackAdvance');
+      }
+  
+      var name = registeredInstance.name;
+      if (!rawType) {
+          throwBindingError('type "' + name + '" must have a positive integer typeid pointer');
+      }
+      if (registeredTypes.hasOwnProperty(rawType)) {
+          if (options.ignoreDuplicateRegistrations) {
+              return;
+          } else {
+              throwBindingError("Cannot register type '" + name + "' twice");
+          }
+      }
+  
+      registeredTypes[rawType] = registeredInstance;
+      delete typeDependencies[rawType];
+  
+      if (awaitingDependencies.hasOwnProperty(rawType)) {
+          var callbacks = awaitingDependencies[rawType];
+          delete awaitingDependencies[rawType];
+          callbacks.forEach(function(cb) {
+              cb();
+          });
+      }
+    }function __embind_register_integer(primitiveType, name, size, minRange, maxRange) {
+      name = readLatin1String(name);
+      if (maxRange === -1) { // LLVM doesn't have signed and unsigned 32-bit types, so u32 literals come out as 'i32 -1'. Always treat those as max u32.
+          maxRange = 4294967295;
+      }
+  
+      var shift = getShiftFromSize(size);
+  
+      var fromWireType = function(value) {
+          return value;
+      };
+  
+      if (minRange === 0) {
+          var bitshift = 32 - 8*size;
+          fromWireType = function(value) {
+              return (value << bitshift) >>> bitshift;
+          };
+      }
+  
+      var isUnsignedType = (name.indexOf('unsigned') != -1);
+  
+      registerType(primitiveType, {
+          name: name,
+          'fromWireType': fromWireType,
+          'toWireType': function(destructors, value) {
+              // todo: Here we have an opportunity for -O3 level "unsafe" optimizations: we could
+              // avoid the following two if()s and assume value is of proper type.
+              if (typeof value !== "number" && typeof value !== "boolean") {
+                  throw new TypeError('Cannot convert "' + _embind_repr(value) + '" to ' + this.name);
+              }
+              if (value < minRange || value > maxRange) {
+                  throw new TypeError('Passing a number "' + _embind_repr(value) + '" from JS side to C/C++ side to an argument of type "' + name + '", which is outside the valid range [' + minRange + ', ' + maxRange + ']!');
+              }
+              return isUnsignedType ? (value >>> 0) : (value | 0);
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': integerReadValueFromPointer(name, shift, minRange !== 0),
+          destructorFunction: null, // This type does not need a destructor
+      });
+    }
+
   function __ZN2cv11contourAreaERKNS_11_InputArrayEb() {
   Module['printErr']('missing function: _ZN2cv11contourAreaERKNS_11_InputArrayEb'); abort(-1);
   }
@@ -2236,6 +2464,22 @@ function copyTempDouble(ptr) {
   function __ZN2cv12KalmanFilterC1Ev() {
   Module['printErr']('missing function: _ZN2cv12KalmanFilterC1Ev'); abort(-1);
   }
+
+  function __embind_register_void(rawType, name) {
+      name = readLatin1String(name);
+      registerType(rawType, {
+          isVoid: true, // void return values can be optimized out sometimes
+          name: name,
+          'argPackAdvance': 0,
+          'fromWireType': function() {
+              return undefined;
+          },
+          'toWireType': function(destructors, o) {
+              // TODO: assert if anything else is given?
+              return undefined;
+          },
+      });
+    }
 
   function __ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii() {
   Module['printErr']('missing function: _ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii'); abort(-1);
@@ -2302,9 +2546,7 @@ function copyTempDouble(ptr) {
       return dest;
     } 
 
-  function __ZN2pp13VarDictionaryD1Ev() {
-  Module['printErr']('missing function: _ZN2pp13VarDictionaryD1Ev'); abort(-1);
-  }
+  var _llvm_pow_f64=Math_pow;
 
   function __ZN2cv8fastFreeEPv() {
   Module['printErr']('missing function: _ZN2cv8fastFreeEPv'); abort(-1);
@@ -2326,7 +2568,42 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv3Mat6createEiPKii'); abort(-1);
   }
 
-   
+  function __ZN2cv12KalmanFilter7predictERKNS_3MatE() {
+  Module['printErr']('missing function: _ZN2cv12KalmanFilter7predictERKNS_3MatE'); abort(-1);
+  }
+
+  function __embind_register_memory_view(rawType, dataTypeIndex, name) {
+      var typeMapping = [
+          Int8Array,
+          Uint8Array,
+          Int16Array,
+          Uint16Array,
+          Int32Array,
+          Uint32Array,
+          Float32Array,
+          Float64Array,
+      ];
+  
+      var TA = typeMapping[dataTypeIndex];
+  
+      function decodeMemoryView(handle) {
+          handle = handle >> 2;
+          var heap = HEAPU32;
+          var size = heap[handle]; // in elements
+          var data = heap[handle + 1]; // byte offset into emscripten heap
+          return new TA(heap['buffer'], data, size);
+      }
+  
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': decodeMemoryView,
+          'argPackAdvance': 8,
+          'readValueFromPointer': decodeMemoryView,
+      }, {
+          ignoreDuplicateRegistrations: true,
+      });
+    }
 
   function __ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi() {
   Module['printErr']('missing function: _ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi'); abort(-1);
@@ -2336,6 +2613,69 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv6String10deallocateEv'); abort(-1);
   }
 
+
+  
+  function simpleReadValueFromPointer(pointer) {
+      return this['fromWireType'](HEAPU32[pointer >> 2]);
+    }function __embind_register_std_string(rawType, name) {
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(value) {
+              var length = HEAPU32[value >> 2];
+              var a = new Array(length);
+              for (var i = 0; i < length; ++i) {
+                  a[i] = String.fromCharCode(HEAPU8[value + 4 + i]);
+              }
+              _free(value);
+              return a.join('');
+          },
+          'toWireType': function(destructors, value) {
+              if (value instanceof ArrayBuffer) {
+                  value = new Uint8Array(value);
+              }
+  
+              function getTAElement(ta, index) {
+                  return ta[index];
+              }
+              function getStringElement(string, index) {
+                  return string.charCodeAt(index);
+              }
+              var getElement;
+              if (value instanceof Uint8Array) {
+                  getElement = getTAElement;
+              } else if (value instanceof Uint8ClampedArray) {
+                  getElement = getTAElement;
+              } else if (value instanceof Int8Array) {
+                  getElement = getTAElement;
+              } else if (typeof value === 'string') {
+                  getElement = getStringElement;
+              } else {
+                  throwBindingError('Cannot pass non-string to std::string');
+              }
+  
+              // assumes 4-byte alignment
+              var length = value.length;
+              var ptr = _malloc(4 + length);
+              HEAPU32[ptr >> 2] = length;
+              for (var i = 0; i < length; ++i) {
+                  var charCode = getElement(value, i);
+                  if (charCode > 255) {
+                      _free(ptr);
+                      throwBindingError('String has UTF-16 code units that do not fit in 8 bits');
+                  }
+                  HEAPU8[ptr + 4 + i] = charCode;
+              }
+              if (destructors !== null) {
+                  destructors.push(_free, ptr);
+              }
+              return ptr;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': simpleReadValueFromPointer,
+          destructorFunction: function(ptr) { _free(ptr); },
+      });
+    }
 
   
   function _emscripten_get_now() { abort() }
@@ -2359,6 +2699,39 @@ function copyTempDouble(ptr) {
       HEAP32[((tp)>>2)]=(now/1000)|0; // seconds
       HEAP32[(((tp)+(4))>>2)]=((now % 1000)*1000*1000)|0; // nanoseconds
       return 0;
+    }
+
+  function __embind_register_bool(rawType, name, size, trueValue, falseValue) {
+      var shift = getShiftFromSize(size);
+  
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(wt) {
+              // ambiguous emscripten ABI: sometimes return values are
+              // true or false, and sometimes integers (0 or 1)
+              return !!wt;
+          },
+          'toWireType': function(destructors, o) {
+              return o ? trueValue : falseValue;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': function(pointer) {
+              // TODO: if heap is fixed (like in asm.js) this could be executed outside
+              var heap;
+              if (size === 1) {
+                  heap = HEAP8;
+              } else if (size === 2) {
+                  heap = HEAP16;
+              } else if (size === 4) {
+                  heap = HEAP32;
+              } else {
+                  throw new TypeError("Unknown boolean type size: " + name);
+              }
+              return this['fromWireType'](heap[pointer >> shift]);
+          },
+          destructorFunction: null, // This type does not need a destructor
+      });
     }
 
   function ___assert_fail(condition, filename, line, func) {
@@ -2390,10 +2763,6 @@ function copyTempDouble(ptr) {
       _pthread_once.seen[ptr] = 1;
     }
 
-  function __ZN2pp13VarDictionaryC1ERKNS_3VarE() {
-  Module['printErr']('missing function: _ZN2pp13VarDictionaryC1ERKNS_3VarE'); abort(-1);
-  }
-
   function __ZN2cv3Mat8copySizeERKS0_() {
   Module['printErr']('missing function: _ZN2cv3Mat8copySizeERKS0_'); abort(-1);
   }
@@ -2410,7 +2779,75 @@ function copyTempDouble(ptr) {
 
   function ___lock() {}
 
-  var _emscripten_asm_const_int=true;
+  
+  
+  var emval_free_list=[];
+  
+  var emval_handle_array=[{},{value:undefined},{value:null},{value:true},{value:false}];function __emval_decref(handle) {
+      if (handle > 4 && 0 === --emval_handle_array[handle].refcount) {
+          emval_handle_array[handle] = undefined;
+          emval_free_list.push(handle);
+      }
+    }
+  
+  
+  
+  function count_emval_handles() {
+      var count = 0;
+      for (var i = 5; i < emval_handle_array.length; ++i) {
+          if (emval_handle_array[i] !== undefined) {
+              ++count;
+          }
+      }
+      return count;
+    }
+  
+  function get_first_emval() {
+      for (var i = 5; i < emval_handle_array.length; ++i) {
+          if (emval_handle_array[i] !== undefined) {
+              return emval_handle_array[i];
+          }
+      }
+      return null;
+    }function init_emval() {
+      Module['count_emval_handles'] = count_emval_handles;
+      Module['get_first_emval'] = get_first_emval;
+    }function __emval_register(value) {
+  
+      switch(value){
+        case undefined :{ return 1; }
+        case null :{ return 2; }
+        case true :{ return 3; }
+        case false :{ return 4; }
+        default:{
+          var handle = emval_free_list.length ?
+              emval_free_list.pop() :
+              emval_handle_array.length;
+  
+          emval_handle_array[handle] = {refcount: 1, value: value};
+          return handle;
+          }
+        }
+    }function __embind_register_emval(rawType, name) {
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(handle) {
+              var rv = emval_handle_array[handle].value;
+              __emval_decref(handle);
+              return rv;
+          },
+          'toWireType': function(destructors, value) {
+              return __emval_register(value);
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': simpleReadValueFromPointer,
+          destructorFunction: null, // This type does not need a destructor
+  
+          // TODO: do we need a deleteObject here?  write a test where
+          // emval is passed into JS via an interface
+      });
+    }
 
   function _pthread_setspecific(key, value) {
       if (!(key in PTHREAD_SPECIFIC)) {
@@ -2420,9 +2857,7 @@ function copyTempDouble(ptr) {
       return 0;
     }
 
-  function __ZN2cv12KalmanFilter7predictERKNS_3MatE() {
-  Module['printErr']('missing function: _ZN2cv12KalmanFilter7predictERKNS_3MatE'); abort(-1);
-  }
+   
 
   function ___cxa_allocate_exception(size) {
       return _malloc(size);
@@ -2435,6 +2870,40 @@ function copyTempDouble(ptr) {
   function ___cxa_pure_virtual() {
       ABORT = true;
       throw 'Pure virtual function called!';
+    }
+
+  
+  function floatReadValueFromPointer(name, shift) {
+      switch (shift) {
+          case 2: return function(pointer) {
+              return this['fromWireType'](HEAPF32[pointer >> 2]);
+          };
+          case 3: return function(pointer) {
+              return this['fromWireType'](HEAPF64[pointer >> 3]);
+          };
+          default:
+              throw new TypeError("Unknown float type: " + name);
+      }
+    }function __embind_register_float(rawType, name, size) {
+      var shift = getShiftFromSize(size);
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(value) {
+              return value;
+          },
+          'toWireType': function(destructors, value) {
+              // todo: Here we have an opportunity for -O3 level "unsafe" optimizations: we could
+              // avoid the following if() and assume value is of proper type.
+              if (typeof value !== "number" && typeof value !== "boolean") {
+                  throw new TypeError('Cannot convert "' + _embind_repr(value) + '" to ' + this.name);
+              }
+              return value;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': floatReadValueFromPointer(name, shift),
+          destructorFunction: null, // This type does not need a destructor
+      });
     }
 
   function __ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE() {
@@ -2484,6 +2953,51 @@ function copyTempDouble(ptr) {
   function __ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE() {
   Module['printErr']('missing function: _ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE'); abort(-1);
   }
+
+  function __embind_register_std_wstring(rawType, charSize, name) {
+      // nb. do not cache HEAPU16 and HEAPU32, they may be destroyed by enlargeMemory().
+      name = readLatin1String(name);
+      var getHeap, shift;
+      if (charSize === 2) {
+          getHeap = function() { return HEAPU16; };
+          shift = 1;
+      } else if (charSize === 4) {
+          getHeap = function() { return HEAPU32; };
+          shift = 2;
+      }
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(value) {
+              var HEAP = getHeap();
+              var length = HEAPU32[value >> 2];
+              var a = new Array(length);
+              var start = (value + 4) >> shift;
+              for (var i = 0; i < length; ++i) {
+                  a[i] = String.fromCharCode(HEAP[start + i]);
+              }
+              _free(value);
+              return a.join('');
+          },
+          'toWireType': function(destructors, value) {
+              // assumes 4-byte alignment
+              var HEAP = getHeap();
+              var length = value.length;
+              var ptr = _malloc(4 + length * charSize);
+              HEAPU32[ptr >> 2] = length;
+              var start = (ptr + 4) >> shift;
+              for (var i = 0; i < length; ++i) {
+                  HEAP[start + i] = value.charCodeAt(i);
+              }
+              if (destructors !== null) {
+                  destructors.push(_free, ptr);
+              }
+              return ptr;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': simpleReadValueFromPointer,
+          destructorFunction: function(ptr) { _free(ptr); },
+      });
+    }
 
   function __ZN2cv12KalmanFilterC1Eiiii() {
   Module['printErr']('missing function: _ZN2cv12KalmanFilterC1Eiiii'); abort(-1);
@@ -2540,6 +3054,9 @@ function copyTempDouble(ptr) {
   }
 
   var ___dso_handle=STATICTOP; STATICTOP += 16;;
+embind_init_charCodes();
+BindingError = Module['BindingError'] = extendError(Error, 'BindingError');;
+InternalError = Module['InternalError'] = extendError(Error, 'InternalError');;
 if (ENVIRONMENT_IS_NODE) {
     _emscripten_get_now = function _emscripten_get_now_actual() {
       var t = process['hrtime']();
@@ -2554,6 +3071,7 @@ if (ENVIRONMENT_IS_NODE) {
   } else {
     _emscripten_get_now = Date.now;
   };
+init_emval();;
 /* flush anything remaining in the buffer during shutdown */ __ATEXIT__.push(function() { var fflush = Module["_fflush"]; if (fflush) fflush(0); var printChar = ___syscall146.printChar; if (!printChar) return; var buffers = ___syscall146.buffers; if (buffers[1].length) printChar(1, 10); if (buffers[2].length) printChar(2, 10); });;
 DYNAMICTOP_PTR = allocate(1, "i32", ALLOC_STATIC);
 
@@ -2655,9 +3173,9 @@ function nullFunc_viif(x) { Module["printErr"]("Invalid function pointer called 
 
 function nullFunc_viiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-Module['wasmTableSize'] = 6208;
+Module['wasmTableSize'] = 6528;
 
-Module['wasmMaxTableSize'] = 6208;
+Module['wasmMaxTableSize'] = 6528;
 
 function invoke_viiiii(index,a1,a2,a3,a4,a5) {
   try {
@@ -2904,7 +3422,7 @@ function invoke_viiii(index,a1,a2,a3,a4) {
 
 Module.asmGlobalArg = { "Math": Math, "Int8Array": Int8Array, "Int16Array": Int16Array, "Int32Array": Int32Array, "Uint8Array": Uint8Array, "Uint16Array": Uint16Array, "Uint32Array": Uint32Array, "Float32Array": Float32Array, "Float64Array": Float64Array, "NaN": NaN, "Infinity": Infinity };
 
-Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_vif": nullFunc_vif, "nullFunc_vid": nullFunc_vid, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_ii": nullFunc_ii, "nullFunc_viidi": nullFunc_viidi, "nullFunc_viiiidiiii": nullFunc_viiiidiiii, "nullFunc_viiidd": nullFunc_viiidd, "nullFunc_iiii": nullFunc_iiii, "nullFunc_viff": nullFunc_viff, "nullFunc_viiidddiiii": nullFunc_viiidddiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_di": nullFunc_di, "nullFunc_viiiiiiii": nullFunc_viiiiiiii, "nullFunc_vidddd": nullFunc_vidddd, "nullFunc_viiiiiii": nullFunc_viiiiiii, "nullFunc_iii": nullFunc_iii, "nullFunc_diiddi": nullFunc_diiddi, "nullFunc_diii": nullFunc_diii, "nullFunc_dii": nullFunc_dii, "nullFunc_i": nullFunc_i, "nullFunc_viii": nullFunc_viii, "nullFunc_v": nullFunc_v, "nullFunc_viid": nullFunc_viid, "nullFunc_viif": nullFunc_viif, "nullFunc_viiii": nullFunc_viiii, "invoke_viiiii": invoke_viiiii, "invoke_vif": invoke_vif, "invoke_vid": invoke_vid, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_ii": invoke_ii, "invoke_viidi": invoke_viidi, "invoke_viiiidiiii": invoke_viiiidiiii, "invoke_viiidd": invoke_viiidd, "invoke_iiii": invoke_iiii, "invoke_viff": invoke_viff, "invoke_viiidddiiii": invoke_viiidddiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_di": invoke_di, "invoke_viiiiiiii": invoke_viiiiiiii, "invoke_vidddd": invoke_vidddd, "invoke_viiiiiii": invoke_viiiiiii, "invoke_iii": invoke_iii, "invoke_diiddi": invoke_diiddi, "invoke_diii": invoke_diii, "invoke_dii": invoke_dii, "invoke_i": invoke_i, "invoke_viii": invoke_viii, "invoke_v": invoke_v, "invoke_viid": invoke_viid, "invoke_viif": invoke_viif, "invoke_viiii": invoke_viiii, "__ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "_pthread_key_create": _pthread_key_create, "__ZN2cv3Mat5setToERKNS_11_InputArrayES3_": __ZN2cv3Mat5setToERKNS_11_InputArrayES3_, "__ZN2cv3Mat8copySizeERKS0_": __ZN2cv3Mat8copySizeERKS0_, "_abort": _abort, "__ZN2cv12KalmanFilterC1Ev": __ZN2cv12KalmanFilterC1Ev, "__ZN2cv11contourAreaERKNS_11_InputArrayEb": __ZN2cv11contourAreaERKNS_11_InputArrayEb, "__ZN2cv7noArrayEv": __ZN2cv7noArrayEv, "__ZN2cv16MatConstIterator4seekEPKib": __ZN2cv16MatConstIterator4seekEPKib, "___gxx_personality_v0": ___gxx_personality_v0, "__ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE": __ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE, "___assert_fail": ___assert_fail, "___cxa_free_exception": ___cxa_free_exception, "___cxa_find_matching_catch_2": ___cxa_find_matching_catch_2, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "_emscripten_asm_const_ii": _emscripten_asm_const_ii, "__ZN2cv3Mat10deallocateEv": __ZN2cv3Mat10deallocateEv, "__ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd": __ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd, "__ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii": __ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii, "__ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "___setErrNo": ___setErrNo, "__ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE": __ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE, "__ZN2pp13VarDictionaryD1Ev": __ZN2pp13VarDictionaryD1Ev, "_emscripten_memcpy_big": _emscripten_memcpy_big, "___cxa_end_catch": ___cxa_end_catch, "__ZNK2cv3Mat7reshapeEiiPKi": __ZNK2cv3Mat7reshapeEiiPKi, "___resumeException": ___resumeException, "__ZSt18uncaught_exceptionv": __ZSt18uncaught_exceptionv, "__ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib": __ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib, "___cxa_begin_catch": ___cxa_begin_catch, "_pthread_getspecific": _pthread_getspecific, "___cxa_find_matching_catch_3": ___cxa_find_matching_catch_3, "__ZN2cv3Mat6createEiPKii": __ZN2cv3Mat6createEiPKii, "__ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE": __ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE, "__ZN2cv30createBackgroundSubtractorMOG2Eidb": __ZN2cv30createBackgroundSubtractorMOG2Eidb, "__ZN2cv16MatConstIterator4seekEib": __ZN2cv16MatConstIterator4seekEib, "_atexit": _atexit, "_pthread_once": _pthread_once, "__ZN2cv6String8allocateEj": __ZN2cv6String8allocateEj, "_clock_gettime": _clock_gettime, "__ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE": __ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE, "___syscall54": ___syscall54, "___unlock": ___unlock, "__ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii": __ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii, "__ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi": __ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi, "_emscripten_get_now": _emscripten_get_now, "__ZN2cv12KalmanFilterC1Eiiii": __ZN2cv12KalmanFilterC1Eiiii, "__ZN2cv12KalmanFilter7correctERKNS_3MatE": __ZN2cv12KalmanFilter7correctERKNS_3MatE, "__ZN2cv8fastFreeEPv": __ZN2cv8fastFreeEPv, "_pthread_setspecific": _pthread_setspecific, "__ZN2pp13VarDictionaryC1ERKNS_3VarE": __ZN2pp13VarDictionaryC1ERKNS_3VarE, "___cxa_atexit": ___cxa_atexit, "___cxa_throw": ___cxa_throw, "__ZN2cv6String10deallocateEv": __ZN2cv6String10deallocateEv, "___lock": ___lock, "___syscall6": ___syscall6, "__ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE": __ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE, "___cxa_allocate_exception": ___cxa_allocate_exception, "__ZN2cv12KalmanFilter7predictERKNS_3MatE": __ZN2cv12KalmanFilter7predictERKNS_3MatE, "__ZN2cv11minAreaRectERKNS_11_InputArrayE": __ZN2cv11minAreaRectERKNS_11_InputArrayE, "___syscall140": ___syscall140, "___cxa_pure_virtual": ___cxa_pure_virtual, "___syscall146": ___syscall146, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX, "___dso_handle": ___dso_handle };
+Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_vif": nullFunc_vif, "nullFunc_vid": nullFunc_vid, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_ii": nullFunc_ii, "nullFunc_viidi": nullFunc_viidi, "nullFunc_viiiidiiii": nullFunc_viiiidiiii, "nullFunc_viiidd": nullFunc_viiidd, "nullFunc_iiii": nullFunc_iiii, "nullFunc_viff": nullFunc_viff, "nullFunc_viiidddiiii": nullFunc_viiidddiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_di": nullFunc_di, "nullFunc_viiiiiiii": nullFunc_viiiiiiii, "nullFunc_vidddd": nullFunc_vidddd, "nullFunc_viiiiiii": nullFunc_viiiiiii, "nullFunc_iii": nullFunc_iii, "nullFunc_diiddi": nullFunc_diiddi, "nullFunc_diii": nullFunc_diii, "nullFunc_dii": nullFunc_dii, "nullFunc_i": nullFunc_i, "nullFunc_viii": nullFunc_viii, "nullFunc_v": nullFunc_v, "nullFunc_viid": nullFunc_viid, "nullFunc_viif": nullFunc_viif, "nullFunc_viiii": nullFunc_viiii, "invoke_viiiii": invoke_viiiii, "invoke_vif": invoke_vif, "invoke_vid": invoke_vid, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_ii": invoke_ii, "invoke_viidi": invoke_viidi, "invoke_viiiidiiii": invoke_viiiidiiii, "invoke_viiidd": invoke_viiidd, "invoke_iiii": invoke_iiii, "invoke_viff": invoke_viff, "invoke_viiidddiiii": invoke_viiidddiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_di": invoke_di, "invoke_viiiiiiii": invoke_viiiiiiii, "invoke_vidddd": invoke_vidddd, "invoke_viiiiiii": invoke_viiiiiii, "invoke_iii": invoke_iii, "invoke_diiddi": invoke_diiddi, "invoke_diii": invoke_diii, "invoke_dii": invoke_dii, "invoke_i": invoke_i, "invoke_viii": invoke_viii, "invoke_v": invoke_v, "invoke_viid": invoke_viid, "invoke_viif": invoke_viif, "invoke_viiii": invoke_viiii, "__ZN2cv3Mat8copySizeERKS0_": __ZN2cv3Mat8copySizeERKS0_, "floatReadValueFromPointer": floatReadValueFromPointer, "simpleReadValueFromPointer": simpleReadValueFromPointer, "throwInternalError": throwInternalError, "get_first_emval": get_first_emval, "__ZN2cv12KalmanFilterC1Ev": __ZN2cv12KalmanFilterC1Ev, "__ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE": __ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE, "___assert_fail": ___assert_fail, "__ZSt18uncaught_exceptionv": __ZSt18uncaught_exceptionv, "getShiftFromSize": getShiftFromSize, "__ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd": __ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd, "_clock_gettime": _clock_gettime, "__ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "___cxa_begin_catch": ___cxa_begin_catch, "_emscripten_memcpy_big": _emscripten_memcpy_big, "__embind_register_std_string": __embind_register_std_string, "__ZN2cv3Mat6createEiPKii": __ZN2cv3Mat6createEiPKii, "__ZN2cv30createBackgroundSubtractorMOG2Eidb": __ZN2cv30createBackgroundSubtractorMOG2Eidb, "__ZN2cv11contourAreaERKNS_11_InputArrayEb": __ZN2cv11contourAreaERKNS_11_InputArrayEb, "whenDependentTypesAreResolved": whenDependentTypesAreResolved, "__ZN2cv8fastFreeEPv": __ZN2cv8fastFreeEPv, "___cxa_atexit": ___cxa_atexit, "__ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE": __ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE, "___syscall140": ___syscall140, "___syscall146": ___syscall146, "__ZN2cv12KalmanFilter7predictERKNS_3MatE": __ZN2cv12KalmanFilter7predictERKNS_3MatE, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "__ZN2cv12KalmanFilterC1Eiiii": __ZN2cv12KalmanFilterC1Eiiii, "__ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE": __ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "embind_init_charCodes": embind_init_charCodes, "__ZN2cv11minAreaRectERKNS_11_InputArrayE": __ZN2cv11minAreaRectERKNS_11_InputArrayE, "___setErrNo": ___setErrNo, "__embind_register_bool": __embind_register_bool, "___resumeException": ___resumeException, "createNamedFunction": createNamedFunction, "__embind_register_emval": __embind_register_emval, "__emval_decref": __emval_decref, "_pthread_once": _pthread_once, "__ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE": __ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE, "__ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi": __ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi, "_emscripten_get_now": _emscripten_get_now, "__ZN2cv12KalmanFilter7correctERKNS_3MatE": __ZN2cv12KalmanFilter7correctERKNS_3MatE, "___lock": ___lock, "___syscall6": ___syscall6, "__ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "_llvm_pow_f64": _llvm_pow_f64, "integerReadValueFromPointer": integerReadValueFromPointer, "__ZN2cv3Mat5setToERKNS_11_InputArrayES3_": __ZN2cv3Mat5setToERKNS_11_InputArrayES3_, "__embind_register_integer": __embind_register_integer, "___cxa_allocate_exception": ___cxa_allocate_exception, "__ZN2cv3Mat10deallocateEv": __ZN2cv3Mat10deallocateEv, "___cxa_end_catch": ___cxa_end_catch, "__ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib": __ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib, "_pthread_getspecific": _pthread_getspecific, "__ZN2cv16MatConstIterator4seekEib": __ZN2cv16MatConstIterator4seekEib, "makeLegalFunctionName": makeLegalFunctionName, "_pthread_key_create": _pthread_key_create, "init_emval": init_emval, "__ZN2cv6String10deallocateEv": __ZN2cv6String10deallocateEv, "_abort": _abort, "throwBindingError": throwBindingError, "_embind_repr": _embind_repr, "___cxa_pure_virtual": ___cxa_pure_virtual, "__ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii": __ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii, "___cxa_free_exception": ___cxa_free_exception, "__embind_register_memory_view": __embind_register_memory_view, "__ZN2cv6String8allocateEj": __ZN2cv6String8allocateEj, "__ZN2cv7noArrayEv": __ZN2cv7noArrayEv, "__ZN2cv16MatConstIterator4seekEPKib": __ZN2cv16MatConstIterator4seekEPKib, "___gxx_personality_v0": ___gxx_personality_v0, "extendError": extendError, "__ZNK2cv3Mat7reshapeEiiPKi": __ZNK2cv3Mat7reshapeEiiPKi, "__embind_register_void": __embind_register_void, "___cxa_find_matching_catch_3": ___cxa_find_matching_catch_3, "__ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii": __ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii, "__emval_register": __emval_register, "___cxa_find_matching_catch_2": ___cxa_find_matching_catch_2, "__ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE": __ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE, "readLatin1String": readLatin1String, "__embind_register_float": __embind_register_float, "___syscall54": ___syscall54, "___unlock": ___unlock, "__embind_register_std_wstring": __embind_register_std_wstring, "_pthread_setspecific": _pthread_setspecific, "registerType": registerType, "___cxa_throw": ___cxa_throw, "count_emval_handles": count_emval_handles, "_atexit": _atexit, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX, "___dso_handle": ___dso_handle };
 // EMSCRIPTEN_START_ASM
 var asm =Module["asm"]// EMSCRIPTEN_END_ASM
 (Module.asmGlobalArg, Module.asmLibraryArg, buffer);
@@ -2957,6 +3475,12 @@ var real_getTempRet0 = asm["getTempRet0"]; asm["getTempRet0"] = function() {
   return real_getTempRet0.apply(null, arguments);
 };
 
+var real___GLOBAL__sub_I_bind_cpp = asm["__GLOBAL__sub_I_bind_cpp"]; asm["__GLOBAL__sub_I_bind_cpp"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real___GLOBAL__sub_I_bind_cpp.apply(null, arguments);
+};
+
 var real_setTempRet0 = asm["setTempRet0"]; asm["setTempRet0"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -2973,6 +3497,12 @@ var real__emscripten_get_global_libc = asm["_emscripten_get_global_libc"]; asm["
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return real__emscripten_get_global_libc.apply(null, arguments);
+};
+
+var real____getTypeName = asm["___getTypeName"]; asm["___getTypeName"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real____getTypeName.apply(null, arguments);
 };
 
 var real_stackSave = asm["stackSave"]; asm["stackSave"] = function() {
@@ -3063,6 +3593,10 @@ var getTempRet0 = Module["getTempRet0"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["getTempRet0"].apply(null, arguments) };
+var __GLOBAL__sub_I_bind_cpp = Module["__GLOBAL__sub_I_bind_cpp"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["__GLOBAL__sub_I_bind_cpp"].apply(null, arguments) };
 var setTempRet0 = Module["setTempRet0"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -3075,6 +3609,10 @@ var _emscripten_get_global_libc = Module["_emscripten_get_global_libc"] = functi
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["_emscripten_get_global_libc"].apply(null, arguments) };
+var ___getTypeName = Module["___getTypeName"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["___getTypeName"].apply(null, arguments) };
 var stackSave = Module["stackSave"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');

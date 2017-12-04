@@ -1,6 +1,6 @@
-#include "improc_instance.hpp"
+//include "improc_instance.hpp"
 #include "singleton_factory.hpp"
-#include "url_loader_handler.hpp"
+//#include "url_loader_handler.hpp"
 #include "processor_euglena.cpp"
 #include <vector>
 #include <thread>
@@ -8,12 +8,17 @@
 #include <emscripten.h>
 #include <string>
 #include "json.hpp"
+#include <emscripten/bind.h>
+#include <emscripten/val.h>
+#include <stdlib.h>
 
+using namespace emscripten;
 using json = nlohmann::json;
 
   void postMessageToBrowser(const std::string& msg);
   void PostTest();
   void Process( cv::Mat im, std::unique_ptr<Processor>& processor);
+  void drawBufferToCanvas(const std::string& buffer);
 
   void postMessageToBrowser(const std::string& msg) {
     EM_ASM_({
@@ -50,13 +55,74 @@ template<class B>
     return variableBool;
   }
 
-  void drawBufferToCanvas(pp::VarArrayBuffer buffer) {
+  void drawBufferToCanvas(const std::string& buffer) {
     EM_ASM_({
-      console.log(buffer);
-    }, buffer);
+      console.log(UTF8ToString($0));
+    }, buffer.c_str());
   }
+
+extern "C" {
+void EMSCRIPTEN_KEEPALIVE HandleMessage(unsigned char* u8pixels, const json& cmd)  {
+  int width = 200;
+  int height = 200;
+  float time = 100;
+      unsigned int* pixels = (unsigned int*)u8pixels;
+    for(int y = 0; y < height; y++) {
+        float fy = y / (float)height;
+        int stride = y * width;
+        for(int x = 0; x < width; x++) {
+            float fx = x / (float)width;
+            int c = 0xFF;
+
+            float px = -1.0 + 2.0 * fx;
+            float py = -1.0 + 2.0 * fy;
+            px *= width / (float)height;
+
+            // animation
+            float tz = 0.5 - 0.5 * cos(0.225 * time * 0.001);
+            float zoo = pow(0.5, 13.0 * tz);
+            float cx = -0.05 + px * zoo;
+            float cy = 0.6805 + py * zoo;
+
+            // iterate
+            float zx = 0.0f, zy = 0.0f;
+            float m2 = 0.0f;
+            float dzx = 0.0, dzy = 0.0;
+
+            for(int i = 0; i < 256; i++) {
+                if(m2 > 1024.0)
+                    continue;
+
+                // Z' -> 2·Z·Z' + 1
+                float tempX = 2.0 * (zx * dzx - zy * dzy) + 1.0;
+                dzy = 2.0 * (zx * dzy + zy * dzx);
+                dzx = tempX;
+
+                // Z -> Z² + c
+                tempX = zx * zx - zy * zy + cx;
+                zy = 2.0 * zx * zy + cy;
+                zx = tempX;
+
+                m2 = zx * zx + zy * zy;
+            }
+            // distance
+            float d = 0.5 * sqrt((zx * zx + zy * zy) / (dzx * dzx + dzy * dzy)) * log(zx * zx + zy * zy);
+
+            // do some soft coloring based on distance
+            d = 8.0 * d / zoo;
+            d = d < 0 ? 0.0 : d > 1 ? 1.0 : d;
+
+            d = pow(d, 0.25);
+            unsigned char v = d * 255;
+            pixels[x + stride] = v | v << 8 | v << 16 | 0xFF000000;
+        }
+    }
+}
+
+}
+
 bool run_simulation_ = false;
-  void HandleMessage(const std::string& message_str) {
+  void HandleMessageOld(const std::string& message_str, const std::string& data) {
     /* Called by javascript every frame.
     */
     auto var_dict = json::parse(message_str);
@@ -67,8 +133,12 @@ bool run_simulation_ = false;
         // Message is number of simulations to run
         int width  = var_dict["width"];
         int height =  var_dict["height"];
-        std::string dataStr = var_dict["data"] ;
-        auto data = pp::VarArrayBuffer( dataStr );
+
+        // comm. for now:
+        //std::string dataStr = var_dict["data"] ;
+        // auto data = pp::VarArrayBuffer( dataStr ); // for now
+
+
         std::string selectedProcessor = var_dict["processor"];
         //if ( selectedProcessor != processorName ) {
           SendStatus("Creating processor factory");
@@ -155,7 +225,9 @@ bool run_simulation_ = false;
 
         // Convert data to CMat
         // SendStatus("Casting to byte array");
-        uint8_t* byteData = static_cast<uint8_t*>(data.Map());
+        // uint8_t* byteData = static_cast<uint8_t*>(data.Map());
+        uint8_t* byteData = (uint8_t*)atoi(data.c_str()); //reinterpret_cast<uint8_t*>(data.data());
+
         // SendStatus("Creating cv::Mat");
         auto Img = cv::Mat(height, width, CV_8UC4, byteData );
         // SendStatus("Calling processing");
@@ -170,12 +242,17 @@ bool run_simulation_ = false;
           auto sm_Img = cv::Mat(sm_height, sm_width, CV_8UC4, sm_byteData );
           processor->init( sm_Img );
         }*/
-        Process( Img, processor );
+
+        drawBufferToCanvas(data);
+        //to uncomment:
+        //Process( Img, processor );
+
       } else if ( cmd == "test" ) {
         PostTest();
       } else if ( cmd == "echo" ) {
           std::string dataStr = var_dict["data"] ;
-          auto data = pp::VarArrayBuffer( dataStr );
+          //auto data = pp::VarArrayBuffer( dataStr );
+          auto data = dataStr;
           // auto result = data.is_array_buffer();
           json msg;
           msg["Type"] = "completed";
@@ -210,7 +287,7 @@ bool run_simulation_ = false;
     return ret;
 }
 
-void Process( cv::Mat im, std::unique_ptr<Processor>& processor) 
+/*void Process( cv::Mat im, std::unique_ptr<Processor>& processor) 
 {
   auto result = (*processor)( im );
   auto nBytes = result.elemSize() * result.total();
@@ -221,9 +298,9 @@ void Process( cv::Mat im, std::unique_ptr<Processor>& processor)
   json msg;
   msg["Type"] = "completed";
   //msg["Data"] = bufferToString(data);
-  drawBufferToCanvas(data);
+  drawBufferToCanvas(result.data);
   PostMessage( msg );
-}
+}*/
 
 void PostTest() 
 {
@@ -232,6 +309,7 @@ void PostTest()
   msg["Data"] =  "Processed ok";
   PostMessage( msg );
 }
+
 
 
 /*

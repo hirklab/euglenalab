@@ -58,7 +58,7 @@ clean:
 # 	$(PNACL_CXX) -o $@ $< $(PROCESSORS) url_loader_handler.cpp -O3 $(PNACL_CXXFLAGS) $(PNACL_LDFLAGS)
 
 image_proc.bc: $(PROC_OBJECTS)
-	$(PNACL_CXX) -o $@ $(PROC_OBJECTS) $(PNACL_CXXFLAGS) image_proc.cpp $(PNACL_LDFLAGS)
+	$(PNACL_CXX) -o $@ $(PROC_OBJECTS) $(PNACL_CXXFLAGS) image_proc.cpp $(PNACL_LDFLAGS) 
 
 image_proc.pexe: image_proc.bc
 	$(PNACL_FINALIZE) -o $@ $<
@@ -66,7 +66,7 @@ image_proc.pexe: image_proc.bc
 
 image_proc_wasm:
 	#$(EMSCRIPTEN)/emcc image_proc.cpp -s WASM=1 -o image_proc.html
-	$(EMSCRIPTEN)/emcc image_proc.cpp -s WASM=1 -o image_proc.js -std=c++11 -I $(OPENCV_DIR) -I /home/mserver/nacl_sdk/pepper_49/include -s EXPORTED_FUNCTIONS=$(IMAGE_PROC_EXPORTED_FUNCTIONS) -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$(IMAGE_PROC_DEFAULT_LIBRARY_FUNCS_TO_INCLUDE)
+	$(EMSCRIPTEN)/emcc image_proc.cpp -O0 -s WASM=1 --bind -o image_proc.js -std=c++11 -I $(OPENCV_DIR) -s EXPORTED_FUNCTIONS=$(IMAGE_PROC_EXPORTED_FUNCTIONS) -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE=$(IMAGE_PROC_DEFAULT_LIBRARY_FUNCS_TO_INCLUDE)
 
 serve:
 	python -m SimpleHTTPServer 8000
