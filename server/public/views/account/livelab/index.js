@@ -50,6 +50,9 @@
         },
         update: function () {
             this.model.save({
+                activity: this.$el.find('[name="activity"]').val(),
+                population: this.$el.find('[name="population"]').val(),
+                response: this.$el.find('[name="response"]').val(),
                 rating: this.$el.find('[name="rating"]').val(),
                 notes: this.$el.find('[name="notes"]').val(),
             });
