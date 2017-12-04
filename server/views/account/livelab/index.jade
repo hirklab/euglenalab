@@ -258,7 +258,19 @@ block body
             h4.modal-title Send us your feedback
         div.modal-body
           .form-group
-              label Rate your experience
+                label Rate activity of organisms
+                div
+                    input.form-control.rating(type="hidden",name="activity")
+          .form-group
+                label Rate population of organisms
+                div
+                    input.form-control.rating(type="hidden",name="population")
+          .form-group
+                label Rate responsiveness of organisms
+                div
+                    input.form-control.rating(type="hidden",name="response")
+          .form-group
+              label Rate your overall experience
               div
                   input.form-control.rating(type="hidden",name="rating")
           .form-group
