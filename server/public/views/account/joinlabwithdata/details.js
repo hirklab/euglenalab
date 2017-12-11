@@ -38,6 +38,9 @@
             usergroups: '',
             note: '',
             survey: {
+                activity: 0,
+                population: 0,
+                response: 0,
                 rating: 0,
                 notes: ""
             }

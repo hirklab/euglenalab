@@ -7,6 +7,18 @@ exports.create = function(req, res) {
 		if (!req.body.experiment) {
 			workflow.outcome.errfor.experiment = 'required';
 		}
+		
+		if (!req.body.activity) {
+			workflow.outcome.errfor.activity = 'required';
+		}
+
+		if (!req.body.population) {
+			workflow.outcome.errfor.population = 'required';
+		}
+
+		if (!req.body.response) {
+			workflow.outcome.errfor.response = 'required';
+		}
 
 		if (!req.body.rating) {
 			workflow.outcome.errfor.rating = 'required';
@@ -21,6 +33,9 @@ exports.create = function(req, res) {
 	workflow.on('createSurvey', function() {
 		var fieldsToSet = {
 			experiment: req.body.experiment,
+			activity: req.body.activity,
+			population: req.body.population,
+			response: req.body.response,
 			rating: req.body.rating,
 			notes: req.body.notes
 		}

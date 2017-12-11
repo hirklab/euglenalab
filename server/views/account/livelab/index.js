@@ -128,6 +128,9 @@ exports.init = function(req, res, next) {
           sideImageIP: outcome.sideStreamUrl,
           setLedsObj: escape(JSON.stringify(outcome.setLedsObj)),
           survey: {
+            activity:0,
+            population:0,
+            response:0,
             rating: 0,
             // euglena_moving: null,
             notes: null
