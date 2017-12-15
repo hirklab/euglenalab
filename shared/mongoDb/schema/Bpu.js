@@ -263,30 +263,30 @@ var _getJoinQueueDataObj=function(app, user, session, wantsBpuName) {
   joinQueueData.exp_wantsBpuName=wantsBpuName;
   if(joinQueueData.user.name==='scripterPopulation') {
     joinQueueData.exp_eventsToRun=[
-      {"time" : 0,     "topValue" : 0, "rightValue" : 0, "bottomValue" : 0, "leftValue" : 0},
-      {"time" : 20000, "topValue" : 0, "rightValue" : 0, "bottomValue" : 0, "leftValue" : 0},
+      {"time" : 0,     "topValue" : 0, "rightValue" : 0, "bottomValue" : 0, "leftValue" : 0, "backlightValue": 100},
+      {"time" : 20000, "topValue" : 0, "rightValue" : 0, "bottomValue" : 0, "leftValue" : 0, "backlightValue": 100},
     ];
   } else if(joinQueueData.user.name==='scripterActivity') {
     joinQueueData.exp_eventsToRun=[
-      {"time" : 0,     "topValue" : 0, "rightValue" : 0, "bottomValue" : 0, "leftValue" : 0},
-      {"time" : 20000, "topValue" : 0, "rightValue" : 0, "bottomValue" : 0, "leftValue" : 0},
+      {"time" : 0,     "topValue" : 0, "rightValue" : 0, "bottomValue" : 0, "leftValue" : 0, "backlightValue": 100},
+      {"time" : 20000, "topValue" : 0, "rightValue" : 0, "bottomValue" : 0, "leftValue" : 0, "backlightValue": 100},
     ];
   } else if(joinQueueData.user.name==='scripterResponse') {
     joinQueueData.exp_eventsToRun=[
-      {"time" : 0,     "topValue" : 100, "rightValue" : 0,   "bottomValue" : 0,    "leftValue" : 0   },
-      {"time" : 30000, "topValue" : 0,   "rightValue" : 100, "bottomValue" : 0,    "leftValue" : 0   },
-      {"time" : 60000, "topValue" : 0,   "rightValue" : 0,   "bottomValue" : 100,  "leftValue" : 0   },
-      {"time" : 90000, "topValue" : 0,   "rightValue" : 0,   "bottomValue" : 0,    "leftValue" : 100 },
-      {"time" : 120000, "topValue" : 0,   "rightValue" : 0,   "bottomValue" : 0,    "leftValue" : 0 },
+      {"time" : 0,     "topValue" : 100, "rightValue" : 0,   "bottomValue" : 0,    "leftValue" : 0, "backlightValue": 100   },
+      {"time" : 30000, "topValue" : 0,   "rightValue" : 100, "bottomValue" : 0,    "leftValue" : 0, "backlightValue": 100   },
+      {"time" : 60000, "topValue" : 0,   "rightValue" : 0,   "bottomValue" : 100,  "leftValue" : 0, "backlightValue": 100   },
+      {"time" : 90000, "topValue" : 0,   "rightValue" : 0,   "bottomValue" : 0,    "leftValue" : 100, "backlightValue": 100 },
+      {"time" : 120000, "topValue" : 0,   "rightValue" : 0,   "bottomValue" : 0,    "leftValue" : 0, "backlightValue": 100 },
     ];
   } else {
     joinQueueData.exp_eventsToRun=[
-      {"time" : 0,     "topValue" : 0, "rightValue" : 0,   "bottomValue" : 0,    "leftValue" : 0   },
-      {"time" : 10000, "topValue" : 100,   "rightValue" : 0, "bottomValue" : 0,    "leftValue" : 0   },
-      {"time" : 20000, "topValue" : 0,   "rightValue" : 100, "bottomValue" : 0,    "leftValue" : 0   },
-      {"time" : 30000, "topValue" : 0,   "rightValue" : 0, "bottomValue" : 100,    "leftValue" : 0   },
-      {"time" : 40000, "topValue" : 0,   "rightValue" : 0, "bottomValue" : 0,    "leftValue" : 100   },
-      {"time" : 50000, "topValue" : 0,   "rightValue" : 0,   "bottomValue" : 0,  "leftValue" : 0   },
+      {"time" : 0,     "topValue" : 0, "rightValue" : 0,   "bottomValue" : 0,    "leftValue" : 0, "backlightValue": 100   },
+      {"time" : 10000, "topValue" : 100,   "rightValue" : 0, "bottomValue" : 0,    "leftValue" : 0, "backlightValue": 100   },
+      {"time" : 20000, "topValue" : 0,   "rightValue" : 100, "bottomValue" : 0,    "leftValue" : 0, "backlightValue": 100   },
+      {"time" : 30000, "topValue" : 0,   "rightValue" : 0, "bottomValue" : 100,    "leftValue" : 0, "backlightValue": 100   },
+      {"time" : 40000, "topValue" : 0,   "rightValue" : 0, "bottomValue" : 0,    "leftValue" : 100, "backlightValue": 100   },
+      {"time" : 50000, "topValue" : 0,   "rightValue" : 0,   "bottomValue" : 0,  "leftValue" : 0, "backlightValue": 100   },
     ];
   }
   joinQueueData.exp_metaData={
