@@ -7,19 +7,34 @@
 #include <functional>
 #include <emscripten.h>
 #include <string>
-#include "json.hpp"
+//#include "json.hpp"
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 #include <stdlib.h>
+#include "opencv2/opencv.hpp"
 
 using namespace emscripten;
-using json = nlohmann::json;
+using namespace cv;
+//using json = nlohmann::json;
 
-  void postMessageToBrowser(const std::string& msg);
+  //void postMessageToBrowser(const std::string& msg);
   void PostTest();
   void Process( cv::Mat im, std::unique_ptr<Processor>& processor);
   void drawBufferToCanvas(const std::string& buffer);
 
+
+
+  /*void PostMessage(const std::string msg) {
+    return PostMessage(msg.dump());
+  }*/
+
+  void drawBufferToCanvas(const std::string& buffer) {
+    EM_ASM_({
+      console.log(UTF8ToString($0));
+    }, buffer.c_str());
+  }
+
+extern "C" {
   void postMessageToBrowser(const std::string& msg) {
     EM_ASM_({
       console.log(UTF8ToString($0));
@@ -30,44 +45,13 @@ using json = nlohmann::json;
     return postMessageToBrowser(msg);
   }
 
-  void PostMessage(const json& msg) {
-    return PostMessage(msg.dump());
-  }
-template<class S>
-  const char* getCString(S variable) {
-    std::string variableString = variable;
-    return variableString.c_str();
-  }
-
-template<class I>
-  const int getInt(I variable) {
-    int variableInt  = variable;
-    return variableInt;
-  }
-template<class D>
-  const double getDouble(D variable) {
-    double variableDouble = variable;
-    return variableDouble;
-  }
-template<class B>
-  const bool getBool(B variable) {
-    bool variableBool = variable;
-    return variableBool;
-  }
-
-  void drawBufferToCanvas(const std::string& buffer) {
-    EM_ASM_({
-      console.log(UTF8ToString($0));
-    }, buffer.c_str());
-  }
-
-extern "C" {
-void EMSCRIPTEN_KEEPALIVE HandleMessage(unsigned char* u8pixels, const json& cmd)  {
+ bool run_simulation_ = false;
+void EMSCRIPTEN_KEEPALIVE HandleMessage(unsigned char* u8pixels, std::string jsonCommand)  {
   int width = 200;
   int height = 200;
   float time = 100;
-      unsigned int* pixels = (unsigned int*)u8pixels;
-    for(int y = 0; y < height; y++) {
+  unsigned int* byteData = (unsigned int*)u8pixels;
+  /*  for(int y = 0; y < height; y++) {
         float fy = y / (float)height;
         int stride = y * width;
         for(int x = 0; x < width; x++) {
@@ -116,16 +100,154 @@ void EMSCRIPTEN_KEEPALIVE HandleMessage(unsigned char* u8pixels, const json& cmd
             unsigned char v = d * 255;
             pixels[x + stride] = v | v << 8 | v << 16 | 0xFF000000;
         }
-    }
-}
+    }*/
 
-}
-
-bool run_simulation_ = false;
-  void HandleMessageOld(const std::string& message_str, const std::string& data) {
-    /* Called by javascript every frame.
+ /* Called by javascript every frame.
     */
-    auto var_dict = json::parse(message_str);
+  //jsonCommand= std::string("{\"cmd\":\"process\",\"width\":640,\"height\":480,\"gameEndMsg\":\"\",\"gameInSession\":false,\"gameDemoMode\":false,\"gameDrawOnTrackedEuglena\":false,\"magnification\":10,\"sandboxMode\":false,\"sandboxVideo\":false,\"sandboxVideoHasRecorded\":false,\"joystickIntensity\":0.5,\"joystickDirection\":270,\"drawCircleCenterX\":[],\"drawCircleCenterY\":[],\"drawCircleRadius\":[],\"drawCircleR\":[],\"drawCircleG\":[],\"drawCircleB\":[],\"drawLineX1\":[],\"drawLineY1\":[],\"drawLineX2\":[],\"drawLineY2\":[],\"drawLineR\":[],\"drawLineG\":[],\"drawLineB\":[],\"drawRectUpperLeftX\":[],\"drawRectUpperLeftY\":[],\"drawRectLowerRightX\":[],\"drawRectLowerRightY\":[],\"drawRectR\":[],\"drawRectG\":[],\"drawRectB\":[],\"drawTextdrawTxt\":[],\"drawTextXPos\":[],\"drawTextYPos\":[],\"drawTextSize\":[],\"drawTextR\":[],\"drawTextG\":[],\"drawTextB\":[],\"getEuglenaInRectUpperLeftX\":0,\"getEuglenaInRectUpperLeftY\":0,\"getEuglenaInRectLowerRightX\":0,\"getEuglenaInRectLowerRightY\":0,\"getEuglenaAccelerationID\":0,\"getEuglenaPositionID\":30,\"getEuglenaRotationID\":0,\"getEuglenaVelocityID\":0,\"processor\":\"Euglena\"}");
+  //std::strcpy(jsonCommand, std::string("{\"a\":2}"));
+  SendStatus(CV_VERSION);
+  SendStatus("beginning parse");
+
+    //auto var_dict = json::parse(jsonCommand);
+    auto var_dict = val::global("globalCommand");
+    SendStatus("end parse");
+    std::string cmd = "process";//var_dict["cmd"];
+      if ( cmd == "process" ) {
+
+        // Message is number of simulations to run
+        int width  = var_dict["width"].as<int>();
+        int height =  var_dict["height"].as<int>();
+
+        // comm. for now:
+        //std::string dataStr = var_dict["data"] ;
+        // auto data = pp::VarArrayBuffer( dataStr ); // for now
+
+        // todo: fix processor
+        std::string selectedProcessor = var_dict["processor"].as<std::string>();
+        //if ( selectedProcessor != processorName ) {
+          SendStatus("Creating processor factory");
+          auto processorFactory = SingletonFactory<std::function<std::unique_ptr<Processor>()>>::getInstance();
+          SendStatus("Creating processor");
+          std::unique_ptr<Processor> processor = processorFactory.getObject( selectedProcessor )();
+          std::string processorName = selectedProcessor;
+        //} else {
+          SendStatus("Reusing processor");
+        //}
+
+        // Handle variables passed from JavaScript layer.
+        if (dynamic_cast<EuglenaProcessor*>(processor.get()) != NULL) {
+          memset(((EuglenaProcessor*)processor.get())->gameOverStr, 0, 80);
+          std::strcpy(((EuglenaProcessor*)processor.get())->gameOverStr, var_dict["gameEndMsg"].as<std::string>().c_str());
+          ((EuglenaProcessor*)processor.get())->gameInSession = var_dict["gameInSession"].as<bool>();
+          ((EuglenaProcessor*)processor.get())->demoMode = var_dict["gameDemoMode"].as<bool>();
+          ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = var_dict["gameDrawOnTrackedEuglena"].as<bool>();
+          // drawCircle
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterX, var_dict["drawCircleCenterX"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterY, var_dict["drawCircleCenterY"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleRadius, var_dict["drawCircleRadius"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleR, var_dict["drawCircleR"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleG, var_dict["drawCircleG"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleB, var_dict["drawCircleB"].as<std::string>().c_str());
+          // drawLine
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX1, var_dict["drawLineX1"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY1, var_dict["drawLineY1"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX2, var_dict["drawLineX2"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY2, var_dict["drawLineY2"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineR, var_dict["drawLineR"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineG, var_dict["drawLineG"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineB, var_dict["drawLineB"].as<std::string>().c_str());
+          // drawRect
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftX, var_dict["drawRectUpperLeftX"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftY, var_dict["drawRectUpperLeftY"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectLowerRightX, var_dict["drawRectLowerRightX"].as<std::string>().c_str()); 
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectLowerRightY, var_dict["drawRectLowerRightY"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectR, var_dict["drawRectR"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectG, var_dict["drawRectG"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectB, var_dict["drawRectB"].as<std::string>().c_str());
+          // drawText
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextdrawTxt, var_dict["drawTextdrawTxt"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextXPos, var_dict["drawTextXPos"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextYPos, var_dict["drawTextYPos"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextSize, var_dict["drawTextSize"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextR, var_dict["drawTextR"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextG, var_dict["drawTextG"].as<std::string>().c_str());
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextB, var_dict["drawTextB"].as<std::string>().c_str());
+          // getEuglenaInRect
+          ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftX = var_dict["getEuglenaInRectUpperLeftX"].as<double>();
+          ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftY = var_dict["getEuglenaInRectUpperLeftY"].as<double>();
+          ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightX = var_dict["getEuglenaInRectLowerRightX"].as<double>();
+          ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightY = var_dict["getEuglenaInRectLowerRightY"].as<double>();
+          // getEuglenaPositionByID
+          ((EuglenaProcessor*)processor.get())->positionID = var_dict["getEuglenaPositionID"].as<int>();
+          // getEuglenaVelocityByID
+          ((EuglenaProcessor*)processor.get())->velocityID = var_dict["getEuglenaVelocityID"].as<int>();
+          // getEuglenaAccelerationByID
+          ((EuglenaProcessor*)processor.get())->accelerationID = var_dict["getEuglenaAccelerationID"].as<int>();
+          // getEuglenaRotationByID
+          ((EuglenaProcessor*)processor.get())->rotationID = var_dict["getEuglenaAccelerationID"].as<int>();
+
+          ((EuglenaProcessor*)processor.get())->magnification = var_dict["magnification"].as<int>();
+          ((EuglenaProcessor*)processor.get())->sandboxMode = var_dict["sandboxMode"].as<bool>();
+          ((EuglenaProcessor*)processor.get())->sandboxVideo = var_dict["sandboxVideo"].as<bool>();
+          ((EuglenaProcessor*)processor.get())->sandboxVideoHasRecorded = var_dict["sandboxVideoHasRecorded"].as<bool>();
+          ((EuglenaProcessor*)processor.get())->joystickIntensity = var_dict["joystickIntensity"].as<int>();
+          ((EuglenaProcessor*)processor.get())->joystickDirection = var_dict["joystickDirection"].as<int>();
+        }
+
+        // Post message with C++ variables back to JavaScript layer.
+        
+        // TOdo: set a global val here, instead of posting it back.
+        /*val msg = val::global("Object");
+        msg["Type"] = "gamedata";
+        msg["TotalEuglena"] = ((EuglenaProcessor*)processor.get())->totalEuglena;
+        msg["EuglenaInRect"] = ((EuglenaProcessor*)processor.get())->getEuglenaInRectReturnVal;
+        msg["EuglenaPositionsStr"] = ((EuglenaProcessor*)processor.get())->getAllEuglenaPositionsStr;
+        msg["EuglenaIDsStr"] = ((EuglenaProcessor*)processor.get())->getAllEuglenaIDsStr;
+        msg["EuglenaAccelerationReturn"] = ((EuglenaProcessor*)processor.get())->targetEuglenaAccelerationStr;
+        msg["EuglenaPositionReturn"] = ((EuglenaProcessor*)processor.get())->targetEuglenaPositionStr;
+        msg["EuglenaVelocityReturn"] = ((EuglenaProcessor*)processor.get())->targetEuglenaVelocityStr;
+        msg["EuglenaRotationReturn"] = ((EuglenaProcessor*)processor.get())->targetEuglenaRotationStr;*/
+        postMessageToBrowser( "MESSAGE" );
+
+        // Convert data to CMat
+        // SendStatus("Casting to byte array");
+        // uint8_t* byteData = static_cast<uint8_t*>(data.Map());
+        
+        //uint8_t* byteData = (uint8_t*)atoi(data.c_str()); //reinterpret_cast<uint8_t*>(data.data());
+
+        // SendStatus("Creating cv::Mat");
+        auto Img = cv::Mat(height, width, CV_8UC4, byteData );
+        // SendStatus("Calling processing");
+        
+        // Special case: Smiley
+        /*if ( selectedProcessor == "Smiley!" ) {
+          pp::VarDictionary sm_var_dict( var_dict["args"]);
+          auto sm_width  = sm_var_dict["width"]);
+          auto sm_height = sm_var_dict["height"]);
+          auto sm_data   = pp::VarArrayBuffer( sm_var_dict["data"] );
+          uint8_t* sm_byteData = static_cast<uint8_t*>(sm_data.Map());
+          auto sm_Img = cv::Mat(sm_height, sm_width, CV_8UC4, sm_byteData );
+          processor->init( sm_Img );
+        }*/
+
+        
+        //to uncomment:
+        //Process( Img, processor );
+
+      }
+
+
+}
+
+}
+
+/*
+
+  void HandleMessageOld(const std::string& message_str, const std::string& data) {
+    // Called by javascript every frame.
+    
+    auto var_dict = (message_str);
     
     std::string cmd = var_dict["cmd"];
       if ( cmd == "process" ) {
@@ -153,65 +275,65 @@ bool run_simulation_ = false;
         // Handle variables passed from JavaScript layer.
         if (dynamic_cast<EuglenaProcessor*>(processor.get()) != NULL) {
           memset(((EuglenaProcessor*)processor.get())->gameOverStr, 0, 80);
-          std::strcpy(((EuglenaProcessor*)processor.get())->gameOverStr, getCString(var_dict["gameEndMsg"]));
-          ((EuglenaProcessor*)processor.get())->gameInSession = getBool(var_dict["gameInSession"]);
-          ((EuglenaProcessor*)processor.get())->demoMode = getBool(var_dict["gameDemoMode"]);
-          ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = getBool(var_dict["gameDrawOnTrackedEuglena"]);
+          std::strcpy(((EuglenaProcessor*)processor.get())->gameOverStr, var_dict["gameEndMsg"]));
+          ((EuglenaProcessor*)processor.get())->gameInSession = var_dict["gameInSession"]);
+          ((EuglenaProcessor*)processor.get())->demoMode = var_dict["gameDemoMode"]);
+          ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = var_dict["gameDrawOnTrackedEuglena"]);
           // drawCircle
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterX, getCString(var_dict["drawCircleCenterX"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterY, getCString(var_dict["drawCircleCenterY"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleRadius, getCString(var_dict["drawCircleRadius"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleR, getCString(var_dict["drawCircleR"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleG, getCString(var_dict["drawCircleG"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleB, getCString(var_dict["drawCircleB"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterX, var_dict["drawCircleCenterX"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterY, var_dict["drawCircleCenterY"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleRadius, var_dict["drawCircleRadius"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleR, var_dict["drawCircleR"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleG, var_dict["drawCircleG"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleB, var_dict["drawCircleB"]));
           // drawLine
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX1, getCString(var_dict["drawLineX1"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY1, getCString(var_dict["drawLineY1"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX2, getCString(var_dict["drawLineX2"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY2, getCString(var_dict["drawLineY2"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineR, getCString(var_dict["drawLineR"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineG, getCString(var_dict["drawLineG"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineB, getCString(var_dict["drawLineB"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX1, var_dict["drawLineX1"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY1, var_dict["drawLineY1"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineX2, var_dict["drawLineX2"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineY2, var_dict["drawLineY2"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineR, var_dict["drawLineR"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineG, var_dict["drawLineG"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawLineB, var_dict["drawLineB"]));
           // drawRect
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftX, getCString(var_dict["drawRectUpperLeftX"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftY, getCString(var_dict["drawRectUpperLeftY"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectLowerRightX, getCString(var_dict["drawRectLowerRightX"])); 
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectLowerRightY, getCString(var_dict["drawRectLowerRightY"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectR, getCString(var_dict["drawRectR"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectG, getCString(var_dict["drawRectG"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectB, getCString(var_dict["drawRectB"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftX, var_dict["drawRectUpperLeftX"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectUpperLeftY, var_dict["drawRectUpperLeftY"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectLowerRightX, var_dict["drawRectLowerRightX"])); 
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectLowerRightY, var_dict["drawRectLowerRightY"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectR, var_dict["drawRectR"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectG, var_dict["drawRectG"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawRectB, var_dict["drawRectB"]));
           // drawText
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextdrawTxt, getCString(var_dict["drawTextdrawTxt"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextXPos, getCString(var_dict["drawTextXPos"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextYPos, getCString(var_dict["drawTextYPos"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextSize, getCString(var_dict["drawTextSize"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextR, getCString(var_dict["drawTextR"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextG, getCString(var_dict["drawTextG"]));
-          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextB, getCString(var_dict["drawTextB"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextdrawTxt, var_dict["drawTextdrawTxt"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextXPos, var_dict["drawTextXPos"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextYPos, var_dict["drawTextYPos"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextSize, var_dict["drawTextSize"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextR, var_dict["drawTextR"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextG, var_dict["drawTextG"]));
+          std::strcpy(((EuglenaProcessor*)processor.get())->drawTextB, var_dict["drawTextB"]));
           // getEuglenaInRect
-          ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftX = getDouble(var_dict["getEuglenaInRectUpperLeftX"]);
-          ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftY = getDouble(var_dict["getEuglenaInRectUpperLeftY"]);
-          ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightX = getDouble(var_dict["getEuglenaInRectLowerRightX"]);
-          ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightY = getDouble(var_dict["getEuglenaInRectLowerRightY"]);
+          ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftX = var_dict["getEuglenaInRectUpperLeftX"]);
+          ((EuglenaProcessor*)processor.get())->getEuglenaInRectUpperLeftY = var_dict["getEuglenaInRectUpperLeftY"]);
+          ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightX = var_dict["getEuglenaInRectLowerRightX"]);
+          ((EuglenaProcessor*)processor.get())->getEuglenaInRectLowerRightY = var_dict["getEuglenaInRectLowerRightY"]);
           // getEuglenaPositionByID
-          ((EuglenaProcessor*)processor.get())->positionID = getInt(var_dict["getEuglenaPositionID"]);
+          ((EuglenaProcessor*)processor.get())->positionID = var_dict["getEuglenaPositionID"]);
           // getEuglenaVelocityByID
-          ((EuglenaProcessor*)processor.get())->velocityID = getInt(var_dict["getEuglenaVelocityID"]);
+          ((EuglenaProcessor*)processor.get())->velocityID = var_dict["getEuglenaVelocityID"]);
           // getEuglenaAccelerationByID
-          ((EuglenaProcessor*)processor.get())->accelerationID = getInt(var_dict["getEuglenaAccelerationID"]);
+          ((EuglenaProcessor*)processor.get())->accelerationID = var_dict["getEuglenaAccelerationID"]);
           // getEuglenaRotationByID
-          ((EuglenaProcessor*)processor.get())->rotationID = getInt(var_dict["getEuglenaAccelerationID"]);
+          ((EuglenaProcessor*)processor.get())->rotationID = var_dict["getEuglenaAccelerationID"]);
 
-          ((EuglenaProcessor*)processor.get())->magnification = getInt(var_dict["magnification"]);
-          ((EuglenaProcessor*)processor.get())->sandboxMode = getBool(var_dict["sandboxMode"]);
-          ((EuglenaProcessor*)processor.get())->sandboxVideo = getBool(var_dict["sandboxVideo"]);
-          ((EuglenaProcessor*)processor.get())->sandboxVideoHasRecorded = getBool(var_dict["sandboxVideoHasRecorded"]);
-          ((EuglenaProcessor*)processor.get())->joystickIntensity = getInt(var_dict["joystickIntensity"]);
-          ((EuglenaProcessor*)processor.get())->joystickDirection = getInt(var_dict["joystickDirection"]);
+          ((EuglenaProcessor*)processor.get())->magnification = var_dict["magnification"]);
+          ((EuglenaProcessor*)processor.get())->sandboxMode = var_dict["sandboxMode"]);
+          ((EuglenaProcessor*)processor.get())->sandboxVideo = var_dict["sandboxVideo"]);
+          ((EuglenaProcessor*)processor.get())->sandboxVideoHasRecorded = var_dict["sandboxVideoHasRecorded"]);
+          ((EuglenaProcessor*)processor.get())->joystickIntensity = var_dict["joystickIntensity"]);
+          ((EuglenaProcessor*)processor.get())->joystickDirection = var_dict["joystickDirection"]);
         }
 
         // Post message with C++ variables back to JavaScript layer.
-        json msg;
+        val msg;
         msg["Type"] = "gamedata";
         msg["TotalEuglena"] = ((EuglenaProcessor*)processor.get())->totalEuglena;
         msg["EuglenaInRect"] = ((EuglenaProcessor*)processor.get())->getEuglenaInRectReturnVal;
@@ -233,15 +355,15 @@ bool run_simulation_ = false;
         // SendStatus("Calling processing");
         
         // Special case: Smiley
-        /*if ( selectedProcessor == "Smiley!" ) {
-          pp::VarDictionary sm_var_dict( var_dict["args"]);
-          auto sm_width  = sm_getInt(var_dict["width"]);
-          auto sm_height = sm_getInt(var_dict["height"]);
-          auto sm_data   = pp::VarArrayBuffer( sm_var_dict["data"] );
-          uint8_t* sm_byteData = static_cast<uint8_t*>(sm_data.Map());
-          auto sm_Img = cv::Mat(sm_height, sm_width, CV_8UC4, sm_byteData );
-          processor->init( sm_Img );
-        }*/
+        //if ( selectedProcessor == "Smiley!" ) {
+         // pp::VarDictionary sm_var_dict( var_dict["args"]);
+        //  auto sm_width  = sm_var_dict["width"]);
+        //  auto sm_height = sm_var_dict["height"]);
+         // auto sm_data   = pp::VarArrayBuffer( sm_var_dict["data"] );
+         // uint8_t* sm_byteData = static_cast<uint8_t*>(sm_data.Map());
+         // auto sm_Img = cv::Mat(sm_height, sm_width, CV_8UC4, sm_byteData );
+         // processor->init( sm_Img );
+        //}
 
         drawBufferToCanvas(data);
         //to uncomment:
@@ -260,17 +382,17 @@ bool run_simulation_ = false;
           drawBufferToCanvas(data);
           PostMessage( msg );
       } else if ( cmd == "load" ) {
-        /*
+        
         // Load resource URL
-        std::string url = var_dict[ "url" ];
-        URLLoaderHandler* handler = URLLoaderHandler::Create(this, url);
-        if (handler != NULL) {
+        //std::string url = var_dict[ "url" ];
+        //URLLoaderHandler* handler = URLLoaderHandler::Create(this, url);
+        //if (handler != NULL) {
           // Starts asynchronous download. When download is finished or when an
           // error occurs, |handler| posts the results back to the browser
           // vis PostMessage and self-destroys.
-          handler->Start();
-        }
-        */
+        //  handler->Start();
+       // }
+        
       } else if ( cmd == "hello123" ) {
       } else {
         // Disable simulation - background thread will see this at start of
@@ -280,12 +402,14 @@ bool run_simulation_ = false;
     
   }
 
+
   std::string bufferToString(char* buffer, int bufflen)
 {
     std::string ret(buffer, bufflen);
 
     return ret;
 }
+*/
 
 /*void Process( cv::Mat im, std::unique_ptr<Processor>& processor) 
 {
@@ -302,13 +426,14 @@ bool run_simulation_ = false;
   PostMessage( msg );
 }*/
 
+/*
 void PostTest() 
 {
   json msg;
   msg["Type"] = "completed";
   msg["Data"] =  "Processed ok";
   PostMessage( msg );
-}
+}*/
 
 
 
@@ -376,9 +501,9 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
     if (dynamic_cast<EuglenaProcessor*>(processor.get()) != NULL) {
       memset(((EuglenaProcessor*)processor.get())->gameOverStr, 0, 80);
       std::strcpy(((EuglenaProcessor*)processor.get())->gameOverStr, var_dict.Get("gameEndMsg").AsString().c_str());
-      ((EuglenaProcessor*)processor.get())->gameInSession = var_dict.Get("gameInSession").AsBool();
-      ((EuglenaProcessor*)processor.get())->demoMode = var_dict.Get("gameDemoMode").AsBool();
-      ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = var_dict.Get("gameDrawOnTrackedEuglena").AsBool();
+      ((EuglenaProcessor*)processor.get())->gameInSession = var_dict.Get("gameInSession").A
+      ((EuglenaProcessor*)processor.get())->demoMode = var_dict.Get("gameDemoMode").A
+      ((EuglenaProcessor*)processor.get())->drawOnTrackedEuglena = var_dict.Get("gameDrawOnTrackedEuglena").A
       // drawCircle
       std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterX, var_dict.Get("drawCircleCenterX").AsString().c_str());
       std::strcpy(((EuglenaProcessor*)processor.get())->drawCircleCenterY, var_dict.Get("drawCircleCenterY").AsString().c_str());
@@ -425,9 +550,9 @@ void ImageProcInstance::HandleMessage( const pp::Var& var_message )
       ((EuglenaProcessor*)processor.get())->rotationID = var_dict.Get("getEuglenaAccelerationID").AsInt();
 
       ((EuglenaProcessor*)processor.get())->magnification = var_dict.Get("magnification").AsInt();
-      ((EuglenaProcessor*)processor.get())->sandboxMode = var_dict.Get("sandboxMode").AsBool();
-      ((EuglenaProcessor*)processor.get())->sandboxVideo = var_dict.Get("sandboxVideo").AsBool();
-      ((EuglenaProcessor*)processor.get())->sandboxVideoHasRecorded = var_dict.Get("sandboxVideoHasRecorded").AsBool();
+      ((EuglenaProcessor*)processor.get())->sandboxMode = var_dict.Get("sandboxMode").A
+      ((EuglenaProcessor*)processor.get())->sandboxVideo = var_dict.Get("sandboxVideo").A
+      ((EuglenaProcessor*)processor.get())->sandboxVideoHasRecorded = var_dict.Get("sandboxVideoHasRecorded").A
       ((EuglenaProcessor*)processor.get())->joystickIntensity = var_dict.Get("joystickIntensity").AsInt();
       ((EuglenaProcessor*)processor.get())->joystickDirection = var_dict.Get("joystickDirection").AsInt();
     }

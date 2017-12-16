@@ -15,6 +15,7 @@
 
 #define PI 3.14159265
 
+extern "C" {
 
 /*** Hungarian algorithm for optimal assignment between observations and predicted positions  O(n^3) ***/
 class HungarianAlgo {
@@ -1140,4 +1141,6 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
 namespace {
   auto euglenaProcReg = ProcessorRegister<EuglenaProcessor>("Euglena");
+}
+
 }

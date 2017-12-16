@@ -66,8 +66,33 @@
           Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
         },
         onRuntimeInitialized: function() {
-          ImageProcModule = {
-            postMessage: Module.cwrap('postMessage', null, ['number'])
+        var c = document.getElementById("processed");
+          //c.width = $("#processed").width();
+          //c.height = $("#processed").height();
+          var ctx = c.getContext('2d');
+          var imageData = ctx.getImageData(0,0,c.width, c.height);
+          var bufSize = c.width * c.height * 4;
+          var bufPtr = Module._malloc(bufSize);
+          var buf = new Uint8ClampedArray(Module.HEAPU8.buffer, bufPtr, bufSize);
+          var wrappedHandleMessage = Module.cwrap('HandleMessage', 'void', ['number', 'string']);
+          ImageProcModule.buf = buf;
+          ImageProcModule.imageData = imageData;
+          ImageProcModule.ctxProcessed = ctx;
+          ImageProcModule.ctxDisplay = document.getElementById("display").getContext('2d');
+          ImageProcModule.postMessage = function(imgData, cmd) {
+              //var data = msg["data"];
+              //delete msg["data"];
+              console.log(imgData);
+              ImageProcModule.buf = imgData;
+              window.globalCommand = cmd;
+              
+              var cmdStr = JSON.stringify(cmd).replace(/\"/g, "\\\"");
+              console.log(cmdStr);
+              wrappedHandleMessage(ImageProcModule.buf.byteOffset, cmdStr);
+              //ImageProcModule.imageData.data.set(ImageProcModule.buf);
+              ImageProcModule.ctxProcessed.putImageData(ImageProcModule.buf,0,0);
+              //window.requestAnimationFrame(ImageProcModule.postMessage);
+              
           };
           //Module._foobar(); // foobar was exported
         }
@@ -107,6 +132,11 @@
       });
 // Global handle to module
 var ImageProcModule = null;
+ImageProcModule = {
+  postMessage: function(data) {
+    console.log("Still loading. message posted was " + data);
+  }
+}
 
 var samplePeriod = 60; // ms
 
@@ -127,6 +157,7 @@ var transferPaused = true;
 
 //console.log("Starting browser detection!!!");
 
+/*
 var allowedKeys = {
   37: 'left',
   38: 'up',
@@ -156,6 +187,7 @@ function activateCheats() {
     app.mainView.gameDemoMode = true;
   }
 }
+
 
 function enableDownload()
 {
@@ -213,13 +245,14 @@ function enableTransfer()
     drawNext();
   }
 }
+*/
 
 
 function pageDidLoad() {
   //console.log("Page is loading...")
   //getVideoSources();
 
-  /*ImageProcModule = document.getElementById( "image_proc" );
+  //ImageProcModule = document.getElementById( "image_proc" );
   var listener = document.getElementById("listener");
   updateStatus("Loading");
   listener.addEventListener("message", handleMessage, true );
@@ -227,7 +260,7 @@ function pageDidLoad() {
     updateStatus( 'LOADING...' );
   } else {
     updateStatus();
-  }*/
+  }
   //processNextImage();
 }
 
@@ -241,7 +274,7 @@ function getDataFromImage( img ) {
   var width = display.width;
   var nBytes = height * width * 4;
   var pixels = ctx.getImageData(0, 0, width, height);
-  var imData = { width: width, height: height, data: pixels.data.buffer };
+  var imData = { width: width, height: height, data: pixels/*.data.buffer*/ };
   return imData;
 }
 
@@ -253,7 +286,7 @@ function processNextImage()
     var cmd = { cmd: "process",
                 width: imData.width,
                 height: imData.height,
-                data: imData.data,
+                //data: imData.data,
                 gameEndMsg: app.mainView.gameOverText,
                 gameInSession: app.mainView.gameInSession,
                 gameDemoMode: app.mainView.gameDemoMode,
@@ -311,7 +344,7 @@ function processNextImage()
 
                 processor: "Euglena" };
     startTime = performance.now();
-    ImageProcModule.postMessage( cmd );
+    ImageProcModule.postMessage( imData.data, cmd);
   }
 
   var img = new Image();

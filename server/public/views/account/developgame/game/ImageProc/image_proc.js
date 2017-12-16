@@ -2012,14 +2012,17 @@ integrateWasmJS();
 
 // === Body ===
 
-var ASM_CONSTS = [];
+var ASM_CONSTS = [function($0) { console.log(UTF8ToString($0)); }];
 
+function _emscripten_asm_const_ii(code, a0) {
+  return ASM_CONSTS[code](a0);
+}
 
 
 
 STATIC_BASE = Runtime.GLOBAL_BASE;
 
-STATICTOP = STATIC_BASE + 10624;
+STATICTOP = STATIC_BASE + 11744;
 /* global initializers */  __ATINIT__.push({ func: function() { __GLOBAL__sub_I_image_proc_cpp() } }, { func: function() { __GLOBAL__sub_I_bind_cpp() } });
 
 
@@ -2028,7 +2031,7 @@ memoryInitializer = null;
 
 
 
-var STATIC_BUMP = 10624;
+var STATIC_BUMP = 11744;
 Module["STATIC_BASE"] = STATIC_BASE;
 Module["STATIC_BUMP"] = STATIC_BUMP;
 
@@ -2078,6 +2081,80 @@ function copyTempDouble(ptr) {
     }function ___cxa_atexit() {
   return _atexit.apply(null, arguments)
   }
+
+  
+  
+  var emval_symbols={};
+  
+  
+  
+  function embind_init_charCodes() {
+      var codes = new Array(256);
+      for (var i = 0; i < 256; ++i) {
+          codes[i] = String.fromCharCode(i);
+      }
+      embind_charCodes = codes;
+    }var embind_charCodes=undefined;function readLatin1String(ptr) {
+      var ret = "";
+      var c = ptr;
+      while (HEAPU8[c]) {
+          ret += embind_charCodes[HEAPU8[c++]];
+      }
+      return ret;
+    }function getStringOrSymbol(address) {
+      var symbol = emval_symbols[address];
+      if (symbol === undefined) {
+          return readLatin1String(address);
+      } else {
+          return symbol;
+      }
+    }
+  
+  
+  var emval_free_list=[];
+  
+  var emval_handle_array=[{},{value:undefined},{value:null},{value:true},{value:false}];
+  
+  
+  function count_emval_handles() {
+      var count = 0;
+      for (var i = 5; i < emval_handle_array.length; ++i) {
+          if (emval_handle_array[i] !== undefined) {
+              ++count;
+          }
+      }
+      return count;
+    }
+  
+  function get_first_emval() {
+      for (var i = 5; i < emval_handle_array.length; ++i) {
+          if (emval_handle_array[i] !== undefined) {
+              return emval_handle_array[i];
+          }
+      }
+      return null;
+    }function init_emval() {
+      Module['count_emval_handles'] = count_emval_handles;
+      Module['get_first_emval'] = get_first_emval;
+    }function __emval_register(value) {
+  
+      switch(value){
+        case undefined :{ return 1; }
+        case null :{ return 2; }
+        case true :{ return 3; }
+        case false :{ return 4; }
+        default:{
+          var handle = emval_free_list.length ?
+              emval_free_list.pop() :
+              emval_handle_array.length;
+  
+          emval_handle_array[handle] = {refcount: 1, value: value};
+          return handle;
+          }
+        }
+    }function __emval_new_cstring(v) {
+      return __emval_register(getStringOrSymbol(v));
+    }
 
   
   function __ZSt18uncaught_exceptionv() { // std::uncaught_exception()
@@ -2184,81 +2261,6 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv12KalmanFilter7correctERKNS_3MatE'); abort(-1);
   }
 
-  
-  function ___cxa_free_exception(ptr) {
-      try {
-        return _free(ptr);
-      } catch(e) { // XXX FIXME
-        Module.printErr('exception during cxa_free_exception: ' + e);
-      }
-    }function ___cxa_end_catch() {
-      // Clear state flag.
-      Module['setThrew'](0);
-      // Call destructor if one is registered then clear it.
-      var ptr = EXCEPTIONS.caught.pop();
-      if (ptr) {
-        EXCEPTIONS.decRef(EXCEPTIONS.deAdjust(ptr));
-        EXCEPTIONS.last = 0; // XXX in decRef?
-      }
-    }
-
-  
-  function _embind_repr(v) {
-      if (v === null) {
-          return 'null';
-      }
-      var t = typeof v;
-      if (t === 'object' || t === 'array' || t === 'function') {
-          return v.toString();
-      } else {
-          return '' + v;
-      }
-    }
-  
-  function getShiftFromSize(size) {
-      switch (size) {
-          case 1: return 0;
-          case 2: return 1;
-          case 4: return 2;
-          case 8: return 3;
-          default:
-              throw new TypeError('Unknown type size: ' + size);
-      }
-    }
-  
-  function integerReadValueFromPointer(name, shift, signed) {
-      // integers are quite common, so generate very specialized functions
-      switch (shift) {
-          case 0: return signed ?
-              function readS8FromPointer(pointer) { return HEAP8[pointer]; } :
-              function readU8FromPointer(pointer) { return HEAPU8[pointer]; };
-          case 1: return signed ?
-              function readS16FromPointer(pointer) { return HEAP16[pointer >> 1]; } :
-              function readU16FromPointer(pointer) { return HEAPU16[pointer >> 1]; };
-          case 2: return signed ?
-              function readS32FromPointer(pointer) { return HEAP32[pointer >> 2]; } :
-              function readU32FromPointer(pointer) { return HEAPU32[pointer >> 2]; };
-          default:
-              throw new TypeError("Unknown integer type: " + name);
-      }
-    }
-  
-  
-  
-  function embind_init_charCodes() {
-      var codes = new Array(256);
-      for (var i = 0; i < 256; ++i) {
-          codes[i] = String.fromCharCode(i);
-      }
-      embind_charCodes = codes;
-    }var embind_charCodes=undefined;function readLatin1String(ptr) {
-      var ret = "";
-      var c = ptr;
-      while (HEAPU8[c]) {
-          ret += embind_charCodes[HEAPU8[c++]];
-      }
-      return ret;
-    }
   
   
   var awaitingDependencies={};
@@ -2392,6 +2394,109 @@ function copyTempDouble(ptr) {
               cb();
           });
       }
+    }
+  
+  function simpleReadValueFromPointer(pointer) {
+      return this['fromWireType'](HEAPU32[pointer >> 2]);
+    }function __embind_register_std_string(rawType, name) {
+      name = readLatin1String(name);
+      registerType(rawType, {
+          name: name,
+          'fromWireType': function(value) {
+              var length = HEAPU32[value >> 2];
+              var a = new Array(length);
+              for (var i = 0; i < length; ++i) {
+                  a[i] = String.fromCharCode(HEAPU8[value + 4 + i]);
+              }
+              _free(value);
+              return a.join('');
+          },
+          'toWireType': function(destructors, value) {
+              if (value instanceof ArrayBuffer) {
+                  value = new Uint8Array(value);
+              }
+  
+              function getTAElement(ta, index) {
+                  return ta[index];
+              }
+              function getStringElement(string, index) {
+                  return string.charCodeAt(index);
+              }
+              var getElement;
+              if (value instanceof Uint8Array) {
+                  getElement = getTAElement;
+              } else if (value instanceof Uint8ClampedArray) {
+                  getElement = getTAElement;
+              } else if (value instanceof Int8Array) {
+                  getElement = getTAElement;
+              } else if (typeof value === 'string') {
+                  getElement = getStringElement;
+              } else {
+                  throwBindingError('Cannot pass non-string to std::string');
+              }
+  
+              // assumes 4-byte alignment
+              var length = value.length;
+              var ptr = _malloc(4 + length);
+              HEAPU32[ptr >> 2] = length;
+              for (var i = 0; i < length; ++i) {
+                  var charCode = getElement(value, i);
+                  if (charCode > 255) {
+                      _free(ptr);
+                      throwBindingError('String has UTF-16 code units that do not fit in 8 bits');
+                  }
+                  HEAPU8[ptr + 4 + i] = charCode;
+              }
+              if (destructors !== null) {
+                  destructors.push(_free, ptr);
+              }
+              return ptr;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': simpleReadValueFromPointer,
+          destructorFunction: function(ptr) { _free(ptr); },
+      });
+    }
+
+  
+  function _embind_repr(v) {
+      if (v === null) {
+          return 'null';
+      }
+      var t = typeof v;
+      if (t === 'object' || t === 'array' || t === 'function') {
+          return v.toString();
+      } else {
+          return '' + v;
+      }
+    }
+  
+  function getShiftFromSize(size) {
+      switch (size) {
+          case 1: return 0;
+          case 2: return 1;
+          case 4: return 2;
+          case 8: return 3;
+          default:
+              throw new TypeError('Unknown type size: ' + size);
+      }
+    }
+  
+  function integerReadValueFromPointer(name, shift, signed) {
+      // integers are quite common, so generate very specialized functions
+      switch (shift) {
+          case 0: return signed ?
+              function readS8FromPointer(pointer) { return HEAP8[pointer]; } :
+              function readU8FromPointer(pointer) { return HEAPU8[pointer]; };
+          case 1: return signed ?
+              function readS16FromPointer(pointer) { return HEAP16[pointer >> 1]; } :
+              function readU16FromPointer(pointer) { return HEAPU16[pointer >> 1]; };
+          case 2: return signed ?
+              function readS32FromPointer(pointer) { return HEAP32[pointer >> 2]; } :
+              function readU32FromPointer(pointer) { return HEAPU32[pointer >> 2]; };
+          default:
+              throw new TypeError("Unknown integer type: " + name);
+      }
     }function __embind_register_integer(primitiveType, name, size, minRange, maxRange) {
       name = readLatin1String(name);
       if (maxRange === -1) { // LLVM doesn't have signed and unsigned 32-bit types, so u32 literals come out as 'i32 -1'. Always treat those as max u32.
@@ -2433,9 +2538,20 @@ function copyTempDouble(ptr) {
       });
     }
 
+  function __ZN2cv5errorEiRKNS_6StringEPKcS4_i() {
+  Module['printErr']('missing function: _ZN2cv5errorEiRKNS_6StringEPKcS4_i'); abort(-1);
+  }
+
   function __ZN2cv11contourAreaERKNS_11_InputArrayEb() {
   Module['printErr']('missing function: _ZN2cv11contourAreaERKNS_11_InputArrayEb'); abort(-1);
   }
+
+  function __emval_decref(handle) {
+      if (handle > 4 && 0 === --emval_handle_array[handle].refcount) {
+          emval_handle_array[handle] = undefined;
+          emval_free_list.push(handle);
+      }
+    }
 
   function __ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii() {
   Module['printErr']('missing function: _ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii'); abort(-1);
@@ -2536,6 +2652,19 @@ function copyTempDouble(ptr) {
           return ___cxa_find_matching_catch.apply(null, arguments);
         }
 
+  
+  function runDestructors(destructors) {
+      while (destructors.length) {
+          var ptr = destructors.pop();
+          var del = destructors.pop();
+          del(ptr);
+      }
+    }function __emval_run_destructors(handle) {
+      var destructors = emval_handle_array[handle].value;
+      runDestructors(destructors);
+      __emval_decref(handle);
+    }
+
   function __ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE() {
   Module['printErr']('missing function: _ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE'); abort(-1);
   }
@@ -2545,8 +2674,6 @@ function copyTempDouble(ptr) {
       HEAPU8.set(HEAPU8.subarray(src, src+num), dest);
       return dest;
     } 
-
-  var _llvm_pow_f64=Math_pow;
 
   function __ZN2cv8fastFreeEPv() {
   Module['printErr']('missing function: _ZN2cv8fastFreeEPv'); abort(-1);
@@ -2568,9 +2695,7 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv3Mat6createEiPKii'); abort(-1);
   }
 
-  function __ZN2cv12KalmanFilter7predictERKNS_3MatE() {
-  Module['printErr']('missing function: _ZN2cv12KalmanFilter7predictERKNS_3MatE'); abort(-1);
-  }
+   
 
   function __embind_register_memory_view(rawType, dataTypeIndex, name) {
       var typeMapping = [
@@ -2613,68 +2738,52 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv6String10deallocateEv'); abort(-1);
   }
 
+  
+  function requireHandle(handle) {
+      if (!handle) {
+          throwBindingError('Cannot use deleted val. handle = ' + handle);
+      }
+      return emval_handle_array[handle].value;
+    }
+  
+  
+  function getTypeName(type) {
+      var ptr = ___getTypeName(type);
+      var rv = readLatin1String(ptr);
+      _free(ptr);
+      return rv;
+    }function requireRegisteredType(rawType, humanName) {
+      var impl = registeredTypes[rawType];
+      if (undefined === impl) {
+          throwBindingError(humanName + " has unknown type " + getTypeName(rawType));
+      }
+      return impl;
+    }function __emval_as(handle, returnType, destructorsRef) {
+      handle = requireHandle(handle);
+      returnType = requireRegisteredType(returnType, 'emval::as');
+      var destructors = [];
+      var rd = __emval_register(destructors);
+      HEAP32[destructorsRef >> 2] = rd;
+      return returnType['toWireType'](destructors, handle);
+    }
+
 
   
-  function simpleReadValueFromPointer(pointer) {
-      return this['fromWireType'](HEAPU32[pointer >> 2]);
-    }function __embind_register_std_string(rawType, name) {
-      name = readLatin1String(name);
-      registerType(rawType, {
-          name: name,
-          'fromWireType': function(value) {
-              var length = HEAPU32[value >> 2];
-              var a = new Array(length);
-              for (var i = 0; i < length; ++i) {
-                  a[i] = String.fromCharCode(HEAPU8[value + 4 + i]);
-              }
-              _free(value);
-              return a.join('');
-          },
-          'toWireType': function(destructors, value) {
-              if (value instanceof ArrayBuffer) {
-                  value = new Uint8Array(value);
-              }
-  
-              function getTAElement(ta, index) {
-                  return ta[index];
-              }
-              function getStringElement(string, index) {
-                  return string.charCodeAt(index);
-              }
-              var getElement;
-              if (value instanceof Uint8Array) {
-                  getElement = getTAElement;
-              } else if (value instanceof Uint8ClampedArray) {
-                  getElement = getTAElement;
-              } else if (value instanceof Int8Array) {
-                  getElement = getTAElement;
-              } else if (typeof value === 'string') {
-                  getElement = getStringElement;
-              } else {
-                  throwBindingError('Cannot pass non-string to std::string');
-              }
-  
-              // assumes 4-byte alignment
-              var length = value.length;
-              var ptr = _malloc(4 + length);
-              HEAPU32[ptr >> 2] = length;
-              for (var i = 0; i < length; ++i) {
-                  var charCode = getElement(value, i);
-                  if (charCode > 255) {
-                      _free(ptr);
-                      throwBindingError('String has UTF-16 code units that do not fit in 8 bits');
-                  }
-                  HEAPU8[ptr + 4 + i] = charCode;
-              }
-              if (destructors !== null) {
-                  destructors.push(_free, ptr);
-              }
-              return ptr;
-          },
-          'argPackAdvance': 8,
-          'readValueFromPointer': simpleReadValueFromPointer,
-          destructorFunction: function(ptr) { _free(ptr); },
-      });
+  function ___cxa_free_exception(ptr) {
+      try {
+        return _free(ptr);
+      } catch(e) { // XXX FIXME
+        Module.printErr('exception during cxa_free_exception: ' + e);
+      }
+    }function ___cxa_end_catch() {
+      // Clear state flag.
+      Module['setThrew'](0);
+      // Call destructor if one is registered then clear it.
+      var ptr = EXCEPTIONS.caught.pop();
+      if (ptr) {
+        EXCEPTIONS.decRef(EXCEPTIONS.deAdjust(ptr));
+        EXCEPTIONS.last = 0; // XXX in decRef?
+      }
     }
 
   
@@ -2779,56 +2888,9 @@ function copyTempDouble(ptr) {
 
   function ___lock() {}
 
-  
-  
-  var emval_free_list=[];
-  
-  var emval_handle_array=[{},{value:undefined},{value:null},{value:true},{value:false}];function __emval_decref(handle) {
-      if (handle > 4 && 0 === --emval_handle_array[handle].refcount) {
-          emval_handle_array[handle] = undefined;
-          emval_free_list.push(handle);
-      }
-    }
-  
-  
-  
-  function count_emval_handles() {
-      var count = 0;
-      for (var i = 5; i < emval_handle_array.length; ++i) {
-          if (emval_handle_array[i] !== undefined) {
-              ++count;
-          }
-      }
-      return count;
-    }
-  
-  function get_first_emval() {
-      for (var i = 5; i < emval_handle_array.length; ++i) {
-          if (emval_handle_array[i] !== undefined) {
-              return emval_handle_array[i];
-          }
-      }
-      return null;
-    }function init_emval() {
-      Module['count_emval_handles'] = count_emval_handles;
-      Module['get_first_emval'] = get_first_emval;
-    }function __emval_register(value) {
-  
-      switch(value){
-        case undefined :{ return 1; }
-        case null :{ return 2; }
-        case true :{ return 3; }
-        case false :{ return 4; }
-        default:{
-          var handle = emval_free_list.length ?
-              emval_free_list.pop() :
-              emval_handle_array.length;
-  
-          emval_handle_array[handle] = {refcount: 1, value: value};
-          return handle;
-          }
-        }
-    }function __embind_register_emval(rawType, name) {
+  var _emscripten_asm_const_int=true;
+
+  function __embind_register_emval(rawType, name) {
       name = readLatin1String(name);
       registerType(rawType, {
           name: name,
@@ -2857,7 +2919,9 @@ function copyTempDouble(ptr) {
       return 0;
     }
 
-   
+  function __ZN2cv12KalmanFilter7predictERKNS_3MatE() {
+  Module['printErr']('missing function: _ZN2cv12KalmanFilter7predictERKNS_3MatE'); abort(-1);
+  }
 
   function ___cxa_allocate_exception(size) {
       return _malloc(size);
@@ -2934,6 +2998,12 @@ function copyTempDouble(ptr) {
       return ptr;
     }
 
+  function __emval_get_property(handle, key) {
+      handle = requireHandle(handle);
+      key = requireHandle(key);
+      return __emval_register(handle[key]);
+    }
+
   function ___syscall6(which, varargs) {SYSCALLS.varargs = varargs;
   try {
    // close
@@ -3003,6 +3073,16 @@ function copyTempDouble(ptr) {
   Module['printErr']('missing function: _ZN2cv12KalmanFilterC1Eiiii'); abort(-1);
   }
 
+  
+  function emval_get_global() { return (function(){return Function;})()('return this')(); }function __emval_get_global(name) {
+      if(name===0){
+        return __emval_register(emval_get_global());
+      } else {
+        name = getStringOrSymbol(name);
+        return __emval_register(emval_get_global()[name]);
+      }
+    }
+
   function ___syscall140(which, varargs) {SYSCALLS.varargs = varargs;
   try {
    // llseek
@@ -3055,6 +3135,7 @@ function copyTempDouble(ptr) {
 
   var ___dso_handle=STATICTOP; STATICTOP += 16;;
 embind_init_charCodes();
+init_emval();;
 BindingError = Module['BindingError'] = extendError(Error, 'BindingError');;
 InternalError = Module['InternalError'] = extendError(Error, 'InternalError');;
 if (ENVIRONMENT_IS_NODE) {
@@ -3071,7 +3152,6 @@ if (ENVIRONMENT_IS_NODE) {
   } else {
     _emscripten_get_now = Date.now;
   };
-init_emval();;
 /* flush anything remaining in the buffer during shutdown */ __ATEXIT__.push(function() { var fflush = Module["_fflush"]; if (fflush) fflush(0); var printChar = ___syscall146.printChar; if (!printChar) return; var buffers = ___syscall146.buffers; if (buffers[1].length) printChar(1, 10); if (buffers[2].length) printChar(2, 10); });;
 DYNAMICTOP_PTR = allocate(1, "i32", ALLOC_STATIC);
 
@@ -3135,6 +3215,10 @@ function nullFunc_viidi(x) { Module["printErr"]("Invalid function pointer called
 
 function nullFunc_viiiidiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiiidiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
+function nullFunc_id(x) { Module["printErr"]("Invalid function pointer called with signature 'id'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+
+function nullFunc_iiiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+
 function nullFunc_viiidd(x) { Module["printErr"]("Invalid function pointer called with signature 'viiidd'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_iiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
@@ -3146,6 +3230,8 @@ function nullFunc_viiidddiiii(x) { Module["printErr"]("Invalid function pointer 
 function nullFunc_viiiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_di(x) { Module["printErr"]("Invalid function pointer called with signature 'di'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+
+function nullFunc_dd(x) { Module["printErr"]("Invalid function pointer called with signature 'dd'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_viiiiiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiiiiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
@@ -3163,6 +3249,8 @@ function nullFunc_dii(x) { Module["printErr"]("Invalid function pointer called w
 
 function nullFunc_i(x) { Module["printErr"]("Invalid function pointer called with signature 'i'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
+function nullFunc_iiiii(x) { Module["printErr"]("Invalid function pointer called with signature 'iiiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
+
 function nullFunc_viii(x) { Module["printErr"]("Invalid function pointer called with signature 'viii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
 function nullFunc_v(x) { Module["printErr"]("Invalid function pointer called with signature 'v'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
@@ -3173,9 +3261,9 @@ function nullFunc_viif(x) { Module["printErr"]("Invalid function pointer called 
 
 function nullFunc_viiii(x) { Module["printErr"]("Invalid function pointer called with signature 'viiii'. Perhaps this is an invalid value (e.g. caused by calling a virtual method on a NULL pointer)? Or calling a function with an incorrect type, which will fail? (it is worth building your source files with -Werror (warnings are errors), as warnings can indicate undefined behavior which can cause this)");  Module["printErr"]("Build with ASSERTIONS=2 for more info.");abort(x) }
 
-Module['wasmTableSize'] = 6528;
+Module['wasmTableSize'] = 10880;
 
-Module['wasmMaxTableSize'] = 6528;
+Module['wasmMaxTableSize'] = 10880;
 
 function invoke_viiiii(index,a1,a2,a3,a4,a5) {
   try {
@@ -3249,6 +3337,24 @@ function invoke_viiiidiiii(index,a1,a2,a3,a4,a5,a6,a7,a8,a9) {
   }
 }
 
+function invoke_id(index,a1) {
+  try {
+    return Module["dynCall_id"](index,a1);
+  } catch(e) {
+    if (typeof e !== 'number' && e !== 'longjmp') throw e;
+    Module["setThrew"](1, 0);
+  }
+}
+
+function invoke_iiiiii(index,a1,a2,a3,a4,a5) {
+  try {
+    return Module["dynCall_iiiiii"](index,a1,a2,a3,a4,a5);
+  } catch(e) {
+    if (typeof e !== 'number' && e !== 'longjmp') throw e;
+    Module["setThrew"](1, 0);
+  }
+}
+
 function invoke_viiidd(index,a1,a2,a3,a4,a5) {
   try {
     Module["dynCall_viiidd"](index,a1,a2,a3,a4,a5);
@@ -3297,6 +3403,15 @@ function invoke_viiiiii(index,a1,a2,a3,a4,a5,a6) {
 function invoke_di(index,a1) {
   try {
     return Module["dynCall_di"](index,a1);
+  } catch(e) {
+    if (typeof e !== 'number' && e !== 'longjmp') throw e;
+    Module["setThrew"](1, 0);
+  }
+}
+
+function invoke_dd(index,a1) {
+  try {
+    return Module["dynCall_dd"](index,a1);
   } catch(e) {
     if (typeof e !== 'number' && e !== 'longjmp') throw e;
     Module["setThrew"](1, 0);
@@ -3375,6 +3490,15 @@ function invoke_i(index) {
   }
 }
 
+function invoke_iiiii(index,a1,a2,a3,a4) {
+  try {
+    return Module["dynCall_iiiii"](index,a1,a2,a3,a4);
+  } catch(e) {
+    if (typeof e !== 'number' && e !== 'longjmp') throw e;
+    Module["setThrew"](1, 0);
+  }
+}
+
 function invoke_viii(index,a1,a2,a3) {
   try {
     Module["dynCall_viii"](index,a1,a2,a3);
@@ -3422,7 +3546,7 @@ function invoke_viiii(index,a1,a2,a3,a4) {
 
 Module.asmGlobalArg = { "Math": Math, "Int8Array": Int8Array, "Int16Array": Int16Array, "Int32Array": Int32Array, "Uint8Array": Uint8Array, "Uint16Array": Uint16Array, "Uint32Array": Uint32Array, "Float32Array": Float32Array, "Float64Array": Float64Array, "NaN": NaN, "Infinity": Infinity };
 
-Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_vif": nullFunc_vif, "nullFunc_vid": nullFunc_vid, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_ii": nullFunc_ii, "nullFunc_viidi": nullFunc_viidi, "nullFunc_viiiidiiii": nullFunc_viiiidiiii, "nullFunc_viiidd": nullFunc_viiidd, "nullFunc_iiii": nullFunc_iiii, "nullFunc_viff": nullFunc_viff, "nullFunc_viiidddiiii": nullFunc_viiidddiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_di": nullFunc_di, "nullFunc_viiiiiiii": nullFunc_viiiiiiii, "nullFunc_vidddd": nullFunc_vidddd, "nullFunc_viiiiiii": nullFunc_viiiiiii, "nullFunc_iii": nullFunc_iii, "nullFunc_diiddi": nullFunc_diiddi, "nullFunc_diii": nullFunc_diii, "nullFunc_dii": nullFunc_dii, "nullFunc_i": nullFunc_i, "nullFunc_viii": nullFunc_viii, "nullFunc_v": nullFunc_v, "nullFunc_viid": nullFunc_viid, "nullFunc_viif": nullFunc_viif, "nullFunc_viiii": nullFunc_viiii, "invoke_viiiii": invoke_viiiii, "invoke_vif": invoke_vif, "invoke_vid": invoke_vid, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_ii": invoke_ii, "invoke_viidi": invoke_viidi, "invoke_viiiidiiii": invoke_viiiidiiii, "invoke_viiidd": invoke_viiidd, "invoke_iiii": invoke_iiii, "invoke_viff": invoke_viff, "invoke_viiidddiiii": invoke_viiidddiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_di": invoke_di, "invoke_viiiiiiii": invoke_viiiiiiii, "invoke_vidddd": invoke_vidddd, "invoke_viiiiiii": invoke_viiiiiii, "invoke_iii": invoke_iii, "invoke_diiddi": invoke_diiddi, "invoke_diii": invoke_diii, "invoke_dii": invoke_dii, "invoke_i": invoke_i, "invoke_viii": invoke_viii, "invoke_v": invoke_v, "invoke_viid": invoke_viid, "invoke_viif": invoke_viif, "invoke_viiii": invoke_viiii, "__ZN2cv3Mat8copySizeERKS0_": __ZN2cv3Mat8copySizeERKS0_, "floatReadValueFromPointer": floatReadValueFromPointer, "simpleReadValueFromPointer": simpleReadValueFromPointer, "throwInternalError": throwInternalError, "get_first_emval": get_first_emval, "__ZN2cv12KalmanFilterC1Ev": __ZN2cv12KalmanFilterC1Ev, "__ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE": __ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE, "___assert_fail": ___assert_fail, "__ZSt18uncaught_exceptionv": __ZSt18uncaught_exceptionv, "getShiftFromSize": getShiftFromSize, "__ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd": __ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd, "_clock_gettime": _clock_gettime, "__ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "___cxa_begin_catch": ___cxa_begin_catch, "_emscripten_memcpy_big": _emscripten_memcpy_big, "__embind_register_std_string": __embind_register_std_string, "__ZN2cv3Mat6createEiPKii": __ZN2cv3Mat6createEiPKii, "__ZN2cv30createBackgroundSubtractorMOG2Eidb": __ZN2cv30createBackgroundSubtractorMOG2Eidb, "__ZN2cv11contourAreaERKNS_11_InputArrayEb": __ZN2cv11contourAreaERKNS_11_InputArrayEb, "whenDependentTypesAreResolved": whenDependentTypesAreResolved, "__ZN2cv8fastFreeEPv": __ZN2cv8fastFreeEPv, "___cxa_atexit": ___cxa_atexit, "__ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE": __ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE, "___syscall140": ___syscall140, "___syscall146": ___syscall146, "__ZN2cv12KalmanFilter7predictERKNS_3MatE": __ZN2cv12KalmanFilter7predictERKNS_3MatE, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "__ZN2cv12KalmanFilterC1Eiiii": __ZN2cv12KalmanFilterC1Eiiii, "__ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE": __ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "embind_init_charCodes": embind_init_charCodes, "__ZN2cv11minAreaRectERKNS_11_InputArrayE": __ZN2cv11minAreaRectERKNS_11_InputArrayE, "___setErrNo": ___setErrNo, "__embind_register_bool": __embind_register_bool, "___resumeException": ___resumeException, "createNamedFunction": createNamedFunction, "__embind_register_emval": __embind_register_emval, "__emval_decref": __emval_decref, "_pthread_once": _pthread_once, "__ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE": __ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE, "__ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi": __ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi, "_emscripten_get_now": _emscripten_get_now, "__ZN2cv12KalmanFilter7correctERKNS_3MatE": __ZN2cv12KalmanFilter7correctERKNS_3MatE, "___lock": ___lock, "___syscall6": ___syscall6, "__ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "_llvm_pow_f64": _llvm_pow_f64, "integerReadValueFromPointer": integerReadValueFromPointer, "__ZN2cv3Mat5setToERKNS_11_InputArrayES3_": __ZN2cv3Mat5setToERKNS_11_InputArrayES3_, "__embind_register_integer": __embind_register_integer, "___cxa_allocate_exception": ___cxa_allocate_exception, "__ZN2cv3Mat10deallocateEv": __ZN2cv3Mat10deallocateEv, "___cxa_end_catch": ___cxa_end_catch, "__ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib": __ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib, "_pthread_getspecific": _pthread_getspecific, "__ZN2cv16MatConstIterator4seekEib": __ZN2cv16MatConstIterator4seekEib, "makeLegalFunctionName": makeLegalFunctionName, "_pthread_key_create": _pthread_key_create, "init_emval": init_emval, "__ZN2cv6String10deallocateEv": __ZN2cv6String10deallocateEv, "_abort": _abort, "throwBindingError": throwBindingError, "_embind_repr": _embind_repr, "___cxa_pure_virtual": ___cxa_pure_virtual, "__ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii": __ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii, "___cxa_free_exception": ___cxa_free_exception, "__embind_register_memory_view": __embind_register_memory_view, "__ZN2cv6String8allocateEj": __ZN2cv6String8allocateEj, "__ZN2cv7noArrayEv": __ZN2cv7noArrayEv, "__ZN2cv16MatConstIterator4seekEPKib": __ZN2cv16MatConstIterator4seekEPKib, "___gxx_personality_v0": ___gxx_personality_v0, "extendError": extendError, "__ZNK2cv3Mat7reshapeEiiPKi": __ZNK2cv3Mat7reshapeEiiPKi, "__embind_register_void": __embind_register_void, "___cxa_find_matching_catch_3": ___cxa_find_matching_catch_3, "__ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii": __ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii, "__emval_register": __emval_register, "___cxa_find_matching_catch_2": ___cxa_find_matching_catch_2, "__ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE": __ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE, "readLatin1String": readLatin1String, "__embind_register_float": __embind_register_float, "___syscall54": ___syscall54, "___unlock": ___unlock, "__embind_register_std_wstring": __embind_register_std_wstring, "_pthread_setspecific": _pthread_setspecific, "registerType": registerType, "___cxa_throw": ___cxa_throw, "count_emval_handles": count_emval_handles, "_atexit": _atexit, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX, "___dso_handle": ___dso_handle };
+Module.asmLibraryArg = { "abort": abort, "assert": assert, "enlargeMemory": enlargeMemory, "getTotalMemory": getTotalMemory, "abortOnCannotGrowMemory": abortOnCannotGrowMemory, "abortStackOverflow": abortStackOverflow, "nullFunc_viiiii": nullFunc_viiiii, "nullFunc_vif": nullFunc_vif, "nullFunc_vid": nullFunc_vid, "nullFunc_vi": nullFunc_vi, "nullFunc_vii": nullFunc_vii, "nullFunc_ii": nullFunc_ii, "nullFunc_viidi": nullFunc_viidi, "nullFunc_viiiidiiii": nullFunc_viiiidiiii, "nullFunc_id": nullFunc_id, "nullFunc_iiiiii": nullFunc_iiiiii, "nullFunc_viiidd": nullFunc_viiidd, "nullFunc_iiii": nullFunc_iiii, "nullFunc_viff": nullFunc_viff, "nullFunc_viiidddiiii": nullFunc_viiidddiiii, "nullFunc_viiiiii": nullFunc_viiiiii, "nullFunc_di": nullFunc_di, "nullFunc_dd": nullFunc_dd, "nullFunc_viiiiiiii": nullFunc_viiiiiiii, "nullFunc_vidddd": nullFunc_vidddd, "nullFunc_viiiiiii": nullFunc_viiiiiii, "nullFunc_iii": nullFunc_iii, "nullFunc_diiddi": nullFunc_diiddi, "nullFunc_diii": nullFunc_diii, "nullFunc_dii": nullFunc_dii, "nullFunc_i": nullFunc_i, "nullFunc_iiiii": nullFunc_iiiii, "nullFunc_viii": nullFunc_viii, "nullFunc_v": nullFunc_v, "nullFunc_viid": nullFunc_viid, "nullFunc_viif": nullFunc_viif, "nullFunc_viiii": nullFunc_viiii, "invoke_viiiii": invoke_viiiii, "invoke_vif": invoke_vif, "invoke_vid": invoke_vid, "invoke_vi": invoke_vi, "invoke_vii": invoke_vii, "invoke_ii": invoke_ii, "invoke_viidi": invoke_viidi, "invoke_viiiidiiii": invoke_viiiidiiii, "invoke_id": invoke_id, "invoke_iiiiii": invoke_iiiiii, "invoke_viiidd": invoke_viiidd, "invoke_iiii": invoke_iiii, "invoke_viff": invoke_viff, "invoke_viiidddiiii": invoke_viiidddiiii, "invoke_viiiiii": invoke_viiiiii, "invoke_di": invoke_di, "invoke_dd": invoke_dd, "invoke_viiiiiiii": invoke_viiiiiiii, "invoke_vidddd": invoke_vidddd, "invoke_viiiiiii": invoke_viiiiiii, "invoke_iii": invoke_iii, "invoke_diiddi": invoke_diiddi, "invoke_diii": invoke_diii, "invoke_dii": invoke_dii, "invoke_i": invoke_i, "invoke_iiiii": invoke_iiiii, "invoke_viii": invoke_viii, "invoke_v": invoke_v, "invoke_viid": invoke_viid, "invoke_viif": invoke_viif, "invoke_viiii": invoke_viiii, "__ZN2cv3Mat8copySizeERKS0_": __ZN2cv3Mat8copySizeERKS0_, "floatReadValueFromPointer": floatReadValueFromPointer, "simpleReadValueFromPointer": simpleReadValueFromPointer, "throwInternalError": throwInternalError, "get_first_emval": get_first_emval, "__ZN2cv12KalmanFilterC1Ev": __ZN2cv12KalmanFilterC1Ev, "__ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE": __ZN2cv12findContoursERKNS_17_InputOutputArrayERKNS_12_OutputArrayEiiNS_6Point_IiEE, "__emval_register": __emval_register, "___assert_fail": ___assert_fail, "__ZSt18uncaught_exceptionv": __ZSt18uncaught_exceptionv, "_emscripten_asm_const_ii": _emscripten_asm_const_ii, "getShiftFromSize": getShiftFromSize, "__emval_get_property": __emval_get_property, "__ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd": __ZNK2cv3Mat9convertToERKNS_12_OutputArrayEidd, "_clock_gettime": _clock_gettime, "__ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv9rectangleERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "___cxa_begin_catch": ___cxa_begin_catch, "_emscripten_memcpy_big": _emscripten_memcpy_big, "__embind_register_std_string": __embind_register_std_string, "__emval_get_global": __emval_get_global, "__ZN2cv3Mat6createEiPKii": __ZN2cv3Mat6createEiPKii, "__ZN2cv30createBackgroundSubtractorMOG2Eidb": __ZN2cv30createBackgroundSubtractorMOG2Eidb, "_embind_repr": _embind_repr, "__ZN2cv11contourAreaERKNS_11_InputArrayEb": __ZN2cv11contourAreaERKNS_11_InputArrayEb, "whenDependentTypesAreResolved": whenDependentTypesAreResolved, "__ZN2cv8fastFreeEPv": __ZN2cv8fastFreeEPv, "___cxa_atexit": ___cxa_atexit, "__ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE": __ZNK2cv11RotatedRect6pointsEPNS_6Point_IfEE, "getTypeName": getTypeName, "___syscall140": ___syscall140, "___syscall146": ___syscall146, "_emscripten_get_now_is_monotonic": _emscripten_get_now_is_monotonic, "__ZN2cv12KalmanFilterC1Eiiii": __ZN2cv12KalmanFilterC1Eiiii, "throwBindingError": throwBindingError, "__ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE": __ZN2cv21getStructuringElementEiNS_5Size_IiEENS_6Point_IiEE, "___cxa_find_matching_catch": ___cxa_find_matching_catch, "embind_init_charCodes": embind_init_charCodes, "__emval_as": __emval_as, "__ZN2cv11minAreaRectERKNS_11_InputArrayE": __ZN2cv11minAreaRectERKNS_11_InputArrayE, "__ZN2cv5errorEiRKNS_6StringEPKcS4_i": __ZN2cv5errorEiRKNS_6StringEPKcS4_i, "___setErrNo": ___setErrNo, "__embind_register_bool": __embind_register_bool, "___resumeException": ___resumeException, "createNamedFunction": createNamedFunction, "__embind_register_emval": __embind_register_emval, "__emval_decref": __emval_decref, "_pthread_once": _pthread_once, "__ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE": __ZN2cv12morphologyExERKNS_11_InputArrayERKNS_12_OutputArrayEiS2_NS_6Point_IiEEiiRKNS_7Scalar_IdEE, "__ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi": __ZN2cv9thresholdERKNS_11_InputArrayERKNS_12_OutputArrayEddi, "_emscripten_get_now": _emscripten_get_now, "__ZN2cv12KalmanFilter7correctERKNS_3MatE": __ZN2cv12KalmanFilter7correctERKNS_3MatE, "___lock": ___lock, "___syscall6": ___syscall6, "__ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii": __ZN2cv4lineERKNS_17_InputOutputArrayENS_6Point_IiEES4_RKNS_7Scalar_IdEEiii, "___syscall54": ___syscall54, "__ZN2cv3Mat5setToERKNS_11_InputArrayES3_": __ZN2cv3Mat5setToERKNS_11_InputArrayES3_, "__embind_register_integer": __embind_register_integer, "___cxa_allocate_exception": ___cxa_allocate_exception, "__ZN2cv3Mat10deallocateEv": __ZN2cv3Mat10deallocateEv, "___cxa_end_catch": ___cxa_end_catch, "__ZN2cv12KalmanFilter7predictERKNS_3MatE": __ZN2cv12KalmanFilter7predictERKNS_3MatE, "_pthread_getspecific": _pthread_getspecific, "__emval_run_destructors": __emval_run_destructors, "__ZN2cv16MatConstIterator4seekEib": __ZN2cv16MatConstIterator4seekEib, "runDestructors": runDestructors, "requireRegisteredType": requireRegisteredType, "makeLegalFunctionName": makeLegalFunctionName, "_pthread_key_create": _pthread_key_create, "_pthread_setspecific": _pthread_setspecific, "init_emval": init_emval, "__ZN2cv6String10deallocateEv": __ZN2cv6String10deallocateEv, "_abort": _abort, "requireHandle": requireHandle, "__ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib": __ZN2cv7putTextERKNS_17_InputOutputArrayERKNS_6StringENS_6Point_IiEEidNS_7Scalar_IdEEiib, "___cxa_pure_virtual": ___cxa_pure_virtual, "__ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii": __ZN2cv7ellipseERKNS_17_InputOutputArrayENS_6Point_IiEENS_5Size_IiEEdddRKNS_7Scalar_IdEEiii, "__embind_register_memory_view": __embind_register_memory_view, "__ZN2cv6String8allocateEj": __ZN2cv6String8allocateEj, "__ZN2cv7noArrayEv": __ZN2cv7noArrayEv, "__ZN2cv16MatConstIterator4seekEPKib": __ZN2cv16MatConstIterator4seekEPKib, "___gxx_personality_v0": ___gxx_personality_v0, "extendError": extendError, "__ZNK2cv3Mat7reshapeEiiPKi": __ZNK2cv3Mat7reshapeEiiPKi, "__embind_register_void": __embind_register_void, "___cxa_find_matching_catch_3": ___cxa_find_matching_catch_3, "__ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii": __ZN2cv6circleERKNS_17_InputOutputArrayENS_6Point_IiEEiRKNS_7Scalar_IdEEiii, "___cxa_free_exception": ___cxa_free_exception, "___cxa_find_matching_catch_2": ___cxa_find_matching_catch_2, "getStringOrSymbol": getStringOrSymbol, "__ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE": __ZN2cv11setIdentityERKNS_17_InputOutputArrayERKNS_7Scalar_IdEE, "readLatin1String": readLatin1String, "__embind_register_float": __embind_register_float, "integerReadValueFromPointer": integerReadValueFromPointer, "___unlock": ___unlock, "__embind_register_std_wstring": __embind_register_std_wstring, "emval_get_global": emval_get_global, "registerType": registerType, "___cxa_throw": ___cxa_throw, "__emval_new_cstring": __emval_new_cstring, "count_emval_handles": count_emval_handles, "_atexit": _atexit, "DYNAMICTOP_PTR": DYNAMICTOP_PTR, "tempDoublePtr": tempDoublePtr, "ABORT": ABORT, "STACKTOP": STACKTOP, "STACK_MAX": STACK_MAX, "___dso_handle": ___dso_handle };
 // EMSCRIPTEN_START_ASM
 var asm =Module["asm"]// EMSCRIPTEN_END_ASM
 (Module.asmGlobalArg, Module.asmLibraryArg, buffer);
@@ -3681,6 +3805,14 @@ var dynCall_viiiidiiii = Module["dynCall_viiiidiiii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["dynCall_viiiidiiii"].apply(null, arguments) };
+var dynCall_id = Module["dynCall_id"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["dynCall_id"].apply(null, arguments) };
+var dynCall_iiiiii = Module["dynCall_iiiiii"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["dynCall_iiiiii"].apply(null, arguments) };
 var dynCall_viiidd = Module["dynCall_viiidd"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -3705,6 +3837,10 @@ var dynCall_di = Module["dynCall_di"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["dynCall_di"].apply(null, arguments) };
+var dynCall_dd = Module["dynCall_dd"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["dynCall_dd"].apply(null, arguments) };
 var dynCall_viiiiiiii = Module["dynCall_viiiiiiii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -3737,6 +3873,10 @@ var dynCall_i = Module["dynCall_i"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["dynCall_i"].apply(null, arguments) };
+var dynCall_iiiii = Module["dynCall_iiiii"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["dynCall_iiiii"].apply(null, arguments) };
 var dynCall_viii = Module["dynCall_viii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
