@@ -18,11 +18,15 @@ var imageCacheSize = 67;
 var downloaded = new Array();
 var downloadPaused = true;
 var transferPaused = true;
+var CV;
 
 var canvas={};
 
-
 function pageDidLoad() {
+
+}
+
+function openCVLoaded() {
   updateStatus("Loading");
   updateStatus("Loaded");
   //listener.addEventListener("message", handleMessage, true );
@@ -31,6 +35,7 @@ function pageDidLoad() {
   //} else {
   //  updateStatus();
   //}
+  CV = new cv();
 
   canvas.processed = $("#processed")[0];
   canvas.processed.context = canvas.processed.getContext("2d");
@@ -39,27 +44,19 @@ function pageDidLoad() {
   processNextImage();
 }
 
-function getDataFromImage( img ) {
-  // Get image data from specified canvas
-  var ctx = canvas.display.context;
-
-  ctx.drawImage(img,0,0);
-  var height = canvas.display.height;
-  var width = canvas.display.width;
-  var pixels = ctx.getImageData(0, 0, width, height);
-  //var imData = { width: width, height: height, data: pixels.data.buffer };
-  return pixels.data.buffer;
-}
-
-function processNextImage()
+function processNextImage(timestamp)
 {
+  //console.log(timestamp);
   imageOnLoad = function()
   {
-    imData = getDataFromImage(this);
+    canvas.display.context.drawImage(this, 0, 0);
+    // imData = getDataFromImage(this);
+    imData = CV.imread(canvas.display);
+    //console.log(imData)
     var cmd = { cmd: "process",
-                width: imData.width,
-                height: imData.height,
-                data: imData.data,
+                width: canvas.display.width,
+                height: canvas.display.height,
+                data: imData,
                 gameEndMsg: app.mainView.gameOverText,
                 gameInSession: app.mainView.gameInSession,
                 gameDemoMode: app.mainView.gameDemoMode,
@@ -117,8 +114,9 @@ function processNextImage()
 
                 processor: "Euglena" };
     startTime = performance.now();
-    console.log(imData);
-    drawImage(imData);
+    processAndDrawImage(cmd);
+
+    requestAnimationFrame(processNextImage);
     /*requestAnimationFrame() {
 
     }*/
@@ -142,14 +140,18 @@ function processNextImage()
   img.crossOrigin = "Anonymous";
 }
 
-function drawImage(pixels){
-    var processed = canvas.processed;
-    var ctx = processed.context;
-    var imData = ctx.getImageData(0,0,processed.width,processed.height);
-    var buf8 = new Uint8ClampedArray( pixels );
-    imData.data.set( buf8 );
-    ctx.putImageData( imData, 0, 0);
+function processAndDrawImage(cmd) {
+  
+  let mat = cmd.data;
+  console.log("proc and draw img");
+
+  CV.imshow(canvas.processed, mat);
+  mat.delete();
+
+
+  //canvas.processed.context.strokeRect(20,20,150,100);
 }
+
 
 var lastTime = 0;
 function handleMessage(msg) {

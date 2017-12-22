@@ -6,6 +6,7 @@ block head
   script(src="https://codemirror.net/2/lib/codemirror.js")
   script(src="http://codemirror.net/2/mode/javascript/javascript.js")
   link(rel="stylesheet", href="https://codemirror.net/2/doc/docs.css")
+  base(href="/views/account/developgame/")
 
 block neck
   style.
@@ -173,7 +174,9 @@ block feet
   script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
   script(src="/views/account/developgame/Canvas_Joystick.js")
   script(src='/views/account/developgame/socket-client.js')
-  script(src='/views/account/developgame/game/ImageProcAsm/ImageProc.js')
+  <script>var Module = {};</script>
+  script(src='/views/account/developgame/game/ImageProcAsm/opencv_js.js', async, onload='openCVLoaded()')
+  #script(src='/views/account/developgame/game/ImageProcAsm/ImageProc.js')
   script(src='/views/account/developgame/game/game.js')
   
 

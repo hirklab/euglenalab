@@ -107,8 +107,8 @@ function eyesDetect(imageData) {
 }
 
 self.onmessage = function (e) {
-	switch (e.data.cmd) {
-		case 'faceDetect':
+	postMessage("hi!");
+	return; 
 			faceDetect(e.data.img);
 			break;
 		case 'eyesDetect': {			
