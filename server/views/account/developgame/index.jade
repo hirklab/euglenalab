@@ -173,13 +173,14 @@ block feet
   script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
   script(src="/views/account/developgame/Canvas_Joystick.js")
   script(src='/views/account/developgame/socket-client.js')
+  script(src='/views/account/developgame/game/ImageProcAsm/ImageProc.js')
   script(src='/views/account/developgame/game/game.js')
   
 
 block body
   body(onload='pageDidLoad()')
     div#listener
-      embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
+      //embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
 
     div.row
       div.col-xs-12

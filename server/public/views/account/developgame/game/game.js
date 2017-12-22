@@ -1,5 +1,6 @@
 // Global handle to module
-var ImageProcModule = null;
+// Declared in other file
+// var ImageProcModule = null;
 
 var samplePeriod = 60; // ms
 
@@ -18,123 +19,36 @@ var downloaded = new Array();
 var downloadPaused = true;
 var transferPaused = true;
 
-//console.log("Starting browser detection!!!");
-
-var allowedKeys = {
-  37: 'left',
-  38: 'up',
-  39: 'right',
-  40: 'down',
-  65: 'a',
-  66: 'b'
-};
-var konamiCode = ['up', 'up', 'down', 'down', 'left', 'right', 'left', 'right', 'b', 'a'];
-var konamiCodePosition = 0;
-document.addEventListener('keydown', function(e) {
-  var key = allowedKeys[e.keyCode];
-  var requiredKey = konamiCode[konamiCodePosition];
-  if (key == requiredKey) {
-    konamiCodePosition++;
-    if (konamiCodePosition == konamiCode.length)
-      activateCheats();
-  } else
-    konamiCodePosition = 0;
-});
-
-function activateCheats() {
-  alert("DEMO GAME ACTIVATED!!!");
-  if (app.mainView.gameDemoMode) {
-    app.mainView.gameDemoMode = false;
-  } else {
-    app.mainView.gameDemoMode = true;
-  }
-}
-
-function enableDownload()
-{
-    fetchNextImage = function()
-    {
-      downloadedPaused = false;
-      imageOnLoad = function()
-      {
-        downloaded.push( this );
-
-        if( transferPaused ){
-          enableTransfer();
-        }
-
-        if( downloaded.length < imageCacheSize ){
-          fetchNextImage();
-        }else{
-          console.log("Download paused");
-          downloadPaused = true;
-        }
-      }
-      var img = new Image();
-      img.onload = imageOnLoad;
-      img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
-      console.log("Game's BPU ADDRESS: " + img.src);
-      img.crossOrigin = "Anonymous";
-    }
-
-    if (downloadPaused){
-      fetchNextImage();
-    }
-}
-
-function enableTransfer()
-{
-  var display = document.getElementById("display");
-  var ctx = display.getContext( "2d" );
-
-  drawNext = function()
-  {
-    transferPaused = false;
-    if ( downloaded.length > 0 ){
-      var img = downloaded.shift();
-      enableDownload();
-      ctx.drawImage(img,0,0);
-      setTimeout(drawNext,samplePeriod);
-    }
-    else{
-      console.log("Transfer stalled");
-      transferPaused = true;
-    }
-  }
-
-  if (transferPaused ){
-    drawNext();
-  }
-}
+var canvas={};
 
 
 function pageDidLoad() {
-  //console.log("Page is loading...")
-  //getVideoSources();
-  ImageProcModule = document.getElementById( "image_proc" );
-  var listener = document.getElementById("listener");
   updateStatus("Loading");
-  listener.addEventListener("message", handleMessage, true );
-  if ( ImageProcModule == null ) {
-    updateStatus( 'LOADING...' );
-  } else {
-    updateStatus();
-  }
+  updateStatus("Loaded");
+  //listener.addEventListener("message", handleMessage, true );
+  //if ( ImageProcModule == null ) {
+  //  updateStatus( 'LOADING...' );
+  //} else {
+  //  updateStatus();
+  //}
+
+  canvas.processed = $("#processed")[0];
+  canvas.processed.context = canvas.processed.getContext("2d");
+  canvas.display = $("#display")[0];
+  canvas.display.context = canvas.display.getContext("2d");
   processNextImage();
 }
 
 function getDataFromImage( img ) {
   // Get image data from specified canvas
-  var display = document.getElementById("display");
-  var ctx = display.getContext( "2d" );
+  var ctx = canvas.display.context;
 
-  ctx.drawImage(img,0,0)
-  var height = display.height;
-  var width = display.width;
-  var nBytes = height * width * 4;
+  ctx.drawImage(img,0,0);
+  var height = canvas.display.height;
+  var width = canvas.display.width;
   var pixels = ctx.getImageData(0, 0, width, height);
-  var imData = { width: width, height: height, data: pixels.data.buffer };
-  return imData;
+  //var imData = { width: width, height: height, data: pixels.data.buffer };
+  return pixels.data.buffer;
 }
 
 function processNextImage()
@@ -203,10 +117,15 @@ function processNextImage()
 
                 processor: "Euglena" };
     startTime = performance.now();
-    ImageProcModule.postMessage( cmd );
+    console.log(imData);
+    drawImage(imData);
+    /*requestAnimationFrame() {
+
+    }*/
+    //ImageProcModule.postMessage( cmd );
   }
 
-  var img = new Image();
+  window.img = new Image();
   img.onload = imageOnLoad;
   img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
 
@@ -224,8 +143,8 @@ function processNextImage()
 }
 
 function drawImage(pixels){
-    var processed = document.getElementById("processed");
-    var ctx = processed.getContext( "2d" );
+    var processed = canvas.processed;
+    var ctx = processed.context;
     var imData = ctx.getImageData(0,0,processed.width,processed.height);
     var buf8 = new Uint8ClampedArray( pixels );
     imData.data.set( buf8 );
