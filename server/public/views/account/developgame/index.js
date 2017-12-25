@@ -888,12 +888,7 @@
     joystickIntensity: 0,
 
     // drawCircle
-    drawCircleCenterX: [],
-    drawCircleCenterY: [],
-    drawCircleRadius: [],
-    drawCircleR: [],
-    drawCircleG: [],
-    drawCircleB: [],
+    drawCircleData: [],
 
     // drawLine
     drawLineX1: [],
@@ -1034,12 +1029,7 @@
      */
     runLoop: function() {
       if (app.mainView.gameInSession) {
-        app.mainView.drawCircleCenterX = "";
-        app.mainView.drawCircleCenterY = "";
-        app.mainView.drawCircleRadius = "";
-        app.mainView.drawCircleR = "";
-        app.mainView.drawCircleG = "";
-        app.mainView.drawCircleB = "";
+        app.mainView.drawCircle = () => {};
 
         app.mainView.drawLineX1 = "";
         app.mainView.drawLineY1 = "";
@@ -1250,52 +1240,11 @@
       app.mainView.gameDrawOnTrackedEuglena = isDrawing;
     },
     drawCircle: function(centerX, centerY, radius, color) {
-      //console.log('drawCircle function called.');
-      app.mainView.drawCircleCenterX = app.mainView.drawCircleCenterX + centerX + "*";
-      app.mainView.drawCircleCenterY = app.mainView.drawCircleCenterY + centerY + "*";
-      app.mainView.drawCircleRadius = app.mainView.drawCircleRadius + radius + "*";
-      switch(color) {
-        case "COLORS.RED":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
-            break;
-        case "COLORS.BLUE":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
-            break;
-        case "COLORS.GREEN":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
-            break;
-        case "COLORS.WHITE":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
-            break;
-        case "COLORS.PURPLE":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
-            break;
-        case "COLORS.YELLOW":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
-            break;
-        case "COLORS.ORANGE":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 165 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
-            break;
-        default:
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
-            break;
-      }
+      // drawCircle(0,0,10,COLORS.WHITE);
+      return (CV) => {
+        console.log('drawing circle');
+        CV.circle(mat, {x:centerX, y:centerY}, radius, parseColor(color),1);
+      };
     },
     drawLine: function(x1, y1, x2, y2, color) {
       //console.log('drawLine function called.');
@@ -2200,4 +2149,24 @@
       cb_fn(null, null);
     },
   });
+  function parseColor(color) {
+    switch (color) {
+        case "COLORS.RED":
+            return [255,0,0,1];
+        case "COLORS.BLUE":
+            return [0,0,255,1];
+        case "COLORS.GREEN":
+            return [0,255,0,1];
+        case "COLORS.WHITE":
+            return [255,255,255,1];
+        case "COLORS.PURPLE":
+            return [255,0,255,1];
+        case "COLORS.YELLOW":
+            return [0,255,255,1];
+        case "COLORS.ORANGE":
+            return [255,165,0,1];
+        default:
+            return [0,0,0,1];
+    }
+  }
 }());

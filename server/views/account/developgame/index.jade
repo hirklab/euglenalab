@@ -171,7 +171,8 @@ block neck
     .gameFile {padding:10px; cursor:pointer;}
 
 block feet
-  script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
+  #script(src='/views/account/developgame/index.min.js?#{cacheBreaker}')
+  script(src='/views/account/developgame/index.js?#{cacheBreaker}')
   script(src="/views/account/developgame/Canvas_Joystick.js")
   script(src='/views/account/developgame/socket-client.js')
   <script>var Module = {};</script>

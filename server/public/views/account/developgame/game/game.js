@@ -68,12 +68,7 @@ function processNextImage(timestamp)
                 joystickIntensity: app.mainView.joystickIntensity,
                 joystickDirection: app.mainView.joystickDirection,
                 // drawCircle
-                drawCircleCenterX: app.mainView.drawCircleCenterX,
-                drawCircleCenterY: app.mainView.drawCircleCenterY,
-                drawCircleRadius: app.mainView.drawCircleRadius,
-                drawCircleR: app.mainView.drawCircleR,
-                drawCircleG: app.mainView.drawCircleG,
-                drawCircleB: app.mainView.drawCircleB,
+                drawCircleData: app.mainView.drawCircleData,
                 // drawLine
                 drawLineX1: app.mainView.drawLineX1,
                 drawLineY1: app.mainView.drawLineY1,
@@ -143,11 +138,15 @@ function processNextImage(timestamp)
 function processAndDrawImage(cmd) {
   
   let mat = cmd.data;
-  console.log("proc and draw img");
 
+  for (let cmdName in cmd) {
+    if (cmdName != "drawCircleData") continue;
+    for (let cmdFunctions of cmd[cmdName]) {
+      cmdFunctions(CV);
+    }
+  }
   CV.imshow(canvas.processed, mat);
   mat.delete();
-
 
   //canvas.processed.context.strokeRect(20,20,150,100);
 }
