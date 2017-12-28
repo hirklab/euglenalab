@@ -2037,21 +2037,23 @@
   function parseColor(color) {
     switch (color) {
         case "COLORS.RED":
-            return [255,0,0,1];
+            return [255,0,0,255];
         case "COLORS.BLUE":
-            return [0,0,255,1];
+            return [0,0,255,255];
         case "COLORS.GREEN":
-            return [0,255,0,1];
+            return [0,255,0,255];
         case "COLORS.WHITE":
-            return [255,255,255,1];
+            return [255,255,255,255];
         case "COLORS.PURPLE":
-            return [255,0,255,1];
+            return [255,0,255,255];
         case "COLORS.YELLOW":
-            return [0,255,255,1];
+            return [0,255,255,255];
         case "COLORS.ORANGE":
-            return [255,165,0,1];
+            return [255,165,0,255];
+        case "COLORS.BLACK":
+            return [0,0,0,255];
         default:
-            return [0,0,0,1];
+            return [0,0,0,0];
     }
   }
 }());
