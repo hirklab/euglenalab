@@ -891,31 +891,13 @@
     drawCircleData: [],
 
     // drawLine
-    drawLineX1: [],
-    drawLineY1: [],
-    drawLineX2: [],
-    drawLineY2: [],
-    drawLineR: [],
-    drawLineG: [],
-    drawLineB: [],
+    drawLineData: [],
 
     // drawRect
-    drawRectUpperLeftX: [], 
-    drawRectUpperLeftY: [], 
-    drawRectLowerRightX: [], 
-    drawRectLowerRightY: [], 
-    drawRectR: [], 
-    drawRectG: [], 
-    drawRectB: [],
+    drawRectData: [],
 
     // drawText
-    drawTextdrawTxt: [], 
-    drawTextXPos: [], 
-    drawTextYPos: [], 
-    drawTextSize: [], 
-    drawTextR: [], 
-    drawTextG: [], 
-    drawTextB: [],
+    drawTextData: [],
 
     // getEuglenaInRect
     getEuglenaInRectUpperLeftX: 0, 
@@ -1031,29 +1013,11 @@
       if (app.mainView.gameInSession) {
         app.mainView.drawCircleData = [];
 
-        app.mainView.drawLineX1 = "";
-        app.mainView.drawLineY1 = "";
-        app.mainView.drawLineX2 = "";
-        app.mainView.drawLineY2 = "";
-        app.mainView.drawLineR = "";
-        app.mainView.drawLineG = "";
-        app.mainView.drawLineB = "";
+        app.mainView.drawLineData = [];
 
-        app.mainView.drawRectUpperLeftX = ""; 
-        app.mainView.drawRectUpperLeftY = "";
-        app.mainView.drawRectLowerRightX = "";
-        app.mainView.drawRectLowerRightY = ""; 
-        app.mainView.drawRectR = "";
-        app.mainView.drawRectG = "";
-        app.mainView.drawRectB = "";
+        app.mainView.drawRectData = [];
 
-        app.mainView.drawTextdrawTxt = "";
-        app.mainView.drawTextXPos = "";
-        app.mainView.drawTextYPos = "";
-        app.mainView.drawTextSize = "";
-        app.mainView.drawTextR = "";
-        app.mainView.drawTextG = "";
-        app.mainView.drawTextB = "";
+        app.mainView.drawTextData = [];
 
         app.mainView.parseRunCode(app.mainView.gameRunCode);
       }
@@ -1239,162 +1203,80 @@
       //console.log('drawOnTrackedEuglena function called.');
       app.mainView.gameDrawOnTrackedEuglena = isDrawing;
     },
-    drawCircle: function(centerX, centerY, radius, color) {
+    /**
+     * Draws a circle.
+     * @param {number} centerX X coordinate of circle center.
+     * @param (number) centerY Y coordinate of circle center.
+     * @param {number} radius Radius.
+     * @param {string} [color="COLORS.RED"] Color.
+     * @param {number} [thickness=1] Line thickness. Negative values mean a filled circle.
+     */
+    drawCircle: function(centerX, centerY, radius, color="COLORS.RED", thickness=1) {
       // drawCircle(0,0,10,COLORS.WHITE);
       /*let fn = (CV, mat) => {
         console.log('drawing circle');
         CV.circle(mat, {x:centerX, y:centerY}, radius, parseColor(color),1);
       };*/
-      app.mainView.drawCircleData.push( {"name": "circle",
-        "args": ["mat", {x:centerX, y:centerY}, radius, parseColor(color),1]
-      } );
+      app.mainView.drawCircleData.push(
+        {
+          "name": "circle",
+          "args": [{"cv": "mat"}, {x: centerX, y: centerY}, radius, parseColor(color), thickness]
+        }
+      );
     },
-    drawLine: function(x1, y1, x2, y2, color) {
+    /**
+     * Draws a line from two points.
+     * @param {number} x1 X coordinate.
+     * @param (number) y1 Y coordinate.
+     * @param {number} x2 X coordinate.
+     * @param (number) y2 Y coordinate.
+     * @param {string} [color="COLORS.RED"] Color.
+     * @param {number} [thickness=1] Line thickness.
+     */
+    drawLine: function(x1, y1, x2, y2, color="COLORS.RED", thickness=1) {
       //console.log('drawLine function called.');
-      app.mainView.drawLineX1 = app.mainView.drawLineX1 + x1 + "*";
-      app.mainView.drawLineY1 = app.mainView.drawLineY1 + y1 + "*";
-      app.mainView.drawLineX2 = app.mainView.drawLineX2 + x2 + "*";
-      app.mainView.drawLineY2 = app.mainView.drawLineY2 + y2 + "*";
-      switch(color) {
-        case "COLORS.RED":
-            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
-            break;
-        case "COLORS.BLUE":
-            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
-            break;
-        case "COLORS.GREEN":
-            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
-            break;
-        case "COLORS.WHITE":
-            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
-            break;
-        case "COLORS.PURPLE":
-            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
-            break;
-        case "COLORS.YELLOW":
-            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
-            break;
-        case "COLORS.ORANGE":
-            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 165 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
-            break;
-        default:
-            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
-            break;
-      }
+      app.mainView.drawLineData.push(
+        {
+          "name": "line",
+          "args": [{"cv": "mat"}, {x: x1, y: y1}, {x: x2, y: y2}, parseColor(color), thickness]
+        }
+      );
     },
-    drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, color) {
+    /**
+     * Draws a rectangle.
+     * @param {number} x1 X coordinate of first vertex.
+     * @param (number) y1 Y coordinate of first vertex.
+     * @param {number} x2 X coordinate of vertex opposite first vertex.
+     * @param (number) y2 Y coordinate of second vertex.
+     * @param {string} [color="COLORS.RED"] Color.
+     * @param {number} [thickness=1] Line thickness. Negative values mean a filled rectangle.
+     */
+    drawRect: function(x1, y1, x2, y2, color="COLORS.RED", thickness=1) {
       //console.log('drawRect function called.');
-      app.mainView.drawRectUpperLeftX = app.mainView.drawRectUpperLeftX + upperLeftX + "*";
-      app.mainView.drawRectUpperLeftY = app.mainView.drawRectUpperLeftY + upperLeftY + "*";
-      app.mainView.drawRectLowerRightX = app.mainView.drawRectLowerRightX + lowerRightX + "*";
-      app.mainView.drawRectLowerRightY = app.mainView.drawRectLowerRightY + lowerRightY + "*";
-      switch(color) {
-        case "COLORS.RED":
-            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
-            break;
-        case "COLORS.BLUE":
-            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
-            break;
-        case "COLORS.GREEN":
-            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
-            break;
-        case "COLORS.WHITE":
-            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
-            break;
-        case "COLORS.PURPLE":
-            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
-            break;
-        case "COLORS.YELLOW":
-            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
-            break;
-        case "COLORS.ORANGE":
-            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 165 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
-            break;
-        default:
-            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
-            break;
-      }
+      app.mainView.drawRectData.push(
+        {
+          "name": "rectangle",
+          "args": [{"cv": "mat"}, {x: x1, y: y1}, {x: x2, y: y2}, parseColor(color), thickness]
+        }
+      );
     },
-    drawText: function(drawTxt, xPos, yPos, size, color) {
+    /**
+     * Draws text on the screen
+     * @param {string} text Text to draw on screen.
+     * @param {number} x1 X coordinate of bottom-left corner of text.
+     * @param (number) y1 Y coordinate of bottom-left corner of text.
+     * @param {number} [size=1] Font size, scaled.
+     * @param {string} [color="COLORS.RED"] Color.
+     * @param {number} [thickness=1] Line thickness.
+     */
+    drawText: function(text, xPos, yPos, size=1, color="COLORS.RED", thickness=1) {
       //console.log('drawText function called.');
-      app.mainView.drawTextdrawTxt = app.mainView.drawTextdrawTxt + drawTxt + "*";
-      app.mainView.drawTextXPos = app.mainView.drawTextXPos + xPos + "*";
-      app.mainView.drawTextYPos = app.mainView.drawTextYPos + yPos + "*";
-      app.mainView.drawTextSize = app.mainView.drawTextSize + size + "*";
-      switch(color) {
-        case "COLORS.RED":
-            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
-            break;
-        case "COLORS.BLUE":
-            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
-            break;
-        case "COLORS.GREEN":
-            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
-            break;
-        case "COLORS.WHITE":
-            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
-            break;
-        case "COLORS.PURPLE":
-            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
-            break;
-        case "COLORS.YELLOW":
-            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
-            break;
-        case "COLORS.ORANGE":
-            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 165 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
-            break;
-        default:
-            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
-            break;
-      }
+      app.mainView.drawTextData.push(
+        {
+          "name": "putText",
+          "args": [{"cv": "mat"}, text, {x: xPos, y: yPos}, {"cv": "FONT_HERSHEY_DUPLEX"}, size * 0.7, parseColor(color), thickness]
+        }
+      );
     },
     endProgram: function() {
       //console.log('endProgram function called.');

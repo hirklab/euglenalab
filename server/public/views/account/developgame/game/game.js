@@ -66,29 +66,11 @@ function processNextImage(timestamp)
                 // drawCircle
                 drawCircleData: app.mainView.drawCircleData,
                 // drawLine
-                drawLineX1: app.mainView.drawLineX1,
-                drawLineY1: app.mainView.drawLineY1,
-                drawLineX2: app.mainView.drawLineX2,
-                drawLineY2: app.mainView.drawLineY2,
-                drawLineR: app.mainView.drawLineR,
-                drawLineG: app.mainView.drawLineG,
-                drawLineB: app.mainView.drawLineB,
+                drawLineData: app.mainView.drawLineData,
                 // drawRect
-                drawRectUpperLeftX: app.mainView.drawRectUpperLeftX, 
-                drawRectUpperLeftY: app.mainView.drawRectUpperLeftY, 
-                drawRectLowerRightX: app.mainView.drawRectLowerRightX, 
-                drawRectLowerRightY: app.mainView.drawRectLowerRightY, 
-                drawRectR: app.mainView.drawRectR, 
-                drawRectG: app.mainView.drawRectG, 
-                drawRectB: app.mainView.drawRectB,
+                drawRectData: app.mainView.drawRectData,
                 // drawText
-                drawTextdrawTxt: app.mainView.drawTextdrawTxt,
-                drawTextXPos: app.mainView.drawTextXPos,
-                drawTextYPos: app.mainView.drawTextYPos,
-                drawTextSize: app.mainView.drawTextSize,
-                drawTextR: app.mainView.drawTextR,
-                drawTextG: app.mainView.drawTextG,
-                drawTextB: app.mainView.drawTextB,
+                drawTextData: app.mainView.drawTextData,
                 // getEuglenaInRect
                 getEuglenaInRectUpperLeftX: app.mainView.getEuglenaInRectUpperLeftX,
                 getEuglenaInRectUpperLeftY: app.mainView.getEuglenaInRectUpperLeftY,

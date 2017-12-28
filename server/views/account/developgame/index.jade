@@ -175,7 +175,7 @@ block feet
   script(src='/views/account/developgame/index.js?#{cacheBreaker}')
   script(src="/views/account/developgame/Canvas_Joystick.js")
   script(src='/views/account/developgame/socket-client.js')
-  #script(src='/views/account/developgame/game/ImageProcAsm/opencv_js.js', async, onload='openCVLoaded()')
+  script(src='/views/account/developgame/game/ImageProcAsm/opencv_js.js', async)
   #script(src='/views/account/developgame/game/ImageProcAsm/ImageProc.js')
   script(src='/views/account/developgame/game/game.js')
   
@@ -255,7 +255,6 @@ block body
               |setJoystickVisible(false);
               |var instructionText = "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!";
               |setInstructionText(instructionText);
-              |drawCircle(0,0,10,COLORS.WHITE);
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -289,6 +288,9 @@ block body
               |&nbsp;&nbsp;&nbsp;&nbsp;endProgram();
               |}
               |drawCircle(0,0,10,COLORS.WHITE);
+              |drawLine(0,0,50,50);
+              |drawRect(50,50,100,100,COLORS.BLUE);
+              |drawText("Hello world!",120,120)
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
