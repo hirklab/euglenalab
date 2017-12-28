@@ -1241,10 +1241,13 @@
     },
     drawCircle: function(centerX, centerY, radius, color) {
       // drawCircle(0,0,10,COLORS.WHITE);
-      return (CV, mat) => {
+      /*let fn = (CV, mat) => {
         console.log('drawing circle');
         CV.circle(mat, {x:centerX, y:centerY}, radius, parseColor(color),1);
-      };
+      };*/
+      app.mainView.drawCircleData.push( {"name": "circle",
+        "args": ["mat", {x:centerX, y:centerY}, radius, parseColor(color),1]
+      } );
     },
     drawLine: function(x1, y1, x2, y2, color) {
       //console.log('drawLine function called.');

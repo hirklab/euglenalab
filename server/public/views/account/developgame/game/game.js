@@ -105,7 +105,7 @@ function processNextImage(timestamp)
 
                 processor: "Euglena" };
     startTime = performance.now();
-    console.log("cmd is ", cmd.drawCircleData);
+    // console.log("cmd is ", cmd.drawCircleData, imData);
     asmWorker.postMessage(cmd);
 
     
@@ -166,8 +166,13 @@ asmWorker.onmessage= function(e) {
     //e.data.imgData = canvas.display
     
     drawImageOnCanvas(e.data.imgData);
+    requestAnimationFrame(processNextImage);
+    //setTimeout(processNextImage, 500);
   }
-  requestAnimationFrame(processNextImage);
+  else {
+  console.log('no', e.data);
+}
+
 };
 
 /*function imshow(canvas, imgData) {
