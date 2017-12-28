@@ -1029,7 +1029,7 @@
      */
     runLoop: function() {
       if (app.mainView.gameInSession) {
-        app.mainView.drawCircle = () => {};
+        app.mainView.drawCircleData = [];
 
         app.mainView.drawLineX1 = "";
         app.mainView.drawLineY1 = "";
@@ -1241,7 +1241,7 @@
     },
     drawCircle: function(centerX, centerY, radius, color) {
       // drawCircle(0,0,10,COLORS.WHITE);
-      return (CV) => {
+      return (CV, mat) => {
         console.log('drawing circle');
         CV.circle(mat, {x:centerX, y:centerY}, radius, parseColor(color),1);
       };

@@ -20,38 +20,34 @@ var downloadPaused = true;
 var transferPaused = true;
 var CV;
 
-var canvas={};
+var canvas={"processed": {}, "display": {"context": {}}};
+
+let asmWorker = new Worker('/views/account/developgame/game/ImageProcAsm/asm-worker.js');
 
 function pageDidLoad() {
-
-}
-
-function openCVLoaded() {
-  updateStatus("Loading");
-  updateStatus("Loaded");
-  //listener.addEventListener("message", handleMessage, true );
-  //if ( ImageProcModule == null ) {
-  //  updateStatus( 'LOADING...' );
-  //} else {
-  //  updateStatus();
-  //}
-  CV = new cv();
-
   canvas.processed = $("#processed")[0];
   canvas.processed.context = canvas.processed.getContext("2d");
   canvas.display = $("#display")[0];
   canvas.display.context = canvas.display.getContext("2d");
+  console.log("pg loaded");
+  updateStatus("Loading");
+  updateStatus("Loaded");
+
+
   processNextImage();
 }
 
+
+
 function processNextImage(timestamp)
 {
-  //console.log(timestamp);
-  imageOnLoad = function()
+  function imageOnLoad()
   {
-    canvas.display.context.drawImage(this, 0, 0);
-    // imData = getDataFromImage(this);
-    imData = CV.imread(canvas.display);
+    // canvas.display.context.drawImage(this, 0, 0);
+    imData = getDataFromImage(this);
+    
+    // imData = CV.imread(canvas.display);
+    
     //console.log(imData)
     var cmd = { cmd: "process",
                 width: canvas.display.width,
@@ -109,17 +105,15 @@ function processNextImage(timestamp)
 
                 processor: "Euglena" };
     startTime = performance.now();
-    processAndDrawImage(cmd);
+    console.log("cmd is ", cmd.drawCircleData);
+    asmWorker.postMessage(cmd);
 
-    requestAnimationFrame(processNextImage);
-    /*requestAnimationFrame() {
-
-    }*/
-    //ImageProcModule.postMessage( cmd );
+    
   }
 
   window.img = new Image();
   img.onload = imageOnLoad;
+  //var img = {};
   img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
 
   if (app.mainView.sandboxMode && app.mainView.sandboxVideo && app.mainView.sandboxVideoHasRecorded && !app.mainView.sandboxVideoIsRecording) {
@@ -133,23 +127,75 @@ function processNextImage(timestamp)
   }
 
   img.crossOrigin = "Anonymous";
+   var xmlHTTP = new XMLHttpRequest();
+    xmlHTTP.open('GET',img.src,true);
+
+    // Must include this line - specifies the response type we want
+    xmlHTTP.responseType = 'arraybuffer';
+
+    xmlHTTP.onload = function(e)
+    {
+        if (xmlHTTP.readyState != 4) return;
+      
+
+        var arr = new Uint8Array(this.response);
+        //console.log(arr);
+        //var image = new ImageData(arr, canvas.processed.width, canvas.processed.height);
+        //imshow(canvas.processed, image);
+        imageOnLoad(arr);
+        return;
+
+        // Convert the int array to a binary string
+        // We have to use apply() as we are converting an *array*
+        // and String.fromCharCode() takes one or more single values, not
+        // an array.
+        var raw = String.fromCharCode.apply(null,arr);
+
+        // This works!!!
+        var b64=btoa(raw);
+        var dataURL="data:image/jpeg;base64,"+b64;
+        document.getElementById("image").src = dataURL;
+    };
+
+    //xmlHTTP.send();
 }
 
-function processAndDrawImage(cmd) {
-  
-  let mat = cmd.data;
-
-  for (let cmdName in cmd) {
-    if (cmdName != "drawCircleData") continue;
-    for (let cmdFunctions of cmd[cmdName]) {
-      cmdFunctions(CV);
-    }
+asmWorker.onmessage= function(e) {
+  //if (!e || e.type != "update") return;
+  if (e.data.imgData) {
+    //e.data.imgData = canvas.display
+    
+    drawImageOnCanvas(e.data.imgData);
   }
-  CV.imshow(canvas.processed, mat);
-  mat.delete();
+  requestAnimationFrame(processNextImage);
+};
 
-  //canvas.processed.context.strokeRect(20,20,150,100);
+/*function imshow(canvas, imgData) {
+  console.log("im show");
+  var ctx = canvas.context || canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  imgData = canvas.display.context.getImageData(0,0,100,100);
+  canvas.width = imgData.width;
+  canvas.height = imgData.height;
+  ctx.putImageData(imgData, 0, 0);
+}*/
+
+function getDataFromImage( img ) {
+  // Get image data from specified canvas
+  canvas.display.context.drawImage(img,0,0)
+  var height = canvas.display.height;
+  var width = canvas.display.width;
+  var nBytes = height * width * 4;
+  var pixels = canvas.display.context.getImageData(0, 0, width, height);
+  var imData = { width: width, height: height, data: pixels.data.buffer };
+  return pixels;
 }
+
+
+function drawImageOnCanvas(pixels){
+    canvas.processed.context.putImageData( pixels, 0, 0 );
+}
+
 
 
 var lastTime = 0;

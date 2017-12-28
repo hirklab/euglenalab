@@ -1,3 +1,3 @@
 var Module = {};
-importScripts('cv-asm.js', 'worker.js');
+importScripts('opencv_js.js', 'worker-new.js');
 postMessage({msg: 'asm'});
