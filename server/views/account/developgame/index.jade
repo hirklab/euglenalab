@@ -554,25 +554,8 @@ block body
         
       div.col-xs-5#programDiv
         
-        div.video-section.unselectable
-          div.spacer.left.top.unselectable(name='spacer')
-          div.light.top.unselectable(name='myTopLight')
-            span #{data.lightData.topValue}
-          div.spacer.right.top.unselectable(name='spacer')
-          div.light.left.unselectable(name='myLeftLight') 
-            span #{data.lightData.leftValue}
-          div.video-container.unselectable
-            canvas(id="display", width="640", height="480", hidden="true")
-            canvas(id="processed", width="640", height="480")
-            div.scale-section.unselectable
-              div.scale.unselectable(name='myScale')
-              span.scale-text.unselectable 100 &mu;m
-          div.light.right.unselectable(name='myRightLight') 
-            span #{data.lightData.rightValue}
-          div.spacer.left.bottom.unselectable(name='spacer')
-          div.light.bottom.unselectable(name='myBottomLight') 
-            span #{data.lightData.bottomValue}
-          div.spacer.right.bottom.unselectable(name='spacer')
+        canvas(id="display", width="640", height="480", hidden="true")
+        canvas(id="processed", width="640", height="480")
         
         p#instructionText
           |&nbsp;
