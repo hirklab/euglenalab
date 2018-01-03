@@ -110,21 +110,21 @@ function processNextImage(timestamp)
 
   img.crossOrigin = "Anonymous";
    var xmlHTTP = new XMLHttpRequest();
-    xmlHTTP.open('GET',img.src,true);
+    xmlHTTP.open('GET',"http://192.168.1.220:8080/?action=snapshot&n=4729",true);
 
     // Must include this line - specifies the response type we want
     xmlHTTP.responseType = 'arraybuffer';
 
     xmlHTTP.onload = function(e)
     {
-        if (xmlHTTP.readyState != 4) return;
-      
 
-        var arr = new Uint8Array(this.response);
+        var arr = new Uint8ClampedArray(this.response);
         //console.log(arr);
         //var image = new ImageData(arr, canvas.processed.width, canvas.processed.height);
         //imshow(canvas.processed, image);
-        imageOnLoad(arr);
+        window.arr = arr;
+        console.log(arr);
+        //imageOnLoad.call({"data": arr});
         return;
 
         // Convert the int array to a binary string
@@ -139,7 +139,7 @@ function processNextImage(timestamp)
         document.getElementById("image").src = dataURL;
     };
 
-    //xmlHTTP.send();
+   // xmlHTTP.send();
 }
 
 asmWorker.onmessage= function(e) {
