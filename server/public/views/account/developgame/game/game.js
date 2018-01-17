@@ -72,7 +72,8 @@ function enableDownload()
       }
       var img = new Image();
       img.onload = imageOnLoad;
-      img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+      //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+      img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++imageNr);
       console.log("Game's BPU ADDRESS: " + img.src);
       img.crossOrigin = "Anonymous";
     }
@@ -208,7 +209,8 @@ function processNextImage()
 
   var img = new Image();
   img.onload = imageOnLoad;
-  img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+  //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+  img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++imageNr);
 
   if (app.mainView.sandboxMode && app.mainView.sandboxVideo && app.mainView.sandboxVideoHasRecorded && !app.mainView.sandboxVideoIsRecording) {
     var displayedFrame = app.mainView.sandboxVideoPlaybackFrame % parseInt(Math.floor(app.mainView.sandboxFrame/50.0)) + 1;

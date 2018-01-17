@@ -4,6 +4,46 @@
   'use strict';
   app = app || {};
 
+  function rgb2hsv () {
+    var rr, gg, bb,
+        r = arguments[0] / 255,
+        g = arguments[1] / 255,
+        b = arguments[2] / 255,
+        h, s,
+        v = Math.max(r, g, b),
+        diff = v - Math.min(r, g, b),
+        diffc = function(c){
+            return (v - c) / 6 / diff + 1 / 2;
+        };
+
+    if (diff == 0) {
+        h = s = 0;
+    } else {
+        s = diff / v;
+        rr = diffc(r);
+        gg = diffc(g);
+        bb = diffc(b);
+
+        if (r === v) {
+            h = bb - gg;
+        }else if (g === v) {
+            h = (1 / 3) + rr - bb;
+        }else if (b === v) {
+            h = (2 / 3) + gg - rr;
+        }
+        if (h < 0) {
+            h += 1;
+        }else if (h > 1) {
+            h -= 1;
+        }
+    }
+    return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        v: Math.round(v * 100)
+    };
+}
+
   $(document).ready(function() {
     app.mainView = new app.MainView();
 
@@ -801,6 +841,48 @@
 
     $('#txtSandboxMode').hide();
 
+    // Multi object tracking.
+    var count = 0;
+    var h = 0;
+    var s = 0;
+    var v = 0;
+    tracking.ColorTracker.registerColor('black', function(r, g, b) {
+      // if (r < 100 && g < 100 && b < 100) return true;
+
+      //return g == 255;
+      
+      // console.log(h);
+      // console.log(s);
+      // console.log("value");
+      // count++;
+      // if (count % 1000 === 0){
+        var hsv = rgb2hsv(r,g,b);
+        h = hsv.h;
+        s = hsv.s;
+        v = hsv.v;
+      // }
+      return (/*h<100 && s<=100 &&*/ v<=20);
+    });
+    app.mainView.colors = new tracking.ColorTracker(['black']);
+    app.mainView.colors.setMinDimension(0.1);
+    app.mainView.colors.setMaxDimension(625);
+    app.mainView.colors.setMinGroupSize(0.1);
+
+    app.mainView.colors.on('track', function(event) {
+      if (event.data.length === 0) {
+        //console.log('nothing detected!');
+        // No colors were detected in this frame.
+      } else {
+        //console.log(event.data);
+        var ctx = document.getElementById("processed").getContext("2d");
+        ctx.strokeStyle = "red";
+        event.data.forEach(function(rect) {
+          ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+
+        });
+      }
+    });
+
   });
   app.User = Backbone.Model.extend({
     idAttribute: '_id',
@@ -1033,6 +1115,8 @@
      * Game logic functions.
      */
     runLoop: function() {
+      tracking.track('#processed', app.mainView.colors);
+
       if (app.mainView.gameInSession) {
         app.mainView.drawCircleCenterX = "";
         app.mainView.drawCircleCenterY = "";
