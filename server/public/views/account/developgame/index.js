@@ -52,25 +52,17 @@
 
   function assignOldToNewPoints() {
     var newAssignment = {};
-  
-    /*
-    currPositions: [],
-    prevPositions: [],
-    idToPosition: {},
-    currID: 1,
 
-    currPositions is always empty, prevPositions is populated, want
-    to fill in idToPosition
-    */
+    //console.log("prev: ", app.mainView.prevPositions);
+    //console.log("curr: ", app.mainView.currPositions);
 
-    //console.log(app.mainView.prevPositions);
-    //console.log(app.mainView.currPositions);
+    var assignedPositions = new Set();
 
     for (var id in app.mainView.idToPosition) {
       var oldPosition = app.mainView.idToPosition[id];
       var smallestDistance = 9999999;
       var newPosition = -1;
-      for (var position in app.mainView.prevPositions) {
+      for (var position in app.mainView.currPositions) {
         var dist = getDistance(oldPosition, position);
         if (dist < smallestDistance) {
           smallestDistance = dist;
@@ -78,12 +70,21 @@
         }
       }
       if (newPosition !== -1) {
-        app.mainView.currPositions.push(newPosition);
+        //app.mainView.currPositions.push(newPosition);
         newAssignment[id] = newPosition;
-        console.log(newAssignment[id]);
+        assignedPositions.add(newPosition);
       }
     }
-    console.log(app.mainView.currPositions);
+
+    for (var i = 0; i < app.mainView.currPositions.length; i++) {
+      app.mainView.currID++;
+      if (!assignedPositions.has(app.mainView.currPositions[i])) {
+        newAssignment[app.mainView.currID] = app.mainView.currPositions[i];
+        assignedPositions.add(app.mainView.currPositions[i]);
+      }
+    }
+
+    //console.log(app.mainView.currPositions);
     //console.log(app.mainView.prevPositions);
     //console.log(app.mainView.idToPosition);
 
