@@ -179,8 +179,6 @@ block feet
 
 block body
   body(onload='pageDidLoad()')
-    div#listener
-      embed(id="image_proc", width=0, height=0, src="/views/account/developgame/game/ImageProc/image_proc.nmf", type="application/x-pnacl")
 
     div.row
       div.col-xs-12
@@ -281,6 +279,10 @@ block body
           div.col-xs-11
             textarea#txtCodeRun
               |setLED(this.currLED, 999);
+              |drawCircle(100,100,50,'COLORS.WHITE');
+              |drawLine(0,0,400,400,'COLORS.RED');
+              |drawRect(60,160,80,280,'COLORS.BLUE');
+              |drawText("It works!", 300,200,20,'COLORS.GREEN');
               |if (this.score >= 10) {
               |&nbsp;&nbsp;&nbsp;&nbsp;endProgram();
               |}
@@ -472,8 +474,7 @@ block body
         textarea#txtCodeREADME
         
       div.col-xs-5#programDiv
-        canvas(id="display", width="640", height="480", hidden="true")
-        canvas(id="processed", width="640", height="480")
+        canvas(id="display", width="640", height="480")
         p#instructionText
           |&nbsp;
         h3#labTimeLeftLabel.unselectable(name=data.timeLeftInLab.jadeName) #{data.timeLeftInLab.value}

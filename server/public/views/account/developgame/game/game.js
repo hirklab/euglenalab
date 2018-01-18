@@ -113,9 +113,9 @@ function pageDidLoad() {
   //console.log("Page is loading...")
   //getVideoSources();
   ImageProcModule = document.getElementById( "image_proc" );
-  var listener = document.getElementById("listener");
+  // var listener = document.getElementById("listener");
   updateStatus("Loading");
-  listener.addEventListener("message", handleMessage, true );
+  // listener.addEventListener("message", handleMessage, true );
   if ( ImageProcModule == null ) {
     updateStatus( 'LOADING...' );
   } else {
@@ -143,7 +143,7 @@ function processNextImage()
   imageOnLoad = function()
   {
     imData = getDataFromImage(this);
-    var cmd = { cmd: "process",
+    /*var cmd = { cmd: "process",
                 width: imData.width,
                 height: imData.height,
                 data: imData.data,
@@ -203,8 +203,16 @@ function processNextImage()
                 getEuglenaVelocityID: app.mainView.getEuglenaVelocityID,
 
                 processor: "Euglena" };
-    startTime = performance.now();
-    ImageProcModule.postMessage( cmd );
+
+    */startTime = performance.now();
+    //ImageProcModule.postMessage( cmd );
+    let display = document.getElementById("display");
+    let ctx = display.getContext( "2d" );
+    for (let fn of app.mainView.drawFns) {
+      fn(ctx);
+    }
+    // console.log("fns", app.mainView.drawFns);
+    requestAnimationFrame(processNextImage);
   }
 
   var img = new Image();

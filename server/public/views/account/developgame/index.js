@@ -924,7 +924,7 @@
         // No colors were detected in this frame.
       } else {
         //console.log(event.data);
-        var ctx = document.getElementById("processed").getContext("2d");
+        var ctx = document.getElementById("display").getContext("2d");
         ctx.strokeStyle = "red";
 
         app.mainView.prevPositions = [];
@@ -1045,39 +1045,7 @@
     joystickIntensity: 0,
 
     // drawCircle
-    drawCircleCenterX: [],
-    drawCircleCenterY: [],
-    drawCircleRadius: [],
-    drawCircleR: [],
-    drawCircleG: [],
-    drawCircleB: [],
-
-    // drawLine
-    drawLineX1: [],
-    drawLineY1: [],
-    drawLineX2: [],
-    drawLineY2: [],
-    drawLineR: [],
-    drawLineG: [],
-    drawLineB: [],
-
-    // drawRect
-    drawRectUpperLeftX: [], 
-    drawRectUpperLeftY: [], 
-    drawRectLowerRightX: [], 
-    drawRectLowerRightY: [], 
-    drawRectR: [], 
-    drawRectG: [], 
-    drawRectB: [],
-
-    // drawText
-    drawTextdrawTxt: [], 
-    drawTextXPos: [], 
-    drawTextYPos: [], 
-    drawTextSize: [], 
-    drawTextR: [], 
-    drawTextG: [], 
-    drawTextB: [],
+    drawFns: [],
 
     // getEuglenaInRect
     getEuglenaInRectUpperLeftX: 0, 
@@ -1185,39 +1153,12 @@
      * Game logic functions.
      */
     runLoop: function() {
-      tracking.track('#processed', app.mainView.colors);
+      tracking.track('#display', app.mainView.colors);
 
       if (app.mainView.gameInSession) {
-        app.mainView.drawCircleCenterX = "";
-        app.mainView.drawCircleCenterY = "";
-        app.mainView.drawCircleRadius = "";
-        app.mainView.drawCircleR = "";
-        app.mainView.drawCircleG = "";
-        app.mainView.drawCircleB = "";
 
-        app.mainView.drawLineX1 = "";
-        app.mainView.drawLineY1 = "";
-        app.mainView.drawLineX2 = "";
-        app.mainView.drawLineY2 = "";
-        app.mainView.drawLineR = "";
-        app.mainView.drawLineG = "";
-        app.mainView.drawLineB = "";
-
-        app.mainView.drawRectUpperLeftX = ""; 
-        app.mainView.drawRectUpperLeftY = "";
-        app.mainView.drawRectLowerRightX = "";
-        app.mainView.drawRectLowerRightY = ""; 
-        app.mainView.drawRectR = "";
-        app.mainView.drawRectG = "";
-        app.mainView.drawRectB = "";
-
-        app.mainView.drawTextdrawTxt = "";
-        app.mainView.drawTextXPos = "";
-        app.mainView.drawTextYPos = "";
-        app.mainView.drawTextSize = "";
-        app.mainView.drawTextR = "";
-        app.mainView.drawTextG = "";
-        app.mainView.drawTextB = "";
+        app.mainView.drawFns = [];
+        // todo: better design to not have to recreate entire array each frame.
 
         app.mainView.parseRunCode(app.mainView.gameRunCode);
       }
@@ -1286,15 +1227,6 @@
       modifiedCode = modifiedCode.split('MAX_SCREEN_HEIGHT').join('479');
       modifiedCode = modifiedCode.split('MAX_TEXT_SIZE').join('1.5');
       modifiedCode = modifiedCode.split('MAX_LED_INTENSITY').join('999');
-
-      modifiedCode = modifiedCode.split('COLORS.RED').join('\"COLORS.RED\"');
-      modifiedCode = modifiedCode.split('COLORS.BLUE').join('\"COLORS.BLUE\"');
-      modifiedCode = modifiedCode.split('COLORS.GREEN').join('\"COLORS.GREEN\"');
-      modifiedCode = modifiedCode.split('COLORS.BLACK').join('\"COLORS.BLACK\"');
-      modifiedCode = modifiedCode.split('COLORS.WHITE').join('\"COLORS.WHITE\"');
-      modifiedCode = modifiedCode.split('COLORS.PURPLE').join('\"COLORS.PURPLE\"');
-      modifiedCode = modifiedCode.split('COLORS.YELLOW').join('\"COLORS.YELLOW\"');
-      modifiedCode = modifiedCode.split('COLORS.ORANGE').join('\"COLORS.ORANGE\"');
 
       try {
         //$.globalEval(modifiedCode);
@@ -1405,198 +1337,49 @@
     },
     drawCircle: function(centerX, centerY, radius, color) {
       //console.log('drawCircle function called.');
-      app.mainView.drawCircleCenterX = app.mainView.drawCircleCenterX + centerX + "*";
-      app.mainView.drawCircleCenterY = app.mainView.drawCircleCenterY + centerY + "*";
-      app.mainView.drawCircleRadius = app.mainView.drawCircleRadius + radius + "*";
-      switch(color) {
-        case "COLORS.RED":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
-            break;
-        case "COLORS.BLUE":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
-            break;
-        case "COLORS.GREEN":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
-            break;
-        case "COLORS.WHITE":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
-            break;
-        case "COLORS.PURPLE":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
-            break;
-        case "COLORS.YELLOW":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
-            break;
-        case "COLORS.ORANGE":
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 165 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
-            break;
-        default:
-            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
-            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
-            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
-            break;
-      }
+      app.mainView.drawFns.push(
+        (ctx) => {
+          ctx.strokeStyle = parseColor(color);
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
+          ctx.closePath();
+          ctx.stroke();
+        }
+      );
     },
     drawLine: function(x1, y1, x2, y2, color) {
-      //console.log('drawLine function called.');
-      app.mainView.drawLineX1 = app.mainView.drawLineX1 + x1 + "*";
-      app.mainView.drawLineY1 = app.mainView.drawLineY1 + y1 + "*";
-      app.mainView.drawLineX2 = app.mainView.drawLineX2 + x2 + "*";
-      app.mainView.drawLineY2 = app.mainView.drawLineY2 + y2 + "*";
-      switch(color) {
-        case "COLORS.RED":
-            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
-            break;
-        case "COLORS.BLUE":
-            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
-            break;
-        case "COLORS.GREEN":
-            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
-            break;
-        case "COLORS.WHITE":
-            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
-            break;
-        case "COLORS.PURPLE":
-            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
-            break;
-        case "COLORS.YELLOW":
-            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
-            break;
-        case "COLORS.ORANGE":
-            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 165 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
-            break;
-        default:
-            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
-            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
-            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
-            break;
-      }
+      app.mainView.drawFns.push(
+        (ctx) => {
+          ctx.strokeStyle = parseColor(color);
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      );
     },
     drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, color) {
-      //console.log('drawRect function called.');
-      app.mainView.drawRectUpperLeftX = app.mainView.drawRectUpperLeftX + upperLeftX + "*";
-      app.mainView.drawRectUpperLeftY = app.mainView.drawRectUpperLeftY + upperLeftY + "*";
-      app.mainView.drawRectLowerRightX = app.mainView.drawRectLowerRightX + lowerRightX + "*";
-      app.mainView.drawRectLowerRightY = app.mainView.drawRectLowerRightY + lowerRightY + "*";
-      switch(color) {
-        case "COLORS.RED":
-            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
-            break;
-        case "COLORS.BLUE":
-            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
-            break;
-        case "COLORS.GREEN":
-            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
-            break;
-        case "COLORS.WHITE":
-            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
-            break;
-        case "COLORS.PURPLE":
-            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
-            break;
-        case "COLORS.YELLOW":
-            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
-            break;
-        case "COLORS.ORANGE":
-            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 165 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
-            break;
-        default:
-            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
-            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
-            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
-            break;
-      }
+      app.mainView.drawFns.push(
+        (ctx) => {
+          ctx.strokeStyle = parseColor(color);
+          ctx.beginPath();
+          ctx.rect(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      );
     },
     drawText: function(drawTxt, xPos, yPos, size, color) {
-      //console.log('drawText function called.');
-      app.mainView.drawTextdrawTxt = app.mainView.drawTextdrawTxt + drawTxt + "*";
-      app.mainView.drawTextXPos = app.mainView.drawTextXPos + xPos + "*";
-      app.mainView.drawTextYPos = app.mainView.drawTextYPos + yPos + "*";
-      app.mainView.drawTextSize = app.mainView.drawTextSize + size + "*";
-      switch(color) {
-        case "COLORS.RED":
-            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
-            break;
-        case "COLORS.BLUE":
-            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
-            break;
-        case "COLORS.GREEN":
-            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
-            break;
-        case "COLORS.WHITE":
-            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
-            break;
-        case "COLORS.PURPLE":
-            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
-            break;
-        case "COLORS.YELLOW":
-            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
-            break;
-        case "COLORS.ORANGE":
-            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 165 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
-            break;
-        default:
-            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
-            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
-            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
-            break;
-      }
+      // todo: make size the last parameter (so it's optional).
+      app.mainView.drawFns.push(
+        (ctx) => {
+          if (typeof size != "number") size = 20;
+          ctx.fillStyle = parseColor(color);
+          ctx.font=size + "px Calibri";
+          ctx.fillText(drawTxt, xPos, yPos);
+        }
+      );
     },
     endProgram: function() {
       //console.log('endProgram function called.');
@@ -2320,4 +2103,13 @@
       cb_fn(null, null);
     },
   });
+  function parseColor(color) {
+    if (~color.indexOf("COLORS.")) {
+      color = color.replace("COLORS.", "");
+    }
+    else {
+      color = "WHITE";
+    }
+    return color;
+  }
 }());
