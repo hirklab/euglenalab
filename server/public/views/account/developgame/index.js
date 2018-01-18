@@ -941,6 +941,10 @@
           app.mainView.currPositions.push({x: rect.x, y: rect.y});
         });
 
+        if (app.mainView.currPositions.length < 0.7*app.mainView.prevPositions.length) {
+          return;
+        }
+
         app.mainView.idToPosition = assignOldToNewPoints();
 
         app.mainView.firstObjectTrackingIteration = false;
