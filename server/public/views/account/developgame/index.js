@@ -4,45 +4,92 @@
   'use strict';
   app = app || {};
 
+  // Helper functions are defined here.
+
   function rgb2hsv () {
-    var rr, gg, bb,
-        r = arguments[0] / 255,
-        g = arguments[1] / 255,
-        b = arguments[2] / 255,
-        h, s,
-        v = Math.max(r, g, b),
-        diff = v - Math.min(r, g, b),
-        diffc = function(c){
-            return (v - c) / 6 / diff + 1 / 2;
-        };
+      var rr, gg, bb,
+          r = arguments[0] / 255,
+          g = arguments[1] / 255,
+          b = arguments[2] / 255,
+          h, s,
+          v = Math.max(r, g, b),
+          diff = v - Math.min(r, g, b),
+          diffc = function(c){
+              return (v - c) / 6 / diff + 1 / 2;
+          };
 
-    if (diff == 0) {
-        h = s = 0;
-    } else {
-        s = diff / v;
-        rr = diffc(r);
-        gg = diffc(g);
-        bb = diffc(b);
+      if (diff == 0) {
+          h = s = 0;
+      } else {
+          s = diff / v;
+          rr = diffc(r);
+          gg = diffc(g);
+          bb = diffc(b);
 
-        if (r === v) {
-            h = bb - gg;
-        }else if (g === v) {
-            h = (1 / 3) + rr - bb;
-        }else if (b === v) {
-            h = (2 / 3) + gg - rr;
+          if (r === v) {
+              h = bb - gg;
+          }else if (g === v) {
+              h = (1 / 3) + rr - bb;
+          }else if (b === v) {
+              h = (2 / 3) + gg - rr;
+          }
+          if (h < 0) {
+              h += 1;
+          }else if (h > 1) {
+              h -= 1;
+          }
+      }
+      return {
+          h: Math.round(h * 360),
+          s: Math.round(s * 100),
+          v: Math.round(v * 100)
+      };
+  }
+
+  function getDistance(pointA, pointB) {
+    return Math.sqrt((pointA.x - pointB.x)**2 + (pointA.y - pointB.y)**2);
+  }
+
+  function assignOldToNewPoints() {
+    var newAssignment = {};
+  
+    /*
+    currPositions: [],
+    prevPositions: [],
+    idToPosition: {},
+    currID: 1,
+
+    currPositions is always empty, prevPositions is populated, want
+    to fill in idToPosition
+    */
+
+    //console.log(app.mainView.prevPositions);
+    //console.log(app.mainView.currPositions);
+
+    for (var id in app.mainView.idToPosition) {
+      var oldPosition = app.mainView.idToPosition[id];
+      var smallestDistance = 9999999;
+      var newPosition = -1;
+      for (var position in app.mainView.prevPositions) {
+        var dist = getDistance(oldPosition, position);
+        if (dist < smallestDistance) {
+          smallestDistance = dist;
+          newPosition = position;
         }
-        if (h < 0) {
-            h += 1;
-        }else if (h > 1) {
-            h -= 1;
-        }
+      }
+      if (newPosition !== -1) {
+        app.mainView.currPositions.push(newPosition);
+        newAssignment[id] = newPosition;
+        console.log(newAssignment[id]);
+      }
     }
-    return {
-        h: Math.round(h * 360),
-        s: Math.round(s * 100),
-        v: Math.round(v * 100)
-    };
-}
+    console.log(app.mainView.currPositions);
+    //console.log(app.mainView.prevPositions);
+    //console.log(app.mainView.idToPosition);
+
+    app.mainView.idToPosition = Object.assign({}, newAssignment);
+    return newAssignment; 
+  }
 
   $(document).ready(function() {
     app.mainView = new app.MainView();
@@ -841,7 +888,10 @@
 
     $('#txtSandboxMode').hide();
 
+    //
     // Multi object tracking.
+    //
+
     var count = 0;
     var h = 0;
     var s = 0;
@@ -863,6 +913,7 @@
       // }
       return (/*h<100 && s<=100 &&*/ v<=20);
     });
+
     app.mainView.colors = new tracking.ColorTracker(['black']);
     app.mainView.colors.setMinDimension(0.1);
     app.mainView.colors.setMaxDimension(625);
@@ -870,16 +921,28 @@
 
     app.mainView.colors.on('track', function(event) {
       if (event.data.length === 0) {
-        //console.log('nothing detected!');
         // No colors were detected in this frame.
       } else {
         //console.log(event.data);
         var ctx = document.getElementById("processed").getContext("2d");
         ctx.strokeStyle = "red";
+
+        app.mainView.prevPositions = [];
+        app.mainView.prevPositions = app.mainView.currPositions.slice();
+        app.mainView.currPositions = [];
+       
         event.data.forEach(function(rect) {
           ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
-
+          if (app.mainView.firstObjectTrackingIteration || Object.keys(app.mainView.idToPosition).length < 1) {  
+            app.mainView.idToPosition[app.mainView.currID] = {x: rect.x, y: rect.y};
+            app.mainView.currID++;
+          } 
+          app.mainView.currPositions.push({x: rect.x, y: rect.y});
         });
+
+        app.mainView.idToPosition = assignOldToNewPoints();
+
+        app.mainView.firstObjectTrackingIteration = false;
       }
     });
 
@@ -940,6 +1003,18 @@
     endCodeExpanded: true,
     joystickCodeExpanded: true,
     keypressCodeExpanded: true,
+
+    // Object tracking code.
+    currPositions: [],
+    prevPositions: [],
+    positionToId: {},
+    idToPosition: {},
+    idToVelocity: {},
+    idToAcceleration: {},
+    idToRotation: {},
+    firstObjectTrackingIteration: false,
+    currID: 1,
+
 
     // Sandbox mode.
     sandboxMode: false,
@@ -1016,11 +1091,6 @@
 
     // getAllEuglenaIDs
     getAllEuglenaIDsStr: "",
-
-    // getEuglenaPositionByID
-    getEuglenaPosID: 30,
-    getEuglenaPositionReturn: "",
-    getEuglenaPositionCache: {},
 
     // getEuglenaVelocityByID
     getEuglenaVelocityID: 0,
@@ -1179,7 +1249,7 @@
       modifiedCode = modifiedCode.split(/app.mainView./).join("");
       modifiedCode = modifiedCode.split(/app./).join("");
 
-      // Expand 
+      // Expand
       modifiedCode = modifiedCode.split('drawCircle').join('app.mainView.drawCircle');
       modifiedCode = modifiedCode.split('drawLine').join('app.mainView.drawLine');
       modifiedCode = modifiedCode.split('drawOnTrackedEuglena').join('app.mainView.drawOnTrackedEuglena');
@@ -1536,33 +1606,14 @@
       app.mainView.parseEndCode(app.mainView.gameEndCode);
     },
     getAllEuglenaIDs: function() {
-      //console.log('getAllEuglenaIDs function called.');
-      //console.log('input str::: ' + app.mainView.getAllEuglenaIDsStr);
-      var idSet = new Set();
-      var idList = app.mainView.getAllEuglenaIDsStr.split(';');
-      for (var i = 0; i < idList.length; i++) {
-        var token = idList[i];
-        if (token.length <= 0 || isNaN(token)) continue;
-        idSet.add(parseInt(token));
-      }
-      return Array.from(idSet);
+      return Object.keys(app.mainView.idToPosition);
     },
     getAllEuglenaPositions: function() {
-      //console.log('getAllEuglenaPositions function called.');
-      var allEuglenaPositions = [];
-      var splitPositions = app.mainView.getAllEuglenaPositionsStr.split(";");
-      for (var i = 0; i < splitPositions.length; i++) {
-        var token = splitPositions[i];
-        if (token.length <= 0) continue;
-        var xPos = parseInt(token.split(",")[0].split("(")[1]);
-        var yPos = parseInt(token.split(",")[1].split(")")[0]);
-        allEuglenaPositions.push({x: xPos, y: yPos});
-      }
-      return allEuglenaPositions;
+      return Object.values(app.mainView.idToPosition);
     },
     getEuglenaCount: function() {
       //console.log('getEuglenaCount function called.');
-      return app.mainView.gameEuglenaCount;
+      return Object.keys(app.mainView.idToPosition).length;
     },
     getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
       //console.log('getEuglenaInRect function called.');
@@ -1597,26 +1648,11 @@
       }
     },
     getEuglenaPosition: function(id) {
-      app.mainView.getEuglenaPosID = id;
-      var idToPosition = {};
-      var eachPosition = app.mainView.getEuglenaPositionReturn.split(';');
-      for (var i = 0; i < eachPosition.length-1; i++) {
-        var idAndItem = eachPosition[i].split(':');
-        var splitArr = ((idAndItem[1].split(')').join(' ')).split('(').join(' ')).split(',');
-        if (splitArr.length > 1) {
-          idToPosition[parseInt(idAndItem[0])] = {x: parseInt(splitArr[0]), y: parseInt(splitArr[1])};
-          app.mainView.getEuglenaPositionCache[parseInt(idAndItem[0])] = {x: parseInt(splitArr[0]), y: parseInt(splitArr[1])};
-        } 
-      }
-
-      if (id in idToPosition) {
-        return idToPosition[id];
-      } else if (id in app.mainView.getEuglenaPositionCache && app.mainView.getEuglenaPositionCache[id] !== -1) {
-        return app.mainView.getEuglenaPositionCache[id];
+      if (id in app.mainView.idToPosition) {
+        return app.mainView.idToPosition[id];
       } else {
         return -1;
       }
-      
     },
     getEuglenaRotation: function(id) {
       app.mainView.getEuglenaRotationID = id;
