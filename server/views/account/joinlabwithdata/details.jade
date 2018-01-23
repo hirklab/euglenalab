@@ -28,6 +28,7 @@ block body
             h1 Experiment ID: <%= _id %>
         div.row
             div.col-md-6
+                h4 Euglena Tracks Video
                 div.video-container
                     video(width='100%', controls)
                         source(src!='/media/finalBpuDataLinks/finalBpuData/<%= _id %>/tracks_thresholded_10.ogg')
@@ -43,6 +44,18 @@ block body
                         //button.btn.btn-primary.btn-downloadTrack(type='button',name='btnTrackId') Download Track Data
             div.col-md-3(style="border-right:#EEE 1px solid")
                 div#notes
+            //- div.col-md-3
+            //-     div#feedback
+        div.row
+            div.col-md-6
+                h4 Euglena Experiment Video
+                div.video-container
+                    video(width='100%', controls)
+                        source(src!='/media/finalBpuDataLinks/finalBpuData/<%= _id %>/movie.mp4')
+                    //button.btn.btn-default.btn-lg(type='button', name='vid-play')
+                    // span.glyphicon.glyphicon-play
+            div.col-md-3(style="border-right:#EEE 1px solid")
+                div
             //- div.col-md-3
             //-     div#feedback
 
