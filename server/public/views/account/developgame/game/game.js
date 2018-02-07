@@ -206,13 +206,28 @@ function processNextImage()
 
     */startTime = performance.now();
     //ImageProcModule.postMessage( cmd );
-    let display = document.getElementById("display");
-    let ctx = display.getContext( "2d" );
-    for (let fn of app.mainView.drawFns) {
-      fn(ctx);
-    }
-    // console.log("fns", app.mainView.drawFns);
-    requestAnimationFrame(processNextImage);
+      //app.mainView.drawFns = [];
+      // todo: better design to not have to recreate entire array each frame.
+
+      // app.mainView.parseRunCode(app.mainView.gameRunCode, function() );
+      if (!app.mainView.drawFns.length) {
+          app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
+          // todo: run this function whenever the code changes.
+          return;
+      }
+      drawFromCode();
+
+      function drawFromCode() {
+              console.error(app.mainView.drawFns);
+              let display = document.getElementById("display");
+              let ctx = display.getContext( "2d" );
+              for (let fn of app.mainView.drawFns) {
+                  fn(ctx);
+              }
+              // console.log("fns", app.mainView.drawFns);
+              requestAnimationFrame(processNextImage);
+      }
+
   }
 
   var img = new Image();

@@ -5,6 +5,8 @@ block head
   link(rel="stylesheet", href="https://codemirror.net/2/lib/codemirror.css")
   script(src="https://codemirror.net/2/lib/codemirror.js")
   script(src="http://codemirror.net/2/mode/javascript/javascript.js")
+  script(src="//www.google.com/jsapi")
+  script(src="//caja.appspot.com/caja.js")
   link(rel="stylesheet", href="https://codemirror.net/2/doc/docs.css")
   script(src="../../dependencies/tracking.js-master/build/tracking-min.js")
 
@@ -241,12 +243,12 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeStart
-              |this.currLED = LED.RIGHT;
+              |/* this.currLED = LED.RIGHT;
               |this.possibleLEDs = [LED.UP, LED.DOWN, LED.RIGHT, LED.LEFT];
               |this.instructions = "Guess which LED is currently shining. Press" +
               |&nbsp;&nbsp;&nbsp;&nbsp;"'W' for top LED, 'A' for left LED, 'S' for bottom LED, and" +
               |&nbsp;&nbsp;&nbsp;&nbsp;"'D' for right LED.";
-              |this.score = 1;
+              |this.score = 1;*/
               |setJoystickVisible(false);
               |var instructionText = "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!";
               |setInstructionText(instructionText);
@@ -278,14 +280,14 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeRun
-              |setLED(this.currLED, 999);
+              |// setLED(this.currLED, 999);
               |drawCircle(100,100,50,'COLORS.WHITE');
               |drawLine(0,0,400,400,'COLORS.RED');
               |drawRect(60,160,80,280,'COLORS.BLUE');
               |drawText("It works!", 300,200,20,'COLORS.GREEN');
-              |if (this.score >= 10) {
+              |/*if (this.score >= 10) {
               |&nbsp;&nbsp;&nbsp;&nbsp;endProgram();
-              |}
+              |}*/
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

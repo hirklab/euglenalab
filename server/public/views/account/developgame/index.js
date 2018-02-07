@@ -4,6 +4,8 @@
   'use strict';
   app = app || {};
 
+    caja.initialize({ cajaServer: 'http://caja.appspot.com' });
+
   // Helper functions are defined here.
 
   function rgb2hsv () {
@@ -101,7 +103,7 @@
       location.href = '/account/';
     }
 
-    var myVar = setInterval(app.mainView.runLoop, 1);
+    //var myVar = setInterval(app.mainView.runLoop, 1);
 
     $.post('/account/developgame/gethelperfunctioncount/', {})
       .done(function(data0) {
@@ -1155,7 +1157,7 @@
     runLoop: function() {
       tracking.track('#display', app.mainView.colors);
 
-      if (app.mainView.gameInSession) {
+      if (false && app.mainView.gameInSession) {
 
         app.mainView.drawFns = [];
         // todo: better design to not have to recreate entire array each frame.
@@ -1182,9 +1184,9 @@
     /*
      * Parsing functions.
      */
-    generalParser: function(runCode) {
+    generalParser: function(runCode, callback) {
       // Replace EuglenaScript functions with appropriate function calls.
-      var modifiedCode = runCode.split('setGameOverMessage').join('app.mainView.setGameOverMessage'); // Deprecated.
+      var modifiedCode = runCode;/*.split('setGameOverMessage').join('app.mainView.setGameOverMessage'); // Deprecated.
 
       // Remove unnecessary / potentially sinister code here (continuously expand list).
       modifiedCode = modifiedCode.split(/app.mainView./).join("");
@@ -1212,7 +1214,7 @@
       modifiedCode = modifiedCode.split('setJoystickVisible').join('app.mainView.setJoystickVisible');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setInstructionText').join('app.mainView.setInstructionText');
-      modifiedCode = modifiedCode.split('writeToFile').join('app.mainView.writeToFile');
+      modifiedCode = modifiedCode.split('writeToFile').join('app.mainView.writeToFile');*/
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
       modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
@@ -1229,8 +1231,28 @@
       modifiedCode = modifiedCode.split('MAX_LED_INTENSITY').join('999');
 
       try {
+          //modifiedCode = "x();";
         //$.globalEval(modifiedCode);
-        eval(modifiedCode);
+        //eval(modifiedCode);
+          // console.warn("caja modifiedCode", modifiedCode);
+         // modifiedCode = "drawCircle(100,100,50,'COLORS.WHITE');";
+
+          caja.load(
+              undefined,  // no DOM access
+              undefined,  // no network access
+              function(frame) {
+                  frame.code(
+                      null,  // dummy URL
+                      'application/javascript',
+                      modifiedCode)  // input source code
+                      //.api(app.mainView)
+                      .api(caja_api)
+                      .run(function(result) {
+                          //requestAnimationFrame(app.mainView.runLoop);
+                          console.warn("caja result", modifiedCode, result);
+                          if (callback) callback();
+                      });
+              });
       } catch (err) {
         app.mainView.gameInstructionText = 'There was an error in your code.';
         app.mainView.gameErrorMessage = 'There was an error in your code.';
@@ -1257,8 +1279,8 @@
       // $('#instructionText').css('color', 'black');
       
     },
-    parseRunCode: function(runCode) {
-      app.mainView.generalParser(runCode);
+    parseRunCode: function(runCode, callback) {
+      app.mainView.generalParser(runCode, callback);
     },
     parseStartCode: function(runCode) {
       app.mainView.generalParser(runCode);
@@ -1325,249 +1347,6 @@
       codeToParse += " }";
       //console.log("HELPER FUNCTION::::: " + codeToParse);
       app.mainView.generalParser(codeToParse);
-    },
-
-    /*
-     * Handle various function calls.
-     */
-
-    drawOnTrackedEuglena: function(isDrawing) {
-      //console.log('drawOnTrackedEuglena function called.');
-      app.mainView.gameDrawOnTrackedEuglena = isDrawing;
-    },
-    drawCircle: function(centerX, centerY, radius, color) {
-      //console.log('drawCircle function called.');
-      app.mainView.drawFns.push(
-        (ctx) => {
-          ctx.strokeStyle = parseColor(color);
-          ctx.beginPath();
-          ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
-          ctx.closePath();
-          ctx.stroke();
-        }
-      );
-    },
-    drawLine: function(x1, y1, x2, y2, color) {
-      app.mainView.drawFns.push(
-        (ctx) => {
-          ctx.strokeStyle = parseColor(color);
-          ctx.beginPath();
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(x2, y2);
-          ctx.closePath();
-          ctx.stroke();
-        }
-      );
-    },
-    drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, color) {
-      app.mainView.drawFns.push(
-        (ctx) => {
-          ctx.strokeStyle = parseColor(color);
-          ctx.beginPath();
-          ctx.rect(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
-          ctx.closePath();
-          ctx.stroke();
-        }
-      );
-    },
-    drawText: function(drawTxt, xPos, yPos, size, color) {
-      // todo: make size the last parameter (so it's optional).
-      app.mainView.drawFns.push(
-        (ctx) => {
-          if (typeof size != "number") size = 20;
-          ctx.fillStyle = parseColor(color);
-          ctx.font=size + "px Calibri";
-          ctx.fillText(drawTxt, xPos, yPos);
-        }
-      );
-    },
-    endProgram: function() {
-      //console.log('endProgram function called.');
-      app.mainView.gameInSession = false;
-      $('#runningStatus').css('color', 'red');
-      $('#runningStatus').html('Stopped');
-      app.mainView.parseEndCode(app.mainView.gameEndCode);
-    },
-    getAllEuglenaIDs: function() {
-      return Object.keys(app.mainView.idToPosition);
-    },
-    getAllEuglenaPositions: function() {
-      return Object.values(app.mainView.idToPosition);
-    },
-    getEuglenaCount: function() {
-      //console.log('getEuglenaCount function called.');
-      return Object.keys(app.mainView.idToPosition).length;
-    },
-    getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
-      //console.log('getEuglenaInRect function called.');
-      app.mainView.getEuglenaInRectUpperLeftX = upperLeftX;
-      app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
-      app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
-      app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
-      var idSet = new Set();
-      var splitPositions = app.mainView.gameEuglenaInRectReturn.split(";");
-      for (var i = 0; i < splitPositions.length; i++) {
-        var token = splitPositions[i];
-        if (token.length <= 0 || isNaN(token)) continue;
-        idSet.add(parseInt(token));
-      }
-      return Array.from(idSet);
-    },
-    getEuglenaAcceleration: function(id) {
-      app.mainView.getEuglenaAccelerationID = id;
-      var idToAcceleration = {};
-      var eachAcceleration = app.mainView.getEuglenaAccelerationReturn.split(';');
-      for (var i = 0; i < eachAcceleration.length; i++) {
-        var idAndItem = eachAcceleration[i].split(':');
-        idToAcceleration[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-        app.mainView.getEuglenaAccelerationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-      }
-      if (id in idToAcceleration) {
-        return idToAcceleration[id];
-      } else if (id in app.mainView.getEuglenaAccelerationCache && app.mainView.getEuglenaAccelerationCache[id] !== -1) {
-        return app.mainView.getEuglenaAccelerationCache[id];
-      } else {
-        return -1;
-      }
-    },
-    getEuglenaPosition: function(id) {
-      if (id in app.mainView.idToPosition) {
-        return app.mainView.idToPosition[id];
-      } else {
-        return -1;
-      }
-    },
-    getEuglenaRotation: function(id) {
-      app.mainView.getEuglenaRotationID = id;
-      var idToRotation = {};
-      var eachRotation = app.mainView.getEuglenaRotationReturn.split(';');
-      for (var i = 0; i < eachRotation.length; i++) {
-        var idAndItem = eachRotation[i].split(':');
-        idToRotation[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-        app.mainView.getEuglenaRotationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-      }
-      if (id in idToRotation) {
-        return idToRotation[id];
-      } else if (id in app.mainView.getEuglenaRotationCache && app.mainView.getEuglenaRotationCache[id] !== -1) {
-        return app.mainView.getEuglenaRotationCache[id];
-      } else {
-        return -1;
-      }
-    },
-    getEuglenaVelocity: function(id) {
-      app.mainView.getEuglenaVelocityID = id;
-      var idToVelocity = {};
-      var eachVelocity = app.mainView.getEuglenaVelocityReturn.split(';');
-      for (var i = 0; i < eachVelocity.length; i++) {
-        var idAndItem = eachVelocity[i].split(':');
-        idToVelocity[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-        app.mainView.getEuglenaVelocityCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-      }
-      if (id in idToVelocity) {
-        return idToVelocity[id];
-      } else if (id in app.mainView.getEuglenaVelocityCache && app.mainView.getEuglenaVelocityCache[id] !== -1) {
-        return app.mainView.getEuglenaVelocityCache[id];
-      } else {
-        return -1;
-      }
-    },
-    getMaxScreenHeight: function() {
-      //console.log('getMaxScreenHeight function called.');
-      return 479;
-    },
-    getMaxScreenWidth: function() {
-      //console.log('getMaxScreenWidth function called.');
-      return 639;
-    },
-    getTimeLeft: function() {
-      //console.log('getTimeLeft function called.');
-      return Math.floor(app.mainView.timeLeftInLab / 1000.0);
-    },
-    readFromFile: function(fileName) {
-      //console.log('readFromFile function called.');
-
-      var txtData = "unchanged";
-      $.ajax({
-        type: 'POST',
-        url: '/account/developgame/readuserfile/',
-        data: { userFile: fileName },
-        async:false
-      }).done(function(data) {
-          //console.log( "Data Loaded readFromFile: " + data);
-          txtData = data;
-          return txtData;
-        });
-
-      //console.log("Exiting function with data: " + txtData);
-      return txtData;
-    },
-    setJoystickVisible: function(isOn) {
-      //console.log('setJoystickVisible function called.');
-      app.mainView.gameJoystickView = isOn;
-    },
-    setGameOverMessage: function(gameOverText) {
-      //console.log('setGameOverMessage function called.');
-      app.mainView.gameOverText = gameOverText;
-    },
-    setLED: function(led, intensity) {
-      //console.log('setLED function called');
-      //console.log(led);
-      //console.log(intensity);
-
-      // if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
-      //   return;
-      // }
-
-      app.mainView.joystickIntensity = intensity;
-
-      switch (led.split('.')[1]) {
-        case 'RIGHT':
-          app.mainView.joystickDirection = 0;
-          var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
-          ledsSetObj.rightValue = parseInt(intensity);
-          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
-          break;
-        case 'LEFT':
-          app.mainView.joystickDirection = 180;
-          var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, intensity);
-          ledsSetObj.leftValue = parseInt(intensity);
-          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
-          break;
-        case 'UP':
-          app.mainView.joystickDirection = 90;
-          var ledsSetObj = app.mainView.setLEDhelper(intensity, 0, 0, 0);
-          ledsSetObj.topValue = parseInt(intensity);
-          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
-          break;
-        case 'DOWN':
-          app.mainView.joystickDirection = 270;
-          var ledsSetObj = app.mainView.setLEDhelper(0, 0, intensity, 0);
-          ledsSetObj.bottomValue = parseInt(intensity);
-          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
-          break;
-        default:
-          console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN');
-      }
-    },
-    setLEDhelper: function(top, right, bottom, left) {
-      var point = app.mainView.myJoyStick.getXyFromLightValues({topValue: top, rightValue: right, bottomValue: bottom, leftValue: left}, '');
-      var ledsSetObj = app.mainView.getLedsSetObj();
-      ledsSetObj.metaData.clientTime = new Date().getTime();
-      ledsSetObj.metaData.layerX = point.x;
-      ledsSetObj.metaData.layerY = point.y;
-      ledsSetObj.metaData.touchState = app.mainView.myJoyStickObj.touchState;
-      ledsSetObj.metaData.radius = 0;
-      ledsSetObj.metaData.angle = 0;
-      ledsSetObj.topValue = top;
-      ledsSetObj.rightValue = right;
-      ledsSetObj.bottomValue = bottom;
-      ledsSetObj.leftValue = left;
-      return ledsSetObj;
-    },
-    setInstructionText: function(msgText) {
-      //console.log('setLevelText function called.');
-      app.mainView.gameInstructionText = msgText;
-      $('#instructionText').text(app.mainView.gameInstructionText);
     },
     writeToFile: function(fileName, txt, mode) {
       //console.log('writeToFile function called.');
@@ -1653,6 +1432,21 @@
       //location.href = '/account/';
       // }
     },
+      setLEDhelper: function(top, right, bottom, left) {
+          var point = app.mainView.myJoyStick.getXyFromLightValues({topValue: top, rightValue: right, bottomValue: bottom, leftValue: left}, '');
+          var ledsSetObj = app.mainView.getLedsSetObj();
+          ledsSetObj.metaData.clientTime = new Date().getTime();
+          ledsSetObj.metaData.layerX = point.x;
+          ledsSetObj.metaData.layerY = point.y;
+          ledsSetObj.metaData.touchState = app.mainView.myJoyStickObj.touchState;
+          ledsSetObj.metaData.radius = 0;
+          ledsSetObj.metaData.angle = 0;
+          ledsSetObj.topValue = top;
+          ledsSetObj.rightValue = right;
+          ledsSetObj.bottomValue = bottom;
+          ledsSetObj.leftValue = left;
+          return ledsSetObj;
+      },
     getLedsSetObj: function() {
       if (app.mainView.ledsSetObj === null) {
         return null;
@@ -1761,6 +1555,11 @@
       var label = app.mainView.$el.find('[name="' + 'timeLeftInLab' + '"]')[0];
       if (label) label.innerHTML = labelMsg + '<br>';
     },
+      setInstructionText: function(msgText) {
+          //console.log('setLevelText function called.');
+          app.mainView.gameInstructionText = msgText;
+          $('#instructionText').text(app.mainView.gameInstructionText);
+      },
 
     //Tag-UpdateLoop
     startUpdateLoop: function() {
@@ -2112,4 +1911,237 @@
     }
     return color;
   }
+   var caja_api = {
+      "this": {
+          score: 0
+      },
+        drawCircle:  function(centerX, centerY, radius, color) {
+        console.log('drawCircle function called.');
+        app.mainView.drawFns.push(
+            (ctx) => {
+            ctx.strokeStyle = parseColor(color);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
+        ctx.closePath();
+        ctx.stroke();
+    }
+    );
+    },
+       /*
+        * Handle various function calls.
+        */
+
+       drawOnTrackedEuglena: function(isDrawing) {
+           //console.log('drawOnTrackedEuglena function called.');
+           app.mainView.gameDrawOnTrackedEuglena = isDrawing;
+       },
+       drawLine: function(x1, y1, x2, y2, color) {
+           app.mainView.drawFns.push(
+               (ctx) => {
+               ctx.strokeStyle = parseColor(color);
+           ctx.beginPath();
+           ctx.moveTo(x1, y1);
+           ctx.lineTo(x2, y2);
+           ctx.closePath();
+           ctx.stroke();
+       }
+           );
+       },
+       drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, color) {
+           app.mainView.drawFns.push(
+               (ctx) => {
+               ctx.strokeStyle = parseColor(color);
+           ctx.beginPath();
+           ctx.rect(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
+           ctx.closePath();
+           ctx.stroke();
+       }
+           );
+       },
+       drawText: function(drawTxt, xPos, yPos, size, color) {
+           // todo: make size the last parameter (so it's optional).
+           app.mainView.drawFns.push(
+               (ctx) => {
+               if (typeof size != "number") size = 20;
+           ctx.fillStyle = parseColor(color);
+           ctx.font=size + "px Calibri";
+           ctx.fillText(drawTxt, xPos, yPos);
+       }
+           );
+       },
+       endProgram: function() {
+           //console.log('endProgram function called.');
+           app.mainView.gameInSession = false;
+           $('#runningStatus').css('color', 'red');
+           $('#runningStatus').html('Stopped');
+           app.mainView.parseEndCode(app.mainView.gameEndCode);
+       },
+       getAllEuglenaIDs: function() {
+           return Object.keys(app.mainView.idToPosition);
+       },
+       getAllEuglenaPositions: function() {
+           return Object.values(app.mainView.idToPosition);
+       },
+       getEuglenaCount: function() {
+           //console.log('getEuglenaCount function called.');
+           return Object.keys(app.mainView.idToPosition).length;
+       },
+       getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
+           //console.log('getEuglenaInRect function called.');
+           app.mainView.getEuglenaInRectUpperLeftX = upperLeftX;
+           app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
+           app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
+           app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
+           var idSet = new Set();
+           var splitPositions = app.mainView.gameEuglenaInRectReturn.split(";");
+           for (var i = 0; i < splitPositions.length; i++) {
+               var token = splitPositions[i];
+               if (token.length <= 0 || isNaN(token)) continue;
+               idSet.add(parseInt(token));
+           }
+           return Array.from(idSet);
+       },
+       getEuglenaAcceleration: function(id) {
+           app.mainView.getEuglenaAccelerationID = id;
+           var idToAcceleration = {};
+           var eachAcceleration = app.mainView.getEuglenaAccelerationReturn.split(';');
+           for (var i = 0; i < eachAcceleration.length; i++) {
+               var idAndItem = eachAcceleration[i].split(':');
+               idToAcceleration[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+               app.mainView.getEuglenaAccelerationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+           }
+           if (id in idToAcceleration) {
+               return idToAcceleration[id];
+           } else if (id in app.mainView.getEuglenaAccelerationCache && app.mainView.getEuglenaAccelerationCache[id] !== -1) {
+               return app.mainView.getEuglenaAccelerationCache[id];
+           } else {
+               return -1;
+           }
+       },
+       getEuglenaPosition: function(id) {
+           if (id in app.mainView.idToPosition) {
+               return app.mainView.idToPosition[id];
+           } else {
+               return -1;
+           }
+       },
+       getEuglenaRotation: function(id) {
+           app.mainView.getEuglenaRotationID = id;
+           var idToRotation = {};
+           var eachRotation = app.mainView.getEuglenaRotationReturn.split(';');
+           for (var i = 0; i < eachRotation.length; i++) {
+               var idAndItem = eachRotation[i].split(':');
+               idToRotation[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+               app.mainView.getEuglenaRotationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+           }
+           if (id in idToRotation) {
+               return idToRotation[id];
+           } else if (id in app.mainView.getEuglenaRotationCache && app.mainView.getEuglenaRotationCache[id] !== -1) {
+               return app.mainView.getEuglenaRotationCache[id];
+           } else {
+               return -1;
+           }
+       },
+       getEuglenaVelocity: function(id) {
+           app.mainView.getEuglenaVelocityID = id;
+           var idToVelocity = {};
+           var eachVelocity = app.mainView.getEuglenaVelocityReturn.split(';');
+           for (var i = 0; i < eachVelocity.length; i++) {
+               var idAndItem = eachVelocity[i].split(':');
+               idToVelocity[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+               app.mainView.getEuglenaVelocityCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+           }
+           if (id in idToVelocity) {
+               return idToVelocity[id];
+           } else if (id in app.mainView.getEuglenaVelocityCache && app.mainView.getEuglenaVelocityCache[id] !== -1) {
+               return app.mainView.getEuglenaVelocityCache[id];
+           } else {
+               return -1;
+           }
+       },
+       getMaxScreenHeight: function() {
+           //console.log('getMaxScreenHeight function called.');
+           return 479;
+       },
+       getMaxScreenWidth: function() {
+           //console.log('getMaxScreenWidth function called.');
+           return 639;
+       },
+       getTimeLeft: function() {
+           //console.log('getTimeLeft function called.');
+           return Math.floor(app.mainView.timeLeftInLab / 1000.0);
+       },
+       readFromFile: function(fileName) {
+           //console.log('readFromFile function called.');
+
+           var txtData = "unchanged";
+           $.ajax({
+               type: 'POST',
+               url: '/account/developgame/readuserfile/',
+               data: { userFile: fileName },
+               async:false
+           }).done(function(data) {
+               //console.log( "Data Loaded readFromFile: " + data);
+               txtData = data;
+               return txtData;
+           });
+
+           //console.log("Exiting function with data: " + txtData);
+           return txtData;
+       },
+       setJoystickVisible: function(isOn) {
+           //console.log('setJoystickVisible function called.');
+           app.mainView.gameJoystickView = isOn;
+       },
+       setGameOverMessage: function(gameOverText) {
+           //console.log('setGameOverMessage function called.');
+           app.mainView.gameOverText = gameOverText;
+       },
+       setLED: function(led, intensity) {
+           //console.log('setLED function called');
+           //console.log(led);
+           //console.log(intensity);
+
+           // if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
+           //   return;
+           // }
+
+           app.mainView.joystickIntensity = intensity;
+
+           switch (led.split('.')[1]) {
+               case 'RIGHT':
+                   app.mainView.joystickDirection = 0;
+                   var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
+                   ledsSetObj.rightValue = parseInt(intensity);
+                   app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+                   break;
+               case 'LEFT':
+                   app.mainView.joystickDirection = 180;
+                   var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, intensity);
+                   ledsSetObj.leftValue = parseInt(intensity);
+                   app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+                   break;
+               case 'UP':
+                   app.mainView.joystickDirection = 90;
+                   var ledsSetObj = app.mainView.setLEDhelper(intensity, 0, 0, 0);
+                   ledsSetObj.topValue = parseInt(intensity);
+                   app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+                   break;
+               case 'DOWN':
+                   app.mainView.joystickDirection = 270;
+                   var ledsSetObj = app.mainView.setLEDhelper(0, 0, intensity, 0);
+                   ledsSetObj.bottomValue = parseInt(intensity);
+                   app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+                   break;
+               default:
+                   console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN');
+           }
+       },
+       setInstructionText: function(msgText) {
+           //console.log('setLevelText function called.');
+           app.mainView.gameInstructionText = msgText;
+           $('#instructionText').text(app.mainView.gameInstructionText);
+       }
+
+}
 }());
