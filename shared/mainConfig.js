@@ -167,7 +167,7 @@ var exports = module.exports = {
     name: 'eug1',
     description: 'batch 1 bpu mics, 10x, 4 leds, static thor labs bg light',
     type: 'batch 1 bpu mics',
-    magnification: 10,
+    magnification: 4,
     backgroundLighting: 'white',
     stimulusType: '4leds',
     stimulusDescription: '4 leds controls by arduino',
