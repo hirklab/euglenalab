@@ -210,7 +210,7 @@ function processNextImage()
       // todo: better design to not have to recreate entire array each frame.
 
           // app.mainView.parseRunCode(app.mainView.gameRunCode, function() );
-      console.log(app.mainView.drawFns.length);
+      //console.log(app.mainView.drawFns.length);
           if (app.mainView.gameInSession && !app.mainView.drawFns.length) {
               app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
               // todo: run this function whenever the code changes.

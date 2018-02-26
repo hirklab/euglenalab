@@ -1253,7 +1253,7 @@
                       .api(caja_api)
                       .run(function(result) {
                           //requestAnimationFrame(app.mainView.runLoop);
-                          console.warn("caja result"); // , modifiedCode, result);
+                          //console.warn("caja result"); // , modifiedCode, result);
                           if (callback) callback();
                       });
               });
@@ -1916,6 +1916,13 @@
     return color;
   }
    var caja_api = {
+      log: function(txt) {
+          app.mainView.drawFns.push(
+              (ctx) => {
+              console.log(txt);
+            }
+          );
+      },
       "this": {
           score: 0
       },
@@ -1966,11 +1973,11 @@
            // todo: make size the last parameter (so it's optional).
            app.mainView.drawFns.push(
                (ctx) => {
-               if (typeof size != "number") size = 20;
-           ctx.fillStyle = parseColor(color);
-           ctx.font=size + "px Calibri";
-           ctx.fillText(drawTxt, xPos, yPos);
-       }
+                   if (typeof size != "number") size = 20;
+                   ctx.fillStyle = parseColor(color);
+                   ctx.font=size + "px Calibri";
+                   ctx.fillText(drawTxt, xPos, yPos);
+                }
            );
        },
        endProgram: function() {
@@ -2108,26 +2115,26 @@
 
            app.mainView.joystickIntensity = intensity;
 
-           switch (led.split('.')[1]) {
-               case 'RIGHT':
+           switch (led) {
+               case 'LED.RIGHT':
                    app.mainView.joystickDirection = 0;
                    var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
                    ledsSetObj.rightValue = parseInt(intensity);
                    app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
                    break;
-               case 'LEFT':
+               case 'LED.LEFT':
                    app.mainView.joystickDirection = 180;
                    var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, intensity);
                    ledsSetObj.leftValue = parseInt(intensity);
                    app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
                    break;
-               case 'UP':
+               case 'LED.UP':
                    app.mainView.joystickDirection = 90;
                    var ledsSetObj = app.mainView.setLEDhelper(intensity, 0, 0, 0);
                    ledsSetObj.topValue = parseInt(intensity);
                    app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
                    break;
-               case 'DOWN':
+               case 'LED.DOWN':
                    app.mainView.joystickDirection = 270;
                    var ledsSetObj = app.mainView.setLEDhelper(0, 0, intensity, 0);
                    ledsSetObj.bottomValue = parseInt(intensity);
@@ -2144,4 +2151,6 @@
        }
 
 }
+
+
 }());
