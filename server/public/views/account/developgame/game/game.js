@@ -173,12 +173,12 @@ function processNextImage()
                 drawLineG: app.mainView.drawLineG,
                 drawLineB: app.mainView.drawLineB,
                 // drawRect
-                drawRectUpperLeftX: app.mainView.drawRectUpperLeftX, 
-                drawRectUpperLeftY: app.mainView.drawRectUpperLeftY, 
-                drawRectLowerRightX: app.mainView.drawRectLowerRightX, 
-                drawRectLowerRightY: app.mainView.drawRectLowerRightY, 
-                drawRectR: app.mainView.drawRectR, 
-                drawRectG: app.mainView.drawRectG, 
+                drawRectUpperLeftX: app.mainView.drawRectUpperLeftX,
+                drawRectUpperLeftY: app.mainView.drawRectUpperLeftY,
+                drawRectLowerRightX: app.mainView.drawRectLowerRightX,
+                drawRectLowerRightY: app.mainView.drawRectLowerRightY,
+                drawRectR: app.mainView.drawRectR,
+                drawRectG: app.mainView.drawRectG,
                 drawRectB: app.mainView.drawRectB,
                 // drawText
                 drawTextdrawTxt: app.mainView.drawTextdrawTxt,
@@ -209,23 +209,29 @@ function processNextImage()
       //app.mainView.drawFns = [];
       // todo: better design to not have to recreate entire array each frame.
 
-      // app.mainView.parseRunCode(app.mainView.gameRunCode, function() );
-      if (!app.mainView.drawFns.length) {
-          app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
-          // todo: run this function whenever the code changes.
-          return;
-      }
-      drawFromCode();
+          // app.mainView.parseRunCode(app.mainView.gameRunCode, function() );
+      console.log(app.mainView.drawFns.length);
+          if (app.mainView.gameInSession && !app.mainView.drawFns.length) {
+              app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
+              // todo: run this function whenever the code changes.
+              return;
+          }
+          drawFromCode();
 
       function drawFromCode() {
-              console.error(app.mainView.drawFns);
-              let display = document.getElementById("display");
-              let ctx = display.getContext( "2d" );
-              for (let fn of app.mainView.drawFns) {
-                  fn(ctx);
-              }
-              // console.log("fns", app.mainView.drawFns);
+          if (app.mainView.gameInSession) {
+            console.error(app.mainView.drawFns);
+            let display = document.getElementById("display");
+            let ctx = display.getContext( "2d" );
+            for (let fn of app.mainView.drawFns) {
+                fn(ctx);
+            }
+          }
+            // console.log("fns", app.mainView.drawFns);
+          //console.log(app.mainView.gameInSession);
+
               requestAnimationFrame(processNextImage);
+
       }
 
   }

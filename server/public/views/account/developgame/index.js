@@ -276,7 +276,8 @@
     $('#gameNameText').val(app.mainView.gameName);
 
     $('#btnStartGame').click(function() {
-      app.mainView.gameRunCode = app.mainView.runEditor.getValue();
+    app.mainView.drawFns = []; // todo: this makes app parse all the code again when starting again. Is this the most efficient way to do this?
+        app.mainView.gameRunCode = app.mainView.runEditor.getValue();
       app.mainView.gameStartCode = app.mainView.startEditor.getValue();
       app.mainView.gameEndCode = app.mainView.endEditor.getValue();
       app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
@@ -1155,15 +1156,18 @@
      * Game logic functions.
      */
     runLoop: function() {
+        // Not called.
       tracking.track('#display', app.mainView.colors);
 
-      if (false && app.mainView.gameInSession) {
+      /*
+      This code is not called;
+      if (app.mainView.gameInSession) {
 
         app.mainView.drawFns = [];
         // todo: better design to not have to recreate entire array each frame.
 
         app.mainView.parseRunCode(app.mainView.gameRunCode);
-      }
+      }*/
 
       if (app.mainView.sandboxVideoIsRecording) {
         //console.log("saving frame...");
@@ -1249,7 +1253,7 @@
                       .api(caja_api)
                       .run(function(result) {
                           //requestAnimationFrame(app.mainView.runLoop);
-                          console.warn("caja result", modifiedCode, result);
+                          console.warn("caja result"); // , modifiedCode, result);
                           if (callback) callback();
                       });
               });
@@ -1970,11 +1974,7 @@
            );
        },
        endProgram: function() {
-           //console.log('endProgram function called.');
-           app.mainView.gameInSession = false;
-           $('#runningStatus').css('color', 'red');
-           $('#runningStatus').html('Stopped');
-           app.mainView.parseEndCode(app.mainView.gameEndCode);
+           $('#btnStopGame').click();
        },
        getAllEuglenaIDs: function() {
            return Object.keys(app.mainView.idToPosition);
