@@ -230,7 +230,7 @@ function processNextImage()
             // console.log("fns", app.mainView.drawFns);
           //console.log(app.mainView.gameInSession);
 
-              requestAnimationFrame(processNextImage);
+          requestAnimationFrame(processNextImage);
 
       }
 

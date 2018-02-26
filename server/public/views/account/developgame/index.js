@@ -922,7 +922,9 @@
     app.mainView.colors.setMaxDimension(625);
     app.mainView.colors.setMinGroupSize(0.1);
 
+    console.log("track init's");
     app.mainView.colors.on('track', function(event) {
+        console.log("track started");
       if (event.data.length === 0) {
         // No colors were detected in this frame.
       } else {
@@ -1155,7 +1157,7 @@
     /*
      * Game logic functions.
      */
-    runLoop: function() {
+    runLoop: function() { // This function is not called.
         // Not called.
       tracking.track('#display', app.mainView.colors);
 
@@ -1987,7 +1989,9 @@
            return Object.keys(app.mainView.idToPosition);
        },
        getAllEuglenaPositions: function() {
-           return Object.values(app.mainView.idToPosition);
+           tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
+           return app.mainView.currPositions;
+           //return Object.values(app.mainView.idToPosition);
        },
        getEuglenaCount: function() {
            //console.log('getEuglenaCount function called.');
