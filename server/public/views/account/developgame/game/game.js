@@ -205,30 +205,28 @@ function processNextImage()
                 processor: "Euglena" };
 
     */startTime = performance.now();
-      tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
+    if (app.mainView.gameInSession) {
+        tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
+        if (!app.mainView.runCodeFn) {
+            console.log("Parsing code anew");
+            app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
+            // todo: run this function less often, only whenever the code changes.
+            return;
+        }
+    }
+      drawFromCode();
 
-        window.app = app;
-        //console.log(app.mainView.runCodeFn);
-          if (app.mainView.gameInSession && !app.mainView.runCodeFn) {
-              console.log("Parsing code anew");
-              app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
-              // todo: run this function less often, only whenever the code changes.
-              return;
-          }
-          drawFromCode();
-
-      function drawFromCode() {
-          if (app.mainView.gameInSession && app.mainView.runCodeFn) {
+  }
+    function drawFromCode() {
+        if (app.mainView.gameInSession && app.mainView.runCodeFn) {
             let display = document.getElementById("display");
             let ctx = display.getContext( "2d" );
             app.mainView.runCodeFn();
-          }
+        }
 
-          requestAnimationFrame(processNextImage);
+        requestAnimationFrame(processNextImage);
 
-      }
-
-  }
+    }
 
   var img = new Image();
   img.onload = imageOnLoad;

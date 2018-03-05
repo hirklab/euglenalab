@@ -973,8 +973,25 @@
             }
             //console.error(individuals_new);
             // Calculate velocity and acceleration now.
-            app.mainView.individuals = individuals_new;
+            let frame_time = performance.now();
+            let dt = .001 * (frame_time - app.mainView.frame_time_prev);
+            for (let id in individuals_new) {
+                let individual = app.mainView.individuals[id];
+                let individual_prev = app.mainView.individuals_prev[id];
+                let individual_new = individuals_new[id];
+                // console.error(id, individual, individual_prev, individual_new);
+                individual_new.velocity = (individual_prev && 'position' in individual_prev) ? {
+                        x: (individual.position.x - individual_prev.position.x) / dt,
+                        y: (individual.position.y - individual_prev.position.y) / dt
+                    } : {x: 0, y: 0};
+                individual_new.acceleration = (individual_prev && 'velocity' in individual_prev) ? {
+                        x: (individual.velocity.x - individual_prev.velocity.x) / dt,
+                        y: (individual.velocity.y - individual_prev.velocity.y) / dt
+                    } : {x: 0, y: 0};
+            }
           app.mainView.individuals_prev = app.mainView.individuals;
+          app.mainView.individuals = individuals_new;
+          app.mainView.frame_time_prev = frame_time;
 
       /*  var ctx = document.getElementById("display").getContext("2d");
         ctx.strokeStyle = "red";
@@ -1062,7 +1079,7 @@
     prevPositions: [],
     individuals: {},
     individuals_prev: {},
-    frame_time: 0,
+    frame_time_prev: performance.now(),
     positionToId: {},
     idToPosition: {},
     idToVelocity: {},
@@ -2039,7 +2056,10 @@
        getAllEuglenaIDs: function() {
            return Object.keys(app.mainView.individuals);
        },
-       getAllEuglenaPositions: () => app.mainView.individuals,
+           getAllEuglenaIndividuals: () => app.mainView.individuals,
+       getAllEuglenaPositions: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].position),
+        getAllEuglenaVelocities: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].velocity),
+        getAllEuglenaAccelerations: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].acceleration),
        getEuglenaCount: function() {
            //console.log('getEuglenaCount function called.');
            return Object.keys(app.mainView.individuals).length;
@@ -2060,12 +2080,10 @@
            }
            return Array.from(idSet);
        },
-       getEuglenaAcceleration: function(id) {
-           return app.mainView.individuals[id].acceleration;
-       },
-       getEuglenaPosition: function(id) {
-           return app.mainView.individuals[id].position;
-       },
+       getEuglenaAcceleration: id => app.mainView.individuals[id].acceleration,
+       getEuglenaPosition: id => app.mainView.individuals[id].position,
+        getEuglenaVelocity: id => app.mainView.individuals[id].velocity,
+        getEuglenaById: id => app.mainView.individuals[id],
        getEuglenaRotation: function(id) {
            // todo: app.mainView.individuals[id].rotation;
            app.mainView.getEuglenaRotationID = id;
@@ -2083,9 +2101,6 @@
            } else {
                return -1;
            }
-       },
-       getEuglenaVelocity: function(id) {
-           return app.mainView.individuals[id].velocity;
        },
        getMaxScreenHeight: function() {
            //console.log('getMaxScreenHeight function called.');
