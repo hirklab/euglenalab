@@ -205,30 +205,24 @@ function processNextImage()
                 processor: "Euglena" };
 
     */startTime = performance.now();
-    //ImageProcModule.postMessage( cmd );
-      //app.mainView.drawFns = [];
-      // todo: better design to not have to recreate entire array each frame.
+      tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
 
-          // app.mainView.parseRunCode(app.mainView.gameRunCode, function() );
-      //console.log(app.mainView.drawFns.length);
-          if (app.mainView.gameInSession && !app.mainView.drawFns.length) {
+        window.app = app;
+        //console.log(app.mainView.runCodeFn);
+          if (app.mainView.gameInSession && !app.mainView.runCodeFn) {
+              console.log("Parsing code anew");
               app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
-              // todo: run this function whenever the code changes.
+              // todo: run this function less often, only whenever the code changes.
               return;
           }
           drawFromCode();
 
       function drawFromCode() {
-          if (app.mainView.gameInSession) {
-            console.error(app.mainView.drawFns);
+          if (app.mainView.gameInSession && app.mainView.runCodeFn) {
             let display = document.getElementById("display");
             let ctx = display.getContext( "2d" );
-            for (let fn of app.mainView.drawFns) {
-                fn(ctx);
-            }
+            app.mainView.runCodeFn();
           }
-            // console.log("fns", app.mainView.drawFns);
-          //console.log(app.mainView.gameInSession);
 
           requestAnimationFrame(processNextImage);
 

@@ -276,7 +276,7 @@
     $('#gameNameText').val(app.mainView.gameName);
 
     $('#btnStartGame').click(function() {
-    app.mainView.drawFns = []; // todo: this makes app parse all the code again when starting again. Is this the most efficient way to do this?
+    app.mainView.runCodeFn = null; // todo: this makes app parse all the code again when starting again. Is this the most efficient way to do this?
         app.mainView.gameRunCode = app.mainView.runEditor.getValue();
       app.mainView.gameStartCode = app.mainView.startEditor.getValue();
       app.mainView.gameEndCode = app.mainView.endEditor.getValue();
@@ -928,8 +928,55 @@
       if (event.data.length === 0) {
         // No colors were detected in this frame.
       } else {
-        //console.log(event.data);
-        var ctx = document.getElementById("display").getContext("2d");
+         // console.error(event.data.length);
+        //console.warn(event.data);
+            let individuals_new = {};
+            let idsToAssign = Object.keys(app.mainView.individuals);
+
+            let largestId = idsToAssign.reduce((a, b) => Math.max(a,b), 0); // maximum in array.
+            let idToAssign = -1;
+            for (let rect of event.data) {
+                // Assign ids properly.
+                if (idsToAssign.length) {
+                    let chosenIndex = -1;
+                    let chosenId = -1;
+                    let closestDistance = 999999;
+                    for (let index in idsToAssign) {
+                        let id = idsToAssign[index];
+                        let individual = app.mainView.individuals[id];
+                        let distance = (individual.position.x - rect.x) ** 2 + (individual.position.y - rect.y) ** 2;
+                        if (distance < closestDistance) {
+                            chosenIndex = index;
+                            chosenId = id;
+                            closestDistance = distance;
+                        }
+                    }
+                    idToAssign = chosenId;
+                    idsToAssign.splice(chosenIndex, 1);
+                }
+                else {
+                    // Create a new id.
+                    largestId++;
+                    idToAssign = largestId;
+                }
+                individuals_new[idToAssign] = {
+                    position: {
+                        x: rect.x,
+                        y: rect.y
+                    },
+                    size: {
+                        width: rect.width,
+                        height: rect.height
+                    }
+                };
+               //console.warn(rect);
+            }
+            //console.error(individuals_new);
+            // Calculate velocity and acceleration now.
+            app.mainView.individuals = individuals_new;
+          app.mainView.individuals_prev = app.mainView.individuals;
+
+      /*  var ctx = document.getElementById("display").getContext("2d");
         ctx.strokeStyle = "red";
 
         app.mainView.prevPositions = [];
@@ -945,9 +992,10 @@
           app.mainView.currPositions.push({x: rect.x, y: rect.y});
         });
 
-        app.mainView.idToPosition = assignOldToNewPoints();
+        //app.mainView.idToPosition = assignOldToNewPoints();
 
         app.mainView.firstObjectTrackingIteration = false;
+        */
       }
     });
 
@@ -1012,6 +1060,9 @@
     // Object tracking code.
     currPositions: [],
     prevPositions: [],
+    individuals: {},
+    individuals_prev: {},
+    frame_time: 0,
     positionToId: {},
     idToPosition: {},
     idToVelocity: {},
@@ -1049,8 +1100,7 @@
     joystickDirection: 0,
     joystickIntensity: 0,
 
-    // drawCircle
-    drawFns: [],
+      runCodeFn: null,
 
     // getEuglenaInRect
     getEuglenaInRectUpperLeftX: 0, 
@@ -1242,7 +1292,6 @@
         //eval(modifiedCode);
           // console.warn("caja modifiedCode", modifiedCode);
          // modifiedCode = "drawCircle(100,100,50,'COLORS.WHITE');";
-
           caja.load(
               undefined,  // no DOM access
               undefined,  // no network access
@@ -1250,7 +1299,7 @@
                   frame.code(
                       null,  // dummy URL
                       'application/javascript',
-                      modifiedCode)  // input source code
+                      "function runCode() {" + modifiedCode + "}; mainService.parseRunCode(runCode);")  // input source code
                       //.api(app.mainView)
                       .api(caja_api)
                       .run(function(result) {
@@ -1289,17 +1338,17 @@
       app.mainView.generalParser(runCode, callback);
     },
     parseStartCode: function(runCode) {
-      app.mainView.generalParser(runCode);
+      //app.mainView.generalParser(runCode);
     },
     parseEndCode: function(runCode) {
-      app.mainView.generalParser(runCode);
+      //app.mainView.generalParser(runCode);
     },
     parseJoystickCode: function(runCode, angle, intensity) {
       var modifiedCode = runCode.split('MAX_ANGLE').join('360');
       modifiedCode = modifiedCode.split('MAX_INTENSITY').join('1.0');
       modifiedCode = modifiedCode.split('angle').join((parseInt(angle) + 180).toString());
       modifiedCode = modifiedCode.split('intensity').join('\'' + intensity + '\'');
-      app.mainView.generalParser(modifiedCode);
+      //app.mainView.generalParser(modifiedCode);
     },
     parseKeypressCode: function(runCode, key) {
       var modifiedCode = runCode.split('KEY.W').join('\'w\'');
@@ -1341,7 +1390,7 @@
       modifiedCode = modifiedCode.split('KEY.N').join('\'n\'');
       modifiedCode = modifiedCode.split('KEY.M').join('\'m\'');
       modifiedCode = modifiedCode.split('key').join('\'' + key + '\'');
-      app.mainView.generalParser(modifiedCode);
+      //app.mainView.generalParser(modifiedCode);
     },
     parseHelperCode: function(helperCode, helperArgs, helperName) {
       var codeToParse = "var ";
@@ -1352,7 +1401,7 @@
       codeToParse += helperCode
       codeToParse += " }";
       //console.log("HELPER FUNCTION::::: " + codeToParse);
-      app.mainView.generalParser(codeToParse);
+      //app.mainView.generalParser(codeToParse);
     },
     writeToFile: function(fileName, txt, mode) {
       //console.log('writeToFile function called.');
@@ -1917,28 +1966,39 @@
     }
     return color;
   }
+  caja.whenReady(() => {
+     /*for (let key in caja_api) {
+         let value = caja_api[key];
+         if (typeof value === "function") {
+             caja.markFunction(value);
+             caja_api[key] = caja.tame(value);
+         }
+    }*/
+  });
    var caja_api = {
-      log: function(txt) {
-          app.mainView.drawFns.push(
-              (ctx) => {
-              console.log(txt);
+       mainService: {
+           parseRunCode: function(fn) {
+           if (app.mainView.gameInSession)
+                {
+                    app.mainView.runCodeFn = fn;
+                }
             }
-          );
+       },
+      log: function(txt) {
+
+          console.log(txt);
       },
       "this": {
           score: 0
       },
-        drawCircle:  function(centerX, centerY, radius, color) {
-        console.log('drawCircle function called.');
-        app.mainView.drawFns.push(
-            (ctx) => {
-            ctx.strokeStyle = parseColor(color);
+    drawCircle:  function(centerX, centerY, radius, color) {
+        let ctx = document.getElementById("display").getContext( "2d" );
+        ctx.strokeStyle = parseColor(color);
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
         ctx.closePath();
         ctx.stroke();
-    }
-    );
+
     },
        /*
         * Handle various function calls.
@@ -1949,55 +2009,43 @@
            app.mainView.gameDrawOnTrackedEuglena = isDrawing;
        },
        drawLine: function(x1, y1, x2, y2, color) {
-           app.mainView.drawFns.push(
-               (ctx) => {
-               ctx.strokeStyle = parseColor(color);
+           let ctx = document.getElementById("display").getContext( "2d" );
+           ctx.strokeStyle = parseColor(color);
            ctx.beginPath();
            ctx.moveTo(x1, y1);
            ctx.lineTo(x2, y2);
            ctx.closePath();
            ctx.stroke();
-       }
-           );
        },
        drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, color) {
-           app.mainView.drawFns.push(
-               (ctx) => {
-               ctx.strokeStyle = parseColor(color);
+           let ctx = document.getElementById("display").getContext( "2d" );
+           ctx.strokeStyle = parseColor(color);
            ctx.beginPath();
            ctx.rect(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
            ctx.closePath();
            ctx.stroke();
-       }
-           );
        },
        drawText: function(drawTxt, xPos, yPos, size, color) {
            // todo: make size the last parameter (so it's optional).
-           app.mainView.drawFns.push(
-               (ctx) => {
-                   if (typeof size != "number") size = 20;
-                   ctx.fillStyle = parseColor(color);
-                   ctx.font=size + "px Calibri";
-                   ctx.fillText(drawTxt, xPos, yPos);
-                }
-           );
+           let ctx = document.getElementById("display").getContext( "2d" );
+           if (typeof size != "number") size = 20;
+           ctx.fillStyle = parseColor(color);
+           ctx.font=size + "px Calibri";
+           ctx.fillText(drawTxt, xPos, yPos);
        },
        endProgram: function() {
            $('#btnStopGame').click();
        },
        getAllEuglenaIDs: function() {
-           return Object.keys(app.mainView.idToPosition);
+           return Object.keys(app.mainView.individuals);
        },
-       getAllEuglenaPositions: function() {
-           tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
-           return app.mainView.currPositions;
-           //return Object.values(app.mainView.idToPosition);
-       },
+       getAllEuglenaPositions: () => app.mainView.individuals,
        getEuglenaCount: function() {
            //console.log('getEuglenaCount function called.');
-           return Object.keys(app.mainView.idToPosition).length;
+           return Object.keys(app.mainView.individuals).length;
        },
        getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
+           // todo
            //console.log('getEuglenaInRect function called.');
            app.mainView.getEuglenaInRectUpperLeftX = upperLeftX;
            app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
@@ -2013,30 +2061,13 @@
            return Array.from(idSet);
        },
        getEuglenaAcceleration: function(id) {
-           app.mainView.getEuglenaAccelerationID = id;
-           var idToAcceleration = {};
-           var eachAcceleration = app.mainView.getEuglenaAccelerationReturn.split(';');
-           for (var i = 0; i < eachAcceleration.length; i++) {
-               var idAndItem = eachAcceleration[i].split(':');
-               idToAcceleration[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-               app.mainView.getEuglenaAccelerationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-           }
-           if (id in idToAcceleration) {
-               return idToAcceleration[id];
-           } else if (id in app.mainView.getEuglenaAccelerationCache && app.mainView.getEuglenaAccelerationCache[id] !== -1) {
-               return app.mainView.getEuglenaAccelerationCache[id];
-           } else {
-               return -1;
-           }
+           return app.mainView.individuals[id].acceleration;
        },
        getEuglenaPosition: function(id) {
-           if (id in app.mainView.idToPosition) {
-               return app.mainView.idToPosition[id];
-           } else {
-               return -1;
-           }
+           return app.mainView.individuals[id].position;
        },
        getEuglenaRotation: function(id) {
+           // todo: app.mainView.individuals[id].rotation;
            app.mainView.getEuglenaRotationID = id;
            var idToRotation = {};
            var eachRotation = app.mainView.getEuglenaRotationReturn.split(';');
@@ -2054,21 +2085,7 @@
            }
        },
        getEuglenaVelocity: function(id) {
-           app.mainView.getEuglenaVelocityID = id;
-           var idToVelocity = {};
-           var eachVelocity = app.mainView.getEuglenaVelocityReturn.split(';');
-           for (var i = 0; i < eachVelocity.length; i++) {
-               var idAndItem = eachVelocity[i].split(':');
-               idToVelocity[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-               app.mainView.getEuglenaVelocityCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-           }
-           if (id in idToVelocity) {
-               return idToVelocity[id];
-           } else if (id in app.mainView.getEuglenaVelocityCache && app.mainView.getEuglenaVelocityCache[id] !== -1) {
-               return app.mainView.getEuglenaVelocityCache[id];
-           } else {
-               return -1;
-           }
+           return app.mainView.individuals[id].velocity;
        },
        getMaxScreenHeight: function() {
            //console.log('getMaxScreenHeight function called.');
