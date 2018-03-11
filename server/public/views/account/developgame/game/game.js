@@ -213,8 +213,9 @@ function processNextImage()
 
   }
     function drawFromCode() {
-      console.log(app.mainView.ledsSetObj);
-        if (app.mainView.gameInSession && !app.mainView.sandboxMode) {
+      // console.log(app.mainView.ledsSetObj);
+        if (app.mainView.gameInSession || app.mainView.sandboxMode) {
+        //if (app.mainView.gameInSession && !app.mainView.sandboxMode) {
             loop_iteration++;
             if (loop_iteration % 20 == 0)
                 tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.

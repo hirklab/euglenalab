@@ -85,7 +85,7 @@
         console.log(newAssignment[id]);
       }
     }
-    console.log(app.mainView.currPositions);
+    // console.log(app.mainView.currPositions);
     //console.log(app.mainView.prevPositions);
     //console.log(app.mainView.idToPosition);
 
@@ -735,6 +735,7 @@
     
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
+      app.mainView.sandboxMode = false;
       $('#runningStatus').css('color', 'red');
       $('#runningStatus').html('Stopped');
       var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, 0);
@@ -981,11 +982,11 @@
                 let individual_prev = app.mainView.individuals_prev[id];
                 let individual_new = individuals_new[id];
                 // console.error(id, individual, individual_prev, individual_new);
-                individual_new.velocity = (individual_prev && 'position' in individual_prev && 'position' in individual) ? {
+                individual_new.velocity = (individual && individual_prev && 'position' in individual_prev && 'position' in individual) ? {
                         x: (individual.position.x - individual_prev.position.x) / dt,
                         y: (individual.position.y - individual_prev.position.y) / dt
                     } : {x: 0, y: 0};
-                individual_new.acceleration = (individual_prev && 'velocity' in individual_prev && 'velocity' in individual) ? {
+                individual_new.acceleration = (individual && individual_prev && 'velocity' in individual_prev && 'velocity' in individual) ? {
                         x: (individual.velocity.x - individual_prev.velocity.x) / dt,
                         y: (individual.velocity.y - individual_prev.velocity.y) / dt
                     } : {x: 0, y: 0};
@@ -1256,7 +1257,7 @@
     /*
      * Parsing functions.
      */
-    generalParser: function(runCode, callback) {
+    generalParser: function(runCode, codeType, callback) {
       // Replace EuglenaScript functions with appropriate function calls.
       var modifiedCode = runCode;/*.split('setGameOverMessage').join('app.mainView.setGameOverMessage'); // Deprecated.
 
@@ -1271,14 +1272,7 @@
       modifiedCode = modifiedCode.split('drawRect').join('app.mainView.drawRect');
       modifiedCode = modifiedCode.split('drawText').join('app.mainView.drawText');
       modifiedCode = modifiedCode.split('endProgram').join('app.mainView.endProgram');
-      modifiedCode = modifiedCode.split('getAllEuglenaIDs').join('app.mainView.getAllEuglenaIDs');
-      modifiedCode = modifiedCode.split('getAllEuglenaPositions').join('app.mainView.getAllEuglenaPositions');
-      modifiedCode = modifiedCode.split('getEuglenaCount').join('app.mainView.getEuglenaCount');
-      modifiedCode = modifiedCode.split('getEuglenaInRect').join('app.mainView.getEuglenaInRect');
-      modifiedCode = modifiedCode.split('getEuglenaAcceleration').join('app.mainView.getEuglenaAcceleration');
-      modifiedCode = modifiedCode.split('getEuglenaPosition').join('app.mainView.getEuglenaPosition');
-      modifiedCode = modifiedCode.split('getEuglenaRotation').join('app.mainView.getEuglenaRotation');
-      modifiedCode = modifiedCode.split('getEuglenaVelocity').join('app.mainView.getEuglenaVelocity');
+
       modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
       modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
       modifiedCode = modifiedCode.split('getTimeLeft').join('app.mainView.getTimeLeft');
@@ -1289,10 +1283,10 @@
       modifiedCode = modifiedCode.split('writeToFile').join('app.mainView.writeToFile');*/
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
-      modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
-      modifiedCode = modifiedCode.split('LED.LEFT').join('\"LED.LEFT\"');
-      modifiedCode = modifiedCode.split('LED.UP').join('\"LED.UP\"');
-      modifiedCode = modifiedCode.split('LED.DOWN').join('\"LED.DOWN\"');
+      // modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
+      // modifiedCode = modifiedCode.split('LED.LEFT').join('\"LED.LEFT\"');
+      // modifiedCode = modifiedCode.split('LED.UP').join('\"LED.UP\"');
+      // modifiedCode = modifiedCode.split('LED.DOWN').join('\"LED.DOWN\"');
 
       modifiedCode = modifiedCode.split('FILE.OVERWRITE').join('\"FILE.OVERWRITE\"');
       modifiedCode = modifiedCode.split('FILE.APPEND').join('\"FILE.APPEND\"');
@@ -1302,12 +1296,26 @@
       modifiedCode = modifiedCode.split('MAX_TEXT_SIZE').join('1.5');
       modifiedCode = modifiedCode.split('MAX_LED_INTENSITY').join('999');
 
+      switch (codeType) {
+          case "run":
+              modifiedCode = "function runCode() {" + modifiedCode + "}; mainService.parseRunCode(runCode);";
+              break;
+          case "start":
+          case "end":
+          case "runOnce":
+              modifiedCode = "function runOnceCode() {" + modifiedCode + "}; mainService.runOnce(runOnceCode);";
+              break;
+          case "onJoystickChange":
+              modifiedCode = "function onJoystickChangeCode(angle, intensity) {" + modifiedCode + "}; mainService.onJoystickChange(onJoystickChangeCode);";
+              break;
+          case "onKeypress":
+              modifiedCode = "function onKeypressCode(key) {" + modifiedCode + "}; mainService.onKeypress(onKeypressCode);";
+              break;
+          default:
+              break;
+      }
+
       try {
-          //modifiedCode = "x();";
-        //$.globalEval(modifiedCode);
-        //eval(modifiedCode);
-          // console.warn("caja modifiedCode", modifiedCode);
-         // modifiedCode = "drawCircle(100,100,50,'COLORS.WHITE');";
           caja.load(
               undefined,  // no DOM access
               undefined,  // no network access
@@ -1315,7 +1323,7 @@
                   frame.code(
                       null,  // dummy URL
                       'application/javascript',
-                      "function runCode() {" + modifiedCode + "}; mainService.parseRunCode(runCode);")  // input source code
+                      modifiedCode)  // input source code
                       //.api(app.mainView)
                       .api(caja_api)
                       .run(function(result) {
@@ -1351,20 +1359,21 @@
       
     },
     parseRunCode: function(runCode, callback) {
-      app.mainView.generalParser(runCode, callback);
+      app.mainView.generalParser(runCode, "run", callback);
     },
     parseStartCode: function(runCode) {
-      //app.mainView.generalParser(runCode);
+      app.mainView.generalParser(runCode, "start");
     },
     parseEndCode: function(runCode) {
-      //app.mainView.generalParser(runCode);
+      app.mainView.generalParser(runCode, "end");
     },
     parseJoystickCode: function(runCode, angle, intensity) {
+      //  todo: fix this.
       var modifiedCode = runCode.split('MAX_ANGLE').join('360');
       modifiedCode = modifiedCode.split('MAX_INTENSITY').join('1.0');
       modifiedCode = modifiedCode.split('angle').join((parseInt(angle) + 180).toString());
       modifiedCode = modifiedCode.split('intensity').join('\'' + intensity + '\'');
-      //app.mainView.generalParser(modifiedCode);
+      app.mainView.generalParser(modifiedCode, "runOnce");
     },
     parseKeypressCode: function(runCode, key) {
       var modifiedCode = runCode.split('KEY.W').join('\'w\'');
@@ -1406,7 +1415,7 @@
       modifiedCode = modifiedCode.split('KEY.N').join('\'n\'');
       modifiedCode = modifiedCode.split('KEY.M').join('\'m\'');
       modifiedCode = modifiedCode.split('key').join('\'' + key + '\'');
-      //app.mainView.generalParser(modifiedCode);
+      app.mainView.generalParser(modifiedCode, "runOnce");
     },
     parseHelperCode: function(helperCode, helperArgs, helperName) {
       var codeToParse = "var ";
@@ -1706,6 +1715,10 @@
         cb_fn(null, null);
       },
     },
+      setJoystickVisible: function(isOn) {
+          //console.log('setJoystickVisible function called.');
+          app.mainView.gameJoystickView = isOn;
+      },
     //Tag-Lights
     myLights: null,
     myLightsObj: {
@@ -1994,18 +2007,22 @@
    var caja_api = {
        mainService: {
            parseRunCode: function(fn) {
-           if (app.mainView.gameInSession)
+                if (app.mainView.gameInSession || app.mainView.sandboxMode)
                 {
                     app.mainView.runCodeFn = fn;
                 }
-            }
+            },
+           runOnce: function(fn) {
+               fn();
+           }
        },
       log: function(txt) {
 
           console.log(txt);
       },
       "this": {
-          score: 0
+          score: 0,
+          currLED: "LED.LEFT"
       },
     drawCircle:  function(centerX, centerY, radius, color) {
         let ctx = document.getElementById("display").getContext( "2d" );
@@ -2131,9 +2148,8 @@
            //console.log("Exiting function with data: " + txtData);
            return txtData;
        },
-       setJoystickVisible: function(isOn) {
-           //console.log('setJoystickVisible function called.');
-           app.mainView.gameJoystickView = isOn;
+       setJoystickVisible: function(e) {
+           app.mainView.setJoystickVisible(e);
        },
        setGameOverMessage: function(gameOverText) {
            //console.log('setGameOverMessage function called.');

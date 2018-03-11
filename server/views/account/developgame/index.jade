@@ -356,6 +356,7 @@ block body
             textarea.codeArea#txtCodeJoystick
               |var ledIntensity = intensity / 1000.0;
               |&nbsp;&nbsp;&nbsp;&nbsp;
+              |log("joystick pressed" +  angle + "/" + intensity);
               |if (angle >= 45 && angle < 135) {
               |&nbsp;&nbsp;&nbsp;&nbsp;setLED(LED.UP, ledIntensity);
               |} else if (angle >= 135 && angle < 225) {
@@ -397,6 +398,7 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeKeypress
+              |log("Key pressed:" + key);
               |switch(key) {
               |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.W:
               |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.UP) {
