@@ -188,6 +188,8 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;
         button.btn.btn-danger#btnStopGame(type="update" value="update") Stop Program
         |&nbsp;&nbsp;&nbsp;&nbsp;
+        button.btn.btn-secondary#btnSandboxMode(type="update" value="update") Sandbox Mode
+        | &nbsp;&nbsp;&nbsp;&nbsp;
         button.btn.btn-primary#btnSaveGameInitial(type="save", value="save", data-toggle="modal" data-target="#saveGameModal") Save Code
         |&nbsp;&nbsp;&nbsp;&nbsp;
         button.btn.btn-primary#btnLoadGame(type="save", value="save", data-toggle="modal" data-target="#loadGameModal") Load Code
@@ -280,12 +282,12 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeRun
-              |// setLED(this.currLED, 999);
+              |setLED(LED.RIGHT, 999);
               |drawCircle(100,100,50,'COLORS.WHITE');
               |drawLine(0,0,400,400,'COLORS.RED');
               |drawRect(60,160,80,280,'COLORS.BLUE');
               |drawText("It works!", 300,200,20,'COLORS.GREEN');
-              |log(getAllEuglenaAccelerations());
+              |//log(getAllEuglenaIndividuals());
               |/*if (this.score >= 10) {
               |&nbsp;&nbsp;&nbsp;&nbsp;endProgram();
               |}*/

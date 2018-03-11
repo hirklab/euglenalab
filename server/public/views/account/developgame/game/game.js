@@ -138,6 +138,9 @@ function getDataFromImage( img ) {
   return imData;
 }
 
+let loop_iteration = 0;
+let sandbox_ellipses = [];
+
 function processNextImage()
 {
   imageOnLoad = function()
@@ -204,34 +207,73 @@ function processNextImage()
 
                 processor: "Euglena" };
 
-    */startTime = performance.now();
-    if (app.mainView.gameInSession) {
-        tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
-        if (!app.mainView.runCodeFn) {
-            console.log("Parsing code anew");
-            app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
-            // todo: run this function less often, only whenever the code changes.
-            return;
-        }
-    }
-      drawFromCode();
+    */
+    startTime = performance.now();
+    drawFromCode();
 
   }
     function drawFromCode() {
-        if (app.mainView.gameInSession && app.mainView.runCodeFn) {
-            let display = document.getElementById("display");
-            let ctx = display.getContext( "2d" );
-            app.mainView.runCodeFn();
+      console.log(app.mainView.ledsSetObj);
+        if (app.mainView.gameInSession && !app.mainView.sandboxMode) {
+            loop_iteration++;
+            if (loop_iteration % 20 == 0)
+                tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
+
+            if (!app.mainView.runCodeFn) {
+                console.log("Parsing code anew");
+                app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
+                // todo: run this function less often, only whenever the code changes.
+                return;
+            }
+            else {
+                let display = document.getElementById("display");
+                let ctx = display.getContext("2d");
+                app.mainView.runCodeFn();
+            }
         }
-
         requestAnimationFrame(processNextImage);
-
     }
 
-  var img = new Image();
-  img.onload = imageOnLoad;
-  //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
-  img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++imageNr);
+    if (!app.mainView.sandboxMode) {
+        var img = new Image();
+        img.onload = imageOnLoad;
+        //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
+        img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++imageNr);
+        img.crossOrigin = "Anonymous";
+    }
+    else if (app.mainView.sandboxMode) {
+        let display = document.getElementById("display");
+        let ctx = display.getContext("2d");
+        if (!sandbox_ellipses.length) {
+            for (let i = 0; i < 50; i++) {
+                sandbox_ellipses.push({rotation: Math.random() *  Math.PI, position: {x: Math.random() * display.width , y: Math.random() * display.height}});
+            }
+        }
+        ctx.fillStyle = "#777";
+        ctx.fillRect(0, 0, display.width, display.height);
+        ctx.fillStyle = "black";
+        for (let ellipse of sandbox_ellipses) {
+            ellipse.position.x += led_force_x(ellipse.position.x) + 2 * Math.random() - 1;
+            ellipse.position.y += led_force_y(ellipse.position.y) + 2 * Math.random() - 1;
+            ellipse.rotation += .1 * (2 * Math.random() - 1);
+            ctx.beginPath();
+            ctx.ellipse(ellipse.position.x, ellipse.position.y, 20, 5, ellipse.rotation, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
+        }
+        drawFromCode();
+    }
+    else {
+      drawFromCode();
+    }
+    function led_force_x(x) {
+      // todo: take into account distance from left and right leds.
+      return (app.mainView.ledsSetObj.rightValue || 0 - app.mainView.ledsSetObj.leftValue || 0) / 999 * 2;
+    }
+    function led_force_y(y) {
+        // todo: take into account distance from left and right leds.
+        return (app.mainView.ledsSetObj.topValue || 0 - app.mainView.ledsSetObj.bottomValue || 0) / 999 * 2;
+    }
 
   if (app.mainView.sandboxMode && app.mainView.sandboxVideo && app.mainView.sandboxVideoHasRecorded && !app.mainView.sandboxVideoIsRecording) {
     var displayedFrame = app.mainView.sandboxVideoPlaybackFrame % parseInt(Math.floor(app.mainView.sandboxFrame/50.0)) + 1;
@@ -242,8 +284,6 @@ function processNextImage()
       app.mainView.sandboxVideoPlaybackFrame = 1;
     }
   }
-
-  img.crossOrigin = "Anonymous";
 }
 
 function drawImage(pixels){

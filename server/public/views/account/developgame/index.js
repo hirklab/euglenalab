@@ -275,6 +275,7 @@
 
     $('#gameNameText').val(app.mainView.gameName);
 
+    $('#btnSandboxMode').click(() => {app.mainView.sandboxMode = true});
     $('#btnStartGame').click(function() {
     app.mainView.runCodeFn = null; // todo: this makes app parse all the code again when starting again. Is this the most efficient way to do this?
         app.mainView.gameRunCode = app.mainView.runEditor.getValue();
@@ -980,11 +981,11 @@
                 let individual_prev = app.mainView.individuals_prev[id];
                 let individual_new = individuals_new[id];
                 // console.error(id, individual, individual_prev, individual_new);
-                individual_new.velocity = (individual_prev && 'position' in individual_prev) ? {
+                individual_new.velocity = (individual_prev && 'position' in individual_prev && 'position' in individual) ? {
                         x: (individual.position.x - individual_prev.position.x) / dt,
                         y: (individual.position.y - individual_prev.position.y) / dt
                     } : {x: 0, y: 0};
-                individual_new.acceleration = (individual_prev && 'velocity' in individual_prev) ? {
+                individual_new.acceleration = (individual_prev && 'velocity' in individual_prev && 'velocity' in individual) ? {
                         x: (individual.velocity.x - individual_prev.velocity.x) / dt,
                         y: (individual.velocity.y - individual_prev.velocity.y) / dt
                     } : {x: 0, y: 0};
@@ -1225,8 +1226,6 @@
      * Game logic functions.
      */
     runLoop: function() { // This function is not called.
-        // Not called.
-      tracking.track('#display', app.mainView.colors);
 
       /*
       This code is not called;
@@ -1662,10 +1661,10 @@
 
         //Fail safe user kick. leds will not be set on bpu if bpu is done.
         //  this covers the case if the server does not properly inform the client of a lab over scenerio.
-        if (app.mainView.timeLeftInLab < 0) {
+        if (app.mainView.sandboxMode || app.mainView.timeLeftInLab < 0) {
           //console.log('experiment over , kick user now' + app.mainView.timeLeftInLab);
           if (app.mainView.sessionOverFirstTime) {
-            //console.log('KICKING USER CODE');
+            console.log('KICKING USER CODE');
             app.mainView.kickUser(null, 'complete');
 
             // clearInterval(app.mainView.updateLoopInterval);
@@ -2140,6 +2139,12 @@
            //console.log('setGameOverMessage function called.');
            app.mainView.gameOverText = gameOverText;
        },
+        LED: {
+               RIGHT: "LED.RIGHT",
+                   LEFT: "LED.LEFT",
+                UP: "LED.UP",
+                DOWN: "LED.DOWN"
+        },
        setLED: function(led, intensity) {
            //console.log('setLED function called');
            //console.log(led);
@@ -2152,7 +2157,7 @@
            app.mainView.joystickIntensity = intensity;
 
            switch (led) {
-               case 'LED.RIGHT':
+               case "LED.RIGHT":
                    app.mainView.joystickDirection = 0;
                    var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
                    ledsSetObj.rightValue = parseInt(intensity);
@@ -2177,7 +2182,7 @@
                    app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
                    break;
                default:
-                   console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN');
+                   console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN', led, led == '"LED.RIGHT"');
            }
        },
        setInstructionText: function(msgText) {
