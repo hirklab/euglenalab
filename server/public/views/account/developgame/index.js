@@ -2013,6 +2013,9 @@
           log: function() {
               console.log.apply(null, arguments);
           },
+          alert: function() {
+            alert.apply(null, arguments);
+          },
           "this": {
               score: 0,
               currLED: "LED.LEFT"
