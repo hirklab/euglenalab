@@ -148,6 +148,12 @@
 
       app.mainView.parseKeypressCode(app.mainView.gameKeypressCode, character);
     };
+    document.onkeydown = function() {
+        app.mainView.gameIsKeyDown = true;
+    };
+    document.onkeyup = function() {
+        app.mainView.gameIsKeyDown = false;
+    };
 
     app.mainView.helperFunctionEditor = CodeMirror.fromTextArea(document.getElementById('txtCodeHelper'), {
         lineNumbers: false,
@@ -1115,6 +1121,7 @@
     gameEuglenaCount: -1,
     gameDemoMode: false,
       gameThisContext: {},
+      gameIsKeyDown: false,
 
     // Joystick info.
     joystickDirection: 0,
@@ -1292,11 +1299,6 @@
       modifiedCode = modifiedCode.split('FILE.OVERWRITE').join('\"FILE.OVERWRITE\"');
       modifiedCode = modifiedCode.split('FILE.APPEND').join('\"FILE.APPEND\"');
 
-      modifiedCode = modifiedCode.split('MAX_SCREEN_WIDTH').join('639');
-      modifiedCode = modifiedCode.split('MAX_SCREEN_HEIGHT').join('479');
-      modifiedCode = modifiedCode.split('MAX_TEXT_SIZE').join('1.5');
-      modifiedCode = modifiedCode.split('MAX_LED_INTENSITY').join('999');
-
       switch (codeType) {
           case "run":
               modifiedCode = "mainService.parseRunCode(function() {" + modifiedCode + "});";
@@ -1306,12 +1308,12 @@
           case "runOnce":
               modifiedCode = "mainService.runOnce(function() {" + modifiedCode + "});";
               break;
-          case "onJoystickChange":
+          /*case "onJoystickChange":
               modifiedCode = "mainService.onJoystickChange(function(angle, intensity) {" + modifiedCode + "});";
               break;
           case "onKeypress":
               modifiedCode = "mainService.onKeypress(function(key) {" + modifiedCode + "});";
-              break;
+              break;*/
           default:
               break;
       }
@@ -1370,53 +1372,12 @@
     },
     parseJoystickCode: function(runCode, angle, intensity) {
       //  todo: fix this.
-      var modifiedCode = runCode.split('MAX_ANGLE').join('360');
-      modifiedCode = modifiedCode.split('MAX_INTENSITY').join('1.0');
-      modifiedCode = modifiedCode.split('angle').join((parseInt(angle) + 180).toString());
+      var modifiedCode = runCode.split('angle').join((parseInt(angle) + 180).toString());
       modifiedCode = modifiedCode.split('intensity').join('\'' + intensity + '\'');
       app.mainView.generalParser(modifiedCode, "runOnce");
     },
     parseKeypressCode: function(runCode, key) {
-      var modifiedCode = runCode.split('KEY.W').join('\'w\'');
-      modifiedCode = modifiedCode.split('KEY.SPACE').join('\' \'');
-      modifiedCode = modifiedCode.split('KEY.ZERO').join('\'0\'');
-      modifiedCode = modifiedCode.split('KEY.ONE').join('\'1\'');
-      modifiedCode = modifiedCode.split('KEY.TWO').join('\'2\'');
-      modifiedCode = modifiedCode.split('KEY.THREE').join('\'3\'');
-      modifiedCode = modifiedCode.split('KEY.FOUR').join('\'4\'');
-      modifiedCode = modifiedCode.split('KEY.FIVE').join('\'5\'');
-      modifiedCode = modifiedCode.split('KEY.SIX').join('\'6\'');
-      modifiedCode = modifiedCode.split('KEY.SEVEN').join('\'7\'');
-      modifiedCode = modifiedCode.split('KEY.EIGHT').join('\'8\'');
-      modifiedCode = modifiedCode.split('KEY.NINE').join('\'9\'');
-      modifiedCode = modifiedCode.split('KEY.A').join('\'a\'');
-      modifiedCode = modifiedCode.split('KEY.S').join('\'s\'');
-      modifiedCode = modifiedCode.split('KEY.D').join('\'d\'');
-      modifiedCode = modifiedCode.split('KEY.C').join('\'c\'');
-      modifiedCode = modifiedCode.split('KEY.Q').join('\'q\'');
-      modifiedCode = modifiedCode.split('KEY.E').join('\'e\'');
-      modifiedCode = modifiedCode.split('KEY.R').join('\'r\'');
-      modifiedCode = modifiedCode.split('KEY.T').join('\'t\'');
-      modifiedCode = modifiedCode.split('KEY.Y').join('\'y\'');
-      modifiedCode = modifiedCode.split('KEY.U').join('\'u\'');
-      modifiedCode = modifiedCode.split('KEY.I').join('\'i\'');
-      modifiedCode = modifiedCode.split('KEY.O').join('\'o\'');
-      modifiedCode = modifiedCode.split('KEY.P').join('\'p\'');
-      modifiedCode = modifiedCode.split('KEY.F').join('\'f\'');
-      modifiedCode = modifiedCode.split('KEY.G').join('\'g\'');
-      modifiedCode = modifiedCode.split('KEY.H').join('\'h\'');
-      modifiedCode = modifiedCode.split('KEY.J').join('\'j\'');
-      modifiedCode = modifiedCode.split('KEY.K').join('\'k\'');
-      modifiedCode = modifiedCode.split('KEY.L').join('\'l\'');
-      modifiedCode = modifiedCode.split('KEY.Z').join('\'z\'');
-      modifiedCode = modifiedCode.split('KEY.X').join('\'x\'');
-      modifiedCode = modifiedCode.split('KEY.C').join('\'c\'');
-      modifiedCode = modifiedCode.split('KEY.V').join('\'v\'');
-      modifiedCode = modifiedCode.split('KEY.B').join('\'b\'');
-      modifiedCode = modifiedCode.split('KEY.N').join('\'n\'');
-      modifiedCode = modifiedCode.split('KEY.M').join('\'m\'');
-      modifiedCode = modifiedCode.split('key').join('\'' + key + '\'');
-      app.mainView.generalParser(modifiedCode, "runOnce");
+      app.mainView.generalParser(runCode, "runOnce");
     },
     parseHelperCode: function(helperCode, helperArgs, helperName) {
       var codeToParse = "var ";
@@ -2016,9 +1977,61 @@
           alert: function() {
             alert.apply(null, arguments);
           },
-          "this": {
-              score: 0,
-              currLED: "LED.LEFT"
+          "COLORS": {
+              "RED": "COLORS.RED",
+              "BLUE": "COLORS.BLUE",
+              "GREEN": "COLORS.GREEN",
+              "BLACK": "COLORS.BLACK",
+              "WHITE": "COLORS.WHITE",
+              "PURPLE": "COLORS.PURPLE",
+              "YELLOW": "COLORS.YELLOW",
+              "ORANGE": "COLORS.ORANGE"
+          },
+          "MAX_SCREEN_WIDTH": 639,
+          "MAX_SCREEN_HEIGHT": 479,
+          "MAX_TEXT_SIZE": 50, /// 1.5,
+          "MAX_LED_INTENSITY": 999,
+          "MAX_ANGLE": 360,
+          "MAX_INTENSITY": 1.0,
+          isKeyDown: function() { return app.mainView.gameIsKeyDown },
+          "KEY": {
+              "W": "w",
+              "SPACE": " ",
+              "ZERO": "0",
+              "ONE": "1",
+              "TWO": "2",
+              "THREE": "3",
+              "FOUR": "4",
+              "FIVE": "5",
+              "SIX": "6",
+              "SEVEN": "7",
+              "EIGHT": "8",
+              "NINE": "9",
+              "A": "a",
+              "S": "s",
+              "D": "d",
+              "Q": "q",
+              "E": "e",
+              "R": "r",
+              "T": "t",
+              "Y": "y",
+              "U": "u",
+              "I": "i",
+              "O": "o",
+              "P": "p",
+              "F": "f",
+              "G": "g",
+              "H": "h",
+              "J": "j",
+              "K": "k",
+              "L": "l",
+              "Z": "z",
+              "X": "x",
+              "C": "c",
+              "V": "v",
+              "B": "b",
+              "N": "n",
+              "M": "m"
           },
           drawCircle:  function(centerX, centerY, radius, color) {
               let ctx = document.getElementById("display").getContext( "2d" );
