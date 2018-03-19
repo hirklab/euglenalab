@@ -245,15 +245,48 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeStart
-              |this.currLED = LED.RIGHT;
-              |this.possibleLEDs = [LED.UP, LED.DOWN, LED.RIGHT, LED.LEFT];
-              |this.instructions = "Guess which LED is currently shining. Press" +
-              |&nbsp;&nbsp;&nbsp;&nbsp;"'W' for top LED, 'A' for left LED, 'S' for bottom LED, and" +
-              |&nbsp;&nbsp;&nbsp;&nbsp;"'D' for right LED.";
-              |this.score = 1;
-              |setJoystickVisible(false);
-              |var instructionText = "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!";
-              |setInstructionText(instructionText);
+              |this.xPos = -5;
+              |this.yPos = MAX_SCREEN_HEIGHT;
+              |this.gameInPlay = true;
+              |this.wonLastGame = true;
+              |&nbsp;
+              |this.lastKeyPressed = null;
+              |this.timeLeft = 0;
+              |this.time = 0;
+              |&nbsp;
+              |this.level = 0;
+              |&nbsp;
+              |if (this.highScore === undefined) {
+              |  this.highScore = 0;
+              |}
+              |&nbsp;
+              |var EasingFunctions = {
+              |  linear: function (t) { return t },
+              |  easeInQuad: function (t) { return t*t },
+              |  easeInCubic: function (t) { return t*t*t },
+              |  easeInQuart: function (t) { return t*t*t*t },
+              |  easeInQuint: function (t) { return t*t*t*t*t }
+              |};
+              |&nbsp;
+              |this.easingFunctions = [
+              |	EasingFunctions.easeInCubic,
+              |    EasingFunctions.easeInQuint,
+              |    EasingFunctions.easeInQuart,
+              |    EasingFunctions.easeInCubic,
+              |    EasingFunctions.easeInQuint,
+              |    EasingFunctions.easeInQuart,
+              |    EasingFunctions.easeInCubic,
+              |    EasingFunctions.easeInQuint,
+              |    EasingFunctions.easeInQuart,
+              |    EasingFunctions.easeInCubic,
+              |    EasingFunctions.easeInQuint,
+              |    EasingFunctions.easeInQuart
+              |];
+              |&nbsp;
+              |this.currentLED = LED.RIGHT;
+              |&nbsp;
+              |this.LEDs = [ LED.RIGHT, LED.UP, LED.DOWN, LED.LEFT ];
+              |&nbsp;
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -271,7 +304,7 @@ block body
             |&nbsp;&nbsp;&nbsp;&nbsp;
             font(color='#0F6BA0')
               |this
-            |.run = 
+            |.run =
             font(color='purple')
               |function
             |() {
@@ -282,16 +315,87 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeRun
-              |//setLED(LED.RIGHT, 999);
-              |//drawCircle(100,100,50,'COLORS.WHITE');
-              |//drawLine(0,0,400,400,'COLORS.RED');
-              |//drawRect(60,160,80,280,'COLORS.BLUE');
-              |//drawText("It works!", 300,200,20,'COLORS.GREEN');
-              |//log(this.score);
-              |//log(getAllEuglenaIndividuals());
-              |if (this.score >= 10) {
-              |&nbsp;&nbsp;&nbsp;&nbsp;endProgram();
+              |if (isKeyDown()) {
+              |  drawRect(5, 5, MAX_SCREEN_WIDTH-5, MAX_SCREEN_HEIGHT-5, COLORS.YELLOW);
+              |  drawRect(2, 2, MAX_SCREEN_WIDTH-2, MAX_SCREEN_HEIGHT-2, COLORS.YELLOW);
               |}
+              |&nbsp;
+              |&nbsp;
+              |if (this.level < 6) {
+              |  drawText("Current Score: " + this.time, 20, 50, 0.7*MAX_TEXT_SIZE, COLORS.RED);
+              |&nbsp;
+              |  drawText("High Score: " + this.highScore, 20, 100, 0.7*MAX_TEXT_SIZE, COLORS.RED);
+              |&nbsp;
+              |  drawText("Current Level: " + this.level, 20, 150, 0.7*MAX_TEXT_SIZE, COLORS.RED);
+              |} else {
+              |  drawText("Congrats! You win!", 100, 250, 0.7*MAX_TEXT_SIZE, COLORS.GREEN);
+              |}
+              |&nbsp;
+              |if (this.gameInPlay === false && this.wonLastGame === false) {
+              |  drawText("You hit a Euglena! Score: " + this.time + ". Press space to play again.", 100, MAX_SCREEN_HEIGHT/2, MAX_TEXT_SIZE*0.3, COLORS.GREEN);
+              |} else {
+              |&nbsp;
+              |  this.time++;
+              |  if (this.time % 1000 === 0) {
+              |    this.level++;
+              |  }
+              |&nbsp;
+              |  var changeLightFrequency = Math.floor(500.0 / this.level);
+              |  if (this.time % changeLightFrequency === 0) {
+              |    var led = this.LEDs[Math.floor(Math.random()*4)];
+              |    if (led !== this.currentLED) {
+              |      setLED(this.currentLED, 0);
+              |      this.currentLED = led;
+              |      setLED(led, MAX_LED_INTENSITY);
+              |    }
+              |  }
+              |&nbsp;
+              |  drawCircle(this.xPos, this.yPos, 5, COLORS.GREEN);
+              |&nbsp;
+              |  // Detect collisions.
+              |  var euglenaPositions = getAllEuglenaPositions();
+              |  for (var pos in euglenaPositions) {
+              |    if (this.xPos > euglenaPositions[pos].x - 5 && this.xPos < euglenaPositions[pos].x + 5 && this.yPos > euglenaPositions[pos].y - 5 && this.yPos < euglenaPositions[pos].y + 5) {
+              |      this.gameInPlay = false;
+              |      this.wonLastGame = false;
+              |      this.lastKeyPressed = null;
+              |	  this.timeLeft = 0;
+              |      if (this.time > this.highScore) {
+              |        this.highScore = this.time;
+              |      }
+              |      this.time = 0;
+              |    }
+              |  }
+              |}
+              |&nbsp;
+              |if (this.lastKeyPressed !== null && this.timeLeft >= 0) {
+              |  var ease = 5 * this.easingFunctions[this.level](this.timeLeft);
+              |  //console.log(ease);
+              |  switch (this.lastKeyPressed) {
+              |    case 'SPACE':
+              |      //this.yPos -= ease;
+              |      break;
+              |  }
+              |}
+              |&nbsp;
+              |if (this.xPos > MAX_SCREEN_WIDTH + 5) {
+              |  this.xPos = 0;
+              |}
+              |if (this.xPos < -5) {
+              |  this.xPos = MAX_SCREEN_WIDTH;
+              |}
+              |if (this.yPos > MAX_SCREEN_HEIGHT + 5) {
+              |  this.yPos = 0;
+              |}
+              |if (this.yPos < -5) {
+              |  this.yPos = MAX_SCREEN_HEIGHT;
+              |}
+              |&nbsp;
+              |this.timeLeft -= 0.1;
+              |&nbsp;
+              |this.yPos += 0.25;
+              |&nbsp;
+              |this.xPos = (((0.05*this.level+1)) * this.time) % MAX_SCREEN_WIDTH;
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -399,47 +503,25 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea.codeArea#txtCodeKeypress
-              |log("Key pressed:" + key);
-              |switch(key) {
-              |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.W:
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.UP) {
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Correct!');
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.score += 1;
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.currLED = this.possibleLEDs[Math.floor(Math.random() * this.possibleLEDs.length)];
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Wrong!');
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
-              |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.A:
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.LEFT) {
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Correct!');
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.score += 1;
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.currLED = this.possibleLEDs[Math.floor(Math.random() * this.possibleLEDs.length)];
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Wrong!');
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
-              |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.S:
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.DOWN) {
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Correct!');
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.score += 1;
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.currLED = this.possibleLEDs[Math.floor(Math.random() * this.possibleLEDs.length)];
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Wrong!');
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
-              |&nbsp;&nbsp;&nbsp;&nbsp;case KEY.D:
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (this.currLED == LED.RIGHT) {
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Correct!');
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.score += 1;
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.currLED = this.possibleLEDs[Math.floor(Math.random() * this.possibleLEDs.length)];
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} else {
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert('Wrong!');
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
-              |&nbsp;&nbsp;&nbsp;&nbsp;default:
-              |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+              |switch (key) {
+              |  case KEY.A:
+              |    this.lastKeyPressed = 'A';
+              |    this.yPos -= 15;
+              |    break;
+              |  case KEY.SPACE:
+              |    this.xPos = MAX_SCREEN_WIDTH / 2;
+              |	this.yPos = MAX_SCREEN_HEIGHT;
+              |    this.gameInPlay = true;
+              |    this.wonLastGame = true;
+              |    this.lastKeyPressed = null;
+              |	this.timeLeft = 0;
+              |	this.time = 0;
+              |    if (this.time > this.highScore) {
+              |      this.highScore = this.time;
+              |    }
+              |    break;
               |}
+              |this.timeLeft = 1;
         |&nbsp;&nbsp;&nbsp;&nbsp;};
         br
         br
