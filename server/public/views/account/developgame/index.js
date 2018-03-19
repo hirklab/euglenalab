@@ -1114,6 +1114,7 @@
     gameJoystickCode: "",
     gameEuglenaCount: -1,
     gameDemoMode: false,
+      gameThisContext: {},
 
     // Joystick info.
     joystickDirection: 0,
@@ -1298,18 +1299,18 @@
 
       switch (codeType) {
           case "run":
-              modifiedCode = "function runCode() {" + modifiedCode + "}; mainService.parseRunCode(runCode);";
+              modifiedCode = "mainService.parseRunCode(function() {" + modifiedCode + "});";
               break;
           case "start":
           case "end":
           case "runOnce":
-              modifiedCode = "function runOnceCode() {" + modifiedCode + "}; mainService.runOnce(runOnceCode);";
+              modifiedCode = "mainService.runOnce(function() {" + modifiedCode + "});";
               break;
           case "onJoystickChange":
-              modifiedCode = "function onJoystickChangeCode(angle, intensity) {" + modifiedCode + "}; mainService.onJoystickChange(onJoystickChangeCode);";
+              modifiedCode = "mainService.onJoystickChange(function(angle, intensity) {" + modifiedCode + "});";
               break;
           case "onKeypress":
-              modifiedCode = "function onKeypressCode(key) {" + modifiedCode + "}; mainService.onKeypress(onKeypressCode);";
+              modifiedCode = "mainService.onKeypress(function(key) {" + modifiedCode + "});";
               break;
           default:
               break;
@@ -1995,219 +1996,215 @@
     }
     return color;
   }
+  let caja_api = {};
   caja.whenReady(() => {
-     /*for (let key in caja_api) {
-         let value = caja_api[key];
-         if (typeof value === "function") {
-             caja.markFunction(value);
-             caja_api[key] = caja.tame(value);
-         }
-    }*/
-  });
-   var caja_api = {
-       mainService: {
-           parseRunCode: function(fn) {
-                if (app.mainView.gameInSession || app.mainView.sandboxMode)
-                {
-                    app.mainView.runCodeFn = fn;
-                }
-            },
-           runOnce: function(fn) {
-               fn();
-           }
-       },
-      log: function(txt) {
+      caja_api = {
+          mainService: {
+              parseRunCode: function(fn) {
+                  if (app.mainView.gameInSession || app.mainView.sandboxMode)
+                  {
+                      app.mainView.runCodeFn = () => fn.call(app.mainView.gameThisContext);
+                  }
+              },
+              runOnce: function(fn) {
+                  fn.call(app.mainView.gameThisContext);
+              }
+          },
+          log: function() {
+              console.log.apply(null, arguments);
+          },
+          "this": {
+              score: 0,
+              currLED: "LED.LEFT"
+          },
+          drawCircle:  function(centerX, centerY, radius, color) {
+              let ctx = document.getElementById("display").getContext( "2d" );
+              ctx.strokeStyle = parseColor(color);
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
+              ctx.closePath();
+              ctx.stroke();
 
-          console.log(txt);
-      },
-      "this": {
-          score: 0,
-          currLED: "LED.LEFT"
-      },
-    drawCircle:  function(centerX, centerY, radius, color) {
-        let ctx = document.getElementById("display").getContext( "2d" );
-        ctx.strokeStyle = parseColor(color);
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI)
-        ctx.closePath();
-        ctx.stroke();
+          },
+          /*
+           * Handle various function calls.
+           */
 
+          drawOnTrackedEuglena: function(isDrawing) {
+              //console.log('drawOnTrackedEuglena function called.');
+              app.mainView.gameDrawOnTrackedEuglena = isDrawing;
+          },
+          drawLine: function(x1, y1, x2, y2, color) {
+              let ctx = document.getElementById("display").getContext( "2d" );
+              ctx.strokeStyle = parseColor(color);
+              ctx.beginPath();
+              ctx.moveTo(x1, y1);
+              ctx.lineTo(x2, y2);
+              ctx.closePath();
+              ctx.stroke();
+          },
+          drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, color) {
+              let ctx = document.getElementById("display").getContext( "2d" );
+              ctx.strokeStyle = parseColor(color);
+              ctx.beginPath();
+              ctx.rect(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
+              ctx.closePath();
+              ctx.stroke();
+          },
+          drawText: function(drawTxt, xPos, yPos, size, color) {
+              // todo: make size the last parameter (so it's optional).
+              let ctx = document.getElementById("display").getContext( "2d" );
+              if (typeof size != "number") size = 20;
+              ctx.fillStyle = parseColor(color);
+              ctx.font=size + "px Calibri";
+              ctx.fillText(drawTxt, xPos, yPos);
+          },
+          endProgram: function() {
+              $('#btnStopGame').click();
+          },
+          getAllEuglenaIDs: function() {
+              return Object.keys(app.mainView.individuals);
+          },
+          getAllEuglenaIndividuals: () => app.mainView.individuals,
+      getAllEuglenaPositions: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].position),
+    getAllEuglenaVelocities: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].velocity),
+    getAllEuglenaAccelerations: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].acceleration),
+    getEuglenaCount: function() {
+        //console.log('getEuglenaCount function called.');
+        return Object.keys(app.mainView.individuals).length;
     },
-       /*
-        * Handle various function calls.
-        */
-
-       drawOnTrackedEuglena: function(isDrawing) {
-           //console.log('drawOnTrackedEuglena function called.');
-           app.mainView.gameDrawOnTrackedEuglena = isDrawing;
-       },
-       drawLine: function(x1, y1, x2, y2, color) {
-           let ctx = document.getElementById("display").getContext( "2d" );
-           ctx.strokeStyle = parseColor(color);
-           ctx.beginPath();
-           ctx.moveTo(x1, y1);
-           ctx.lineTo(x2, y2);
-           ctx.closePath();
-           ctx.stroke();
-       },
-       drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, color) {
-           let ctx = document.getElementById("display").getContext( "2d" );
-           ctx.strokeStyle = parseColor(color);
-           ctx.beginPath();
-           ctx.rect(upperLeftX, upperLeftY, lowerRightX, lowerRightY);
-           ctx.closePath();
-           ctx.stroke();
-       },
-       drawText: function(drawTxt, xPos, yPos, size, color) {
-           // todo: make size the last parameter (so it's optional).
-           let ctx = document.getElementById("display").getContext( "2d" );
-           if (typeof size != "number") size = 20;
-           ctx.fillStyle = parseColor(color);
-           ctx.font=size + "px Calibri";
-           ctx.fillText(drawTxt, xPos, yPos);
-       },
-       endProgram: function() {
-           $('#btnStopGame').click();
-       },
-       getAllEuglenaIDs: function() {
-           return Object.keys(app.mainView.individuals);
-       },
-           getAllEuglenaIndividuals: () => app.mainView.individuals,
-       getAllEuglenaPositions: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].position),
-        getAllEuglenaVelocities: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].velocity),
-        getAllEuglenaAccelerations: () => Object.keys(app.mainView.individuals).map(k => app.mainView.individuals[k].acceleration),
-       getEuglenaCount: function() {
-           //console.log('getEuglenaCount function called.');
-           return Object.keys(app.mainView.individuals).length;
-       },
-       getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
-           // todo
-           //console.log('getEuglenaInRect function called.');
-           app.mainView.getEuglenaInRectUpperLeftX = upperLeftX;
-           app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
-           app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
-           app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
-           var idSet = new Set();
-           var splitPositions = app.mainView.gameEuglenaInRectReturn.split(";");
-           for (var i = 0; i < splitPositions.length; i++) {
-               var token = splitPositions[i];
-               if (token.length <= 0 || isNaN(token)) continue;
-               idSet.add(parseInt(token));
-           }
-           return Array.from(idSet);
-       },
-       getEuglenaAcceleration: id => app.mainView.individuals[id].acceleration,
-       getEuglenaPosition: id => app.mainView.individuals[id].position,
+    getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
+        // todo
+        //console.log('getEuglenaInRect function called.');
+        app.mainView.getEuglenaInRectUpperLeftX = upperLeftX;
+        app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
+        app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
+        app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
+        var idSet = new Set();
+        var splitPositions = app.mainView.gameEuglenaInRectReturn.split(";");
+        for (var i = 0; i < splitPositions.length; i++) {
+            var token = splitPositions[i];
+            if (token.length <= 0 || isNaN(token)) continue;
+            idSet.add(parseInt(token));
+        }
+        return Array.from(idSet);
+    },
+    getEuglenaAcceleration: id => app.mainView.individuals[id].acceleration,
+        getEuglenaPosition: id => app.mainView.individuals[id].position,
         getEuglenaVelocity: id => app.mainView.individuals[id].velocity,
         getEuglenaById: id => app.mainView.individuals[id],
-       getEuglenaRotation: function(id) {
-           // todo: app.mainView.individuals[id].rotation;
-           app.mainView.getEuglenaRotationID = id;
-           var idToRotation = {};
-           var eachRotation = app.mainView.getEuglenaRotationReturn.split(';');
-           for (var i = 0; i < eachRotation.length; i++) {
-               var idAndItem = eachRotation[i].split(':');
-               idToRotation[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-               app.mainView.getEuglenaRotationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
-           }
-           if (id in idToRotation) {
-               return idToRotation[id];
-           } else if (id in app.mainView.getEuglenaRotationCache && app.mainView.getEuglenaRotationCache[id] !== -1) {
-               return app.mainView.getEuglenaRotationCache[id];
-           } else {
-               return -1;
-           }
-       },
-       getMaxScreenHeight: function() {
-           //console.log('getMaxScreenHeight function called.');
-           return 479;
-       },
-       getMaxScreenWidth: function() {
-           //console.log('getMaxScreenWidth function called.');
-           return 639;
-       },
-       getTimeLeft: function() {
-           //console.log('getTimeLeft function called.');
-           return Math.floor(app.mainView.timeLeftInLab / 1000.0);
-       },
-       readFromFile: function(fileName) {
-           //console.log('readFromFile function called.');
+        getEuglenaRotation: function(id) {
+        // todo: app.mainView.individuals[id].rotation;
+        app.mainView.getEuglenaRotationID = id;
+        var idToRotation = {};
+        var eachRotation = app.mainView.getEuglenaRotationReturn.split(';');
+        for (var i = 0; i < eachRotation.length; i++) {
+            var idAndItem = eachRotation[i].split(':');
+            idToRotation[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+            app.mainView.getEuglenaRotationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+        }
+        if (id in idToRotation) {
+            return idToRotation[id];
+        } else if (id in app.mainView.getEuglenaRotationCache && app.mainView.getEuglenaRotationCache[id] !== -1) {
+            return app.mainView.getEuglenaRotationCache[id];
+        } else {
+            return -1;
+        }
+    },
+    getMaxScreenHeight: function() {
+        //console.log('getMaxScreenHeight function called.');
+        return 479;
+    },
+    getMaxScreenWidth: function() {
+        //console.log('getMaxScreenWidth function called.');
+        return 639;
+    },
+    getTimeLeft: function() {
+        //console.log('getTimeLeft function called.');
+        return Math.floor(app.mainView.timeLeftInLab / 1000.0);
+    },
+    readFromFile: function(fileName) {
+        //console.log('readFromFile function called.');
 
-           var txtData = "unchanged";
-           $.ajax({
-               type: 'POST',
-               url: '/account/developgame/readuserfile/',
-               data: { userFile: fileName },
-               async:false
-           }).done(function(data) {
-               //console.log( "Data Loaded readFromFile: " + data);
-               txtData = data;
-               return txtData;
-           });
+        var txtData = "unchanged";
+        $.ajax({
+            type: 'POST',
+            url: '/account/developgame/readuserfile/',
+            data: { userFile: fileName },
+            async:false
+        }).done(function(data) {
+            //console.log( "Data Loaded readFromFile: " + data);
+            txtData = data;
+            return txtData;
+        });
 
-           //console.log("Exiting function with data: " + txtData);
-           return txtData;
-       },
-       setJoystickVisible: function(e) {
-           app.mainView.setJoystickVisible(e);
-       },
-       setGameOverMessage: function(gameOverText) {
-           //console.log('setGameOverMessage function called.');
-           app.mainView.gameOverText = gameOverText;
-       },
-        LED: {
-               RIGHT: "LED.RIGHT",
-                   LEFT: "LED.LEFT",
-                UP: "LED.UP",
-                DOWN: "LED.DOWN"
-        },
-       setLED: function(led, intensity) {
-           //console.log('setLED function called');
-           //console.log(led);
-           //console.log(intensity);
+        //console.log("Exiting function with data: " + txtData);
+        return txtData;
+    },
+    setJoystickVisible: function(e) {
+        app.mainView.setJoystickVisible(e);
+    },
+    setGameOverMessage: function(gameOverText) {
+        //console.log('setGameOverMessage function called.');
+        app.mainView.gameOverText = gameOverText;
+    },
+    LED: {
+        RIGHT: "LED.RIGHT",
+            LEFT: "LED.LEFT",
+            UP: "LED.UP",
+            DOWN: "LED.DOWN"
+    },
+    setLED: function(led, intensity) {
+        //console.log('setLED function called');
+        //console.log(led);
+        //console.log(intensity);
 
-           // if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
-           //   return;
-           // }
+        // if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
+        //   return;
+        // }
 
-           app.mainView.joystickIntensity = intensity;
+        app.mainView.joystickIntensity = intensity;
 
-           switch (led) {
-               case "LED.RIGHT":
-                   app.mainView.joystickDirection = 0;
-                   var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
-                   ledsSetObj.rightValue = parseInt(intensity);
-                   app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
-                   break;
-               case 'LED.LEFT':
-                   app.mainView.joystickDirection = 180;
-                   var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, intensity);
-                   ledsSetObj.leftValue = parseInt(intensity);
-                   app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
-                   break;
-               case 'LED.UP':
-                   app.mainView.joystickDirection = 90;
-                   var ledsSetObj = app.mainView.setLEDhelper(intensity, 0, 0, 0);
-                   ledsSetObj.topValue = parseInt(intensity);
-                   app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
-                   break;
-               case 'LED.DOWN':
-                   app.mainView.joystickDirection = 270;
-                   var ledsSetObj = app.mainView.setLEDhelper(0, 0, intensity, 0);
-                   ledsSetObj.bottomValue = parseInt(intensity);
-                   app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
-                   break;
-               default:
-                   console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN', led, led == '"LED.RIGHT"');
-           }
-       },
-       setInstructionText: function(msgText) {
-           //console.log('setLevelText function called.');
-           app.mainView.gameInstructionText = msgText;
-           $('#instructionText').text(app.mainView.gameInstructionText);
-       }
+        switch (led) {
+            case "LED.RIGHT":
+                app.mainView.joystickDirection = 0;
+                var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
+                ledsSetObj.rightValue = parseInt(intensity);
+                app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+                break;
+            case 'LED.LEFT':
+                app.mainView.joystickDirection = 180;
+                var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, intensity);
+                ledsSetObj.leftValue = parseInt(intensity);
+                app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+                break;
+            case 'LED.UP':
+                app.mainView.joystickDirection = 90;
+                var ledsSetObj = app.mainView.setLEDhelper(intensity, 0, 0, 0);
+                ledsSetObj.topValue = parseInt(intensity);
+                app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+                break;
+            case 'LED.DOWN':
+                app.mainView.joystickDirection = 270;
+                var ledsSetObj = app.mainView.setLEDhelper(0, 0, intensity, 0);
+                ledsSetObj.bottomValue = parseInt(intensity);
+                app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+                break;
+            default:
+                console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN', led, led == '"LED.RIGHT"');
+        }
+    },
+    setInstructionText: function(msgText) {
+        //console.log('setLevelText function called.');
+        app.mainView.gameInstructionText = msgText;
+        $('#instructionText').text(app.mainView.gameInstructionText);
+    }
 
 }
+
+
+
+  }); // whenReady
 
 
 }());
