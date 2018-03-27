@@ -587,9 +587,9 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
                 // Add LED stimulus effects.
                 if (joystickDirection >= 0 && joystickDirection < 180) {
-                    euglenaAnglesSandbox[i] = ((1000.0 - joystickIntensity)*euglenaAnglesSandbox[i] + joystickIntensity*(180-joystickDirection)) / 1000.0;
+                    euglenaAnglesSandbox[i] = (180-joystickDirection);
                 } else if (joystickDirection >= 180 && joystickDirection <= 360) {
-                    euglenaAnglesSandbox[i] = ((1000.0 - joystickIntensity)*euglenaAnglesSandbox[i] + joystickIntensity*(540-joystickDirection)) / 1000.0;
+                    euglenaAnglesSandbox[i] = (540-joystickDirection);
                 }
                 // Increase position by r*cos(theta) in x direction and r*sin(theta) in y direction.
                 euglenaPositionsSandbox[i].x += euglenaVelocitiesSandbox[i]*cos(euglenaAnglesSandbox[i] * PI / 180.0);
