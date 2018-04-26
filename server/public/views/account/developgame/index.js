@@ -37,6 +37,7 @@
         }
       });
 
+
     document.onkeypress = function (e) {
       e = e || window.event;
       var code;
@@ -598,7 +599,7 @@
 
     $('#btnDownloadInstructions').click(function(e) {
       e.preventDefault();
-      window.open('/media/documents/EuglenaScriptUsageInstructions.pdf', '_blank');
+      window.open('https://goo.gl/SwzvoT', '_blank');
     });
 
     $('#btnSubmitFeedback').click(function(e) {
@@ -647,6 +648,8 @@
       $('#runningStatus').css('color', 'red');
       $('#runningStatus').html('Stopped');
       var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, 0);
+      app.mainView.joystickIntensity = 0;
+      app.mainView.joystickDirection = 0;
       ledsSetObj.rightValue = 0;
       ledsSetObj.leftValue = 0;
       ledsSetObj.upValue = 0;
@@ -655,8 +658,6 @@
       app.mainView.setInstructionText(" ");
       app.mainView.setJoystickVisible(true);
       app.mainView.codeEditorReadOnly = false;
-      app.mainView.joystickIntensity = 0;
-      app.mainView.joystickDirection = 0;
       // app.mainView.codeVariablesEditor.setOption("readOnly", false);
       // app.mainView.runEditor.setOption("readOnly", false);
       // app.mainView.startEditor.setOption("readOnly", false);
@@ -869,6 +870,8 @@
     sandboxVideoName: "sandboxvideo",
 
     // GAME-RELATED VARIABLES
+    imageNr: 0,
+    imageNrBack: 0,
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
     gameInstructionText: "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!",
@@ -1112,12 +1115,17 @@
       modifiedCode = modifiedCode.split('getEuglenaVelocity').join('app.mainView.getEuglenaVelocity');
       modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
       modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
+      modifiedCode = modifiedCode.split('getReceivedFrameNum').join('app.mainView.getReceivedFrameNum');
+      modifiedCode = modifiedCode.split('getSentFrameNum').join('app.mainView.getSentFrameNum');
       modifiedCode = modifiedCode.split('getTimeLeft').join('app.mainView.getTimeLeft');
       modifiedCode = modifiedCode.split('readFromFile').join('app.mainView.readFromFile');
       modifiedCode = modifiedCode.split('setJoystickVisible').join('app.mainView.setJoystickVisible');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setInstructionText').join('app.mainView.setInstructionText');
       modifiedCode = modifiedCode.split('writeToFile').join('app.mainView.writeToFile');
+
+      
+      
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
       modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
@@ -1645,6 +1653,13 @@
         default:
           console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN');
       }
+    },
+    getSentFrameNum: function() {
+      console.log('image nr: ' + app.mainView.imageNr);
+      return app.mainView.imageNr;
+    },
+    getReceivedFrameNum: function() {
+      return app.mainView.imageNrBack;
     },
     setLEDhelper: function(top, right, bottom, left) {
       var point = app.mainView.myJoyStick.getXyFromLightValues({topValue: top, rightValue: right, bottomValue: bottom, leftValue: left}, '');
