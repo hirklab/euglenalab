@@ -965,7 +965,7 @@ var loop = function () {
                     }
 
                     //add bpu exps from this doc to expTag Obj
-                    Object.keys(app.listExperimentDoc._doc).forEach(function (key) {
+                    Object.keys(app.listExperimentDoc).forEach(function (key) {
                         if (key[0] !== '_' && (key.search('eug') > -1)) {
                             while (app.listExperimentDoc[key].length > 0) {
                                 var expTag = app.listExperimentDoc[key].shift();
