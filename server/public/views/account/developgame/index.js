@@ -2048,7 +2048,17 @@
 
           drawOnTrackedEuglena: function(isDrawing) {
               //console.log('drawOnTrackedEuglena function called.');
-              app.mainView.gameDrawOnTrackedEuglena = isDrawing;
+              // app.mainView.gameDrawOnTrackedEuglena = isDrawing;
+              /*
+               * Draw on tracked Euglena.
+              */
+              let ctx = document.getElementById("display").getContext( "2d" );
+              ctx.strokeStyle = "#ff0000";
+              for (let id in app.mainView.individuals) {
+                let eug = app.mainView.individuals[id];
+                ctx.strokeRect(eug.position.x, eug.position.y, eug.size.width, eug.size.height);
+                caja_api.drawText(id, eug.position.x, eug.position.y + 5, 12, ctx.strokeStyle)
+              }
           },
           drawLine: function(x1, y1, x2, y2, color) {
               let ctx = document.getElementById("display").getContext( "2d" );
@@ -2110,6 +2120,7 @@
         getEuglenaVelocity: id => app.mainView.individuals[id].velocity,
         getEuglenaById: id => app.mainView.individuals[id],
         getEuglenaRotation: function(id) {
+          // todo: getEuglenaRotation
         // todo: app.mainView.individuals[id].rotation;
         app.mainView.getEuglenaRotationID = id;
         var idToRotation = {};

@@ -315,6 +315,7 @@ block body
           div.col-xs-1
           div.col-xs-11
             textarea#txtCodeRun
+              |drawOnTrackedEuglena();
               |if (isKeyDown()) {
               |  drawRect(5, 5, MAX_SCREEN_WIDTH-5, MAX_SCREEN_HEIGHT-5, COLORS.YELLOW);
               |  drawRect(2, 2, MAX_SCREEN_WIDTH-2, MAX_SCREEN_HEIGHT-2, COLORS.YELLOW);
@@ -584,17 +585,12 @@ block body
 
                 b drawOnTrackedEuglena
                 |(
-                i isDrawing
+                i 
                 |)
                 br
-                |Input(s):
+                |Draw a virtual object over each tracked euglena.
                 br
-                i isDrawing
-                |, a boolean
-                br
-                |Toggle whether the currently tracked Euglena have a virtual object drawn over them.
-                br
-                i Example: drawOnTrackedEuglena(true);
+                i Example: drawOnTrackedEuglena();
 
                 br
                 br
