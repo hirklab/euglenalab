@@ -303,12 +303,30 @@ class EuglenaProcessor : public Processor {
         std::map<int, double> euglenaVelocitiesSandbox;
         std::map<int, double> euglenaAccelerationsSandbox;
         std::map<int, float> euglenaAnglesSandbox;
+        std::map<int, float> euglenaAnglesRandSandbox;
+        // Last joystick intensities.
         double joystickIntensity = 0;
         double joystickDirection = 0;
+        double joystickIntensityPrev = 0;
+        double joystickDirectionPrev = 0;
+        // Intensities per direction.
+        double intensityLeft = 0;
+        double intensityRight = 0;
+        double intensityUp = 0;
+        double intensityDown = 0;
+        // Directions per angle.
+        double directionLeft = 0;
+        double directionRight = 0;
+        double directionUp = 0;
+        double directionDown = 0;
 
         int videoFileCount = 0;
 
         int frameIterations = 0;
+
+
+
+        int imageNr = 0;
         
         // Euglena tracking variables
         std::vector<EuglenaObject> trackedEuglenas;
@@ -324,30 +342,30 @@ class EuglenaProcessor : public Processor {
         bool hungarianAlgorithm = false;            // Use hungarian algorithm instead od simple euclidean distance  SIGNIFICANT slowdown
 
         // drawCircle
-        char drawCircleCenterX[300];
-        char drawCircleCenterY[300];
-        char drawCircleRadius[300];
-        char drawCircleR[300];
-        char drawCircleG[300];
-        char drawCircleB[300];
+        char drawCircleCenterX[3000];
+        char drawCircleCenterY[3000];
+        char drawCircleRadius[3000];
+        char drawCircleR[3000];
+        char drawCircleG[3000];
+        char drawCircleB[3000];
 
         // drawLine
-        char drawLineX1[300];
-        char drawLineY1[300];
-        char drawLineX2[300];
-        char drawLineY2[300];
-        char drawLineR[300];
-        char drawLineG[300];
-        char drawLineB[300];
+        char drawLineX1[10000];
+        char drawLineY1[10000];
+        char drawLineX2[10000];
+        char drawLineY2[10000];
+        char drawLineR[10000];
+        char drawLineG[10000];
+        char drawLineB[10000];
 
         // drawRect
-        char drawRectUpperLeftX[300];
-        char drawRectUpperLeftY[300];
-        char drawRectLowerRightX[300];
-        char drawRectLowerRightY[300]; 
-        char drawRectR[300];
-        char drawRectG[300]; 
-        char drawRectB[300];
+        char drawRectUpperLeftX[1000];
+        char drawRectUpperLeftY[1000];
+        char drawRectLowerRightX[1000];
+        char drawRectLowerRightY[1000]; 
+        char drawRectR[1000];
+        char drawRectG[1000]; 
+        char drawRectB[1000];
 
         // drawText
         char drawTextdrawTxt[300];
@@ -549,29 +567,59 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
             // SIMULATION MODE
 
+            // Switch current joystick info.
+            if (joystickDirection != joystickDirectionPrev) {
+                if (joystickDirection == 0) {
+                    intensityRight = joystickIntensity;
+                    directionRight = 1;
+                }
+                if (joystickDirection == 90) {
+                    intensityUp = joystickIntensity;
+                    directionUp = 1;
+                }
+                if (joystickDirection == 180) {
+                    intensityLeft = joystickIntensity;
+                    directionLeft = 1;
+                }
+                if (joystickDirection == 270) {
+                    intensityDown = joystickIntensity;
+                    directionDown = 1;
+                }
+                joystickDirectionPrev = joystickDirection;
+            }
+            if (joystickIntensity != joystickIntensityPrev) {
+                if (joystickIntensity == 0) {
+                    if (joystickDirectionPrev == 0) directionRight = 0;
+                    if (joystickDirectionPrev == 90) directionUp = 0;
+                    if (joystickDirectionPrev == 180) directionLeft = 0;
+                    if (joystickDirectionPrev == 270) directionDown = 0;
+                }
+
+                if (joystickDirectionPrev == 0) {
+                    intensityRight = joystickIntensity;
+                }
+                if (joystickDirectionPrev == 90) {
+                    intensityUp = joystickIntensity;
+                }
+                if (joystickDirectionPrev == 180) {
+                    intensityLeft = joystickIntensity;
+                }
+                if (joystickDirectionPrev == 270) {
+                    intensityDown = joystickIntensity;
+                }
+                joystickIntensityPrev = joystickIntensity;
+            }
+
             cv::rectangle(im, cv::Point(0.0, 0.0), cv::Point(640.0, 480.0), cv::Scalar(0, 0, 0, 255), -1);
 
             if (sandboxModeFirstIteration) {
-                euglenaPositionsSandbox[0] = cv::Point2f(50.0, 50.0);
-                euglenaPositionsSandbox[1] = cv::Point2f(120.0, 120.0);
-                euglenaPositionsSandbox[2] = cv::Point2f(190.0, 190.0);
-                euglenaPositionsSandbox[3] = cv::Point2f(260.0, 260.0);
-                euglenaPositionsSandbox[4] = cv::Point2f(330.0, 330.0);
-                euglenaAnglesSandbox[0] = rand() % 360;
-                euglenaAnglesSandbox[1] = rand() % 360;
-                euglenaAnglesSandbox[2] = rand() % 360;
-                euglenaAnglesSandbox[3] = rand() % 360;
-                euglenaAnglesSandbox[4] = rand() % 360;
-                euglenaVelocitiesSandbox[0] = 1.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[1] = 0.1 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[2] = 1.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[3] = 0.1 + ((double)rand() / RAND_MAX)*2;
-                euglenaVelocitiesSandbox[4] = 0.5 + ((double)rand() / RAND_MAX)*2;
-                euglenaAccelerationsSandbox[0] = 0.0;
-                euglenaAccelerationsSandbox[1] = 0.0;
-                euglenaAccelerationsSandbox[2] = 0.0;
-                euglenaAccelerationsSandbox[3] = 0.0;
-                euglenaAccelerationsSandbox[4] = 0.0;
+                for (int eugID = 0; eugID < 30; eugID++) {
+                    euglenaPositionsSandbox[eugID] = cv::Point2f(eugID*10.0, eugID*10.0);
+                    euglenaAnglesSandbox[eugID] = rand() % 360;
+                    euglenaAnglesRandSandbox[eugID] = ((double)rand() / RAND_MAX)*40 - 20;
+                    euglenaVelocitiesSandbox[eugID] = ((double)rand() / RAND_MAX)*10;
+                    euglenaAccelerationsSandbox[eugID] = 0.0;
+                }
                 sandboxModeFirstIteration = false;
             }
 
@@ -599,12 +647,37 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
             // Update position of Euglena based on velocity and angle.
             //cv::putText(im, std::to_string(joystickDirection), cv::Point(100.0, 80.0), cv::FONT_HERSHEY_DUPLEX, 1.4, cv::Scalar(255,255,255,255));
             for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
+
                 // Add LED stimulus effects.
                 if (joystickDirection >= 0 && joystickDirection < 180) {
-                    euglenaAnglesSandbox[i] = ((1000.0 - joystickIntensity)*euglenaAnglesSandbox[i] + joystickIntensity*(180-joystickDirection)) / 1000.0;
+                    euglenaAnglesSandbox[i] = (180-joystickDirection) + euglenaAnglesRandSandbox[i];
                 } else if (joystickDirection >= 180 && joystickDirection <= 360) {
-                    euglenaAnglesSandbox[i] = ((1000.0 - joystickIntensity)*euglenaAnglesSandbox[i] + joystickIntensity*(540-joystickDirection)) / 1000.0;
+                    euglenaAnglesSandbox[i] = (540-joystickDirection) + euglenaAnglesRandSandbox[i];
                 }
+
+                if (frameCount % 100 == 0) {
+                    euglenaAnglesRandSandbox[i] = ((double)rand() / RAND_MAX)*80 - 40;
+                }
+
+                /*
+                float k = -0.3;
+                int b = 0;
+                if (directionRight == 1) {
+                    b = 0;
+                }
+                if (directionUp == 1) {
+                    b = 90;
+                }
+                if (directionLeft == 1) {
+                    b = 180;
+                }
+                if (directionDown == 1) {
+                    b = 270;
+                }
+                euglenaAnglesSandbox[i] += k * sin(b - euglenaAnglesSandbox[i]) + 0.0*rand();
+                */
+
+
                 // Increase position by r*cos(theta) in x direction and r*sin(theta) in y direction.
                 euglenaPositionsSandbox[i].x += euglenaVelocitiesSandbox[i]*cos(euglenaAnglesSandbox[i] * PI / 180.0);
                 euglenaPositionsSandbox[i].y += euglenaVelocitiesSandbox[i]*sin(euglenaAnglesSandbox[i] * PI / 180.0);
@@ -622,7 +695,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
             // Draw Euglena.
             for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
-                cv::ellipse(im, euglenaPositionsSandbox[i], cv::Size(20, 4), euglenaAnglesSandbox[i], 0.0, 360.0, cv::Scalar(0, 255, 0, 255), -1);
+                cv::ellipse(im, euglenaPositionsSandbox[i], cv::Size(10, 2), euglenaAnglesSandbox[i], 0.0, 360.0, cv::Scalar(0, 255, 0, 255), -1);
             }
 
         }
@@ -1134,6 +1207,8 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
         joystickDirection = 0;
         joystickIntensity = 0;
+
+
     }
 
     // Display game over if that's the case.

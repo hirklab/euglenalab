@@ -61,9 +61,9 @@ block body
   script(type='text/template', id='tmpl-bpuimage')
     div
       h2(style='text-align:center;') Real-time Microscopes
-      center
-        button.btn.btn-primary(onclick="location.href='/account/developgame/'")#btnReturnToSession Go To Microscope
-      br
+      //- center
+      //-   button.btn.btn-primary(onclick="location.href='/account/developgame/'")#btnReturnToSession Go To Microscope
+      //- br
       br
       //center
       //  div.alert.alert-warning
@@ -76,7 +76,7 @@ block body
             div.col-xs-4
               button.btn.btn-primary.btn-joinLiveBpu.bpuButton.pull-left(type='button', name=data.eugs[j].joinLiveJadeName, value=data.eugs[j].index, disabled) Live
             div.col-xs-4
-              button.btn.btn-primary.btn-joinGameBpu.bpuButton(type='button', name=data.eugs[j].joinGameJadeName, value=data.eugs[j].index, disabled) Code
+              button.btn.btn-success.btn-joinGameBpu.bpuButton(type='button', name=data.eugs[j].joinGameJadeName, value=data.eugs[j].index, disabled) Start
             div.col-xs-4
               button.btn.btn-primary.btn-submitTextBpu.bpuButton.pull-right(type='button', name=data.eugs[j].submitTextJadeName, value=data.eugs[j].index, disabled) Batch
           div.row

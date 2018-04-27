@@ -10,7 +10,7 @@ var averageFramePeriod = samplePeriod;
 var ewmaSmooth = 0.3;
 
 var imageData;
-var imageNr = 0; // Serial number of current image
+//var imageNr = 0; // Serial number of current image
 
 var imageCacheSize = 67;
 
@@ -72,8 +72,8 @@ function enableDownload()
       }
       var img = new Image();
       img.onload = imageOnLoad;
-      //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
-      img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++imageNr);
+      img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
+
       console.log("Game's BPU ADDRESS: " + img.src);
       img.crossOrigin = "Anonymous";
     }
@@ -205,6 +205,8 @@ function processNextImage()
                 // getEuglenaVelocityByID
                 getEuglenaVelocityID: app.mainView.getEuglenaVelocityID,
 
+                imageNr: app.mainView.imageNr,
+
                 processor: "Euglena" };
 
     */
@@ -235,6 +237,7 @@ function processNextImage()
         requestAnimationFrame(processNextImage);
     }
 
+<<<<<<< HEAD
     if (!app.mainView.sandboxMode) {
         var img = new Image();
         img.onload = imageOnLoad;
@@ -276,6 +279,10 @@ function processNextImage()
         return (app.mainView.ledsSetObj.topValue || 0 - app.mainView.ledsSetObj.bottomValue || 0) / 999 * 2;
     }
 
+  var img = new Image();
+  img.onload = imageOnLoad;
+  img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
+
   if (app.mainView.sandboxMode && app.mainView.sandboxVideo && app.mainView.sandboxVideoHasRecorded && !app.mainView.sandboxVideoIsRecording) {
     var displayedFrame = app.mainView.sandboxVideoPlaybackFrame % parseInt(Math.floor(app.mainView.sandboxFrame/50.0)) + 1;
     //console.log(displayedFrame + '---' + app.mainView.sandboxFrame);
@@ -308,6 +315,7 @@ function handleMessage(msg) {
     app.mainView.getEuglenaPositionReturn = res.EuglenaPositionReturn;
     app.mainView.getEuglenaVelocityReturn = res.EuglenaVelocityReturn;
     app.mainView.getEuglenaRotationReturn = res.EuglenaRotationReturn;
+    app.mainView.imageNrBack= res.imageNr;
   }
   if ( res.Type == "completed" ) {
     if ( res.Data ) {

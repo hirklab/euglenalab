@@ -19,7 +19,8 @@ var _init = function(options, callback) {
 
   //Diffuser
   rpi.pinMode(options.diffuserPin, rpi.OUTPUT);
-  rpi.digitalWrite(options.diffuserPin, 1);
+  rpi.softPwmCreate(options.diffuserPin, 0, 100);
+  rpi.softPwmWrite(options.diffuserPin, 100);
 
   //LEDs
   board.ledsOff = function() {
@@ -47,12 +48,12 @@ var _init = function(options, callback) {
     board.ledSet(options.LedPins.Bottom, bottomValue);
     board.ledSet(options.LedPins.Left, leftValue);
   };
-
+  
   board.diffuserSet = function(diffuserValue) {
-    console.log('diffuserSet = ' + diffuserValue);
-
+//     console.log('diffuserSet = ' + diffuserValue);
+    board.ledSet(options.diffuserPin, diffuserValue);
   }
-
+  
   board.backlightSet = function(backlightValue) {
     console.log('backlightSet = ' + backlightValue);
   }

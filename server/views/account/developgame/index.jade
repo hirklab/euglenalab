@@ -7,6 +7,7 @@ block head
   script(src="http://codemirror.net/2/mode/javascript/javascript.js")
   script(src="//www.google.com/jsapi")
   script(src="//caja.appspot.com/caja.js")
+  script(src="/views/account/developgame/complex.js")
   link(rel="stylesheet", href="https://codemirror.net/2/doc/docs.css")
   script(src="../../dependencies/tracking.js-master/build/tracking-min.js")
 
@@ -196,10 +197,10 @@ block body
         |&nbsp;&nbsp;&nbsp;&nbsp;
         button.btn.btn-primary#btnHideCode(type="update" value="update") Hide Code
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-info#btnDownloadInstructions(type="update" value="update") View Instructions PDF
+        button.btn.btn-info#btnDownloadInstructions(type="update" value="update") Participate in user study!
         |&nbsp;&nbsp;&nbsp;&nbsp;
-        button.btn.btn-info#btnSubmitFeedback(type="update" value="update") Submit Feedback
-        |&nbsp;&nbsp;&nbsp;&nbsp;
+        //-button.btn.btn-info#btnSubmitFeedback(type="update" value="update") Submit Feedback
+        //-|&nbsp;&nbsp;&nbsp;&nbsp;
         font(color='black')#savedStatus Program Saved
         |&nbsp;&nbsp;|&nbsp;&nbsp;
         font(color='red')#runningStatus Stopped

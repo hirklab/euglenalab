@@ -126,6 +126,7 @@
         }
       });
 
+
     document.onkeypress = function (e) {
       e = e || window.event;
       var code;
@@ -695,7 +696,7 @@
 
     $('#btnDownloadInstructions').click(function(e) {
       e.preventDefault();
-      window.open('/media/documents/EuglenaScriptUsageInstructions.pdf', '_blank');
+      window.open('https://goo.gl/SwzvoT', '_blank');
     });
 
     $('#btnSubmitFeedback').click(function(e) {
@@ -745,6 +746,8 @@
       $('#runningStatus').css('color', 'red');
       $('#runningStatus').html('Stopped');
       var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, 0);
+      app.mainView.joystickIntensity = 0;
+      app.mainView.joystickDirection = 0;
       ledsSetObj.rightValue = 0;
       ledsSetObj.leftValue = 0;
       ledsSetObj.upValue = 0;
@@ -753,8 +756,6 @@
       app.mainView.setInstructionText(" ");
       app.mainView.setJoystickVisible(true);
       app.mainView.codeEditorReadOnly = false;
-      app.mainView.joystickIntensity = 0;
-      app.mainView.joystickDirection = 0;
       // app.mainView.codeVariablesEditor.setOption("readOnly", false);
       // app.mainView.runEditor.setOption("readOnly", false);
       // app.mainView.startEditor.setOption("readOnly", false);
@@ -1107,6 +1108,8 @@
     sandboxVideoName: "sandboxvideo",
 
     // GAME-RELATED VARIABLES
+    imageNr: 0,
+    imageNrBack: 0,
     gameFileNames: [],
     gameDrawOnTrackedEuglena: false,
     gameInstructionText: "This text can be changed with the API! Euglena move away from light. The joystick to the left of this text controls the LED lights. Try the current code or load one of our code samples. When you are done, please save your application with the 'Save Code' button below. Have fun!",
@@ -1283,12 +1286,17 @@
 
       modifiedCode = modifiedCode.split('getMaxScreenHeight').join('app.mainView.getMaxScreenHeight');
       modifiedCode = modifiedCode.split('getMaxScreenWidth').join('app.mainView.getMaxScreenWidth');
+      modifiedCode = modifiedCode.split('getReceivedFrameNum').join('app.mainView.getReceivedFrameNum');
+      modifiedCode = modifiedCode.split('getSentFrameNum').join('app.mainView.getSentFrameNum');
       modifiedCode = modifiedCode.split('getTimeLeft').join('app.mainView.getTimeLeft');
       modifiedCode = modifiedCode.split('readFromFile').join('app.mainView.readFromFile');
       modifiedCode = modifiedCode.split('setJoystickVisible').join('app.mainView.setJoystickVisible');
       modifiedCode = modifiedCode.split('setLED').join('app.mainView.setLED');
       modifiedCode = modifiedCode.split('setInstructionText').join('app.mainView.setInstructionText');
       modifiedCode = modifiedCode.split('writeToFile').join('app.mainView.writeToFile');*/
+
+      
+      
 
       // Replace EuglenaScript pre-defined constants with a string interpretable by JavaScript.
       // modifiedCode = modifiedCode.split('LED.RIGHT').join('\"LED.RIGHT\"');
@@ -1388,7 +1396,441 @@
       codeToParse += helperCode
       codeToParse += " }";
       //console.log("HELPER FUNCTION::::: " + codeToParse);
+
       //app.mainView.generalParser(codeToParse);
+    },
+
+    /*
+     * Handle various function calls.
+     */
+
+    drawOnTrackedEuglena: function(isDrawing) {
+      //console.log('drawOnTrackedEuglena function called.');
+      app.mainView.gameDrawOnTrackedEuglena = isDrawing;
+    },
+    drawCircle: function(centerX, centerY, radius, color) {
+      //console.log('drawCircle function called.');
+      app.mainView.drawCircleCenterX = app.mainView.drawCircleCenterX + centerX + "*";
+      app.mainView.drawCircleCenterY = app.mainView.drawCircleCenterY + centerY + "*";
+      app.mainView.drawCircleRadius = app.mainView.drawCircleRadius + radius + "*";
+      switch(color) {
+        case "COLORS.RED":
+            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
+            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
+            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
+            break;
+        case "COLORS.BLUE":
+            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
+            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
+            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
+            break;
+        case "COLORS.GREEN":
+            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
+            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
+            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
+            break;
+        case "COLORS.WHITE":
+            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
+            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
+            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
+            break;
+        case "COLORS.PURPLE":
+            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
+            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
+            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
+            break;
+        case "COLORS.YELLOW":
+            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
+            app.mainView.drawCircleG = app.mainView.drawCircleG + 255 + "*";
+            app.mainView.drawCircleB = app.mainView.drawCircleB + 255 + "*";
+            break;
+        case "COLORS.ORANGE":
+            app.mainView.drawCircleR = app.mainView.drawCircleR + 255 + "*";
+            app.mainView.drawCircleG = app.mainView.drawCircleG + 165 + "*";
+            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
+            break;
+        default:
+            app.mainView.drawCircleR = app.mainView.drawCircleR + 0 + "*";
+            app.mainView.drawCircleG = app.mainView.drawCircleG + 0 + "*";
+            app.mainView.drawCircleB = app.mainView.drawCircleB + 0 + "*";
+            break;
+      }
+    },
+    drawLine: function(x1, y1, x2, y2, color) {
+      //console.log('drawLine function called.');
+      app.mainView.drawLineX1 = app.mainView.drawLineX1 + x1 + "*";
+      app.mainView.drawLineY1 = app.mainView.drawLineY1 + y1 + "*";
+      app.mainView.drawLineX2 = app.mainView.drawLineX2 + x2 + "*";
+      app.mainView.drawLineY2 = app.mainView.drawLineY2 + y2 + "*";
+      switch(color) {
+        case "COLORS.RED":
+            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
+            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
+            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
+            break;
+        case "COLORS.BLUE":
+            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
+            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
+            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
+            break;
+        case "COLORS.GREEN":
+            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
+            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
+            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
+            break;
+        case "COLORS.WHITE":
+            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
+            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
+            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
+            break;
+        case "COLORS.PURPLE":
+            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
+            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
+            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
+            break;
+        case "COLORS.YELLOW":
+            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
+            app.mainView.drawLineG = app.mainView.drawLineG + 255 + "*";
+            app.mainView.drawLineB = app.mainView.drawLineB + 255 + "*";
+            break;
+        case "COLORS.ORANGE":
+            app.mainView.drawLineR = app.mainView.drawLineR + 255 + "*";
+            app.mainView.drawLineG = app.mainView.drawLineG + 165 + "*";
+            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
+            break;
+        default:
+            app.mainView.drawLineR = app.mainView.drawLineR + 0 + "*";
+            app.mainView.drawLineG = app.mainView.drawLineG + 0 + "*";
+            app.mainView.drawLineB = app.mainView.drawLineB + 0 + "*";
+            break;
+      }
+    },
+    drawRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY, color) {
+      //console.log('drawRect function called.');
+      app.mainView.drawRectUpperLeftX = app.mainView.drawRectUpperLeftX + upperLeftX + "*";
+      app.mainView.drawRectUpperLeftY = app.mainView.drawRectUpperLeftY + upperLeftY + "*";
+      app.mainView.drawRectLowerRightX = app.mainView.drawRectLowerRightX + lowerRightX + "*";
+      app.mainView.drawRectLowerRightY = app.mainView.drawRectLowerRightY + lowerRightY + "*";
+      switch(color) {
+        case "COLORS.RED":
+            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
+            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
+            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
+            break;
+        case "COLORS.BLUE":
+            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
+            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
+            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
+            break;
+        case "COLORS.GREEN":
+            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
+            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
+            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
+            break;
+        case "COLORS.WHITE":
+            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
+            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
+            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
+            break;
+        case "COLORS.PURPLE":
+            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
+            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
+            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
+            break;
+        case "COLORS.YELLOW":
+            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
+            app.mainView.drawRectG = app.mainView.drawRectG + 255 + "*";
+            app.mainView.drawRectB = app.mainView.drawRectB + 255 + "*";
+            break;
+        case "COLORS.ORANGE":
+            app.mainView.drawRectR = app.mainView.drawRectR + 255 + "*";
+            app.mainView.drawRectG = app.mainView.drawRectG + 165 + "*";
+            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
+            break;
+        default:
+            app.mainView.drawRectR = app.mainView.drawRectR + 0 + "*";
+            app.mainView.drawRectG = app.mainView.drawRectG + 0 + "*";
+            app.mainView.drawRectB = app.mainView.drawRectB + 0 + "*";
+            break;
+      }
+    },
+    drawText: function(drawTxt, xPos, yPos, size, color) {
+      //console.log('drawText function called.');
+      app.mainView.drawTextdrawTxt = app.mainView.drawTextdrawTxt + drawTxt + "*";
+      app.mainView.drawTextXPos = app.mainView.drawTextXPos + xPos + "*";
+      app.mainView.drawTextYPos = app.mainView.drawTextYPos + yPos + "*";
+      app.mainView.drawTextSize = app.mainView.drawTextSize + size + "*";
+      switch(color) {
+        case "COLORS.RED":
+            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
+            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
+            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
+            break;
+        case "COLORS.BLUE":
+            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
+            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
+            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
+            break;
+        case "COLORS.GREEN":
+            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
+            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
+            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
+            break;
+        case "COLORS.WHITE":
+            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
+            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
+            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
+            break;
+        case "COLORS.PURPLE":
+            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
+            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
+            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
+            break;
+        case "COLORS.YELLOW":
+            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
+            app.mainView.drawTextG = app.mainView.drawTextG + 255 + "*";
+            app.mainView.drawTextB = app.mainView.drawTextB + 255 + "*";
+            break;
+        case "COLORS.ORANGE":
+            app.mainView.drawTextR = app.mainView.drawTextR + 255 + "*";
+            app.mainView.drawTextG = app.mainView.drawTextG + 165 + "*";
+            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
+            break;
+        default:
+            app.mainView.drawTextR = app.mainView.drawTextR + 0 + "*";
+            app.mainView.drawTextG = app.mainView.drawTextG + 0 + "*";
+            app.mainView.drawTextB = app.mainView.drawTextB + 0 + "*";
+            break;
+      }
+    },
+    endProgram: function() {
+      //console.log('endProgram function called.');
+      app.mainView.gameInSession = false;
+      $('#runningStatus').css('color', 'red');
+      $('#runningStatus').html('Stopped');
+      app.mainView.parseEndCode(app.mainView.gameEndCode);
+    },
+    getAllEuglenaIDs: function() {
+      //console.log('getAllEuglenaIDs function called.');
+      //console.log('input str::: ' + app.mainView.getAllEuglenaIDsStr);
+      var idSet = new Set();
+      var idList = app.mainView.getAllEuglenaIDsStr.split(';');
+      for (var i = 0; i < idList.length; i++) {
+        var token = idList[i];
+        if (token.length <= 0 || isNaN(token)) continue;
+        idSet.add(parseInt(token));
+      }
+      return Array.from(idSet);
+    },
+    getAllEuglenaPositions: function() {
+      //console.log('getAllEuglenaPositions function called.');
+      var allEuglenaPositions = [];
+      var splitPositions = app.mainView.getAllEuglenaPositionsStr.split(";");
+      for (var i = 0; i < splitPositions.length; i++) {
+        var token = splitPositions[i];
+        if (token.length <= 0) continue;
+        var xPos = parseInt(token.split(",")[0].split("(")[1]);
+        var yPos = parseInt(token.split(",")[1].split(")")[0]);
+        allEuglenaPositions.push({x: xPos, y: yPos});
+      }
+      return allEuglenaPositions;
+    },
+    getEuglenaCount: function() {
+      //console.log('getEuglenaCount function called.');
+      return app.mainView.gameEuglenaCount;
+    },
+    getEuglenaInRect: function(upperLeftX, upperLeftY, lowerRightX, lowerRightY) {
+      //console.log('getEuglenaInRect function called.');
+      app.mainView.getEuglenaInRectUpperLeftX = upperLeftX;
+      app.mainView.getEuglenaInRectUpperLeftY = upperLeftY;
+      app.mainView.getEuglenaInRectLowerRightX = lowerRightX;
+      app.mainView.getEuglenaInRectLowerRightY = lowerRightY;
+      var idSet = new Set();
+      var splitPositions = app.mainView.gameEuglenaInRectReturn.split(";");
+      for (var i = 0; i < splitPositions.length; i++) {
+        var token = splitPositions[i];
+        if (token.length <= 0 || isNaN(token)) continue;
+        idSet.add(parseInt(token));
+      }
+      return Array.from(idSet);
+    },
+    getEuglenaAcceleration: function(id) {
+      app.mainView.getEuglenaAccelerationID = id;
+      var idToAcceleration = {};
+      var eachAcceleration = app.mainView.getEuglenaAccelerationReturn.split(';');
+      for (var i = 0; i < eachAcceleration.length; i++) {
+        var idAndItem = eachAcceleration[i].split(':');
+        idToAcceleration[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+        app.mainView.getEuglenaAccelerationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+      }
+      if (id in idToAcceleration) {
+        return idToAcceleration[id];
+      } else if (id in app.mainView.getEuglenaAccelerationCache && app.mainView.getEuglenaAccelerationCache[id] !== -1) {
+        return app.mainView.getEuglenaAccelerationCache[id];
+      } else {
+        return -1;
+      }
+    },
+    getEuglenaPosition: function(id) {
+      app.mainView.getEuglenaPosID = id;
+      var idToPosition = {};
+      var eachPosition = app.mainView.getEuglenaPositionReturn.split(';');
+      for (var i = 0; i < eachPosition.length-1; i++) {
+        var idAndItem = eachPosition[i].split(':');
+        var splitArr = ((idAndItem[1].split(')').join(' ')).split('(').join(' ')).split(',');
+        if (splitArr.length > 1) {
+          idToPosition[parseInt(idAndItem[0])] = {x: parseInt(splitArr[0]), y: parseInt(splitArr[1])};
+          app.mainView.getEuglenaPositionCache[parseInt(idAndItem[0])] = {x: parseInt(splitArr[0]), y: parseInt(splitArr[1])};
+        } 
+      }
+
+      if (id in idToPosition) {
+        return idToPosition[id];
+      } else if (id in app.mainView.getEuglenaPositionCache && app.mainView.getEuglenaPositionCache[id] !== -1) {
+        return app.mainView.getEuglenaPositionCache[id];
+      } else {
+        return -1;
+      }
+      
+    },
+    getEuglenaRotation: function(id) {
+      app.mainView.getEuglenaRotationID = id;
+      var idToRotation = {};
+      var eachRotation = app.mainView.getEuglenaRotationReturn.split(';');
+      for (var i = 0; i < eachRotation.length; i++) {
+        var idAndItem = eachRotation[i].split(':');
+        idToRotation[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+        app.mainView.getEuglenaRotationCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+      }
+      if (id in idToRotation) {
+        return idToRotation[id];
+      } else if (id in app.mainView.getEuglenaRotationCache && app.mainView.getEuglenaRotationCache[id] !== -1) {
+        return app.mainView.getEuglenaRotationCache[id];
+      } else {
+        return -1;
+      }
+    },
+    getEuglenaVelocity: function(id) {
+      app.mainView.getEuglenaVelocityID = id;
+      var idToVelocity = {};
+      var eachVelocity = app.mainView.getEuglenaVelocityReturn.split(';');
+      for (var i = 0; i < eachVelocity.length; i++) {
+        var idAndItem = eachVelocity[i].split(':');
+        idToVelocity[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+        app.mainView.getEuglenaVelocityCache[parseInt(idAndItem[0])] = parseFloat(idAndItem[1]);
+      }
+      if (id in idToVelocity) {
+        return idToVelocity[id];
+      } else if (id in app.mainView.getEuglenaVelocityCache && app.mainView.getEuglenaVelocityCache[id] !== -1) {
+        return app.mainView.getEuglenaVelocityCache[id];
+      } else {
+        return -1;
+      }
+    },
+    getMaxScreenHeight: function() {
+      //console.log('getMaxScreenHeight function called.');
+      return 479;
+    },
+    getMaxScreenWidth: function() {
+      //console.log('getMaxScreenWidth function called.');
+      return 639;
+    },
+    getTimeLeft: function() {
+      //console.log('getTimeLeft function called.');
+      return Math.floor(app.mainView.timeLeftInLab / 1000.0);
+    },
+    readFromFile: function(fileName) {
+      //console.log('readFromFile function called.');
+
+      var txtData = "unchanged";
+      $.ajax({
+        type: 'POST',
+        url: '/account/developgame/readuserfile/',
+        data: { userFile: fileName },
+        async:false
+      }).done(function(data) {
+          //console.log( "Data Loaded readFromFile: " + data);
+          txtData = data;
+          return txtData;
+        });
+
+      //console.log("Exiting function with data: " + txtData);
+      return txtData;
+    },
+    setJoystickVisible: function(isOn) {
+      //console.log('setJoystickVisible function called.');
+      app.mainView.gameJoystickView = isOn;
+    },
+    setGameOverMessage: function(gameOverText) {
+      //console.log('setGameOverMessage function called.');
+      app.mainView.gameOverText = gameOverText;
+    },
+    setLED: function(led, intensity) {
+      //console.log('setLED function called');
+      //console.log(led);
+      //console.log(intensity);
+
+      // if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
+      //   return;
+      // }
+
+      app.mainView.joystickIntensity = intensity;
+
+      switch (led.split('.')[1]) {
+        case 'RIGHT':
+          app.mainView.joystickDirection = 0;
+          var ledsSetObj = app.mainView.setLEDhelper(0, intensity, 0, 0);
+          ledsSetObj.rightValue = parseInt(intensity);
+          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+          break;
+        case 'LEFT':
+          app.mainView.joystickDirection = 180;
+          var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, intensity);
+          ledsSetObj.leftValue = parseInt(intensity);
+          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+          break;
+        case 'UP':
+          app.mainView.joystickDirection = 90;
+          var ledsSetObj = app.mainView.setLEDhelper(intensity, 0, 0, 0);
+          ledsSetObj.topValue = parseInt(intensity);
+          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+          break;
+        case 'DOWN':
+          app.mainView.joystickDirection = 270;
+          var ledsSetObj = app.mainView.setLEDhelper(0, 0, intensity, 0);
+          ledsSetObj.bottomValue = parseInt(intensity);
+          app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+          break;
+        default:
+          console.log('ERROR: led must be one of LEFT, RIGHT, UP, or DOWN');
+      }
+    },
+    getSentFrameNum: function() {
+      console.log('image nr: ' + app.mainView.imageNr);
+      return app.mainView.imageNr;
+    },
+    getReceivedFrameNum: function() {
+      return app.mainView.imageNrBack;
+    },
+    setLEDhelper: function(top, right, bottom, left) {
+      var point = app.mainView.myJoyStick.getXyFromLightValues({topValue: top, rightValue: right, bottomValue: bottom, leftValue: left}, '');
+      var ledsSetObj = app.mainView.getLedsSetObj();
+      ledsSetObj.metaData.clientTime = new Date().getTime();
+      ledsSetObj.metaData.layerX = point.x;
+      ledsSetObj.metaData.layerY = point.y;
+      ledsSetObj.metaData.touchState = app.mainView.myJoyStickObj.touchState;
+      ledsSetObj.metaData.radius = 0;
+      ledsSetObj.metaData.angle = 0;
+      ledsSetObj.topValue = top;
+      ledsSetObj.rightValue = right;
+      ledsSetObj.bottomValue = bottom;
+      ledsSetObj.leftValue = left;
+      return ledsSetObj;
+    },
+    setInstructionText: function(msgText) {
+      //console.log('setLevelText function called.');
+      app.mainView.gameInstructionText = msgText;
+      $('#instructionText').text(app.mainView.gameInstructionText);
     },
     writeToFile: function(fileName, txt, mode) {
       //console.log('writeToFile function called.');
