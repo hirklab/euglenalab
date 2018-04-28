@@ -598,7 +598,7 @@
 
     $('#btnDownloadInstructions').click(function(e) {
       e.preventDefault();
-      window.open('/media/documents/EuglenaScriptUsageInstructions.pdf', '_blank');
+      window.open('https://goo.gl/SwzvoT', '_blank');
     });
 
     $('#btnSubmitFeedback').click(function(e) {
