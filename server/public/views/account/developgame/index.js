@@ -1385,7 +1385,9 @@
       app.mainView.generalParser(modifiedCode, "runOnce");
     },
     parseKeypressCode: function(runCode, key) {
-      app.mainView.generalParser(runCode, "runOnce");
+      //console.log("key: ", key);
+      var codeToRun = "var key = '" + key + "'; " + runCode;
+      app.mainView.generalParser(codeToRun, "runOnce");
     },
     parseHelperCode: function(helperCode, helperArgs, helperName) {
       var codeToParse = "var ";
@@ -2436,44 +2438,44 @@
           "MAX_ANGLE": 360,
           "MAX_INTENSITY": 1.0,
           isKeyDown: function() { return app.mainView.gameIsKeyDown },
-          "KEY": {
-              "W": "w",
-              "SPACE": " ",
-              "ZERO": "0",
-              "ONE": "1",
-              "TWO": "2",
-              "THREE": "3",
-              "FOUR": "4",
-              "FIVE": "5",
-              "SIX": "6",
-              "SEVEN": "7",
-              "EIGHT": "8",
-              "NINE": "9",
-              "A": "a",
-              "S": "s",
-              "D": "d",
-              "Q": "q",
-              "E": "e",
-              "R": "r",
-              "T": "t",
-              "Y": "y",
-              "U": "u",
-              "I": "i",
-              "O": "o",
-              "P": "p",
-              "F": "f",
-              "G": "g",
-              "H": "h",
-              "J": "j",
-              "K": "k",
-              "L": "l",
-              "Z": "z",
-              "X": "x",
-              "C": "c",
-              "V": "v",
-              "B": "b",
-              "N": "n",
-              "M": "m"
+          KEY: {
+              W: "w",
+              SPACE: " ",
+              ZERO: "0",
+              ONE: "1",
+              TWO: "2",
+              THREE: "3",
+              FOUR: "4",
+              FIVE: "5",
+              SIX: "6",
+              SEVEN: "7",
+              EIGHT: "8",
+              NINE: "9",
+              A: "a",
+              S: "s",
+              D: "d",
+              Q: "q",
+              E: "e",
+              R: "r",
+              T: "t",
+              Y: "y",
+              U: "u",
+              I: "i",
+              O: "o",
+              P: "p",
+              F: "f",
+              G: "g",
+              H: "h",
+              J: "j",
+              K: "k",
+              L: "l",
+              Z: "z",
+              X: "x",
+              C: "c",
+              V: "v",
+              B: "b",
+              N: "n",
+              M: "m"
           },
           drawCircle:  function(centerX, centerY, radius, color) {
               let ctx = document.getElementById("display").getContext( "2d" );
@@ -2624,9 +2626,9 @@
             DOWN: "LED.DOWN"
     },
     setLED: function(led, intensity) {
-        //console.log('setLED function called');
-        //console.log(led);
-        //console.log(intensity);
+        console.log('setLED function called');
+        console.log(led);
+        console.log(intensity);
 
         // if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
         //   return;
