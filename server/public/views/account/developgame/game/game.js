@@ -72,10 +72,11 @@ function enableDownload()
       }
       var img = new Image();
       img.onload = imageOnLoad;
+      //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
       img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
 
       console.log("Game's BPU ADDRESS: " + img.src);
-      img.crossOrigin = "Anonymous";
+      //img.crossOrigin = "Anonymous";
     }
 
     if (downloadPaused){
@@ -129,7 +130,7 @@ function getDataFromImage( img ) {
   var display = document.getElementById("display");
   var ctx = display.getContext( "2d" );
 
-  ctx.drawImage(img,0,0)
+  ctx.drawImage(img,0,0);
   var height = display.height;
   var width = display.width;
   var nBytes = height * width * 4;
@@ -237,13 +238,13 @@ function processNextImage()
         requestAnimationFrame(processNextImage);
     }
 
-<<<<<<< HEAD
     if (!app.mainView.sandboxMode) {
         var img = new Image();
         img.onload = imageOnLoad;
-        //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++imageNr);
-        img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++imageNr);
+        img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
+        //img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++app.mainView.imageNr);
         img.crossOrigin = "Anonymous";
+        //img.crossOrigin = "Anonymous";
     }
     else if (app.mainView.sandboxMode) {
         let display = document.getElementById("display");
@@ -282,6 +283,9 @@ function processNextImage()
   var img = new Image();
   img.onload = imageOnLoad;
   img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
+  img.crossOrigin = "Anonymous";
+  //img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++app.mainView.imageNr);
+  //img.crossOrigin="Anonymous"
 
   if (app.mainView.sandboxMode && app.mainView.sandboxVideo && app.mainView.sandboxVideoHasRecorded && !app.mainView.sandboxVideoIsRecording) {
     var displayedFrame = app.mainView.sandboxVideoPlaybackFrame % parseInt(Math.floor(app.mainView.sandboxFrame/50.0)) + 1;
