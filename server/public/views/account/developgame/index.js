@@ -1379,10 +1379,8 @@
       app.mainView.generalParser(runCode, "end");
     },
     parseJoystickCode: function(runCode, angle, intensity) {
-      //  todo: fix this.
-      var modifiedCode = runCode.split('angle').join((parseInt(angle) + 180).toString());
-      modifiedCode = modifiedCode.split('intensity').join('\'' + intensity + '\'');
-      app.mainView.generalParser(modifiedCode, "runOnce");
+      var codeToRun = "var angle = " + angle + "; var intensity = " + intensity + ";" + runCode;
+      app.mainView.generalParser(codeToRun, "runOnce");
     },
     parseKeypressCode: function(runCode, key) {
       //console.log("key: ", key);
