@@ -220,7 +220,7 @@ function processNextImage()
         if (app.mainView.gameInSession || app.mainView.sandboxMode) {
         //if (app.mainView.gameInSession && !app.mainView.sandboxMode) {
             loop_iteration++;
-            if (loop_iteration % 20 == 0)
+            if (loop_iteration % 200 === 0)
                 tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
 
             if (!app.mainView.runCodeFn) {
@@ -247,7 +247,7 @@ function processNextImage()
         //img.crossOrigin = "Anonymous";
     }
     else if (app.mainView.sandboxMode) {
-        let display = document.getElementById("display");
+        /*let display = document.getElementById("display");
         let ctx = display.getContext("2d");
         if (!sandbox_ellipses.length) {
             for (let i = 0; i < 50; i++) {
@@ -258,18 +258,18 @@ function processNextImage()
         ctx.fillRect(0, 0, display.width, display.height);
         ctx.fillStyle = "black";
         for (let ellipse of sandbox_ellipses) {
-            ellipse.position.x += led_force_x(ellipse.position.x) + 2 * Math.random() - 1;
-            ellipse.position.y += led_force_y(ellipse.position.y) + 2 * Math.random() - 1;
+            ellipse.position.x += Math.cos(ellipse.rotation) + led_force_x(ellipse.position.x) + 2 * Math.random() - 1;
+            ellipse.position.y += Math.sin(ellipse.rotation) + led_force_y(ellipse.position.y) + 2 * Math.random() - 1;
             ellipse.rotation += .1 * (2 * Math.random() - 1);
             ctx.beginPath();
             ctx.ellipse(ellipse.position.x, ellipse.position.y, 20, 5, ellipse.rotation, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
         }
-        drawFromCode();
+        drawFromCode();*/
     }
     else {
-      drawFromCode();
+      /*drawFromCode();*/
     }
     function led_force_x(x) {
       // todo: take into account distance from left and right leds.
@@ -287,7 +287,7 @@ function processNextImage()
   //img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++app.mainView.imageNr);
   //img.crossOrigin="Anonymous"
 
-  if (app.mainView.sandboxMode && app.mainView.sandboxVideo && app.mainView.sandboxVideoHasRecorded && !app.mainView.sandboxVideoIsRecording) {
+  /*if (app.mainView.sandboxMode && app.mainView.sandboxVideo && app.mainView.sandboxVideoHasRecorded && !app.mainView.sandboxVideoIsRecording) {
     var displayedFrame = app.mainView.sandboxVideoPlaybackFrame % parseInt(Math.floor(app.mainView.sandboxFrame/50.0)) + 1;
     //console.log(displayedFrame + '---' + app.mainView.sandboxFrame);
     img.src = "/media/videos/" + app.mainView.userName + "-frame-" + app.mainView.sandboxVideoName + "-" + displayedFrame + ".jpg";
@@ -295,7 +295,7 @@ function processNextImage()
     if (app.mainView.sandboxVideoPlaybackFrame >= app.mainView.sandboxFrame) {
       app.mainView.sandboxVideoPlaybackFrame = 1;
     }
-  }
+  }*/
 }
 
 function drawImage(pixels){
