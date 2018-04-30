@@ -284,8 +284,9 @@
 
     $('#btnSandboxMode').click(() => {app.mainView.sandboxMode = true});
     $('#btnStartGame').click(function() {
-    app.mainView.runCodeFn = null; // todo: this makes app parse all the code again when starting again. Is this the most efficient way to do this?
-        app.mainView.gameRunCode = app.mainView.runEditor.getValue();
+      app.mainView.parseRunCode(app.mainView.gameRunCode, null);
+      app.mainView.runCodeFn = null; // todo: this makes app parse all the code again when starting again. Is this the most efficient way to do this?
+      app.mainView.gameRunCode = app.mainView.runEditor.getValue();
       app.mainView.gameStartCode = app.mainView.startEditor.getValue();
       app.mainView.gameEndCode = app.mainView.endEditor.getValue();
       app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
@@ -1251,7 +1252,7 @@
 
       if (app.mainView.sandboxVideoIsRecording) {
         //console.log("saving frame...");
-        app.mainView.sandboxFrame++;
+        /* app.mainView.sandboxFrame++;
         if (app.mainView.sandboxFrame % 50 === 0) {
           $.post('/account/developgame/saveframe/', { userName: app.mainView.userName,
                                                     bpuAddress:  app.mainView.bpuAddress,
@@ -1261,7 +1262,7 @@
                 app.mainView.sandboxVideoHasRecorded = true;
               });
 
-        }
+        } */
       }
     },
 

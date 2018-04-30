@@ -220,11 +220,11 @@ function processNextImage()
         if (app.mainView.gameInSession || app.mainView.sandboxMode) {
         //if (app.mainView.gameInSession && !app.mainView.sandboxMode) {
             loop_iteration++;
-            if (loop_iteration % 200 === 0)
+            if (loop_iteration % 20 === 0)
                 tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
 
             if (!app.mainView.runCodeFn) {
-                console.log("Parsing code anew");
+                //console.log("Parsing code anew");
                 app.mainView.parseRunCode(app.mainView.gameRunCode, drawFromCode);
                 // todo: run this function less often, only whenever the code changes.
                 return;
@@ -265,8 +265,8 @@ function processNextImage()
             ctx.ellipse(ellipse.position.x, ellipse.position.y, 20, 5, ellipse.rotation, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
-        }
-        drawFromCode();*/
+        }*/
+        drawFromCode();
     }
     else {
       /*drawFromCode();*/
