@@ -658,12 +658,6 @@
       app.mainView.setInstructionText(" ");
       app.mainView.setJoystickVisible(true);
       app.mainView.codeEditorReadOnly = false;
-      // app.mainView.codeVariablesEditor.setOption("readOnly", false);
-      // app.mainView.runEditor.setOption("readOnly", false);
-      // app.mainView.startEditor.setOption("readOnly", false);
-      // app.mainView.endEditor.setOption("readOnly", false);
-      // app.mainView.joystickEditor.setOption("readOnly", false);
-      // app.mainView.keypressEditor.setOption("readOnly", false);
       $('#btnUpdateRun').prop("disabled", false);
       app.mainView.parseStartCode(app.mainView.gameEndCode);
 
@@ -673,6 +667,35 @@
         .done(function(data) {
           //console.log( "Data Loaded log user data: " + data);
         });
+
+      var stopCodeCode = function() {
+        app.mainView.gameInSession = false;
+        $('#runningStatus').css('color', 'red');
+        $('#runningStatus').html('Stopped');
+        var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, 0);
+        app.mainView.joystickIntensity = 0;
+        app.mainView.joystickDirection = 0;
+        ledsSetObj.rightValue = 0;
+        ledsSetObj.leftValue = 0;
+        ledsSetObj.upValue = 0;
+        ledsSetObj.DownValue = 0;
+        app.mainView.setLedsFromObjectAndSendToServer(ledsSetObj, '');
+        app.mainView.setInstructionText(" ");
+        app.mainView.setJoystickVisible(true);
+        app.mainView.codeEditorReadOnly = false;
+        $('#btnUpdateRun').prop("disabled", false);
+        app.mainView.parseStartCode(app.mainView.gameEndCode);
+
+        $.post('/account/developgame/loguserdata/', { fileName: app.mainView.userName + "_" + app.mainView.gameSessionName + ".txt",
+                                                      logTimestamp: Date.now().toString(),
+                                                      logText: "User " + app.mainView.userName + " stopped program ----- \n" } )
+          .done(function(data) {
+            //console.log( "Data Loaded log user data: " + data);
+          });
+      };
+
+      setTimeout(stopCodeCode, 1000);
+
     });
 
     $('#btnSaveGame').click(function() {
