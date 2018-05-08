@@ -97,11 +97,12 @@
     app.mainView = new app.MainView();
 
     // Kick user out if not using Chrome.
+    /*
     var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     if (!isChrome) {
       alert('This feature only works on Google Chrome!!! Navigating back to homepage.');
       location.href = '/account/';
-    }
+    }*/
 
     //var myVar = setInterval(app.mainView.runLoop, 1);
 
@@ -924,7 +925,7 @@
         s = hsv.s;
         v = hsv.v;
       // }
-      return (/*h<100 && s<=100 &&*/ v<=20);
+      return (/*h<100 && s<=100 &&*/ v<=40);
     });
 
     app.mainView.colors = new tracking.ColorTracker(['black']);
@@ -938,14 +939,19 @@
       if (event.data.length === 0) {
         // No colors were detected in this frame.
       } else {
-         // console.error(event.data.length);
-        //console.warn(event.data);
             let individuals_new = {};
             let idsToAssign = Object.keys(app.mainView.individuals);
 
             let largestId = idsToAssign.reduce((a, b) => Math.max(a,b), 0); // maximum in array.
             let idToAssign = -1;
             for (let rect of event.data) {
+                // Ignore rectangle if area is too small.
+                var rectArea = rect.width * rect.height;
+                //console.log("rectArea: ", rectArea);
+                if (rectArea < 12.45) {
+                  continue;
+                }
+
                 // Assign ids properly.
                 if (idsToAssign.length) {
                     let chosenIndex = -1;
@@ -2625,9 +2631,9 @@
             DOWN: "LED.DOWN"
     },
     setLED: function(led, intensity) {
-        console.log('setLED function called');
-        console.log(led);
-        console.log(intensity);
+        //console.log('setLED function called');
+        //console.log(led);
+        //console.log(intensity);
 
         // if (app.mainView.sandboxMode || !app.mainView.gameInSession) {
         //   return;
