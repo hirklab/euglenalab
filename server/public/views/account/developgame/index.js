@@ -933,14 +933,17 @@
     app.mainView.colors.setMaxDimension(625);
     app.mainView.colors.setMinGroupSize(0.1);
 
-    console.log("track init's");
+    //console.log("track init's");
     app.mainView.colors.on('track', function(event) {
-        console.log("track started");
+      //console.log("track started");
       if (event.data.length === 0) {
         // No colors were detected in this frame.
       } else {
             let individuals_new = {};
+
             let idsToAssign = Object.keys(app.mainView.individuals);
+            let idsAlreadyAssigned = [];
+            let idsNotYetAssigned = Object.keys(app.mainView.individuals);
 
             let largestId = idsToAssign.reduce((a, b) => Math.max(a,b), 0); // maximum in array.
             let idToAssign = -1;
@@ -948,11 +951,13 @@
                 // Ignore rectangle if area is too small.
                 var rectArea = rect.width * rect.height;
                 //console.log("rectArea: ", rectArea);
-                if (rectArea < 12.45) {
+                if (rectArea < 12.45 || rectArea > 99.5) {
                   continue;
                 }
 
                 // Assign ids properly.
+                var shouldSwap = false;
+
                 if (idsToAssign.length) {
                     let chosenIndex = -1;
                     let chosenId = -1;
@@ -960,40 +965,89 @@
                     for (let index in idsToAssign) {
                         let id = idsToAssign[index];
                         let individual = app.mainView.individuals[id];
-                        let distance = (individual.position.x - rect.x) ** 2 + (individual.position.y - rect.y) ** 2;
+                        let distance = Math.sqrt( (individual.position.x - rect.x) ** 2 + (individual.position.y - rect.y) ** 2 );
                         if (distance < closestDistance) {
                             chosenIndex = index;
                             chosenId = id;
-                            closestDistance = distance;
+                            closestDistance = distance; 
                         }
                     }
                     idToAssign = chosenId;
-                    idsToAssign.splice(chosenIndex, 1);
+
+                    // ID has already been assigned.
+                    if ($.inArray(idToAssign, idsAlreadyAssigned) !== -1) {
+                      // Swap IDs with already assigned ID.
+                      shouldSwap = true; 
+                    } 
+
+                    //idsToAssign.splice(chosenIndex, 1);
+                    idsNotYetAssigned.splice(chosenIndex, 1);
+                    idsAlreadyAssigned.push(chosenId);
                 }
                 else {
                     // Create a new id.
                     largestId++;
                     idToAssign = largestId;
                 }
-                individuals_new[idToAssign] = {
-                    position: {
-                        x: rect.x,
-                        y: rect.y
-                    },
-                    size: {
-                        width: rect.width,
-                        height: rect.height
-                    }
-                };
-               //console.warn(rect);
+
+                if (shouldSwap) {
+                  //console.log('swapping...');
+                  // Get ID to swap with.
+                  let swapIndex = -1;
+                  let swapId = -1;
+                  let closestDistance = 9999999;
+                  //console.log(idsNotYetAssigned);
+                  let prevIndsLen = Object.keys(app.mainView.individuals_prev);
+                  for (let index in idsNotYetAssigned) {
+                      let id = idsNotYetAssigned[index];
+                      /*
+                      console.log("ind: ", index);
+                      console.log(idsNotYetAssigned);
+                      console.log(id);
+                      console.log(app.mainView.individuals_prev);
+                      console.log(app.mainView.individuals);
+                      console.log('---------');
+                      */
+                      let individual = app.mainView.individuals[id];
+                      if (prevIndsLen === 0)
+                        individual = app.mainView.individuals_prev[id];
+                      let distance = Math.sqrt( (individual.position.x - rect.x) ** 2 + (individual.position.y - rect.y) ** 2 );
+                      if (distance < closestDistance) {
+                          swapIndex = index;
+                          swapId = id;
+                          closestDistance = distance; 
+                      }
+                  }
+                  // Perform swap with swapID and idToAssign.
+                  let oldMetaData = individuals_new[idToAssign]; //individuals_prev???
+                  //console.log(oldMetaData);
+                  individuals_new[swapId] = oldMetaData;
+                } 
+                //else {
+                  // Assign as normal.
+                  individuals_new[idToAssign] = {
+                      position: {
+                          x: rect.x,
+                          y: rect.y
+                      },
+                      size: {
+                          width: rect.width,
+                          height: rect.height
+                      }
+                  };
+                //}
+                
             }
-            //console.error(individuals_new);
+
+            //console.log(individuals_new);
             // Calculate velocity and acceleration now.
             let frame_time = performance.now();
             let dt = .001 * (frame_time - app.mainView.frame_time_prev);
             for (let id in individuals_new) {
                 let individual = app.mainView.individuals[id];
                 let individual_prev = app.mainView.individuals_prev[id];
+                //console.log(id);
+                //console.log(individuals_new[id]);
                 let individual_new = individuals_new[id];
                 // console.error(id, individual, individual_prev, individual_new);
                 individual_new.velocity = (individual && individual_prev && 'position' in individual_prev && 'position' in individual) ? {
