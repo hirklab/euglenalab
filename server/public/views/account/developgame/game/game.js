@@ -247,11 +247,17 @@ function processNextImage()
         //img.crossOrigin = "Anonymous";
     }
     else if (app.mainView.sandboxMode) {
-        /*let display = document.getElementById("display");
+        let display = document.getElementById("display");
         let ctx = display.getContext("2d");
         if (!sandbox_ellipses.length) {
-            for (let i = 0; i < 50; i++) {
-                sandbox_ellipses.push({rotation: Math.random() *  Math.PI, position: {x: Math.random() * display.width , y: Math.random() * display.height}});
+            for (let i = 0; i < 20; i++) {
+                let rotation = Math.random() *  Math.PI;
+                let xPositon = Math.random() * display.width;
+                let yPosition = Math.random() * display.height;
+                app.mainView.individuals[i] = {
+                  position: {x: xPositon, y: yPosition}
+                };
+                sandbox_ellipses.push({rotation: rotation, position: {x: xPositon , y: yPosition}});
             }
         }
         ctx.fillStyle = "#777";
@@ -265,11 +271,11 @@ function processNextImage()
             ctx.ellipse(ellipse.position.x, ellipse.position.y, 20, 5, ellipse.rotation, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
-        }*/
+        }
         drawFromCode();
     }
     else {
-      /*drawFromCode();*/
+      drawFromCode();
     }
     function led_force_x(x) {
       // todo: take into account distance from left and right leds.

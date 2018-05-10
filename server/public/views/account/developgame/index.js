@@ -1063,6 +1063,8 @@
           app.mainView.individuals = individuals_new;
           app.mainView.frame_time_prev = frame_time;
 
+          console.log(app.mainView.individuals);
+
       /*  var ctx = document.getElementById("display").getContext("2d");
         ctx.strokeStyle = "red";
 
@@ -1867,7 +1869,7 @@
       }
     },
     getSentFrameNum: function() {
-      console.log('image nr: ' + app.mainView.imageNr);
+      //console.log('image nr: ' + app.mainView.imageNr);
       return app.mainView.imageNr;
     },
     getReceivedFrameNum: function() {
@@ -1928,7 +1930,7 @@
 
       if (err) {
         return;
-        console.log('kickUser', err, from);
+        //console.log('kickUser', err, from);
       }
 
       if (!app.mainView.alreadyKicked) {
@@ -1954,7 +1956,11 @@
       // } else {
 
       // Entering sandbox mode.
+      console.log('Entering sandbox mode...');
       app.mainView.sandboxMode = true;
+
+      app.mainView.individuals = {};
+
       $('#txtSandboxMode').show();
       $('#sandboxControls').show();
       // $('#btnUpdateRun').prop("disabled", true);
@@ -2138,7 +2144,7 @@
         if (app.mainView.sandboxMode || app.mainView.timeLeftInLab < 0) {
           //console.log('experiment over , kick user now' + app.mainView.timeLeftInLab);
           if (app.mainView.sessionOverFirstTime) {
-            console.log('KICKING USER CODE');
+            //console.log('KICKING USER CODE');
             app.mainView.kickUser(null, 'complete');
 
             // clearInterval(app.mainView.updateLoopInterval);
