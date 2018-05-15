@@ -2630,22 +2630,22 @@
         return Array.from(idSet);
     },
     getEuglenaAcceleration: function(id) { 
-      if (app.mainView.individuals[id] === null) return -1;
-      if (app.mainView.individuals[id].acceleration === null) return -1;
+      if (app.mainView.individuals[id] === null || app.mainView.individuals[id] === undefined) return -1;
+      if (!app.mainView.individuals[id].hasOwnProperty('acceleration')) return -1;
       return app.mainView.individuals[id].acceleration;
     },
     getEuglenaPosition: function(id) { 
-      if (app.mainView.individuals[id] === null) return -1;
-      if (app.mainView.individuals[id].position === null) return -1;
+      if (app.mainView.individuals[id] === null || app.mainView.individuals[id] === undefined) return -1;
+      if (!app.mainView.individuals[id].hasOwnProperty('position')) return -1;
       return app.mainView.individuals[id].position;
     },
     getEuglenaVelocity: function(id) {
-      if (app.mainView.individuals[id] === null) return -1;
-      if (app.mainView.individuals[id].velocity === null) return -1;
+      if (app.mainView.individuals[id] === null || app.mainView.individuals[id] === undefined) return -1;
+      if (!app.mainView.individuals[id].hasOwnProperty('velocity')) return -1;
       return app.mainView.individuals[id].velocity;
     },
     getEuglenaById: function(id) {
-      if (app.mainView.individuals[id] === null) return -1;
+      if (app.mainView.individuals[id] === null || app.mainView.individuals[id] === undefined) return -1;
       return app.mainView.individuals[id];
     },
     getEuglenaRotation: function(id) {
