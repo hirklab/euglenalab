@@ -261,15 +261,18 @@ function processNextImage()
         //let ctx = display.getContext("2d");
         if (!sandbox_ellipses.length) {
             for (let i = 0; i < 20; i++) {
-                let rotation = Math.random() *  Math.PI;
+                let rotation = Math.random() * 2 * Math.PI;
                 let xPositon = Math.random() * app.mainView.display.width;
                 let yPosition = Math.random() * app.mainView.display.height;
+                let xVelocity = 0.02 * Math.random() - 0.01;
+                let yVelocity = 0.02 * Math.random() - 0.01;
                 app.mainView.individuals[i] = {
                   position: {x: xPositon, y: yPosition},
                   rotation: rotation,
-                  size: {width: 1, height: 1}
+                  size: {width: 1, height: 1},
+                  velocity: {x: xVelocity, y: yVelocity}
                 };
-                sandbox_ellipses.push({rotation: rotation, position: {x: xPositon , y: yPosition}, size: {width: 1, height: 1}});
+                sandbox_ellipses.push({rotation: rotation, position: {x: xPositon , y: yPosition}, size: {width: 1, height: 1}, velocity: {x: xVelocity, y: yVelocity}});
             }
         }
         app.mainView.ctx.fillStyle = "#777";
@@ -290,9 +293,9 @@ function processNextImage()
               ellipse.position.y = 5;
             }
 
-            ellipse.position.x += 0.01;
-            ellipse.position.y += 0.01;
-            ellipse.rotation += 0.0001;
+            ellipse.position.x += ellipse.velocity.x * Math.cos(ellipse.rotation);
+            ellipse.position.y += ellipse.velocity.y * Math.sin(ellipse.rotation);
+            if (Math.random() < 0.1) ellipse.rotation += 0.0001;
             app.mainView.ctx.beginPath();
             app.mainView.ctx.ellipse(ellipse.position.x, ellipse.position.y, 20, 5, ellipse.rotation, 0, 2 * Math.PI);
             app.mainView.ctx.closePath();
