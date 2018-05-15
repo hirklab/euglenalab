@@ -257,9 +257,11 @@ function processNextImage()
                 let xPositon = Math.random() * app.mainView.display.width;
                 let yPosition = Math.random() * app.mainView.display.height;
                 app.mainView.individuals[i] = {
-                  position: {x: xPositon, y: yPosition}
+                  position: {x: xPositon, y: yPosition},
+                  rotation: rotation,
+                  size: {width: 1, height: 1}
                 };
-                sandbox_ellipses.push({rotation: rotation, position: {x: xPositon , y: yPosition}});
+                sandbox_ellipses.push({rotation: rotation, position: {x: xPositon , y: yPosition}, size: {width: 1, height: 1}});
             }
         }
         app.mainView.ctx.fillStyle = "#777";
