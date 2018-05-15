@@ -744,7 +744,7 @@
     
     $('#btnStopGame').click(function() {
       app.mainView.gameInSession = false;
-      app.mainView.sandboxMode = false;
+      //app.mainView.sandboxMode = false;
       $('#runningStatus').css('color', 'red');
       $('#runningStatus').html('Stopped');
       var ledsSetObj = app.mainView.setLEDhelper(0, 0, 0, 0);
@@ -2564,9 +2564,14 @@
               let ctx = document.getElementById("display").getContext( "2d" );
               ctx.strokeStyle = "#ff0000";
               for (let id in app.mainView.individuals) {
-                let eug = app.mainView.individuals[id];
-                ctx.strokeRect(eug.position.x, eug.position.y, eug.size.width, eug.size.height);
-                caja_api.drawText(id, eug.position.x, eug.position.y + 5, 12, ctx.strokeStyle)
+                if (id > 0) {
+                  console.log(id);
+                  let eug = app.mainView.individuals[id];
+                  console.log(eug);
+                  ctx.strokeRect(eug.position.x, eug.position.y, eug.size.width, eug.size.height);
+                  caja_api.drawText(id, eug.position.x, eug.position.y + 5, 12, ctx.strokeStyle);
+                }
+                
               }
           },
           drawLine: function(x1, y1, x2, y2, color) {

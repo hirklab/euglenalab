@@ -220,8 +220,8 @@ function processNextImage()
         if (app.mainView.gameInSession || app.mainView.sandboxMode) {
         //if (app.mainView.gameInSession && !app.mainView.sandboxMode) {
             loop_iteration++;
-            if (loop_iteration % 20 === 0)
-                tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
+            //if (loop_iteration % 20 === 0)
+            //    tracking.track('#display', app.mainView.colors); // todo: should this be done every time? perhaps reuse this or only run this every few frames.
 
             if (!app.mainView.runCodeFn) {
                 //console.log("Parsing code anew");
@@ -245,32 +245,34 @@ function processNextImage()
         //img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++app.mainView.imageNr);
         img.crossOrigin = "Anonymous";
         //img.crossOrigin = "Anonymous";
+        app.mainView.display = document.getElementById("display");
+        app.mainView.ctx = app.mainView.display.getContext("2d");
     }
     else if (app.mainView.sandboxMode) {
-        let display = document.getElementById("display");
-        let ctx = display.getContext("2d");
+        //let display = document.getElementById("display");
+        //let ctx = display.getContext("2d");
         if (!sandbox_ellipses.length) {
             for (let i = 0; i < 20; i++) {
                 let rotation = Math.random() *  Math.PI;
-                let xPositon = Math.random() * display.width;
-                let yPosition = Math.random() * display.height;
+                let xPositon = Math.random() * app.mainView.display.width;
+                let yPosition = Math.random() * app.mainView.display.height;
                 app.mainView.individuals[i] = {
                   position: {x: xPositon, y: yPosition}
                 };
                 sandbox_ellipses.push({rotation: rotation, position: {x: xPositon , y: yPosition}});
             }
         }
-        ctx.fillStyle = "#777";
-        ctx.fillRect(0, 0, display.width, display.height);
-        ctx.fillStyle = "black";
+        app.mainView.ctx.fillStyle = "#777";
+        app.mainView.ctx.fillRect(0, 0, display.width, display.height);
+        app.mainView.ctx.fillStyle = "black";
         for (let ellipse of sandbox_ellipses) {
-            ellipse.position.x += Math.cos(ellipse.rotation) + led_force_x(ellipse.position.x) + 2 * Math.random() - 1;
-            ellipse.position.y += Math.sin(ellipse.rotation) + led_force_y(ellipse.position.y) + 2 * Math.random() - 1;
-            ellipse.rotation += .1 * (2 * Math.random() - 1);
-            ctx.beginPath();
-            ctx.ellipse(ellipse.position.x, ellipse.position.y, 20, 5, ellipse.rotation, 0, 2 * Math.PI);
-            ctx.closePath();
-            ctx.fill();
+            ellipse.position.x += 0.001;//Math.cos(ellipse.rotation) + led_force_x(ellipse.position.x) + 2 * Math.random() - 1;
+            ellipse.position.y += 0.001;//Math.sin(ellipse.rotation) + led_force_y(ellipse.position.y) + 2 * Math.random() - 1;
+            ellipse.rotation += 0.001;//.1 * (2 * Math.random() - 1);
+            app.mainView.ctx.beginPath();
+            app.mainView.ctx.ellipse(ellipse.position.x, ellipse.position.y, 20, 5, ellipse.rotation, 0, 2 * Math.PI);
+            app.mainView.ctx.closePath();
+            app.mainView.ctx.fill();
         }
         drawFromCode();
     }
