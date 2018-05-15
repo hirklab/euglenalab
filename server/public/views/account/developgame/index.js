@@ -2629,11 +2629,26 @@
         }
         return Array.from(idSet);
     },
-    getEuglenaAcceleration: id => app.mainView.individuals[id].acceleration,
-        getEuglenaPosition: id => app.mainView.individuals[id].position,
-        getEuglenaVelocity: id => app.mainView.individuals[id].velocity,
-        getEuglenaById: id => app.mainView.individuals[id],
-        getEuglenaRotation: function(id) {
+    getEuglenaAcceleration: function(id) { 
+      if (app.mainView.individuals[id] === null) return -1;
+      if (app.mainView.individuals[id].acceleration === null) return -1;
+      return app.mainView.individuals[id].acceleration;
+    },
+    getEuglenaPosition: function(id) { 
+      if (app.mainView.individuals[id] === null) return -1;
+      if (app.mainView.individuals[id].position === null) return -1;
+      return app.mainView.individuals[id].position;
+    },
+    getEuglenaVelocity: function(id) {
+      if (app.mainView.individuals[id] === null) return -1;
+      if (app.mainView.individuals[id].velocity === null) return -1;
+      return app.mainView.individuals[id].velocity;
+    },
+    getEuglenaById: function(id) {
+      if (app.mainView.individuals[id] === null) return -1;
+      return app.mainView.individuals[id];
+    },
+    getEuglenaRotation: function(id) {
           // todo: getEuglenaRotation
         // todo: app.mainView.individuals[id].rotation;
         app.mainView.getEuglenaRotationID = id;
