@@ -70,13 +70,15 @@ function enableDownload()
           downloadPaused = true;
         }
       }
-      var img = new Image();
-      img.onload = imageOnLoad;
-      //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
-      img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
 
-      console.log("Game's BPU ADDRESS: " + img.src);
-      //img.crossOrigin = "Anonymous";
+      if (app.mainView.sandboxMode) {
+        var img = new Image();
+        img.onload = imageOnLoad;
+        //img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
+        img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
+        console.log("Game's BPU ADDRESS: " + img.src);
+        //img.crossOrigin = "Anonymous";
+      }
     }
 
     if (downloadPaused){
@@ -247,6 +249,12 @@ function processNextImage()
         //img.crossOrigin = "Anonymous";
         app.mainView.display = document.getElementById("display");
         app.mainView.ctx = app.mainView.display.getContext("2d");
+
+
+        var img = new Image();
+        img.onload = imageOnLoad;
+        img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
+        img.crossOrigin = "Anonymous";
     }
     else if (app.mainView.sandboxMode) {
         //let display = document.getElementById("display");
@@ -290,10 +298,10 @@ function processNextImage()
         return (app.mainView.ledsSetObj.topValue || 0 - app.mainView.ledsSetObj.bottomValue || 0) / 999 * 2;
     }
 
-  var img = new Image();
-  img.onload = imageOnLoad;
-  img.src = app.mainView.bpuAddress + "/?action=snapshot&n=" + (++app.mainView.imageNr);
-  img.crossOrigin = "Anonymous";
+  
+  
+  
+
   //img.src = 'http://171.65.103.23:20030/?action=snapshot&n=' + (++app.mainView.imageNr);
   //img.crossOrigin="Anonymous"
 
