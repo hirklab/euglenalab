@@ -276,9 +276,23 @@ function processNextImage()
         app.mainView.ctx.fillRect(0, 0, display.width, display.height);
         app.mainView.ctx.fillStyle = "black";
         for (let ellipse of sandbox_ellipses) {
-            ellipse.position.x += 0.001;//Math.cos(ellipse.rotation) + led_force_x(ellipse.position.x) + 2 * Math.random() - 1;
-            ellipse.position.y += 0.001;//Math.sin(ellipse.rotation) + led_force_y(ellipse.position.y) + 2 * Math.random() - 1;
-            ellipse.rotation += 0.001;//.1 * (2 * Math.random() - 1);
+
+            if (ellipse.position.x < 5) {
+              ellipse.position.x = display.width - 5;
+            }
+            if (ellipse.position.x > display.width - 5) {
+              ellipse.position.x = 5;
+            }
+            if (ellipse.position.y < 5) {
+              ellipse.position.y = display.height - 5;
+            }
+            if (ellipse.position.y > display.height - 5) {
+              ellipse.position.y = 5;
+            }
+
+            ellipse.position.x += 0.01;
+            ellipse.position.y += 0.01;
+            ellipse.rotation += 0.0001;
             app.mainView.ctx.beginPath();
             app.mainView.ctx.ellipse(ellipse.position.x, ellipse.position.y, 20, 5, ellipse.rotation, 0, 2 * Math.PI);
             app.mainView.ctx.closePath();

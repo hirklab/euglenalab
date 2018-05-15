@@ -1063,7 +1063,7 @@
           app.mainView.individuals = individuals_new;
           app.mainView.frame_time_prev = frame_time;
 
-          console.log(app.mainView.individuals);
+          //console.log(app.mainView.individuals);
 
       /*  var ctx = document.getElementById("display").getContext("2d");
         ctx.strokeStyle = "red";
@@ -2565,9 +2565,9 @@
               ctx.strokeStyle = "#ff0000";
               for (let id in app.mainView.individuals) {
                 if (id > 0) {
-                  console.log(id);
+                  //console.log(id);
                   let eug = app.mainView.individuals[id];
-                  console.log(eug);
+                  //console.log(eug);
                   ctx.strokeRect(eug.position.x, eug.position.y, eug.size.width, eug.size.height);
                   caja_api.drawText(id, eug.position.x, eug.position.y + 5, 12, ctx.strokeStyle);
                 }
