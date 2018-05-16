@@ -966,10 +966,12 @@
                     let chosenIndex = -1;
                     let chosenId = -1;
                     let closestDistance = 999999;
+                    //console.log("idsToAssign", idsToAssign);
                     for (let index in idsToAssign) {
                         let id = idsToAssign[index];
                         let individual = app.mainView.individuals[id];
                         let distance = Math.sqrt( (individual.position.x - rect.x) ** 2 + (individual.position.y - rect.y) ** 2 );
+                        
                         if (distance < closestDistance) {
                             chosenIndex = index;
                             chosenId = id;
@@ -977,6 +979,14 @@
                         }
                     }
                     idToAssign = chosenId;
+
+                    if (chosenId === -1) {
+                      // Create a new id.
+                      largestId++;
+                      idToAssign = largestId;
+                    }
+
+                    //console.log('idToAssign', idToAssign);
 
                     // ID has already been assigned.
                     if ($.inArray(idToAssign, idsAlreadyAssigned) !== -1) {
@@ -989,9 +999,7 @@
                     idsAlreadyAssigned.push(chosenId);
                 }
                 else {
-                    // Create a new id.
-                    largestId++;
-                    idToAssign = largestId;
+                    
                 }
 
                 if (shouldSwap) {
@@ -1042,7 +1050,7 @@
                 
             }
 
-            console.log(individuals_new);
+            //console.log('individuals_new', individuals_new);
 
             // Calculate velocity and acceleration now.
             let frame_time = performance.now();
