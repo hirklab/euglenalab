@@ -293,6 +293,8 @@
       app.mainView.gameKeypressCode = app.mainView.keypressEditor.getValue();
       app.mainView.gameJoystickCode = app.mainView.joystickEditor.getValue();
 
+      tracking.track('#display', app.mainView.colors);
+
       var codeRun = app.mainView.gameRunCode;
       var codeStart = app.mainView.gameStartCode;
       var codeEnd = app.mainView.gameEndCode;
@@ -935,10 +937,12 @@
 
     //console.log("track init's");
     app.mainView.colors.on('track', function(event) {
-      //console.log("track started");
+      //console.log("track running");
       if (event.data.length === 0) {
         // No colors were detected in this frame.
+        //console.log("no rectangles detected");
       } else {
+            //console.log("rectangles detected");
             let individuals_new = {};
 
             let idsToAssign = Object.keys(app.mainView.individuals);
@@ -955,10 +959,10 @@
                   continue;
                 }
 
-                // Assign ids properly.
+                // Swap if neccessary.
                 var shouldSwap = false;
 
-                if (idsToAssign.length) {
+                if (true) { // if (idsToAssign.length) {
                     let chosenIndex = -1;
                     let chosenId = -1;
                     let closestDistance = 999999;
@@ -1023,23 +1027,23 @@
                   //console.log(oldMetaData);
                   individuals_new[swapId] = oldMetaData;
                 } 
-                //else {
-                  // Assign as normal.
-                  individuals_new[idToAssign] = {
-                      position: {
-                          x: rect.x,
-                          y: rect.y
-                      },
-                      size: {
-                          width: rect.width,
-                          height: rect.height
-                      }
-                  };
-                //}
+
+                // Assign as normal.
+                individuals_new[idToAssign] = {
+                    position: {
+                        x: rect.x,
+                        y: rect.y
+                    },
+                    size: {
+                        width: rect.width,
+                        height: rect.height
+                    }
+                };
                 
             }
 
-            //console.log(individuals_new);
+            console.log(individuals_new);
+
             // Calculate velocity and acceleration now.
             let frame_time = performance.now();
             let dt = .001 * (frame_time - app.mainView.frame_time_prev);
@@ -1087,6 +1091,8 @@
         */
       }
     });
+
+    tracking.track('#display', app.mainView.colors);
 
   });
   app.User = Backbone.Model.extend({
@@ -2121,6 +2127,9 @@
 
       //Update Loop
       app.mainView.updateLoopInterval = setInterval(function() {
+
+        tracking.track('#display', app.mainView.colors);
+
         frameTime = new Date().getTime();
         deltaFrame = frameTime - lastFrameTime;
         lastFrameTime = frameTime;
