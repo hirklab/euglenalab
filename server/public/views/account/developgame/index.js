@@ -2485,6 +2485,13 @@
   }
   let caja_api = {};
   caja.whenReady(() => {
+    const projectorServerPort = 32003;
+    app.mainView.projectorSocket = io('http://localhost' + ':' + projectorServerPort);
+    app.mainView.projectorSocket.on('reply', function (data) {
+      // Pretty-print JSON response
+      console.log('socket-io: reply - ' + JSON.stringify(data, null, 2));
+    });
+
       caja_api = {
           mainService: {
               parseRunCode: function(fn) {
@@ -2615,6 +2622,21 @@
               ctx.fillStyle = parseColor(color);
               ctx.font=size + "px Calibri";
               ctx.fillText(drawTxt, xPos, yPos);
+          },
+          clearProjector: function() {
+            app.mainView.projectorSocket.emit('command', { command: 'clearScreen' });
+          },
+          // color is expected as [r, g, b, a]
+          projectEllipse: function(centerX, centerY, width, height, color, shouldFill) {
+            app.mainView.projectorSocket.emit('command', {
+              command: 'drawEllipse',
+              centerX: centerX,
+              centerY: centerY,
+              width: width,
+              height: height,
+              color: color,
+              shouldFill: shouldFill
+            })
           },
           endProgram: function() {
               $('#btnStopGame').click();
