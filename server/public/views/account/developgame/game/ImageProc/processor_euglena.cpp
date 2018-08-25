@@ -617,7 +617,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
                     euglenaPositionsSandbox[eugID] = cv::Point2f(eugID*10.0, eugID*10.0);
                     euglenaAnglesSandbox[eugID] = rand() % 360;
                     euglenaAnglesRandSandbox[eugID] = ((double)rand() / RAND_MAX)*40 - 20;
-                    euglenaVelocitiesSandbox[eugID] = ((double)rand() / RAND_MAX)*10;
+                    euglenaVelocitiesSandbox[eugID] = ((double)rand() / RAND_MAX)*20;
                     euglenaAccelerationsSandbox[eugID] = 0.0;
                 }
                 sandboxModeFirstIteration = false;
@@ -650,13 +650,13 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
                 // Add LED stimulus effects.
                 if (joystickDirection >= 0 && joystickDirection < 180) {
-                    euglenaAnglesSandbox[i] = (180-joystickDirection) + euglenaAnglesRandSandbox[i];
+                    euglenaAnglesSandbox[i] = (180-joystickDirection) + euglenaAnglesRandSandbox[i]; //+ ((double)rand() / RAND_MAX)*4 - 8;
                 } else if (joystickDirection >= 180 && joystickDirection <= 360) {
-                    euglenaAnglesSandbox[i] = (540-joystickDirection) + euglenaAnglesRandSandbox[i];
+                    euglenaAnglesSandbox[i] = (540-joystickDirection) + euglenaAnglesRandSandbox[i]; //+ ((double)rand() / RAND_MAX)*4 - 8;
                 }
 
                 if (frameCount % 100 == 0) {
-                    euglenaAnglesRandSandbox[i] = ((double)rand() / RAND_MAX)*80 - 40;
+                    euglenaAnglesRandSandbox[i] = ((double)rand() / RAND_MAX)*160 - 80;
                 }
 
                 /*
@@ -695,7 +695,7 @@ cv::Mat EuglenaProcessor::operator()(cv::Mat im) {
 
             // Draw Euglena.
             for (i = 0; i < euglenaPositionsSandbox.size(); i++) {
-                cv::ellipse(im, euglenaPositionsSandbox[i], cv::Size(10, 2), euglenaAnglesSandbox[i], 0.0, 360.0, cv::Scalar(0, 255, 0, 255), -1);
+                cv::ellipse(im, euglenaPositionsSandbox[i], cv::Size(20, 4), euglenaAnglesSandbox[i], 0.0, 360.0, cv::Scalar(0, 255, 0, 255), -1);
             }
 
         }
